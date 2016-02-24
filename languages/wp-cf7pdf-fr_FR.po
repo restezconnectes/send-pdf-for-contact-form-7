@@ -1,0 +1,202 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Contact Form 7 Send PDF\n"
+"POT-Creation-Date: 2016-02-23 17:03+0100\n"
+"PO-Revision-Date: 2016-02-23 17:04+0100\n"
+"Last-Translator: Florent Maillefaud <contact@restezconnectes.fr>\n"
+"Language-Team: Florent Maillefaud <contact@restezconnectes.fr>\n"
+"Language: fr_FR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.8.7\n"
+"X-Poedit-KeywordsList: __;_e\n"
+"X-Poedit-Basepath: ..\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"X-Poedit-SearchPath-0: .\n"
+
+#: wpcf7-send-pdf-admin.php:10
+msgid "Options saved."
+msgstr "Options sauvegardées"
+
+#: wpcf7-send-pdf-admin.php:72
+msgid "WP Contact Form 7 Send PDF - Settings"
+msgstr "WP Contact Form 7 Send PDF - Paramètres"
+
+#: wpcf7-send-pdf-admin.php:82
+msgid "No form submissions in the database"
+msgstr "Aucun formulaire dans cette base de données"
+
+#: wpcf7-send-pdf-admin.php:90
+msgid "* Select a form *"
+msgstr "* Sélectionner un formulaire *"
+
+#: wpcf7-send-pdf-admin.php:166 wpcf7-send-pdf-admin.php:322
+msgid "Save settings"
+msgstr "Sauver les réglages"
+
+#: wpcf7-send-pdf-admin.php:174
+msgid "General Settings"
+msgstr "Paramètres généraux"
+
+#: wpcf7-send-pdf-admin.php:178
+msgid "Disable generate PDF?"
+msgstr "Désactiver la génération d'un fichier  PDF"
+
+#: wpcf7-send-pdf-admin.php:179 wpcf7-send-pdf-admin.php:191
+#: wpcf7-send-pdf-admin.php:195
+msgid "Yes"
+msgstr "Oui"
+
+#: wpcf7-send-pdf-admin.php:179 wpcf7-send-pdf-admin.php:191
+#: wpcf7-send-pdf-admin.php:195
+msgid "No"
+msgstr "Non"
+
+#: wpcf7-send-pdf-admin.php:182
+msgid "Who send the PDF file?"
+msgstr "A qui envoyer le PDF ?"
+
+#: wpcf7-send-pdf-admin.php:184
+msgid "Sender"
+msgstr "Expéditeur"
+
+#: wpcf7-send-pdf-admin.php:185
+msgid "Recipient"
+msgstr "Destinataire"
+
+#: wpcf7-send-pdf-admin.php:186
+msgid "Both"
+msgstr "Les deux"
+
+#: wpcf7-send-pdf-admin.php:190
+msgid "Disable Insert subscribtion in database?"
+msgstr "Désactiver l'insertion dans une base de données ?"
+
+#: wpcf7-send-pdf-admin.php:194
+msgid "Disable generate CSV file?"
+msgstr "Désactiver la génération d'un fichier CSV ?"
+
+#: wpcf7-send-pdf-admin.php:198
+msgid "Enter a name for your PDF"
+msgstr "Entrer un nom pour les PDF générés"
+
+#: wpcf7-send-pdf-admin.php:198
+msgid "By default, the file's name will be 'document-pdf'"
+msgstr "Par default le nom du PDF est 'document-pdf'"
+
+#: wpcf7-send-pdf-admin.php:203
+msgid "Select a page to display after sending the form (optional)"
+msgstr ""
+"Sélection d'une page à afficher après l'envoi du formulaire (optionnel)"
+
+#: wpcf7-send-pdf-admin.php:212
+msgid "Please select a page"
+msgstr "Sélectionner une page"
+
+#: wpcf7-send-pdf-admin.php:222
+msgid "Enter a URL or upload an image."
+msgstr "Entrer une URL ou uploader une image"
+
+#: wpcf7-send-pdf-admin.php:223
+msgid "Select or Upload your picture"
+msgstr "Sélectionner ou uploader votre image"
+
+#: wpcf7-send-pdf-admin.php:226
+msgid "Left"
+msgstr "Gauche"
+
+#: wpcf7-send-pdf-admin.php:227
+msgid "Center"
+msgstr "Centrer"
+
+#: wpcf7-send-pdf-admin.php:228
+msgid "Right"
+msgstr "Droite"
+
+#: wpcf7-send-pdf-admin.php:230
+msgid "Size"
+msgstr "Taille"
+
+#: wpcf7-send-pdf-admin.php:239
+msgid "Original size is"
+msgstr "La taille originale est"
+
+#: wpcf7-send-pdf-admin.php:256
+msgid "Layout of your PDF"
+msgstr "Mise en page de votre PDF"
+
+#: wpcf7-send-pdf-admin.php:261
+msgid ""
+"For personalize your PDF you can in the following text field, use these mail-"
+"tags:"
+msgstr ""
+"Pour personnaliser votre PDF, vous pouvez dans le champ de texte ci-dessous, "
+"utiliser ces tags :"
+
+#: wpcf7-send-pdf-admin.php:262
+msgid ""
+"[reference] is a simple mail-tag who is used for create unique PDF. It's "
+"also recorded in the database. Every PDF is named like this : name-pdf-"
+"uniqid() and it's uploaded in the upload folder of WordPress. For example : "
+"document-pdf-56BC4A3EF0752.pdf"
+msgstr ""
+"[reference] est une simple balise qui est utilisé pour créer des PDF "
+"uniques. Elle est également enregistrée dans la base de données. Chaque PDF "
+"est nommé comme suit: nom-pdf-[reference]  et il est uploadé dans le dossier "
+"de téléchargement de WordPress. Par exemple: document-pdf-56BC4A3EF0752.pdf"
+
+#: wpcf7-send-pdf-admin.php:304
+msgid "Preview your PDF"
+msgstr "Prévisualiser votre PDF"
+
+#: wpcf7-send-pdf-admin.php:316
+msgid "Export list of participants"
+msgstr "Exporter la liste des participants"
+
+#: wpcf7-send-pdf-admin.php:316
+msgid "Export list"
+msgstr "Exporter la liste"
+
+#: wpcf7-send-pdf-admin.php:316
+msgid "Export list in CSV file"
+msgstr "Exporter la liste dans un fichier CSV"
+
+#: wpcf7-send-pdf.php:85
+msgid "Settings"
+msgstr "Paramètres"
+
+#: wpcf7-send-pdf.php:97
+msgid "Options for CF7 Send PDF"
+msgstr "Options pour CF7 Send PDF"
+
+#: wpcf7-send-pdf.php:98
+msgid "Send PDF with CF7"
+msgstr "Génération de PDF"
+
+#: wpcf7-send-pdf.php:113
+msgid "Choose This Image"
+msgstr "Choisir cette image"
+
+#: wpcf7-send-pdf.php:114
+msgid "Choose Image"
+msgstr "Choisir une image"
+
+#~ msgid ""
+#~ "[reference] is a simple mail-tag who is used for create unique PDF. It's "
+#~ "also recorded in the database. Every PDF is named like this : name-pdf-"
+#~ "CF7PDF+uniqid() and it's uploaded in the upload folder of WordPress. For "
+#~ "example : document-pdf-CF7PDF56BC4A3EF0752.pdf"
+#~ msgstr ""
+#~ "[reference] est une simple balise qui est utilisé pour générer des PDF "
+#~ "uniques. Elle est également enregistrée dans la base de données. Chaque "
+#~ "PDF est nommé comme suit: name-pdf-CF7PDF+uniqid()  et il est écrit dans "
+#~ "le dossier de téléchargement de WordPress. Par exemple: document-pdf-"
+#~ "CF7PDF56BC4A3EF0752.pdf"
+
+#~ msgid "Create your PDF"
+#~ msgstr "Mise en page de votre PDF"
+
+#~ msgid "Edit"
+#~ msgstr "Editer"

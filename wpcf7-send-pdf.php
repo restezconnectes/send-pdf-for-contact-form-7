@@ -1,0 +1,430 @@
+<?php
+/*
+Plugin Name: WP Contact Form 7 Send PDF
+Plugin URI: http://restezconectes.fr
+Description: Send a PDF with Contact Form 7. It is originally created for Contact Form 7 plugin.
+Author: Florent Maillefaud
+Version: 0.1
+Author URI: http://restezconnectes.fr/
+*/
+
+/*  Copyright 2007-2015 Florent Maillefaud (email: contact at restezconectes.fr)
+
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+*/
+/*
+DOCUMENTATION
+http://xaviesteve.com/3298/wordpress-contact-form-7-hook-unofficial-developer-documentation-and-examples/
+http://mosaika.fr/recuperer-donnees-plugin-contact-form-7/
+// Functions
+http://hookr.io/plugins/contact-form-7/4.3.1/functions/#index=a
+*/
+
+if( !defined( 'WPCF7PDF_VERSION' )) { define( 'WPCF7PDF_VERSION', '0.1' ); }
+if( !defined( 'WP_CONTENT_DIR' )) { define( 'WP_CONTENT_DIR', ABSPATH . 'wp-content'); }
+
+cf7_sendpdf::instance();
+
+class cf7_sendpdf {
+    
+    public static $instance;
+	private $rendered = array();
+
+
+	public static function instance() {
+
+		if ( ! self::$instance )
+			self::$instance = new self();
+
+		return self::$instance;
+
+	}
+
+	private function __construct() {
+     
+        /* Version du plugin */
+        $option['wpcf7pdf_version'] = WPCF7PDF_VERSION;
+        if( !get_option('wpcf7pdf_version') ) {
+            add_option('wpcf7pdf_version', $option);
+        } else if ( get_option('wpcf7pdf_version') != WPCF7PDF_VERSION ) {
+            update_option('wpcf7pdf_version', WPCF7PDF_VERSION);
+        }
+        // Maybe disable AJAX requests
+        add_filter( 'wpcf7_mail_components', array( $this, 'wpcf7pdf_mail_components' ) );
+        add_action( 'admin_menu', array( $this, 'wpcf7pdf_add_admin') );
+        add_filter( 'plugin_action_links_' . plugin_basename(__FILE__), array( $this, 'wpcf7pdf_plugin_actions' ) );
+        //if (isset($_GET['page']) && $_GET['page'] == 'wpcf7-send-pdf/wpcf7-send-pdf.php') {
+        //add_action('admin_print_scripts', 'wpcf7pdf_admin_scripts');
+        
+        //}
+        add_action('init', array( $this, 'wpcf7pdf_session_start') );
+        add_action( 'wpcf7_before_send_mail', array( $this, 'wpcf7pdf_send_pdf' ) );
+        // Enable localization
+		add_action( 'plugins_loaded', array( $this, 'init_l10n' ) );
+        
+    }
+            
+    function init_l10n() {
+		load_plugin_textdomain( 'wp-cf7pdf', false, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
+	}
+    
+    // Add "Réglages" link on plugins page
+    function wpcf7pdf_plugin_actions( $links ) {
+        $settings_link = '<a href="admin.php?page=wpcf7-send-pdf">'.__('Settings', 'wp-cf7pdf').'</a>';
+        array_unshift ( $links, $settings_link );
+        return $links;
+    }
+    function wpcf7pdf_dashboard_html_page() {
+        include("wpcf7-send-pdf-admin.php");
+    }
+    function wpcf7pdf_add_admin() {
+
+        //$page = add_options_page(__('Options for CF7 Send PDF', 'wp-cf7pdf'), __('Send PDF with CF7', 'wp-cf7pdf'), 'administrator', 'wpcf7-send-pdf', array( $this, 'wpcf7pdf_dashboard_html_page') );
+        
+        $addPDF = add_submenu_page( 'wpcf7',
+		__('Options for CF7 Send PDF', 'wp-cf7pdf'),
+		__('Send PDF with CF7', 'wp-cf7pdf'),
+		'administrator', 'wpcf7-send-pdf',
+		array( $this, 'wpcf7pdf_dashboard_html_page') );
+        
+        wp_enqueue_script('media-upload');
+        wp_enqueue_script('thickbox');
+        
+        wp_register_script('wpcf7-my-upload', WP_PLUGIN_URL.'/wpcf7-send-pdf/js/wpcf7pdf-script.js', array('jquery','media-upload','thickbox'));
+        wp_enqueue_script('wpcf7-my-upload');
+        
+        // If you're not including an image upload then you can leave this function call out
+        wp_enqueue_media();
+
+        // Now we can localize the script with our data.
+        wp_localize_script( 'wpcf7-my-upload', 'Data', array(
+          'textebutton'  =>  __( 'Choose This Image', 'wp-cf7pdf' ),
+          'title'  => __( 'Choose Image', 'wp-cf7pdf' ),
+        ) );
+        
+        global $wpdb;        
+        $wpdb->ma_table_wpcf7pdf = $wpdb->prefix.'wpcf7pdf_files';
+        $wpdb->tables[] = 'ma_table_wpcf7pdf';
+        /* Création des tables nécessaires */
+        if($wpdb->get_var("SHOW TABLES LIKE '".$wpdb->ma_table_wpcf7pdf."'") != $wpdb->ma_table_wpcf7pdf) {
+
+            $sql .= "CREATE TABLE `".$wpdb->ma_table_wpcf7pdf."` (
+                `wpcf7pdf_id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+                `wpcf7pdf_id_form` bigint(20) unsigned NOT NULL,
+                `wpcf7pdf_reference` varchar(40) NOT NULL,
+                `wpcf7pdf_status` tinyint(2) NOT NULL DEFAULT '1',
+                `wpcf7pdf_data` text NOT NULL,
+                `wpcf7pdf_files` longtext NOT NULL,
+                `wpcf7pdf_files2` longtext NOT NULL,
+                PRIMARY KEY (`wpcf7pdf_id`)
+               ) ;";
+            require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+            dbDelta($sql);
+        }
+        
+    }
+
+    function wpcf7pdf_session_start() {
+       if ( ! session_id() ) {
+          @session_start();
+       }
+        // On enregistre un ID en session
+        if ( isset( $_SESSION['pdf_uniqueid'] ) ) {
+            unset( $_SESSION['pdf_uniqueid'] );
+        }
+        $_SESSION['pdf_uniqueid'] = uniqid();
+    }
+    
+    function save($id, $data, $file = '', $file2 = '') {
+        
+        global $wpdb;
+         
+        $data = array(
+            'wpcf7pdf_id_form' => $id,
+            'wpcf7pdf_data' => $data,
+            'wpcf7pdf_reference' => $_SESSION['pdf_uniqueid'],
+            'wpcf7pdf_files' => $file,
+            'wpcf7pdf_files2' => $file2
+        );
+        $result = $wpdb->insert($wpdb->prefix.'wpcf7pdf_files', $data);
+        if($result) {
+            return true;
+        }
+        
+    }
+    function wpcf7pdf_name_pdf($id) {
+        
+        global $post;
+        if( empty($id) ) { die('No ID Form'); }
+        $meta_values = get_post_meta( $id, '_wp_cf7pdf', true );
+        if( isset($meta_values["pdf-name"]) && !empty($meta_values["pdf-name"]) ) {
+            $namePDF = trim($meta_values["pdf-name"]);
+            $namePDF = str_replace(' ', '-', $namePDF);
+        } else {
+            $namePDF = 'document-pdf';
+        }
+        return $namePDF;
+        
+    }
+
+    function wpcf7pdf_send_pdf($contact_form) {
+
+        $submission = WPCF7_Submission::get_instance();
+
+        if ( $submission ) {
+
+            $posted_data = $submission->get_posted_data();
+
+            global $wpdb;
+            global $current_user;
+            global $post;
+            // récupère le POST            
+            $post = $_POST;
+            $meta_values = get_post_meta( $post['_wpcf7'], '_wp_cf7pdf', true );
+            $meta_fields = get_post_meta( $post['_wpcf7'], '_wp_cf7pdf_fields', true );
+            
+            //$mail2 = $contact_form->prop('mail_2');
+            //$mail2['attachments'] = '';
+            // On récupère le dossier upload de WP
+            $upload_dir = wp_upload_dir();
+            $createDirectory = $upload_dir['basedir'].$upload_dir['subdir'];
+
+            // On va cherche les champ du formulaire
+            $meta_tags = get_post_meta( $post['_wpcf7'], '_wp_cf7pdf_fields', true );
+        
+            // SAVE FORM FIELD DATA AS VARIABLES
+            if( isset($meta_values['generate_pdf']) && !empty($meta_values['generate_pdf']) ) {
+
+                $nameOfPdf = $this->wpcf7pdf_name_pdf($post['_wpcf7']);
+                
+                $text = trim($meta_values['generate_pdf']);
+                $text = str_replace('[reference]', $_SESSION['pdf_uniqueid'], $text);
+                $text = str_replace('[url-pdf]', $createDirectory.'/'.$nameOfPdf.'-'.$_SESSION['pdf_uniqueid'].'.pdf', $text);
+                
+                $csvTab = array($_SESSION['pdf_uniqueid']);
+                foreach($meta_tags as $ntags => $vtags) {
+                    $returnValue = wpcf7_mail_replace_tags($vtags);
+                    array_push($csvTab, $returnValue);
+                }
+                $text = wpcf7_mail_replace_tags( wpautop($text) );
+                //error_log(print_r($text)); //not blank, all sorts of stuff
+            
+                // On génère le PDF
+                if( isset($meta_values["disable-pdf"]) && $meta_values['disable-pdf'] == 'false') {
+
+                    include(WP_CONTENT_DIR.'/plugins/wpcf7-send-pdf/mpdf/mpdf.php');
+                    $mpdf=new mPDF('c');
+                    $mpdf->ignore_invalid_utf8 = true;
+                    if( isset($meta_values["image"]) && !empty($meta_values["image"]) ) {
+                        list($width, $height, $type, $attr) = getimagesize($meta_values["image"]);
+                        $imgAlign = 'left';
+                        if( isset($meta_values['image-alignment']) ) {
+                            $imgAlign = $meta_values['image-alignment'];
+                        }
+                        if( empty($meta_values['image-width']) ) { $imgWidth = $width; } else { $imgWidth = $meta_values['image-width'];  }
+                        if( empty($meta_values['image-height']) ) { $imgHeight = $height; } else { $imgHeight = $meta_values['image-height'];  } 
+
+                        $attribut = 'width='.$imgWidth.' height="'.$imgHeight.'"';
+
+                        $mpdf->WriteHTML('<div style="text-align:'.$imgAlign.'"><img src="'.$meta_values["image"].'" '.$attribut.' /></div>');
+                    }
+                    $mpdf->WriteHTML($text);
+                    
+                    $mpdf->Output($createDirectory.'/'.$nameOfPdf.'-'.$_SESSION['pdf_uniqueid'].'.pdf', 'F');
+
+                    // On efface l'ancien pdf renommé si il y a (on garde l'original)
+                    if( file_exists($createDirectory.'/'.$nameOfPdf.'.pdf') ) {
+                        unlink($createDirectory.'/'.$nameOfPdf.'.pdf');
+                    }
+                    // Je copy le PDF genere
+                    copy($createDirectory.'/'.$nameOfPdf.'-'.$_SESSION['pdf_uniqueid'].'.pdf', $createDirectory.'/'.$nameOfPdf.'.pdf');
+                    
+                    // PUSH PDF IN ATTACHMENT              
+                    $mailAttachments1 = $createDirectory.'/'.$nameOfPdf.'.pdf';
+                    
+                    
+
+                }
+                // END GENERATE PDF
+
+                
+                
+                // On insère dans la BDD
+                if( isset($meta_values["disable-insert"]) && $meta_values["disable-insert"] == "false" ) {
+                    $insertPost = $this->save($post['_wpcf7'], serialize($csvTab), $upload_dir['url'].'/'.$nameOfPdf.'-'.$_SESSION['pdf_uniqueid'].'.pdf');
+                }
+                
+                // If CSV is enable
+                if( isset($meta_values["disable-csv"]) && $meta_values['disable-csv'] == 'false') {
+
+                    // On efface l'ancien csv renommé si il y a (on garde l'original)
+                    if( file_exists($createDirectory.'/'.$nameOfPdf.'.csv') ) {
+                        unlink($createDirectory.'/'.$nameOfPdf.'.csv');
+                    }
+
+                    if( isset($meta_fields) ) {
+
+                        $entete = array("reference");
+
+                        foreach($meta_fields as $field) {
+
+                            preg_match_all( '#\[(.*?)\]#', $field, $nameField );
+                            $nb=count($nameField[1]);
+                            for($i=0;$i<$nb;$i++) { 
+                                array_push($entete, $nameField[1][$i]);
+                            }
+
+                        }
+
+                    }
+
+                    $csvlist = array (
+                       $entete,
+                       $csvTab
+                    );
+
+                    $fpCsv = fopen($createDirectory.'/'.$nameOfPdf.'-'.$_SESSION['pdf_uniqueid'].'.csv', 'w+');
+
+                    foreach ($csvlist as $csvfields) {
+                        fputcsv($fpCsv, $csvfields);
+                    }
+                    fclose($fpCsv);
+
+                    // Je copy le PDF genere
+                    copy($createDirectory.'/'.$nameOfPdf.'-'.$_SESSION['pdf_uniqueid'].'.csv', $createDirectory.'/'.$nameOfPdf.'.csv');
+
+                    // PUSH PDF IN ATTACHMENT
+                    // TODO :  Dans admin faire bouton choix envoi ( expediteur, destinataire ou les deux)
+                    // suite a ca utilise pour le single ici :              
+                    $mailAttachments2 = $createDirectory.'/'.$nameOfPdf.'.csv';
+                    
+                }
+                // END GENERATE CSV
+                
+                
+                //Définition possible de la page de redirection à partir de ce plugin (url relative réécrite).
+                if( isset($meta_values['page_next']) && is_numeric($meta_values['page_next']) ) {
+                    $redirect = basename(get_permalink($meta_values['page_next']));
+
+                    //Une fois que tout est bon, on lui définie le nouveau mail par la méthode associée à l'object "set_properties".
+                    $contact_form->set_properties(array('additional_settings' => "on_sent_ok: \"location.replace('".$redirect."');\"")); 
+                }
+                
+                /*****************************************/
+                /***** EMAIL POUR L'EXPEDITEUR **********/
+                /***************************************/
+                $mail = $contact_form->prop('mail');
+                // PIECES JOINTES UNIQUEMENT POUR L'EXPEDITEUR
+                if( isset($meta_values["send-attachment"]) && $meta_values["send-attachment"] == 'sender' ) {
+                    $mail['attachments'] = '';
+                    $mail['attachments'] = $mailAttachments1;
+                }
+                // Find/replace the "reference" & "url-pdf" tag as defined in your CF7 email body
+                $mail['body'] = str_replace('[reference]', $_SESSION['pdf_uniqueid'], $mail['body']);
+                $mail['body'] = str_replace('[url-pdf]', $upload_dir['url'].'/'.$nameOfPdf.'-'.$_SESSION['pdf_uniqueid'].'.pdf', $mail['body']);
+                $contact_form->set_properties(array("mail" => $mail));
+                
+                /********************************************/
+                /***** EMAIL POUR LE DESTINATAIRE **********/
+                /******************************************/
+                $mail2 = $contact_form->prop('mail_2');
+                // PIECES JOINTES UNIQUEMENT POUR LE DESTINATAIRE
+                if( isset($meta_values["send-attachment"]) && $meta_values["send-attachment"] == 'recipient' ) {
+                    $mail2['attachments'] = '';
+                    $mail2['attachments'] = $mailAttachments1;
+                }
+                // Find/replace the "reference" & "url-pdf" tag as defined in your CF7 email body
+                $mail2['body'] = str_replace('[reference]', $_SESSION['pdf_uniqueid'], $mail2['body']);
+                $mail2['body'] = str_replace('[url-pdf]', $upload_dir['url'].'/'.$nameOfPdf.'-'.$_SESSION['pdf_uniqueid'].'.pdf', $mail2['body']);
+                $contact_form->set_properties(array("mail_2" => $mail2));
+            
+            }
+            
+                                           
+        }
+    }
+
+    function wpcf7pdf_mail_components($components) {
+        
+        // see : http://plugin144.rssing.com/chan-8774780/all_p511.html
+        $submission = WPCF7_Submission::get_instance();
+        $posted_data = $submission->get_posted_data();
+        // On récupère le dossier upload de WP
+        $upload_dir = wp_upload_dir();
+        $createDirectory = $upload_dir['basedir'].$upload_dir['subdir'];
+        // on va chercher les options du formulaire
+        global $post;
+        
+        // On recupere les donnees et le nom du pdf personnalisé
+        $meta_values = get_post_meta( $post['_wpcf7'], '_wp_cf7pdf', true );
+        //$mail2 = $contact_form->prop('mail_2');
+        $nameOfPdf = $this->wpcf7pdf_name_pdf($post['_wpcf7']);
+        error_log(serialize($meta_values["send-attachment"])); //not blank, all sorts of stuff
+
+        if ( empty($components['attachments']) && $meta_values["send-attachment"] == 'both' ) {
+            //$components['attachments'] = array($createDirectory.'/'.$nameOfPdf.'.pdf');
+            if( isset($meta_values["disable-pdf"]) && $meta_values["disable-pdf"] == 'false' ) {
+                $components['attachments'][] = $createDirectory.'/'.$nameOfPdf.'.pdf';
+            }
+            /*if( isset($meta_values["disable-csv"]) && $meta_values['disable-csv'] == 'false') {
+                $components['attachments'][] = $createDirectory.'/'.$nameOfPdf.'.csv';
+            }*/
+            //$components['attachments'] = array($createDirectory.'/'.$nameOfPdf.'.pdf', $createDirectory.'/preview.pdf');
+            //error_log( serialize($post_values['recipient'].'==='.$emaiTo) );
+        }
+        // je vide la session
+        //unset($_SESSION['pdf_uniqueid']);
+        
+        /*if ( 'mail' == $mail->name() ) {
+            
+		      // do something for 'Mail'
+            $components['attachments'][] = $createDirectory.'/'.$nameOfPdf.'.pdf';
+        } elseif ( 'mail_2' == $mail->name() ) {
+            // do something for 'Mail (2)'
+            $components['attachments'][] = $createDirectory.'/'.$nameOfPdf.'.csv';
+        }*/
+        
+        return $components;
+    }
+    
+    /* Récupère la liste des formulaires enregistrés */
+    function getForms() {
+        global $wpdb;
+
+        $forms = get_posts( array(
+            'post_type'   => 'wpcf7_contact_form',
+            'orderby'     => 'ID',
+            'post_parent' => 0,
+            'order'       => 'ASC',
+            ) );
+
+        return $forms;
+
+    }
+    
+    static function get_list($idForm) {
+
+        global $wpdb;
+        if(!$idForm or !$idForm) { die('Aucun formulaire sélectionné !'); }
+        $result = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM wp_wpcf7pdf_files WHERE wpcf7pdf_id_form = %d ", $idForm), 'OBJECT' );
+        if($result) {
+            return $result;
+        } 
+    }
+    
+}
+
+
+?>
