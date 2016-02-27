@@ -180,24 +180,55 @@ jQuery.fn.selectText = function () {
                         </tr>
                         <tr>
                             <td><?php _e('Who send the PDF file?', 'wp-cf7pdf'); ?></td>
-                            <td><select name="wp_cf7pdf_settings[send-attachment]">
+                            <td>
+                                <select name="wp_cf7pdf_settings[send-attachment]">
                                     <option value="sender"<?php if( isset($meta_values["send-attachment"]) && $meta_values["send-pdf"] == "sender" ) { echo ' selected'; } ?>><?php _e('Sender', 'wp-cf7pdf'); ?></option>
                                     <option value="recipient"<?php if( isset($meta_values["send-attachment"]) && $meta_values["send-attachment"] == "recipient" ) { echo ' selected'; } ?>><?php _e('Recipient', 'wp-cf7pdf'); ?></option>
                                     <option value="both"<?php if( (isset($meta_values["send-attachment"]) && $meta_values["send-attachment"] == "both") || empty($meta_values["send-attachment"]) ) { echo ' selected'; } ?>><?php _e('Both', 'wp-cf7pdf'); ?></option>
                                 </select>
+                            </td>
                         </tr>
+                        <tr><td colspan="2"><hr /></td></tr>
                         <tr>
                             <td><?php _e('Disable Insert subscribtion in database?', 'wp-cf7pdf'); ?></td>
                             <td><input type= "radio" name="wp_cf7pdf_settings[disable-insert]" value="true" <?php if( isset($meta_values["disable-insert"]) && $meta_values["disable-insert"]=="true" ) { echo ' checked'; } ?>>&nbsp;<?php _e('Yes', 'wp-cf7pdf'); ?>&nbsp;<input type="radio" name="wp_cf7pdf_settings[disable-insert]" value="false" <?php if( ( isset($meta_values["disable-insert"]) && $meta_values["disable-insert"]=="false") or empty($meta_values["disable-insert"]) ) { echo ' checked'; } ?> />&nbsp;<?php _e('No', 'wp-cf7pdf'); ?></td>
                         </tr>
+                        <tr><td colspan="2"><hr /></td></tr>
                         <tr>
                             <td><?php _e('Disable generate CSV file?', 'wp-cf7pdf'); ?></td>
                             <td><input type= "radio" name="wp_cf7pdf_settings[disable-csv]" value="true" <?php if( isset($meta_values["disable-csv"]) && $meta_values["disable-csv"]=="true" ) { echo ' checked'; } ?>>&nbsp;<?php _e('Yes', 'wp-cf7pdf'); ?>&nbsp;<input type="radio" name="wp_cf7pdf_settings[disable-csv]" value="false" <?php if( ( isset($meta_values["disable-csv"]) && $meta_values["disable-csv"]=="false") or empty($meta_values["disable-csv"]) ) { echo ' checked'; } ?> />&nbsp;<?php _e('No', 'wp-cf7pdf'); ?></td>
                         </tr>
                         <tr>
+                            <td><?php _e('Who send the CSV file?', 'wp-cf7pdf'); ?></td>
+                            <td>
+                                <select name="wp_cf7pdf_settings[send-attachment2]">
+                                    <option value="sender"<?php if( isset($meta_values["send-attachment2"]) && $meta_values["send-pdf"] == "sender" ) { echo ' selected'; } ?>><?php _e('Sender', 'wp-cf7pdf'); ?></option>
+                                    <option value="recipient"<?php if( isset($meta_values["send-attachment2"]) && $meta_values["send-attachment2"] == "recipient" ) { echo ' selected'; } ?>><?php _e('Recipient', 'wp-cf7pdf'); ?></option>
+                                    <option value="both"<?php if( (isset($meta_values["send-attachment2"]) && $meta_values["send-attachment2"] == "both") || empty($meta_values["send-attachment2"]) ) { echo ' selected'; } ?>><?php _e('Both', 'wp-cf7pdf'); ?></option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr><td colspan="2"><hr /></td></tr>
+                        <tr>
                             <td><?php _e('Enter a name for your PDF', 'wp-cf7pdf'); ?><p>(<i><?php _e("By default, the file's name will be 'document-pdf'", 'wp-cf7pdf'); ?></i>)</p></td>
                             <td><input type= "text" name="wp_cf7pdf_settings[pdf-name]" value="<?php if( isset($meta_values["pdf-name"]) && !empty($meta_values["pdf-name"]) ) { echo $meta_values["pdf-name"]; } ?>">.pdf</td>
                         </tr>
+                        <tr><td colspan="2"><hr /></td></tr>
+                        <tr>
+                            <td><?php _e('Other files attachments?', 'wp-cf7pdf'); ?><p>(<i><?php _e("Enter one URL file by line", 'wp-cf7pdf'); ?></i>)</p><textarea cols="100%" rows="5" name="wp_cf7pdf_settings[pdf-files-attachments]"><?php if( isset($meta_values["pdf-files-attachments"]) ) { echo $meta_values["pdf-files-attachments"]; } ?></textarea>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><?php _e('Who send the attachments file?', 'wp-cf7pdf'); ?></td>
+                            <td>
+                                <select name="wp_cf7pdf_settings[send-attachment3]">
+                                    <option value="sender"<?php if( isset($meta_values["send-attachment3"]) && $meta_values["send-pdf"] == "sender" ) { echo ' selected'; } ?>><?php _e('Sender', 'wp-cf7pdf'); ?></option>
+                                    <option value="recipient"<?php if( isset($meta_values["send-attachment3"]) && $meta_values["send-attachment3"] == "recipient" ) { echo ' selected'; } ?>><?php _e('Recipient', 'wp-cf7pdf'); ?></option>
+                                    <option value="both"<?php if( (isset($meta_values["send-attachment2"]) && $meta_values["send-attachment3"] == "both") || empty($meta_values["send-attachment3"]) ) { echo ' selected'; } ?>><?php _e('Both', 'wp-cf7pdf'); ?></option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr><td colspan="2"><hr /></td></tr>
                         <tr>
                             <td>
                                 <?php _e('Select a page to display after sending the form (optional)', 'wp-cf7pdf'); ?>

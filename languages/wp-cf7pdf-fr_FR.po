@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Contact Form 7 Send PDF\n"
-"POT-Creation-Date: 2016-02-23 17:03+0100\n"
-"PO-Revision-Date: 2016-02-23 17:04+0100\n"
+"POT-Creation-Date: 2016-02-27 10:54+0100\n"
+"PO-Revision-Date: 2016-02-27 10:56+0100\n"
 "Last-Translator: Florent Maillefaud <contact@restezconnectes.fr>\n"
 "Language-Team: Florent Maillefaud <contact@restezconnectes.fr>\n"
 "Language: fr_FR\n"
@@ -32,7 +32,7 @@ msgstr "Aucun formulaire dans cette base de données"
 msgid "* Select a form *"
 msgstr "* Sélectionner un formulaire *"
 
-#: wpcf7-send-pdf-admin.php:166 wpcf7-send-pdf-admin.php:322
+#: wpcf7-send-pdf-admin.php:166 wpcf7-send-pdf-admin.php:353
 msgid "Save settings"
 msgstr "Sauver les réglages"
 
@@ -44,13 +44,13 @@ msgstr "Paramètres généraux"
 msgid "Disable generate PDF?"
 msgstr "Désactiver la génération d'un fichier  PDF"
 
-#: wpcf7-send-pdf-admin.php:179 wpcf7-send-pdf-admin.php:191
-#: wpcf7-send-pdf-admin.php:195
+#: wpcf7-send-pdf-admin.php:179 wpcf7-send-pdf-admin.php:194
+#: wpcf7-send-pdf-admin.php:199
 msgid "Yes"
 msgstr "Oui"
 
-#: wpcf7-send-pdf-admin.php:179 wpcf7-send-pdf-admin.php:191
-#: wpcf7-send-pdf-admin.php:195
+#: wpcf7-send-pdf-admin.php:179 wpcf7-send-pdf-admin.php:194
+#: wpcf7-send-pdf-admin.php:199
 msgid "No"
 msgstr "Non"
 
@@ -58,76 +58,95 @@ msgstr "Non"
 msgid "Who send the PDF file?"
 msgstr "A qui envoyer le PDF ?"
 
-#: wpcf7-send-pdf-admin.php:184
+#: wpcf7-send-pdf-admin.php:185 wpcf7-send-pdf-admin.php:205
+#: wpcf7-send-pdf-admin.php:225
 msgid "Sender"
 msgstr "Expéditeur"
 
-#: wpcf7-send-pdf-admin.php:185
+#: wpcf7-send-pdf-admin.php:186 wpcf7-send-pdf-admin.php:206
+#: wpcf7-send-pdf-admin.php:226
 msgid "Recipient"
 msgstr "Destinataire"
 
-#: wpcf7-send-pdf-admin.php:186
+#: wpcf7-send-pdf-admin.php:187 wpcf7-send-pdf-admin.php:207
+#: wpcf7-send-pdf-admin.php:227
 msgid "Both"
 msgstr "Les deux"
 
-#: wpcf7-send-pdf-admin.php:190
+#: wpcf7-send-pdf-admin.php:193
 msgid "Disable Insert subscribtion in database?"
 msgstr "Désactiver l'insertion dans une base de données ?"
 
-#: wpcf7-send-pdf-admin.php:194
+#: wpcf7-send-pdf-admin.php:198
 msgid "Disable generate CSV file?"
 msgstr "Désactiver la génération d'un fichier CSV ?"
 
-#: wpcf7-send-pdf-admin.php:198
+#: wpcf7-send-pdf-admin.php:202
+msgid "Who send the CSV file?"
+msgstr "A qui envoyer le CSV ?"
+
+#: wpcf7-send-pdf-admin.php:213
 msgid "Enter a name for your PDF"
 msgstr "Entrer un nom pour les PDF générés"
 
-#: wpcf7-send-pdf-admin.php:198
+#: wpcf7-send-pdf-admin.php:213
 msgid "By default, the file's name will be 'document-pdf'"
 msgstr "Par default le nom du PDF est 'document-pdf'"
 
-#: wpcf7-send-pdf-admin.php:203
+#: wpcf7-send-pdf-admin.php:218
+msgid "Other files attachments?"
+msgstr "Autres fichiers à joindre ?"
+
+#: wpcf7-send-pdf-admin.php:218
+msgid "Enter one URL file by line"
+msgstr "Entrez un fichier par ligne "
+
+#: wpcf7-send-pdf-admin.php:222
+msgid "Who send the attachments file?"
+msgstr "A qui envoyer les autres pièces jointes ?"
+
+#: wpcf7-send-pdf-admin.php:234
 msgid "Select a page to display after sending the form (optional)"
 msgstr ""
 "Sélection d'une page à afficher après l'envoi du formulaire (optionnel)"
 
-#: wpcf7-send-pdf-admin.php:212
+#: wpcf7-send-pdf-admin.php:243
 msgid "Please select a page"
 msgstr "Sélectionner une page"
 
-#: wpcf7-send-pdf-admin.php:222
+#: wpcf7-send-pdf-admin.php:253
 msgid "Enter a URL or upload an image."
 msgstr "Entrer une URL ou uploader une image"
 
-#: wpcf7-send-pdf-admin.php:223
+#: wpcf7-send-pdf-admin.php:254
 msgid "Select or Upload your picture"
 msgstr "Sélectionner ou uploader votre image"
 
-#: wpcf7-send-pdf-admin.php:226
+#: wpcf7-send-pdf-admin.php:257
 msgid "Left"
 msgstr "Gauche"
 
-#: wpcf7-send-pdf-admin.php:227
+#: wpcf7-send-pdf-admin.php:258
 msgid "Center"
 msgstr "Centrer"
 
-#: wpcf7-send-pdf-admin.php:228
+#: wpcf7-send-pdf-admin.php:259
 msgid "Right"
 msgstr "Droite"
 
-#: wpcf7-send-pdf-admin.php:230
+#: wpcf7-send-pdf-admin.php:261
 msgid "Size"
 msgstr "Taille"
 
-#: wpcf7-send-pdf-admin.php:239
+#: wpcf7-send-pdf-admin.php:270
 msgid "Original size is"
 msgstr "La taille originale est"
 
-#: wpcf7-send-pdf-admin.php:256
+#: wpcf7-send-pdf-admin.php:287
 msgid "Layout of your PDF"
 msgstr "Mise en page de votre PDF"
 
-#: wpcf7-send-pdf-admin.php:261
+#: wpcf7-send-pdf-admin.php:292
 msgid ""
 "For personalize your PDF you can in the following text field, use these mail-"
 "tags:"
@@ -135,7 +154,7 @@ msgstr ""
 "Pour personnaliser votre PDF, vous pouvez dans le champ de texte ci-dessous, "
 "utiliser ces tags :"
 
-#: wpcf7-send-pdf-admin.php:262
+#: wpcf7-send-pdf-admin.php:293
 msgid ""
 "[reference] is a simple mail-tag who is used for create unique PDF. It's "
 "also recorded in the database. Every PDF is named like this : name-pdf-"
@@ -147,19 +166,19 @@ msgstr ""
 "est nommé comme suit: nom-pdf-[reference]  et il est uploadé dans le dossier "
 "de téléchargement de WordPress. Par exemple: document-pdf-56BC4A3EF0752.pdf"
 
-#: wpcf7-send-pdf-admin.php:304
+#: wpcf7-send-pdf-admin.php:335
 msgid "Preview your PDF"
 msgstr "Prévisualiser votre PDF"
 
-#: wpcf7-send-pdf-admin.php:316
+#: wpcf7-send-pdf-admin.php:347
 msgid "Export list of participants"
 msgstr "Exporter la liste des participants"
 
-#: wpcf7-send-pdf-admin.php:316
+#: wpcf7-send-pdf-admin.php:347
 msgid "Export list"
 msgstr "Exporter la liste"
 
-#: wpcf7-send-pdf-admin.php:316
+#: wpcf7-send-pdf-admin.php:347
 msgid "Export list in CSV file"
 msgstr "Exporter la liste dans un fichier CSV"
 

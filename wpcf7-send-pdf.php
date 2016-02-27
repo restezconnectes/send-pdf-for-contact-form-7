@@ -62,7 +62,7 @@ class cf7_sendpdf {
             update_option('wpcf7pdf_version', WPCF7PDF_VERSION);
         }
         // Maybe disable AJAX requests
-        add_filter( 'wpcf7_mail_components', array( $this, 'wpcf7pdf_mail_components' ) );
+        add_filter( 'wpcf7_mail_components', array( $this, 'wpcf7pdf_mail_components' ), 10, 3 );
         add_action( 'admin_menu', array( $this, 'wpcf7pdf_add_admin') );
         add_filter( 'plugin_action_links_' . plugin_basename(__FILE__), array( $this, 'wpcf7pdf_plugin_actions' ) );
         //if (isset($_GET['page']) && $_GET['page'] == 'wpcf7-send-pdf/wpcf7-send-pdf.php') {
@@ -195,8 +195,6 @@ class cf7_sendpdf {
             $meta_values = get_post_meta( $post['_wpcf7'], '_wp_cf7pdf', true );
             $meta_fields = get_post_meta( $post['_wpcf7'], '_wp_cf7pdf_fields', true );
             
-            //$mail2 = $contact_form->prop('mail_2');
-            //$mail2['attachments'] = '';
             // On récupère le dossier upload de WP
             $upload_dir = wp_upload_dir();
             $createDirectory = $upload_dir['basedir'].$upload_dir['subdir'];
@@ -251,11 +249,6 @@ class cf7_sendpdf {
                     // Je copy le PDF genere
                     copy($createDirectory.'/'.$nameOfPdf.'-'.$_SESSION['pdf_uniqueid'].'.pdf', $createDirectory.'/'.$nameOfPdf.'.pdf');
                     
-                    // PUSH PDF IN ATTACHMENT              
-                    $mailAttachments1 = $createDirectory.'/'.$nameOfPdf.'.pdf';
-                    
-                    
-
                 }
                 // END GENERATE PDF
 
@@ -305,10 +298,6 @@ class cf7_sendpdf {
                     // Je copy le PDF genere
                     copy($createDirectory.'/'.$nameOfPdf.'-'.$_SESSION['pdf_uniqueid'].'.csv', $createDirectory.'/'.$nameOfPdf.'.csv');
 
-                    // PUSH PDF IN ATTACHMENT
-                    // TODO :  Dans admin faire bouton choix envoi ( expediteur, destinataire ou les deux)
-                    // suite a ca utilise pour le single ici :              
-                    $mailAttachments2 = $createDirectory.'/'.$nameOfPdf.'.csv';
                     
                 }
                 // END GENERATE CSV
@@ -322,33 +311,7 @@ class cf7_sendpdf {
                     $contact_form->set_properties(array('additional_settings' => "on_sent_ok: \"location.replace('".$redirect."');\"")); 
                 }
                 
-                /*****************************************/
-                /***** EMAIL POUR L'EXPEDITEUR **********/
-                /***************************************/
-                $mail = $contact_form->prop('mail');
-                // PIECES JOINTES UNIQUEMENT POUR L'EXPEDITEUR
-                if( isset($meta_values["send-attachment"]) && $meta_values["send-attachment"] == 'sender' ) {
-                    $mail['attachments'] = '';
-                    $mail['attachments'] = $mailAttachments1;
-                }
-                // Find/replace the "reference" & "url-pdf" tag as defined in your CF7 email body
-                $mail['body'] = str_replace('[reference]', $_SESSION['pdf_uniqueid'], $mail['body']);
-                $mail['body'] = str_replace('[url-pdf]', $upload_dir['url'].'/'.$nameOfPdf.'-'.$_SESSION['pdf_uniqueid'].'.pdf', $mail['body']);
-                $contact_form->set_properties(array("mail" => $mail));
-                
-                /********************************************/
-                /***** EMAIL POUR LE DESTINATAIRE **********/
-                /******************************************/
-                $mail2 = $contact_form->prop('mail_2');
-                // PIECES JOINTES UNIQUEMENT POUR LE DESTINATAIRE
-                if( isset($meta_values["send-attachment"]) && $meta_values["send-attachment"] == 'recipient' ) {
-                    $mail2['attachments'] = '';
-                    $mail2['attachments'] = $mailAttachments1;
-                }
-                // Find/replace the "reference" & "url-pdf" tag as defined in your CF7 email body
-                $mail2['body'] = str_replace('[reference]', $_SESSION['pdf_uniqueid'], $mail2['body']);
-                $mail2['body'] = str_replace('[url-pdf]', $upload_dir['url'].'/'.$nameOfPdf.'-'.$_SESSION['pdf_uniqueid'].'.pdf', $mail2['body']);
-                $contact_form->set_properties(array("mail_2" => $mail2));
+
             
             }
             
@@ -356,47 +319,106 @@ class cf7_sendpdf {
         }
     }
 
-    function wpcf7pdf_mail_components($components) {
+    function wpcf7pdf_mail_components($components, $contact_form, $mail) {
         
         // see : http://plugin144.rssing.com/chan-8774780/all_p511.html
         $submission = WPCF7_Submission::get_instance();
-        $posted_data = $submission->get_posted_data();
-        // On récupère le dossier upload de WP
-        $upload_dir = wp_upload_dir();
-        $createDirectory = $upload_dir['basedir'].$upload_dir['subdir'];
-        // on va chercher les options du formulaire
-        global $post;
-        
-        // On recupere les donnees et le nom du pdf personnalisé
-        $meta_values = get_post_meta( $post['_wpcf7'], '_wp_cf7pdf', true );
-        //$mail2 = $contact_form->prop('mail_2');
-        $nameOfPdf = $this->wpcf7pdf_name_pdf($post['_wpcf7']);
-        error_log(serialize($meta_values["send-attachment"])); //not blank, all sorts of stuff
+        if( $submission ) {
+            $posted_data = $submission->get_posted_data();
+            // On récupère le dossier upload de WP
+            $upload_dir = wp_upload_dir();
+            $createDirectory = $upload_dir['basedir'].$upload_dir['subdir'];
+            // on va chercher les options du formulaire
+            global $post;
 
-        if ( empty($components['attachments']) && $meta_values["send-attachment"] == 'both' ) {
-            //$components['attachments'] = array($createDirectory.'/'.$nameOfPdf.'.pdf');
-            if( isset($meta_values["disable-pdf"]) && $meta_values["disable-pdf"] == 'false' ) {
-                $components['attachments'][] = $createDirectory.'/'.$nameOfPdf.'.pdf';
-            }
-            /*if( isset($meta_values["disable-csv"]) && $meta_values['disable-csv'] == 'false') {
-                $components['attachments'][] = $createDirectory.'/'.$nameOfPdf.'.csv';
-            }*/
-            //$components['attachments'] = array($createDirectory.'/'.$nameOfPdf.'.pdf', $createDirectory.'/preview.pdf');
-            //error_log( serialize($post_values['recipient'].'==='.$emaiTo) );
-        }
-        // je vide la session
-        //unset($_SESSION['pdf_uniqueid']);
-        
-        /*if ( 'mail' == $mail->name() ) {
+            // On recupere les donnees et le nom du pdf personnalisé
+            $meta_values = get_post_meta( $post['_wpcf7'], '_wp_cf7pdf', true );
+            $nameOfPdf = $this->wpcf7pdf_name_pdf($post['_wpcf7']);
             
-		      // do something for 'Mail'
-            $components['attachments'][] = $createDirectory.'/'.$nameOfPdf.'.pdf';
-        } elseif ( 'mail_2' == $mail->name() ) {
-            // do something for 'Mail (2)'
-            $components['attachments'][] = $createDirectory.'/'.$nameOfPdf.'.csv';
-        }*/
-        
-        return $components;
+    
+            //if( file_exists($createDirectory.'/'.$nameOfPdf.'.pdf') ) { $filePDF = 'true'; }
+            //if( file_exists($createDirectory.'/'.$nameOfPdf.'.csv') ) { $fileCSV = 'true'; }
+                
+                if ( 'mail' == $mail->name() ) {
+                      // do something for 'Mail'
+                    
+                    // Send PDF
+                    if( isset($meta_values["disable-pdf"]) && $meta_values['disable-pdf'] == 'false' ) {
+                        if( isset($meta_values["send-attachment"]) && ($meta_values["send-attachment"] == 'sender' OR $meta_values["send-attachment"] == 'both') ) {
+                            $components['attachments'][] = $createDirectory.'/'.$nameOfPdf.'.pdf';
+                            //$components['attachments'][] = $createDirectory.'/facture-toilettes.pdf';
+                        }
+                    }
+                    
+                    // SEND CSV
+                    if( isset($meta_values["disable-csv"]) && $meta_values['disable-csv'] == 'false' ) {
+                        if( isset($meta_values["send-attachment2"]) && ($meta_values["send-attachment2"] == 'sender' OR $meta_values["send-attachment2"] == 'both') ) {
+                            $components['attachments'][] = $createDirectory.'/'.$nameOfPdf.'.csv';
+                        }
+                    }
+                    
+                    //SEND OTHER
+                    if( isset($meta_values["pdf-files-attachments"]) ) {
+                        if( isset($meta_values["send-attachment3"]) && ($meta_values["send-attachment3"] == 'sender' OR $meta_values["send-attachment3"] == 'both') ) { 
+
+                            $tabDocs = explode("\n", $meta_values["pdf-files-attachments"]);
+                            $tabDocs = array_map('trim',$tabDocs);// Enlève les espaces vides
+                            $tabDocs = array_filter($tabDocs);// Supprime les éléments vides (= lignes vides) non 
+
+                            $nbDocs = count($tabDocs);
+                            //echo 'Total de '.$nb_lignes.' lignes : <br />';
+                            if( $nbDocs >= 1) { 
+                                foreach($tabDocs as $urlDocs) {
+                                    $urlDocs = str_replace($upload_dir['baseurl'], $upload_dir['basedir'], $urlDocs);
+                                    $components['attachments'][] = $urlDocs;
+                                }
+                            }
+                        }
+                    }
+
+                } elseif ( 'mail_2' == $mail->name() ) {
+
+                    // do something for 'Mail (2)'
+                    // Send PDF
+                    if( isset($meta_values["disable-pdf"]) && $meta_values['disable-pdf'] == 'false' ) {
+                        if( isset($meta_values["send-attachment"]) && ($meta_values["send-attachment"] == 'recipient' OR $meta_values["send-attachment"] == 'both') ) {
+                            $components['attachments'][] = $createDirectory.'/'.$nameOfPdf.'.pdf';
+                        }
+                    }
+                    
+                    // SEND CSV
+                    if( isset($meta_values["disable-csv"]) && $meta_values['disable-csv'] == 'false' ) {
+                        if( isset($meta_values["send-attachment2"]) && ($meta_values["send-attachment2"] == 'recipient' OR $meta_values["send-attachment2"] == 'both') ) {
+                            $components['attachments'][] = $createDirectory.'/'.$nameOfPdf.'.csv';
+                        }
+                    }
+                    
+                     //SEND OTHER
+                    if( isset($meta_values["pdf-files-attachments"]) ) {
+                        if( isset($meta_values["send-attachment3"]) && ($meta_values["send-attachment3"] == 'recipient' OR $meta_values["send-attachment3"] == 'both') ) { 
+
+                            $tabDocs2 = explode("\n", $meta_values["pdf-files-attachments"]);
+                            $tabDocs2 = array_map('trim',$tabDocs2);// Enlève les espaces vides
+                            $tabDocs2 = array_filter($tabDocs2);// Supprime les éléments vides (= lignes vides) non 
+
+                            $nbDocs2 = count($tabDocs2);
+                            //echo 'Total de '.$nb_lignes.' lignes : <br />';
+                            if( $nbDocs2 >= 1) { 
+                                foreach($tabDocs2 as $urlDocs2) {
+                                    $urlDocs2 = str_replace($upload_dir['baseurl'], $upload_dir['basedir'], $urlDocs2);
+                                    $components['attachments'][] = $urlDocs2;
+                                }
+                            }
+
+                        }
+                    }
+                    
+
+                }
+                //error_log(serialize($components['attachments'])); //not blank, all sorts of stuff
+                return $components;
+
+        }
     }
     
     /* Récupère la liste des formulaires enregistrés */
