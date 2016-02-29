@@ -110,7 +110,7 @@ jQuery.fn.selectText = function () {
                     <?php } ?>
                 </td>
                 <td align="center" width="20%">
-                    <h3><?php printf( __('Read %s here !', 'wp-cf7pdf'), '<a href=http://www.restezconnectes.fr/tutoriel-wordpress-le-plugin-send-pdf-for-contact-form-7/">'.__('Tutorial', 'wp-cf7pdf').'</a>' ); ?></h3>
+                    <h3><?php printf( __('Read %s here !', 'wp-cf7pdf'), '<a href="http://www.restezconnectes.fr/tutoriel-wordpress-le-plugin-send-pdf-for-contact-form-7/" target="_blank">'.__('Tutorial', 'wp-cf7pdf').'</a>' ); ?></h3>
                 </td>
                 <td align="right" width="25%">
                     <!-- FAIRE UN DON SUR PAYPAL -->
