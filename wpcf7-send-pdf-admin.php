@@ -76,13 +76,13 @@ jQuery.fn.selectText = function () {
 <div class="wrap">
     
     <h2 style="font-size: 23px;font-weight: 400;padding: 9px 15px 4px 0px;line-height: 29px;">
-        <?php echo __('WP Contact Form 7 Send PDF - Settings', 'wp-cf7pdf'); ?>
+        <?php echo __('Send PDF for Contact Form 7 - Settings', 'wp-cf7pdf'); ?>
     </h2>
-
+    <?php if ( is_plugin_active( 'contact-form-7/wp-contact-form-7.php' ) ) { ?>
     <div style="margin-left: 0px;margin-top: 5px;background-color: #ffffff;border: 1px solid #cccccc;padding: 10px;">
         <table width="100%" cellspacing="20">
             <tr>
-                <td align="left" valign="top">
+                <td align="left" valign="middle">
                     <?php
                         $formsList = cf7_sendpdf::getForms();
                         if (count($formsList) == 0) {
@@ -108,6 +108,21 @@ jQuery.fn.selectText = function () {
                         </select>
                     </form>
                     <?php } ?>
+                </td>
+                <td align="center" width="20%">
+                    <h3><?php printf( __('Read %s here !', 'wp-cf7pdf'), '<a href=http://www.restezconnectes.fr/tutoriel-wordpress-le-plugin-send-pdf-for-contact-form-7/">'.__('Tutorial', 'wp-cf7pdf').'</a>' ); ?></h3>
+                </td>
+                <td align="right" width="25%">
+                    <!-- FAIRE UN DON SUR PAYPAL -->
+                    <div style="border:1px dotted #ccc;text-align:center;"><?php _e('If you want Donate (French Paypal) for my current and future developments:', 'wp-cf7pdf'); ?><br />
+                        <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_blank">
+                        <input type="hidden" name="cmd" value="_s-xclick">
+                        <input type="hidden" name="hosted_button_id" value="ABGJLUXM5VP58">
+                        <input type="image" src="https://www.paypalobjects.com/fr_FR/FR/i/btn/btn_donate_SM.gif" border="0" name="submit" alt="PayPal - la solution de paiement en ligne la plus simple et la plus sécurisée !">
+                        <img alt="" border="0" src="https://www.paypalobjects.com/fr_FR/i/scr/pixel.gif" width="1" height="1">
+                        </form>
+                    </div>
+                    <!-- FIN FAIRE UN DON -->
                 </td>
             </tr>
         </table>
@@ -152,7 +167,7 @@ jQuery.fn.selectText = function () {
             $mpdf->Output($createDirectory.'/preview.pdf', 'F');
         }
         
-        $messagePdf = '
+            $messagePdf = '
 <p>Votre nom : [your-name]</p>
 
 <p>Votre email : [your-email]</p>
@@ -350,17 +365,19 @@ jQuery.fn.selectText = function () {
             </div>
             <div class="clear">&nbsp;</div>
             <?php if( isset($meta_values["disable-insert"]) && $meta_values["disable-insert"]=="false") { ?>
-            <table>
-                <tr>
-                    <td width="50%">
-                        <div>
-                            <span class="dashicons dashicons-download"></span> <a href="<?php echo plugins_url( '', __FILE__ ); ?>/wpcf7-send-pdf-export.php?idform=<?php echo $_GET['form_name']; ?>" target="_blank" alt="<?php _e('Export list of participants', 'sponsorpress'); ?>" title="<?php _e('Export list', 'wp-cf7pdf'); ?>"><?php _e('Export list in CSV file', 'wp-cf7pdf'); ?></a>
-                        </div>
+            <table width="100%">
+                <tbody>
+                    <tr>
+                        <td width="50%">
+                            <div>
+                                <span class="dashicons dashicons-download"></span> <a href="<?php echo plugins_url( '', __FILE__ ); ?>/wpcf7-send-pdf-export.php?idform=<?php echo $_GET['form_name']; ?>" target="_blank" alt="<?php _e('Export list of participants', 'sponsorpress'); ?>" title="<?php _e('Export list', 'wp-cf7pdf'); ?>"><?php _e('Export list in CSV file', 'wp-cf7pdf'); ?></a>
+                            </div>
+                            </td>
+                        <td width="50%" align="right">
+                            <span class="dashicons dashicons-dismiss"></span> <a href="?page=wpcf7-send-pdf&form_name=17&truncate=1"  onClick="if(!confirm('<?php _e('Are you sure to delete all data? ', 'wp-cf7pdf'); ?>')) return false;" alt="<?php _e('Delete all data?', 'wp-cf7pdf'); ?>" title="<?php _e('Delete all data?', 'wp-cf7pdf'); ?>"><?php _e('Delete all data?', 'wp-cf7pdf'); ?></a>
                         </td>
-                    <td width="50%">
-                        <span class="dashicons dashicons-dismiss"></span> <a href="?page=wpcf7-send-pdf&form_name=17&truncate=1"  onClick="if(!confirm('<?php _e('Are you sure to delete all data? ', 'wp-cf7pdf'); ?>')) return false;" alt="<?php _e('Delete all data?', 'wp-cf7pdf'); ?>" title="<?php _e('Delete all data?', 'wp-cf7pdf'); ?>"><?php _e('Delete all data?', 'wp-cf7pdf'); ?></a>
-                    </td>
-                </tr>
+                    </tr>
+                </tbody>
             </table>
             <?php } ?>
             
@@ -375,4 +392,12 @@ jQuery.fn.selectText = function () {
         
      </div>
 <?php } ?>
+<?php } else { ?>
+    <div style="margin-left: 0px;margin-top: 5px;background-color: #ffffff;border: 1px solid #cccccc;padding: 10px;">
+        <?php printf( __('To work I need %s plugin, but it is apparently not installed or not enabled!', 'wp-cf7pdf'), '<a href="https://wordpress.org/plugins/contact-form-7/" target="_blank">Contact Form 7</a>' ); ?>
+    </div>
+<?php } ?>
+    <div style="margin-top:40px;">
+        <?php _e('WP Contact Form 7 Send PDF is brought to you by', 'wp-cf7pdf'); ?> <a href="http://www.restezconnectes.fr/" target="_blank">Restez Connectés</a> - <?php _e('If you found this plugin useful', 'wp-cf7pdf'); ?> <a href="https://wordpress.org/support/view/plugin-reviews/wp-maintenance" target="_blank"><?php _e('give it 5 &#9733; on WordPress.org', 'wp-cf7pdf'); ?></a>
+    </div>
 </div>

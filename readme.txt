@@ -15,7 +15,9 @@ Créer et personnaliser un fichier PDF via un formulaire issu de Contact Form 7
 
 Le plugin WP Contact Form 7 Send PDF va vous permettre de récupérer les données postées via votre formulaire pour les insérer dans un PDF construit et préparé par vos soins.
 
-Tutoriel disponible ici : http://www.restezconnectes.fr/tutoriel-wordpress-le-plugin-wp-contact-form-7-send-pdf/
+Ce plugin nécessite l'installation et l'activation du plugin Contact Form 7.
+
+Tutoriel disponible ici : http://www.restezconnectes.fr/tutoriel-wordpress-le-plugin-send-pdf-for-contact-form-7/
 
 Langues disponibles / Languages :
 

@@ -1,6 +1,6 @@
 <?php
 /*
-Plugin Name: WP Contact Form 7 Send PDF
+Plugin Name: Send PDF for Contact Form 7
 Plugin URI: http://restezconectes.fr
 Description: Send a PDF with Contact Form 7. It is originally created for Contact Form 7 plugin.
 Author: Florent Maillefaud
