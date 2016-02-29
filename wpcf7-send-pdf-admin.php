@@ -10,6 +10,13 @@ if( (isset($_POST['action']) && isset($_GET['form_name']) && $_POST['action'] ==
     echo '<div id="message" class="updated fade"><p><strong>'.__('Options saved.', 'wp-cf7pdf').'</strong></p></div>';
     
 }
+if( isset($_GET['form_name']) && isset($_GET['truncate']) && $_GET['truncate'] == 1 ) {
+     
+    $DeleteList = cf7_sendpdf::truncate();
+    if( $DeleteList == true ) {
+        echo '<div id="message" class="updated fade"><p><strong>'.__('All the data has been deleted.', 'wp-cf7pdf').'</strong></p></div>';
+    }
+}
 //print_r($_POST["wp_cf7pdf_settings"]);
 
 //print_r(getForms());
@@ -343,10 +350,20 @@ jQuery.fn.selectText = function () {
             </div>
             <div class="clear">&nbsp;</div>
             <?php if( isset($meta_values["disable-insert"]) && $meta_values["disable-insert"]=="false") { ?>
-            <div>
-                <span class="dashicons dashicons-download"></span> <a href="<?php echo plugins_url( '', __FILE__ ); ?>/wpcf7-send-pdf-export.php?idform=<?php echo $_GET['form_name']; ?>" target="_blank" alt="<?php _e('Export list of participants', 'sponsorpress'); ?>" title="<?php _e('Export list', 'wp-cf7pdf'); ?>"><?php _e('Export list in CSV file', 'wp-cf7pdf'); ?></a>
-            </div>
+            <table>
+                <tr>
+                    <td width="50%">
+                        <div>
+                            <span class="dashicons dashicons-download"></span> <a href="<?php echo plugins_url( '', __FILE__ ); ?>/wpcf7-send-pdf-export.php?idform=<?php echo $_GET['form_name']; ?>" target="_blank" alt="<?php _e('Export list of participants', 'sponsorpress'); ?>" title="<?php _e('Export list', 'wp-cf7pdf'); ?>"><?php _e('Export list in CSV file', 'wp-cf7pdf'); ?></a>
+                        </div>
+                        </td>
+                    <td width="50%">
+                        <span class="dashicons dashicons-dismiss"></span> <a href="?page=wpcf7-send-pdf&form_name=17&truncate=1"  onClick="if(!confirm('<?php _e('Are you sure to delete all data? ', 'wp-cf7pdf'); ?>')) return false;" alt="<?php _e('Delete all data?', 'wp-cf7pdf'); ?>" title="<?php _e('Delete all data?', 'wp-cf7pdf'); ?>"><?php _e('Delete all data?', 'wp-cf7pdf'); ?></a>
+                    </td>
+                </tr>
+            </table>
             <?php } ?>
+            
             <ul>
                 <li>
                     <p>

@@ -35,6 +35,8 @@ http://hookr.io/plugins/contact-form-7/4.3.1/functions/#index=a
 if( !defined( 'WPCF7PDF_VERSION' )) { define( 'WPCF7PDF_VERSION', '0.1' ); }
 if( !defined( 'WP_CONTENT_DIR' )) { define( 'WP_CONTENT_DIR', ABSPATH . 'wp-content'); }
 
+include("uninstall.php");
+
 cf7_sendpdf::instance();
 
 class cf7_sendpdf {
@@ -440,10 +442,18 @@ class cf7_sendpdf {
 
         global $wpdb;
         if(!$idForm or !$idForm) { die('Aucun formulaire sélectionné !'); }
-        $result = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM wp_wpcf7pdf_files WHERE wpcf7pdf_id_form = %d ", $idForm), 'OBJECT' );
+        $result = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM ".$wpdb->prefix."wpcf7pdf_files WHERE wpcf7pdf_id_form = %d ", $idForm), 'OBJECT' );
         if($result) {
             return $result;
         } 
+    }
+    
+    function truncate() {
+        global $wpdb;
+        $result =  $wpdb->query( "TRUNCATE TABLE ".$wpdb->prefix."wpcf7pdf_files" );        
+		if($result) {
+            return true;
+        }
     }
     
 }
