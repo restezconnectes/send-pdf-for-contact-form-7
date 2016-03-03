@@ -3,23 +3,20 @@
 /* Update des paramètres */
 if( (isset($_POST['action']) && isset($_GET['form_name']) && $_POST['action'] == 'update') ) {
     
-    update_post_meta( $_GET['form_name'], '_wp_cf7pdf', $_POST["wp_cf7pdf_settings"] );
-    update_post_meta( $_GET['form_name'], '_wp_cf7pdf_fields', $_POST["wp_cf7pdf_tags"] );
+    update_post_meta( intval($_GET['form_name']), '_wp_cf7pdf', $_POST["wp_cf7pdf_settings"] );
+    update_post_meta( intval($_GET['form_name']), '_wp_cf7pdf_fields', $_POST["wp_cf7pdf_tags"] );
     //update_option('wp_cf7pdf_settings', $_POST["wp_cf7pdf_settings"]);
     $options_saved = true;
     echo '<div id="message" class="updated fade"><p><strong>'.__('Options saved.', 'wp-cf7pdf').'</strong></p></div>';
     
 }
-if( isset($_GET['form_name']) && isset($_GET['truncate']) && $_GET['truncate'] == 1 ) {
+if( isset($_GET['form_name']) && isset($_GET['truncate']) && intval($_GET['truncate']) == 1 ) {
      
     $DeleteList = cf7_sendpdf::truncate();
     if( $DeleteList == true ) {
         echo '<div id="message" class="updated fade"><p><strong>'.__('All the data has been deleted.', 'wp-cf7pdf').'</strong></p></div>';
     }
 }
-//print_r($_POST["wp_cf7pdf_settings"]);
-
-//print_r(getForms());
 
 ?>
 <script type="text/javascript">
@@ -132,7 +129,7 @@ jQuery.fn.selectText = function () {
     if( isset($_GET['form_name']) ) { 
 
         //name,forename,bithday,sex,phone,adress,cp,city,sport,
-        $idForm = $_GET['form_name'];
+        $idForm = intval($_GET['form_name']);
         $meta_values = get_post_meta( $idForm, '_wp_cf7pdf', true );
         $meta_form = get_post_meta( $idForm, '_form', true);
         
@@ -147,7 +144,7 @@ jQuery.fn.selectText = function () {
             unlink($createDirectory.'/preview.pdf');
         }
         if( isset($meta_values['generate_pdf']) && !empty($meta_values['generate_pdf']) ) {
-            include(WP_CONTENT_DIR.'/plugins/wpcf7-send-pdf/mpdf/mpdf.php');
+            include('/mpdf/mpdf.php');
             $mpdf=new mPDF('c');
             $mpdf->ignore_invalid_utf8 = true;
             if( isset($meta_values["image"]) && !empty($meta_values["image"]) ) {
@@ -161,7 +158,7 @@ jQuery.fn.selectText = function () {
 
                 $attribut = 'width='.$imgWidth.' height="'.$imgHeight.'"';
 
-                $mpdf->WriteHTML('<div style="text-align:'.$imgAlign.'"><img src="'.$meta_values["image"].'" '.$attribut.' /></div>');
+                $mpdf->WriteHTML('<div style="text-align:'.$imgAlign.'"><img src="'.esc_url($meta_values["image"]).'" '.$attribut.' /></div>');
             }
             $mpdf->WriteHTML( wpautop( $meta_values['generate_pdf']) );
             $mpdf->Output($createDirectory.'/preview.pdf', 'F');
@@ -204,7 +201,7 @@ jQuery.fn.selectText = function () {
                             <td><?php _e('Who send the PDF file?', 'wp-cf7pdf'); ?></td>
                             <td>
                                 <select name="wp_cf7pdf_settings[send-attachment]">
-                                    <option value="sender"<?php if( isset($meta_values["send-attachment"]) && $meta_values["send-pdf"] == "sender" ) { echo ' selected'; } ?>><?php _e('Sender', 'wp-cf7pdf'); ?></option>
+                                    <option value="sender"<?php if( isset($meta_values["send-attachment"]) && isset($meta_values["send-pdf"]) && $meta_values["send-pdf"] == "sender" ) { echo ' selected'; } ?>><?php _e('Sender', 'wp-cf7pdf'); ?></option>
                                     <option value="recipient"<?php if( isset($meta_values["send-attachment"]) && $meta_values["send-attachment"] == "recipient" ) { echo ' selected'; } ?>><?php _e('Recipient', 'wp-cf7pdf'); ?></option>
                                     <option value="both"<?php if( (isset($meta_values["send-attachment"]) && $meta_values["send-attachment"] == "both") || empty($meta_values["send-attachment"]) ) { echo ' selected'; } ?>><?php _e('Both', 'wp-cf7pdf'); ?></option>
                                 </select>
@@ -224,7 +221,7 @@ jQuery.fn.selectText = function () {
                             <td><?php _e('Who send the CSV file?', 'wp-cf7pdf'); ?></td>
                             <td>
                                 <select name="wp_cf7pdf_settings[send-attachment2]">
-                                    <option value="sender"<?php if( isset($meta_values["send-attachment2"]) && $meta_values["send-pdf"] == "sender" ) { echo ' selected'; } ?>><?php _e('Sender', 'wp-cf7pdf'); ?></option>
+                                    <option value="sender"<?php if( isset($meta_values["send-attachment2"]) && isset($meta_values["send-pdf"]) && $meta_values["send-pdf"] == "sender" ) { echo ' selected'; } ?>><?php _e('Sender', 'wp-cf7pdf'); ?></option>
                                     <option value="recipient"<?php if( isset($meta_values["send-attachment2"]) && $meta_values["send-attachment2"] == "recipient" ) { echo ' selected'; } ?>><?php _e('Recipient', 'wp-cf7pdf'); ?></option>
                                     <option value="both"<?php if( (isset($meta_values["send-attachment2"]) && $meta_values["send-attachment2"] == "both") || empty($meta_values["send-attachment2"]) ) { echo ' selected'; } ?>><?php _e('Both', 'wp-cf7pdf'); ?></option>
                                 </select>
@@ -237,14 +234,14 @@ jQuery.fn.selectText = function () {
                         </tr>
                         <tr><td colspan="2"><hr /></td></tr>
                         <tr>
-                            <td><?php _e('Other files attachments?', 'wp-cf7pdf'); ?><p>(<i><?php _e("Enter one URL file by line", 'wp-cf7pdf'); ?></i>)</p><textarea cols="100%" rows="5" name="wp_cf7pdf_settings[pdf-files-attachments]"><?php if( isset($meta_values["pdf-files-attachments"]) ) { echo $meta_values["pdf-files-attachments"]; } ?></textarea>
+                            <td><?php _e('Other files attachments?', 'wp-cf7pdf'); ?><p>(<i><?php _e("Enter one URL file by line", 'wp-cf7pdf'); ?></i>)</p><textarea cols="100%" rows="5" name="wp_cf7pdf_settings[pdf-files-attachments]"><?php if( isset($meta_values["pdf-files-attachments"]) ) { echo esc_textarea($meta_values["pdf-files-attachments"]); } ?></textarea>
                             </td>
                         </tr>
                         <tr>
                             <td><?php _e('Who send the attachments file?', 'wp-cf7pdf'); ?></td>
                             <td>
                                 <select name="wp_cf7pdf_settings[send-attachment3]">
-                                    <option value="sender"<?php if( isset($meta_values["send-attachment3"]) && $meta_values["send-pdf"] == "sender" ) { echo ' selected'; } ?>><?php _e('Sender', 'wp-cf7pdf'); ?></option>
+                                    <option value="sender"<?php if( isset($meta_values["send-attachment3"]) && isset($meta_values["send-pdf"]) && $meta_values["send-pdf"] == "sender" ) { echo ' selected'; } ?>><?php _e('Sender', 'wp-cf7pdf'); ?></option>
                                     <option value="recipient"<?php if( isset($meta_values["send-attachment3"]) && $meta_values["send-attachment3"] == "recipient" ) { echo ' selected'; } ?>><?php _e('Recipient', 'wp-cf7pdf'); ?></option>
                                     <option value="both"<?php if( (isset($meta_values["send-attachment2"]) && $meta_values["send-attachment3"] == "both") || empty($meta_values["send-attachment3"]) ) { echo ' selected'; } ?>><?php _e('Both', 'wp-cf7pdf'); ?></option>
                                 </select>
@@ -273,7 +270,7 @@ jQuery.fn.selectText = function () {
                         <tr>
                             <td>
                                 <span class="dashicons dashicons-format-image"></span> <?php _e('Enter a URL or upload an image.', 'wp-cf7pdf'); ?></small><br />
-                                <input id="upload_image" size="36" name="wp_cf7pdf_settings[image]" value="<?php if( isset($meta_values['image']) ) { echo $meta_values['image']; } ?>" type="text" /> <a href="#" id="upload_image_button" class="button" OnClick="this.blur();"><span> <?php _e('Select or Upload your picture', 'wp-cf7pdf'); ?> </span></a> <br />
+                                <input id="upload_image" size="36" name="wp_cf7pdf_settings[image]" value="<?php if( isset($meta_values['image']) ) { echo esc_url($meta_values['image']); } ?>" type="text" /> <a href="#" id="upload_image_button" class="button" OnClick="this.blur();"><span> <?php _e('Select or Upload your picture', 'wp-cf7pdf'); ?> </span></a> <br />
                                 <div style="margin-top:0.8em;">
                                     <select name="wp_cf7pdf_settings[image-alignment]">
                                         <option value="left" <?php if( isset($meta_values['image-alignment']) && ($meta_values['image-alignment']=='left') ) { echo 'selected'; } ?>><?php _e('Left', 'wp-cf7pdf'); ?></option>
@@ -285,7 +282,7 @@ jQuery.fn.selectText = function () {
                                 </div>
                             </td>
                             <td align="center">
-                                <?php if( isset($meta_values['image']) ) { echo '<img src="'.$meta_values['image'].'" height="100">'; } ?><br />
+                                <?php if( isset($meta_values['image']) ) { echo '<img src="'.esc_url($meta_values['image']).'" height="100">'; } ?><br />
                                 <?php 
                                     if( !empty($meta_values["image"]) ) {
                                         list($width, $height, $type, $attr) = getimagesize($meta_values["image"]);
@@ -347,7 +344,7 @@ jQuery.fn.selectText = function () {
                                     ?>
                                 </legend>
                                 <br /><br />
-                                <textarea name="wp_cf7pdf_settings[generate_pdf]" rows="25" cols="80%"><?php if( empty($meta_values['generate_pdf']) ) { echo $messagePdf; }  else { echo stripslashes($meta_values['generate_pdf']); } ?></textarea>
+                                <textarea name="wp_cf7pdf_settings[generate_pdf]" rows="25" cols="80%"><?php if( empty($meta_values['generate_pdf']) ) { echo $messagePdf; } else { echo esc_textarea($meta_values['generate_pdf']); } ?></textarea>
                             </td>
                             <td align="center" width="20%">
                                 <?php if( file_exists($createDirectory.'/preview.pdf') ) { ?>
@@ -370,7 +367,7 @@ jQuery.fn.selectText = function () {
                     <tr>
                         <td width="50%">
                             <div>
-                                <span class="dashicons dashicons-download"></span> <a href="<?php echo plugins_url( '', __FILE__ ); ?>/wpcf7-send-pdf-export.php?idform=<?php echo $_GET['form_name']; ?>" target="_blank" alt="<?php _e('Export list of participants', 'sponsorpress'); ?>" title="<?php _e('Export list', 'wp-cf7pdf'); ?>"><?php _e('Export list in CSV file', 'wp-cf7pdf'); ?></a>
+                                <span class="dashicons dashicons-download"></span> <a href="<?php echo plugins_url( '', __FILE__ ); ?>/wpcf7-send-pdf-export.php?idform=<?php echo intval($_GET['form_name']); ?>" target="_blank" alt="<?php _e('Export list of participants', 'sponsorpress'); ?>" title="<?php _e('Export list', 'wp-cf7pdf'); ?>"><?php _e('Export list in CSV file', 'wp-cf7pdf'); ?></a>
                             </div>
                             </td>
                         <td width="50%" align="right">

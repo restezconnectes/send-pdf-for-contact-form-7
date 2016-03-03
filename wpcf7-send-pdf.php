@@ -24,18 +24,8 @@ Author URI: http://restezconnectes.fr/
     along with this program; if not, write to the Free Software
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
-/*
-DOCUMENTATION
-http://xaviesteve.com/3298/wordpress-contact-form-7-hook-unofficial-developer-documentation-and-examples/
-http://mosaika.fr/recuperer-donnees-plugin-contact-form-7/
-// Functions
-http://hookr.io/plugins/contact-form-7/4.3.1/functions/#index=a
-*/
 
 if( !defined( 'WPCF7PDF_VERSION' )) { define( 'WPCF7PDF_VERSION', '0.1' ); }
-if( !defined( 'WP_CONTENT_DIR' )) { define( 'WP_CONTENT_DIR', ABSPATH . 'wp-content'); }
-
-include("uninstall.php");
 
 cf7_sendpdf::instance();
 
@@ -67,14 +57,11 @@ class cf7_sendpdf {
         add_filter( 'wpcf7_mail_components', array( $this, 'wpcf7pdf_mail_components' ), 10, 3 );
         add_action( 'admin_menu', array( $this, 'wpcf7pdf_add_admin') );
         add_filter( 'plugin_action_links_' . plugin_basename(__FILE__), array( $this, 'wpcf7pdf_plugin_actions' ) );
-        //if (isset($_GET['page']) && $_GET['page'] == 'wpcf7-send-pdf/wpcf7-send-pdf.php') {
-        //add_action('admin_print_scripts', 'wpcf7pdf_admin_scripts');
-        
-        //}
         add_action('init', array( $this, 'wpcf7pdf_session_start') );
         add_action( 'wpcf7_before_send_mail', array( $this, 'wpcf7pdf_send_pdf' ) );
         // Enable localization
 		add_action( 'plugins_loaded', array( $this, 'init_l10n' ) );
+        register_deactivation_hook(__FILE__, 'wpcf7pdf_uninstall');
         
     }
             
@@ -92,9 +79,7 @@ class cf7_sendpdf {
         include("wpcf7-send-pdf-admin.php");
     }
     function wpcf7pdf_add_admin() {
-
-        //$page = add_options_page(__('Options for CF7 Send PDF', 'wp-cf7pdf'), __('Send PDF with CF7', 'wp-cf7pdf'), 'administrator', 'wpcf7-send-pdf', array( $this, 'wpcf7pdf_dashboard_html_page') );
-        
+    
         $addPDF = add_submenu_page( 'wpcf7',
 		__('Options for CF7 Send PDF', 'wp-cf7pdf'),
 		__('Send PDF with CF7', 'wp-cf7pdf'),
@@ -104,12 +89,12 @@ class cf7_sendpdf {
         wp_enqueue_script('media-upload');
         wp_enqueue_script('thickbox');
         
-        wp_register_script('wpcf7-my-upload', WP_PLUGIN_URL.'/wpcf7-send-pdf/js/wpcf7pdf-script.js', array('jquery','media-upload','thickbox'));
+        wp_register_script('wpcf7-my-upload', plugins_url( 'js/wpcf7pdf-script.js', __FILE__ ), array('jquery','media-upload','thickbox'));
         wp_enqueue_script('wpcf7-my-upload');
         
         // If you're not including an image upload then you can leave this function call out
         wp_enqueue_media();
-
+        
         // Now we can localize the script with our data.
         wp_localize_script( 'wpcf7-my-upload', 'Data', array(
           'textebutton'  =>  __( 'Choose This Image', 'wp-cf7pdf' ),
@@ -224,7 +209,7 @@ class cf7_sendpdf {
                 // On génère le PDF
                 if( isset($meta_values["disable-pdf"]) && $meta_values['disable-pdf'] == 'false') {
 
-                    include(WP_CONTENT_DIR.'/plugins/wpcf7-send-pdf/mpdf/mpdf.php');
+                    include('/mpdf/mpdf.php');
                     $mpdf=new mPDF('c');
                     $mpdf->ignore_invalid_utf8 = true;
                     if( isset($meta_values["image"]) && !empty($meta_values["image"]) ) {
@@ -238,7 +223,7 @@ class cf7_sendpdf {
 
                         $attribut = 'width='.$imgWidth.' height="'.$imgHeight.'"';
 
-                        $mpdf->WriteHTML('<div style="text-align:'.$imgAlign.'"><img src="'.$meta_values["image"].'" '.$attribut.' /></div>');
+                        $mpdf->WriteHTML('<div style="text-align:'.$imgAlign.'"><img src="'.esc_url($meta_values["image"]).'" '.$attribut.' /></div>');
                     }
                     $mpdf->WriteHTML($text);
                     
@@ -253,8 +238,6 @@ class cf7_sendpdf {
                     
                 }
                 // END GENERATE PDF
-
-                
                 
                 // On insère dans la BDD
                 if( isset($meta_values["disable-insert"]) && $meta_values["disable-insert"] == "false" ) {
@@ -312,12 +295,7 @@ class cf7_sendpdf {
                     //Une fois que tout est bon, on lui définie le nouveau mail par la méthode associée à l'object "set_properties".
                     $contact_form->set_properties(array('additional_settings' => "on_sent_ok: \"location.replace('".$redirect."');\"")); 
                 }
-                
-
-            
-            }
-            
-                                           
+            }                       
         }
     }
 
@@ -336,89 +314,85 @@ class cf7_sendpdf {
             // On recupere les donnees et le nom du pdf personnalisé
             $meta_values = get_post_meta( $post['_wpcf7'], '_wp_cf7pdf', true );
             $nameOfPdf = $this->wpcf7pdf_name_pdf($post['_wpcf7']);
-            
-    
-            //if( file_exists($createDirectory.'/'.$nameOfPdf.'.pdf') ) { $filePDF = 'true'; }
-            //if( file_exists($createDirectory.'/'.$nameOfPdf.'.csv') ) { $fileCSV = 'true'; }
                 
-                if ( 'mail' == $mail->name() ) {
-                      // do something for 'Mail'
-                    
-                    // Send PDF
-                    if( isset($meta_values["disable-pdf"]) && $meta_values['disable-pdf'] == 'false' ) {
-                        if( isset($meta_values["send-attachment"]) && ($meta_values["send-attachment"] == 'sender' OR $meta_values["send-attachment"] == 'both') ) {
-                            $components['attachments'][] = $createDirectory.'/'.$nameOfPdf.'.pdf';
-                            //$components['attachments'][] = $createDirectory.'/facture-toilettes.pdf';
-                        }
+            if ( 'mail' == $mail->name() ) {
+                  // do something for 'Mail'
+
+                // Send PDF
+                if( isset($meta_values["disable-pdf"]) && $meta_values['disable-pdf'] == 'false' ) {
+                    if( isset($meta_values["send-attachment"]) && ($meta_values["send-attachment"] == 'sender' OR $meta_values["send-attachment"] == 'both') ) {
+                        $components['attachments'][] = $createDirectory.'/'.$nameOfPdf.'.pdf';
+                        //$components['attachments'][] = $createDirectory.'/facture-toilettes.pdf';
                     }
-                    
-                    // SEND CSV
-                    if( isset($meta_values["disable-csv"]) && $meta_values['disable-csv'] == 'false' ) {
-                        if( isset($meta_values["send-attachment2"]) && ($meta_values["send-attachment2"] == 'sender' OR $meta_values["send-attachment2"] == 'both') ) {
-                            $components['attachments'][] = $createDirectory.'/'.$nameOfPdf.'.csv';
-                        }
-                    }
-                    
-                    //SEND OTHER
-                    if( isset($meta_values["pdf-files-attachments"]) ) {
-                        if( isset($meta_values["send-attachment3"]) && ($meta_values["send-attachment3"] == 'sender' OR $meta_values["send-attachment3"] == 'both') ) { 
-
-                            $tabDocs = explode("\n", $meta_values["pdf-files-attachments"]);
-                            $tabDocs = array_map('trim',$tabDocs);// Enlève les espaces vides
-                            $tabDocs = array_filter($tabDocs);// Supprime les éléments vides (= lignes vides) non 
-
-                            $nbDocs = count($tabDocs);
-                            //echo 'Total de '.$nb_lignes.' lignes : <br />';
-                            if( $nbDocs >= 1) { 
-                                foreach($tabDocs as $urlDocs) {
-                                    $urlDocs = str_replace($upload_dir['baseurl'], $upload_dir['basedir'], $urlDocs);
-                                    $components['attachments'][] = $urlDocs;
-                                }
-                            }
-                        }
-                    }
-
-                } elseif ( 'mail_2' == $mail->name() ) {
-
-                    // do something for 'Mail (2)'
-                    // Send PDF
-                    if( isset($meta_values["disable-pdf"]) && $meta_values['disable-pdf'] == 'false' ) {
-                        if( isset($meta_values["send-attachment"]) && ($meta_values["send-attachment"] == 'recipient' OR $meta_values["send-attachment"] == 'both') ) {
-                            $components['attachments'][] = $createDirectory.'/'.$nameOfPdf.'.pdf';
-                        }
-                    }
-                    
-                    // SEND CSV
-                    if( isset($meta_values["disable-csv"]) && $meta_values['disable-csv'] == 'false' ) {
-                        if( isset($meta_values["send-attachment2"]) && ($meta_values["send-attachment2"] == 'recipient' OR $meta_values["send-attachment2"] == 'both') ) {
-                            $components['attachments'][] = $createDirectory.'/'.$nameOfPdf.'.csv';
-                        }
-                    }
-                    
-                     //SEND OTHER
-                    if( isset($meta_values["pdf-files-attachments"]) ) {
-                        if( isset($meta_values["send-attachment3"]) && ($meta_values["send-attachment3"] == 'recipient' OR $meta_values["send-attachment3"] == 'both') ) { 
-
-                            $tabDocs2 = explode("\n", $meta_values["pdf-files-attachments"]);
-                            $tabDocs2 = array_map('trim',$tabDocs2);// Enlève les espaces vides
-                            $tabDocs2 = array_filter($tabDocs2);// Supprime les éléments vides (= lignes vides) non 
-
-                            $nbDocs2 = count($tabDocs2);
-                            //echo 'Total de '.$nb_lignes.' lignes : <br />';
-                            if( $nbDocs2 >= 1) { 
-                                foreach($tabDocs2 as $urlDocs2) {
-                                    $urlDocs2 = str_replace($upload_dir['baseurl'], $upload_dir['basedir'], $urlDocs2);
-                                    $components['attachments'][] = $urlDocs2;
-                                }
-                            }
-
-                        }
-                    }
-                    
-
                 }
-                //error_log(serialize($components['attachments'])); //not blank, all sorts of stuff
-                return $components;
+
+                // SEND CSV
+                if( isset($meta_values["disable-csv"]) && $meta_values['disable-csv'] == 'false' ) {
+                    if( isset($meta_values["send-attachment2"]) && ($meta_values["send-attachment2"] == 'sender' OR $meta_values["send-attachment2"] == 'both') ) {
+                        $components['attachments'][] = $createDirectory.'/'.$nameOfPdf.'.csv';
+                    }
+                }
+
+                //SEND OTHER
+                if( isset($meta_values["pdf-files-attachments"]) ) {
+                    if( isset($meta_values["send-attachment3"]) && ($meta_values["send-attachment3"] == 'sender' OR $meta_values["send-attachment3"] == 'both') ) { 
+
+                        $tabDocs = explode("\n", $meta_values["pdf-files-attachments"]);
+                        $tabDocs = array_map('trim',$tabDocs);// Enlève les espaces vides
+                        $tabDocs = array_filter($tabDocs);// Supprime les éléments vides (= lignes vides) non 
+
+                        $nbDocs = count($tabDocs);
+                        //echo 'Total de '.$nb_lignes.' lignes : <br />';
+                        if( $nbDocs >= 1) { 
+                            foreach($tabDocs as $urlDocs) {
+                                $urlDocs = str_replace($upload_dir['baseurl'], $upload_dir['basedir'], $urlDocs);
+                                $components['attachments'][] = $urlDocs;
+                            }
+                        }
+                    }
+                }
+
+            } elseif ( 'mail_2' == $mail->name() ) {
+
+                // do something for 'Mail (2)'
+                // Send PDF
+                if( isset($meta_values["disable-pdf"]) && $meta_values['disable-pdf'] == 'false' ) {
+                    if( isset($meta_values["send-attachment"]) && ($meta_values["send-attachment"] == 'recipient' OR $meta_values["send-attachment"] == 'both') ) {
+                        $components['attachments'][] = $createDirectory.'/'.$nameOfPdf.'.pdf';
+                    }
+                }
+
+                // SEND CSV
+                if( isset($meta_values["disable-csv"]) && $meta_values['disable-csv'] == 'false' ) {
+                    if( isset($meta_values["send-attachment2"]) && ($meta_values["send-attachment2"] == 'recipient' OR $meta_values["send-attachment2"] == 'both') ) {
+                        $components['attachments'][] = $createDirectory.'/'.$nameOfPdf.'.csv';
+                    }
+                }
+
+                 //SEND OTHER
+                if( isset($meta_values["pdf-files-attachments"]) ) {
+                    if( isset($meta_values["send-attachment3"]) && ($meta_values["send-attachment3"] == 'recipient' OR $meta_values["send-attachment3"] == 'both') ) { 
+
+                        $tabDocs2 = explode("\n", $meta_values["pdf-files-attachments"]);
+                        $tabDocs2 = array_map('trim',$tabDocs2);// Enlève les espaces vides
+                        $tabDocs2 = array_filter($tabDocs2);// Supprime les éléments vides (= lignes vides) non 
+
+                        $nbDocs2 = count($tabDocs2);
+                        //echo 'Total de '.$nb_lignes.' lignes : <br />';
+                        if( $nbDocs2 >= 1) { 
+                            foreach($tabDocs2 as $urlDocs2) {
+                                $urlDocs2 = str_replace($upload_dir['baseurl'], $upload_dir['basedir'], $urlDocs2);
+                                $components['attachments'][] = $urlDocs2;
+                            }
+                        }
+
+                    }
+                }
+
+
+            }
+            //error_log(serialize($components['attachments'])); //not blank, all sorts of stuff
+            return $components;
 
         }
     }
@@ -442,7 +416,7 @@ class cf7_sendpdf {
 
         global $wpdb;
         if(!$idForm or !$idForm) { die('Aucun formulaire sélectionné !'); }
-        $result = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM ".$wpdb->prefix."wpcf7pdf_files WHERE wpcf7pdf_id_form = %d ", $idForm), 'OBJECT' );
+        $result = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM ".$wpdb->prefix."wpcf7pdf_files WHERE wpcf7pdf_id_form = %d ", intval($idForm) ), 'OBJECT' );
         if($result) {
             return $result;
         } 
@@ -454,6 +428,23 @@ class cf7_sendpdf {
 		if($result) {
             return true;
         }
+    }
+    
+    function wpcf7pdf_uninstall() {
+    
+        global $wpdb;
+
+        if(get_option('wpcf7pdf_version')) { delete_option('wpcf7pdf_version'); }
+
+        $allposts = get_posts( 'numberposts=-1&post_type=wpcf7_contact_form&post_status=any' );
+        foreach( $allposts as $postinfo ) {
+            delete_post_meta( $postinfo->ID, '_wp_cf7pdf' );
+            delete_post_meta( $postinfo->ID, '_wp_cf7pdf_fields' );
+        }
+
+        $wpcf7pdf_files_table = $wpdb->prefix.'wpcf7pdf_files';
+        $sql = "DROP TABLE `$wpcf7pdf_files_table`";
+        $wpdb->query($sql);
     }
     
 }

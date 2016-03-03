@@ -1,11 +1,18 @@
 <?php
-// This includes gives us all the WordPress functionality
-include_once($_SERVER['DOCUMENT_ROOT'].'/wp-load.php' );
+
+// Load WordPress
+$bootstrap = 'wp-load.php';
+while( !is_file( $bootstrap ) ) {
+	if( is_dir( '..' ) ) 
+		chdir( '..' );
+	else
+		die( 'EN: Could not find WordPress! FR : Impossible de trouver WordPress !' );
+}
+require_once( $bootstrap );
 
 if( !$_GET["idform"] ) { exit('erreur'); }
 
 $meta_fields = get_post_meta( $_GET["idform"], '_wp_cf7pdf_fields', true );
-//$meta_tags = get_post_meta( $_GET["idform"], '_wp_cf7pdf_fields', true );
 $separateur = ";";
 if( isset($meta_fields) ) {
         
@@ -23,15 +30,9 @@ if( isset($meta_fields) ) {
 
             for($i=0;$i<$nb;$i++) { 
                 array_push($entete, $nameField[1][$i]);
-                //echo $nameField[1][$i];
             }
 
         }
-        /*$csvTab = array($_SESSION['pdf_uniqueid']);
-        foreach($meta_fields as $ntags => $vtags) {
-            $returnValue = wpcf7_mail_replace_tags($vtags);
-            array_push($csvTab, $returnValue);
-        }*/
         
         foreach( $pdfFormList as $pdfList) {
             $list = array();
@@ -48,20 +49,15 @@ if( isset($meta_fields) ) {
     }
     
 }
-//print_r($list);
-//print_r($entete);
+
 header("Content-Type: text/csv");
 header("Content-disposition: filename=csv_export_".$_GET["idform"].".csv");
-
 
 // Affichage de la ligne de titre, terminée par un retour chariot
 echo implode($separateur, $entete)."\r\n";
 
 foreach( $lignes as $ligne ) {
     echo implode($separateur, $ligne)."\r\n";
-    //print_r($ligne);
-
 }
-//echo implode($separateur, $list)."\r\n";
 
 exit('');
