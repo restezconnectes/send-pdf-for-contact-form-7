@@ -10,15 +10,15 @@ while( !is_file( $bootstrap ) ) {
 }
 require_once( $bootstrap );
 
-if( !$_GET["idform"] ) { exit('erreur'); }
+if( !intval($_GET["idform"]) ) { exit('erreur'); }
 
-$meta_fields = get_post_meta( $_GET["idform"], '_wp_cf7pdf_fields', true );
+$meta_fields = get_post_meta( intval($_GET["idform"]), '_wp_cf7pdf_fields', true );
 $separateur = ";";
 if( isset($meta_fields) ) {
         
     $entete = array("reference");
     $lignes = array();
-    $pdfFormList = cf7_sendpdf::get_list($_GET["idform"]);
+    $pdfFormList = cf7_sendpdf::get_list( intval($_GET["idform"]) );
     
     if( isset($pdfFormList) ) {
 
@@ -51,7 +51,7 @@ if( isset($meta_fields) ) {
 }
 
 header("Content-Type: text/csv");
-header("Content-disposition: filename=csv_export_".$_GET["idform"].".csv");
+header("Content-disposition: filename=csv_export_".intval($_GET["idform"]).".csv");
 
 // Affichage de la ligne de titre, terminée par un retour chariot
 echo implode($separateur, $entete)."\r\n";
