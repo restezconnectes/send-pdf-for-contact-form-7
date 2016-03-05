@@ -1,16 +1,16 @@
 <?php
 
 /* Update des paramètres */
-if( (isset($_POST['action']) && isset($_GET['form_name']) && $_POST['action'] == 'update') ) {
+if( (isset($_POST['action']) && isset($_GET['idform']) && $_POST['action'] == 'update') ) {
     
-    update_post_meta( intval($_GET['form_name']), '_wp_cf7pdf', $_POST["wp_cf7pdf_settings"] );
-    update_post_meta( intval($_GET['form_name']), '_wp_cf7pdf_fields', $_POST["wp_cf7pdf_tags"] );
+    update_post_meta( intval($_GET['idform']), '_wp_cf7pdf', $_POST["wp_cf7pdf_settings"] );
+    update_post_meta( intval($_GET['idform']), '_wp_cf7pdf_fields', $_POST["wp_cf7pdf_tags"] );
     //update_option('wp_cf7pdf_settings', $_POST["wp_cf7pdf_settings"]);
     $options_saved = true;
     echo '<div id="message" class="updated fade"><p><strong>'.__('Options saved.', 'wp-cf7pdf').'</strong></p></div>';
     
 }
-if( isset($_GET['form_name']) && isset($_GET['truncate']) && intval($_GET['truncate']) == 1 ) {
+if( isset($_GET['idform']) && isset($_GET['truncate']) && intval($_GET['truncate']) == 1 ) {
      
     $DeleteList = cf7_sendpdf::truncate();
     if( $DeleteList == true ) {
@@ -90,13 +90,13 @@ jQuery.fn.selectText = function () {
                     ?>
                     <form method="get" action="<?php echo $_SERVER['REQUEST_URI']?>" name="displayform" id="displayform">
                         <input type="hidden" name="page" value="wpcf7-send-pdf"/>
-                        <select name="form_name" id="form_name" method="GET" onchange="this.form.submit();">
+                        <select name="idform" id="idform" method="GET" onchange="this.form.submit();">
                             <option value=""><?php echo htmlspecialchars(__('* Select a form *', 'wp-cf7pdf')); ?></option>
                             <?php 
                                 $selected = '';
                                 foreach ($formsList as $formName) {
-                                    if( isset($_GET['form_name']) ) {
-                                        $selected = ($formName->ID == $_GET['form_name']) ? "selected" : ""; 
+                                    if( isset($_GET['idform']) ) {
+                                        $selected = ($formName->ID == $_GET['idform']) ? "selected" : ""; 
                                     }
                                     $formNameEscaped = htmlentities($formName->post_title, null, 'UTF-8');
                                     echo '<option value="'.$formName->ID.'" '.$selected.'>'.$formNameEscaped.'</option>';
@@ -126,10 +126,10 @@ jQuery.fn.selectText = function () {
     </div>
     
     <?php 
-    if( isset($_GET['form_name']) ) { 
+    if( isset($_GET['idform']) ) {
 
         //name,forename,bithday,sex,phone,adress,cp,city,sport,
-        $idForm = intval($_GET['form_name']);
+        $idForm = intval($_GET['idform']);
         $meta_values = get_post_meta( $idForm, '_wp_cf7pdf', true );
         $meta_form = get_post_meta( $idForm, '_form', true);
         
@@ -367,11 +367,11 @@ jQuery.fn.selectText = function () {
                     <tr>
                         <td width="50%">
                             <div>
-                                <span class="dashicons dashicons-download"></span> <a href="<?php echo plugins_url( '', __FILE__ ); ?>/wpcf7-send-pdf-export.php?idform=<?php echo intval($_GET['form_name']); ?>" target="_blank" alt="<?php _e('Export list of participants', 'sponsorpress'); ?>" title="<?php _e('Export list', 'wp-cf7pdf'); ?>"><?php _e('Export list in CSV file', 'wp-cf7pdf'); ?></a>
+                                <span class="dashicons dashicons-download"></span> <a href="admin.php?page=wpcf7-send-pdf&amp;idform=<?php echo intval($_GET['idform']); ?>&amp;csv=1" alt="<?php _e('Export list of participants', 'sponsorpress'); ?>" title="<?php _e('Export list', 'wp-cf7pdf'); ?>"><?php _e('Export list in CSV file', 'wp-cf7pdf'); ?></a>
                             </div>
                             </td>
                         <td width="50%" align="right">
-                            <span class="dashicons dashicons-dismiss"></span> <a href="?page=wpcf7-send-pdf&form_name=17&truncate=1"  onClick="if(!confirm('<?php _e('Are you sure to delete all data? ', 'wp-cf7pdf'); ?>')) return false;" alt="<?php _e('Delete all data?', 'wp-cf7pdf'); ?>" title="<?php _e('Delete all data?', 'wp-cf7pdf'); ?>"><?php _e('Delete all data?', 'wp-cf7pdf'); ?></a>
+                            <span class="dashicons dashicons-dismiss"></span> <a href="?page=wpcf7-send-pdf&idform=17&truncate=1"  onClick="if(!confirm('<?php _e('Are you sure to delete all data? ', 'wp-cf7pdf'); ?>')) return false;" alt="<?php _e('Delete all data?', 'wp-cf7pdf'); ?>" title="<?php _e('Delete all data?', 'wp-cf7pdf'); ?>"><?php _e('Delete all data?', 'wp-cf7pdf'); ?></a>
                         </td>
                     </tr>
                 </tbody>

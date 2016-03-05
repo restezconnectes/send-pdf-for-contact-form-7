@@ -57,11 +57,28 @@ class cf7_sendpdf {
         add_filter( 'wpcf7_mail_components', array( $this, 'wpcf7pdf_mail_components' ), 10, 3 );
         add_action( 'admin_menu', array( $this, 'wpcf7pdf_add_admin') );
         add_filter( 'plugin_action_links_' . plugin_basename(__FILE__), array( $this, 'wpcf7pdf_plugin_actions' ) );
-        add_action('init', array( $this, 'wpcf7pdf_session_start') );
+        add_action( 'init', array( $this, 'wpcf7pdf_session_start') );
+        //add_action( 'admin_init', array( $this, 'wpcf7_export_csv') );
         add_action( 'wpcf7_before_send_mail', array( $this, 'wpcf7pdf_send_pdf' ) );
         // Enable localization
 		add_action( 'plugins_loaded', array( $this, 'init_l10n' ) );
         register_deactivation_hook(__FILE__, 'wpcf7pdf_uninstall');
+        
+        if(isset($_GET['csv']))
+		{
+			$csv = $this->wpcf7_export_csv($_GET['idform']);
+
+			header("Pragma: public");
+			header("Expires: 0");
+			header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
+			header("Cache-Control: private", false);
+			header("Content-Type: application/octet-stream");
+			header("Content-Disposition: attachment; filename=\"report.csv\";" );
+			header("Content-Transfer-Encoding: binary");
+
+			echo $csv;
+			exit;
+		}
         
     }
             
@@ -445,6 +462,57 @@ class cf7_sendpdf {
         $wpcf7pdf_files_table = $wpdb->prefix.'wpcf7pdf_files';
         $sql = "DROP TABLE `$wpcf7pdf_files_table`";
         $wpdb->query($sql);
+    }
+    
+    function wpcf7_export_csv($idform) {
+        
+        $meta_fields = get_post_meta( intval($idform), '_wp_cf7pdf_fields', true );
+        $separateur = ";";
+        if( isset($meta_fields) ) {
+
+            $csv_output = '';
+            $entete = array("reference");
+            $lignes = array();
+            $pdfFormList = cf7_sendpdf::get_list( intval($idform) );
+
+            if( isset($pdfFormList) ) {
+
+                foreach($meta_fields as $field) {
+
+                    preg_match_all( '#\[(.*?)\]#', $field, $nameField );
+                    //print_r($nameField);
+                    $nb=count($nameField[1]); 
+
+                    for($i=0;$i<$nb;$i++) { 
+                        array_push($entete, $nameField[1][$i]);
+                    }
+
+                }
+
+                foreach( $pdfFormList as $pdfList) {
+                    $list = array();
+                    $pdfData = unserialize($pdfList->wpcf7pdf_data);
+                    //print_r($pdfData);
+                    foreach($pdfData as $data) {
+                        //$lignes[] = $data;
+                        array_push($list, $data);
+                    }
+                    //print_r($list);
+                    array_push($lignes, $list);
+
+                }
+            }
+            //return $lignes;
+
+            // Affichage de la ligne de titre, terminée par un retour chariot
+            $csv_output .= implode($separateur, $entete)."\r\n";
+
+            foreach( $lignes as $ligne ) {
+                 $csv_output .= implode($separateur, $ligne)."\r\n";
+            }
+            return $csv_output;
+
+        }
     }
     
 }
