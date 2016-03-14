@@ -1,17 +1,20 @@
 <?php
 
+defined( 'ABSPATH' ) or die( 'Not allowed' );
+
 /* Update des paramètres */
-if( (isset($_POST['action']) && isset($_GET['idform']) && $_POST['action'] == 'update') ) {
+if( (isset($_POST['action']) && isset($_POST['idform']) && $_POST['action'] == 'update') && isset( $_POST['security-sendform'] ) && wp_verify_nonce($_POST['security-sendform'], 'go-sendform') ) {
     
-    update_post_meta( intval($_GET['idform']), '_wp_cf7pdf', $_POST["wp_cf7pdf_settings"] );
-    update_post_meta( intval($_GET['idform']), '_wp_cf7pdf_fields', $_POST["wp_cf7pdf_tags"] );
+    update_post_meta( intval($_POST['idform']), '_wp_cf7pdf', $_POST["wp_cf7pdf_settings"] );
+    update_post_meta( intval($_POST['idform']), '_wp_cf7pdf_fields', $_POST["wp_cf7pdf_tags"] );
     //update_option('wp_cf7pdf_settings', $_POST["wp_cf7pdf_settings"]);
     $options_saved = true;
     echo '<div id="message" class="updated fade"><p><strong>'.__('Options saved.', 'wp-cf7pdf').'</strong></p></div>';
     
 }
-if( isset($_GET['idform']) && isset($_GET['truncate']) && intval($_GET['truncate']) == 1 ) {
-     
+
+if( isset($_POST['idform']) && isset($_POST['truncate_table']) && $_POST['truncate_table'] == 'true' ) {
+    
     $DeleteList = cf7_sendpdf::truncate();
     if( $DeleteList == true ) {
         echo '<div id="message" class="updated fade"><p><strong>'.__('All the data has been deleted.', 'wp-cf7pdf').'</strong></p></div>';
@@ -82,21 +85,20 @@ jQuery.fn.selectText = function () {
                 <td align="left" valign="middle">
                     <?php
                         $formsList = cf7_sendpdf::getForms();
-                        if (count($formsList) == 0) {
-                            echo htmlspecialchars(__('No form submissions in the database', 'contact-form-7-to-database-extension'));
-                            return;
+                        if ( count($formsList) == 0 ) {
+                            printf( __('No forms have not been found. %s', 'wp-cf7pdf'), '<a href="'.admin_url('admin.php?page=wpcf7').'">'.__('Create your first form here.', 'wp-cf7pdf').'</a>');
                         } else {
-                      //print_r($formsList);  
                     ?>
-                    <form method="get" action="<?php echo $_SERVER['REQUEST_URI']?>" name="displayform" id="displayform">
+                    <form method="post" action="<?php echo $_SERVER['REQUEST_URI']?>" name="displayform" id="displayform">
                         <input type="hidden" name="page" value="wpcf7-send-pdf"/>
-                        <select name="idform" id="idform" method="GET" onchange="this.form.submit();">
+                        <?php //wp_nonce_field('go-chooseform', 'security-form'); ?>
+                        <select name="idform" id="idform" onchange="this.form.submit();">
                             <option value=""><?php echo htmlspecialchars(__('* Select a form *', 'wp-cf7pdf')); ?></option>
                             <?php 
                                 $selected = '';
                                 foreach ($formsList as $formName) {
-                                    if( isset($_GET['idform']) ) {
-                                        $selected = ($formName->ID == $_GET['idform']) ? "selected" : ""; 
+                                    if( isset($_POST['idform']) ) {
+                                        $selected = ($formName->ID == $_POST['idform']) ? "selected" : ""; 
                                     }
                                     $formNameEscaped = htmlentities($formName->post_title, null, 'UTF-8');
                                     echo '<option value="'.$formName->ID.'" '.$selected.'>'.$formNameEscaped.'</option>';
@@ -126,10 +128,10 @@ jQuery.fn.selectText = function () {
     </div>
     
     <?php 
-    if( isset($_GET['idform']) ) {
+    if( isset($_POST['idform']) ) {
 
         //name,forename,bithday,sex,phone,adress,cp,city,sport,
-        $idForm = intval($_GET['idform']);
+        $idForm = intval($_POST['idform']);
         $meta_values = get_post_meta( $idForm, '_wp_cf7pdf', true );
         $meta_form = get_post_meta( $idForm, '_form', true);
         
@@ -180,6 +182,8 @@ jQuery.fn.selectText = function () {
     <div style="margin-left: 0px;margin-top: 5px;background-color: #ffffff;border: 1px solid #cccccc;padding: 10px;">
         <form method="post" action="" name="valide_settings">
             <input type="hidden" name="action" value="update" />
+            <input type="hidden" name="idform" value="<?php echo $idForm; ?>"/>
+            <?php wp_nonce_field('go-sendform', 'security-sendform'); ?>
                 <div style="text-align:right;">
                         <p>
                             <input type="submit" name="wp_cf7pdf_update_settings" class="button-primary" value="<?php _e('Save settings', 'wp-cf7pdf'); ?>"/>
@@ -211,6 +215,10 @@ jQuery.fn.selectText = function () {
                         <tr>
                             <td><?php _e('Disable Insert subscribtion in database?', 'wp-cf7pdf'); ?></td>
                             <td><input type= "radio" name="wp_cf7pdf_settings[disable-insert]" value="true" <?php if( isset($meta_values["disable-insert"]) && $meta_values["disable-insert"]=="true" ) { echo ' checked'; } ?>>&nbsp;<?php _e('Yes', 'wp-cf7pdf'); ?>&nbsp;<input type="radio" name="wp_cf7pdf_settings[disable-insert]" value="false" <?php if( ( isset($meta_values["disable-insert"]) && $meta_values["disable-insert"]=="false") or empty($meta_values["disable-insert"]) ) { echo ' checked'; } ?> />&nbsp;<?php _e('No', 'wp-cf7pdf'); ?></td>
+                        </tr>
+                        <tr>
+                            <td><?php _e('Truncate database?', 'wp-cf7pdf'); ?></td>
+                            <td><input type="checkbox" name="truncate_table" value="true"></td>
                         </tr>
                         <tr><td colspan="2"><hr /></td></tr>
                         <tr>
@@ -367,12 +375,9 @@ jQuery.fn.selectText = function () {
                     <tr>
                         <td width="50%">
                             <div>
-                                <span class="dashicons dashicons-download"></span> <a href="admin.php?page=wpcf7-send-pdf&amp;idform=<?php echo intval($_GET['idform']); ?>&amp;csv=1" alt="<?php _e('Export list of participants', 'sponsorpress'); ?>" title="<?php _e('Export list', 'wp-cf7pdf'); ?>"><?php _e('Export list in CSV file', 'wp-cf7pdf'); ?></a>
+                                <span class="dashicons dashicons-download"></span> <a href="admin.php?page=wpcf7-send-pdf&amp;idform=<?php echo intval($_POST['idform']); ?>&amp;csv=1" alt="<?php _e('Export list of participants', 'sponsorpress'); ?>" title="<?php _e('Export list', 'wp-cf7pdf'); ?>"><?php _e('Export list in CSV file', 'wp-cf7pdf'); ?></a>
+                                <a href="<?php echo wp_nonce_url( admin_url('admin.php?page=wpcf7-send-pdf&amp;idform='.intval($_POST['idform']).'&amp;csv=1'), 'go_generate', 'csv_security'); ?>" >CSV</a>
                             </div>
-                            </td>
-                        <td width="50%" align="right">
-                            <span class="dashicons dashicons-dismiss"></span> <a href="?page=wpcf7-send-pdf&idform=17&truncate=1"  onClick="if(!confirm('<?php _e('Are you sure to delete all data? ', 'wp-cf7pdf'); ?>')) return false;" alt="<?php _e('Delete all data?', 'wp-cf7pdf'); ?>" title="<?php _e('Delete all data?', 'wp-cf7pdf'); ?>"><?php _e('Delete all data?', 'wp-cf7pdf'); ?></a>
-                        </td>
                     </tr>
                 </tbody>
             </table>
@@ -395,6 +400,6 @@ jQuery.fn.selectText = function () {
     </div>
 <?php } ?>
     <div style="margin-top:40px;">
-        <?php _e('WP Contact Form 7 Send PDF is brought to you by', 'wp-cf7pdf'); ?> <a href="http://www.restezconnectes.fr/" target="_blank">Restez Connectés</a> - <?php _e('If you found this plugin useful', 'wp-cf7pdf'); ?> <a href="https://wordpress.org/support/view/plugin-reviews/wp-maintenance" target="_blank"><?php _e('give it 5 &#9733; on WordPress.org', 'wp-cf7pdf'); ?></a>
+        <?php _e('Send PDF for Contact Form 7 is brought to you by', 'wp-cf7pdf'); ?> <a href="http://www.restezconnectes.fr/" target="_blank">Restez Connectés</a> - <?php _e('If you found this plugin useful', 'wp-cf7pdf'); ?> <a href="https://wordpress.org/support/view/plugin-reviews/send-pdf-for-contact-form-7/" target="_blank"><?php _e('give it 5 &#9733; on WordPress.org', 'wp-cf7pdf'); ?></a>
     </div>
 </div>

@@ -25,6 +25,7 @@ Author URI: http://restezconnectes.fr/
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
+defined( 'ABSPATH' ) or die( 'Not allowed' );
 if( !defined( 'WPCF7PDF_VERSION' )) { define( 'WPCF7PDF_VERSION', '0.1' ); }
 
 cf7_sendpdf::instance();
@@ -64,16 +65,15 @@ class cf7_sendpdf {
 		add_action( 'plugins_loaded', array( $this, 'init_l10n' ) );
         register_deactivation_hook(__FILE__, 'wpcf7pdf_uninstall');
         
-        if(isset($_GET['csv']))
-		{
-			$csv = $this->wpcf7_export_csv($_GET['idform']);
+        if( isset($_GET['csv']) && intval($_GET['csv']) && $_GET['csv']==1 && (isset($_GET['csv_security']) || wp_verify_nonce($_GET['csv_security'], 'go_generate')) ) {
+			$csv = $this->wpcf7_export_csv( intval($_GET['idform']) );
 
 			header("Pragma: public");
 			header("Expires: 0");
 			header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
 			header("Cache-Control: private", false);
 			header("Content-Type: application/octet-stream");
-			header("Content-Disposition: attachment; filename=\"report.csv\";" );
+			header("Content-Disposition: attachment; filename=\"sendpdfcf7_export_".$_GET['idform'].".csv\";" );
 			header("Content-Transfer-Encoding: binary");
 
 			echo $csv;

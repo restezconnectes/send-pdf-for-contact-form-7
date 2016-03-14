@@ -1,7 +1,7 @@
 ﻿=== Plugin Name ===
 Contributors: Florent73
 Donate link: http://www.restezconnectes.fr/a-propos/
-Tags: WordPress, plugin, contact form, pdf, send, attachment
+Tags: WordPress, plugin, contact form, pdf, send, attachment, form, cf7
 Requires at least: 3.0
 Tested up to: 4.4.2
 Stable tag: 0.1
@@ -9,11 +9,11 @@ License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
 
-Créer et personnaliser un fichier PDF via un formulaire issu de Contact Form 7
+Créer, personnaliser et envoyer en pièces jointes un PDF via votre formulaire Contact Form 7
 
 == Description ==
 
-Le plugin WP Contact Form 7 Send PDF va vous permettre de récupérer les données postées via votre formulaire pour les insérer dans un PDF construit et préparé par vos soins.
+Le plugin Send PDF for Contact Form  va vous permettre de récupérer les données postées via votre formulaire pour les insérer dans un PDF construit et préparé par vos soins.
 
 Ce plugin nécessite l'installation et l'activation du plugin Contact Form 7.
 
@@ -27,7 +27,7 @@ Langues disponibles / Languages :
 Fichier wp-cf7pdf.pot disponible
 
 == Installation ==
-1. Ajouter le répertoire 'wpcf7-send-pdf' dans le répertoire '/wp-content/plugins/'
+1. Ajouter le répertoire 'send-pdf-for-contact-form-7' dans le répertoire '/wp-content/plugins/'
 2. Activer le plugin via le menu 'Plugins' dans WordPress
 3. Aller dans 'Contact->Génération de PDF' dans l'interface d'administration pour sélectionner vos options
 
