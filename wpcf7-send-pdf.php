@@ -4,7 +4,7 @@ Plugin Name: Send PDF for Contact Form 7
 Plugin URI: http://restezconectes.fr
 Description: Send a PDF with Contact Form 7. It is originally created for Contact Form 7 plugin.
 Author: Florent Maillefaud
-Version: 0.1
+Version: 0.2
 Author URI: http://restezconnectes.fr/
 */
 
@@ -26,7 +26,7 @@ Author URI: http://restezconnectes.fr/
 */
 
 defined( 'ABSPATH' ) or die( 'Not allowed' );
-if( !defined( 'WPCF7PDF_VERSION' )) { define( 'WPCF7PDF_VERSION', '0.1' ); }
+if( !defined( 'WPCF7PDF_VERSION' )) { define( 'WPCF7PDF_VERSION', '0.2' ); }
 
 cf7_sendpdf::instance();
 
@@ -124,7 +124,7 @@ class cf7_sendpdf {
         /* Création des tables nécessaires */
         if($wpdb->get_var("SHOW TABLES LIKE '".$wpdb->ma_table_wpcf7pdf."'") != $wpdb->ma_table_wpcf7pdf) {
 
-            $sql .= "CREATE TABLE `".$wpdb->ma_table_wpcf7pdf."` (
+            $sql = "CREATE TABLE `".$wpdb->ma_table_wpcf7pdf."` (
                 `wpcf7pdf_id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
                 `wpcf7pdf_id_form` bigint(20) unsigned NOT NULL,
                 `wpcf7pdf_reference` varchar(40) NOT NULL,
@@ -226,7 +226,7 @@ class cf7_sendpdf {
                 // On génère le PDF
                 if( isset($meta_values["disable-pdf"]) && $meta_values['disable-pdf'] == 'false') {
 
-                    include('/mpdf/mpdf.php');
+                    include(__DIR__.'/mpdf/mpdf.php');
                     $mpdf=new mPDF('c');
                     $mpdf->ignore_invalid_utf8 = true;
                     if( isset($meta_values["image"]) && !empty($meta_values["image"]) ) {
@@ -422,7 +422,8 @@ class cf7_sendpdf {
             'post_type'   => 'wpcf7_contact_form',
             'orderby'     => 'ID',
             'post_parent' => 0,
-            'order'       => 'ASC',
+            'order'       => 'ASC',            
+            'posts_per_page' => -1
             ) );
 
         return $forms;

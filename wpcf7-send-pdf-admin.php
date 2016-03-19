@@ -146,7 +146,7 @@ jQuery.fn.selectText = function () {
             unlink($createDirectory.'/preview.pdf');
         }
         if( isset($meta_values['generate_pdf']) && !empty($meta_values['generate_pdf']) ) {
-            include('/mpdf/mpdf.php');
+            include(__DIR__.'/mpdf/mpdf.php');
             $mpdf=new mPDF('c');
             $mpdf->ignore_invalid_utf8 = true;
             if( isset($meta_values["image"]) && !empty($meta_values["image"]) ) {
@@ -163,7 +163,7 @@ jQuery.fn.selectText = function () {
                 $mpdf->WriteHTML('<div style="text-align:'.$imgAlign.'"><img src="'.esc_url($meta_values["image"]).'" '.$attribut.' /></div>');
             }
             $mpdf->WriteHTML( wpautop( $meta_values['generate_pdf']) );
-            $mpdf->Output($createDirectory.'/preview.pdf', 'F');
+            $mpdf->Output($createDirectory.'/preview-'.$idForm.'.pdf', 'F');
         }
         
             $messagePdf = '
@@ -355,11 +355,11 @@ jQuery.fn.selectText = function () {
                                 <textarea name="wp_cf7pdf_settings[generate_pdf]" rows="25" cols="80%"><?php if( empty($meta_values['generate_pdf']) ) { echo $messagePdf; } else { echo esc_textarea($meta_values['generate_pdf']); } ?></textarea>
                             </td>
                             <td align="center" width="20%">
-                                <?php if( file_exists($createDirectory.'/preview.pdf') ) { ?>
+                                <?php if( file_exists($createDirectory.'/preview-'.$idForm.'.pdf') ) { ?>
                                     <iframe src=""></iframe>
                                     <div class="round-button">
                                         <div class="round-button-circle">
-                                            <a href="<?php echo $upload_dir['url'].'/preview.pdf'; ?>" class="round-button" target="_blank"><?php _e('Preview your PDF', 'wp-cf7pdf'); ?></a>
+                                            <a href="<?php echo $upload_dir['url'].'/preview-'.$idForm.'.pdf'; ?>" class="round-button" target="_blank"><?php _e('Preview your PDF', 'wp-cf7pdf'); ?></a>
                                         </div>
                                     </div>
                                 <?php } ?>
@@ -374,9 +374,8 @@ jQuery.fn.selectText = function () {
                 <tbody>
                     <tr>
                         <td width="50%">
-                            <div>
-                                <span class="dashicons dashicons-download"></span> <a href="admin.php?page=wpcf7-send-pdf&amp;idform=<?php echo intval($_POST['idform']); ?>&amp;csv=1" alt="<?php _e('Export list of participants', 'sponsorpress'); ?>" title="<?php _e('Export list', 'wp-cf7pdf'); ?>"><?php _e('Export list in CSV file', 'wp-cf7pdf'); ?></a>
-                                <a href="<?php echo wp_nonce_url( admin_url('admin.php?page=wpcf7-send-pdf&amp;idform='.intval($_POST['idform']).'&amp;csv=1'), 'go_generate', 'csv_security'); ?>" >CSV</a>
+                             <div>
+                                <span class="dashicons dashicons-download"></span> <a href="<?php echo wp_nonce_url( admin_url('admin.php?page=wpcf7-send-pdf&amp;idform='.intval($_POST['idform']).'&amp;csv=1'), 'go_generate', 'csv_security'); ?>" alt="<?php _e('Export list of participants', 'sponsorpress'); ?>" title="<?php _e('Export list', 'wp-cf7pdf'); ?>"><?php _e('Export list in CSV file', 'wp-cf7pdf'); ?></a>
                             </div>
                     </tr>
                 </tbody>
