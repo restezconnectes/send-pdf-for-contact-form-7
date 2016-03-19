@@ -4,7 +4,7 @@ Donate link: http://www.restezconnectes.fr/a-propos/
 Tags: WordPress, plugin, contact form, pdf, send, attachment, form, cf7
 Requires at least: 3.0
 Tested up to: 4.4.2
-Stable tag: 0.1
+Stable tag: 0.2
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -48,10 +48,13 @@ Oui mais merci de me soumettre les modifications souhaitées afin de mettre à j
 
 == Upgrade Notice ==
 
-= 0.1 =
+= 0.2 =
 Cette version est stable
 
 == Changelog ==
+
+= 0.2 =
+* Mise à jour traduction / Update translate
 
 = 0.1 =
 * Première version du plugin / First version

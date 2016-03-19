@@ -4,7 +4,7 @@ Plugin Name: Send PDF for Contact Form 7
 Plugin URI: http://restezconectes.fr
 Description: Send a PDF with Contact Form 7. It is originally created for Contact Form 7 plugin.
 Author: Florent Maillefaud
-Version: 0.1
+Version: 0.2
 Author URI: http://restezconnectes.fr/
 */
 
@@ -26,7 +26,7 @@ Author URI: http://restezconnectes.fr/
 */
 
 defined( 'ABSPATH' ) or die( 'Not allowed' );
-if( !defined( 'WPCF7PDF_VERSION' )) { define( 'WPCF7PDF_VERSION', '0.1' ); }
+if( !defined( 'WPCF7PDF_VERSION' )) { define( 'WPCF7PDF_VERSION', '0.2' ); }
 
 cf7_sendpdf::instance();
 
@@ -226,7 +226,7 @@ class cf7_sendpdf {
                 // On génère le PDF
                 if( isset($meta_values["disable-pdf"]) && $meta_values['disable-pdf'] == 'false') {
 
-                    include('/mpdf/mpdf.php');
+                    include(__DIR__.'/mpdf/mpdf.php');
                     $mpdf=new mPDF('c');
                     $mpdf->ignore_invalid_utf8 = true;
                     if( isset($meta_values["image"]) && !empty($meta_values["image"]) ) {
