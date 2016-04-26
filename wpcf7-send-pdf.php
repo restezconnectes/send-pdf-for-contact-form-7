@@ -1,11 +1,14 @@
 <?php
 /*
 Plugin Name: Send PDF for Contact Form 7
-Plugin URI: http://restezconectes.fr
+Plugin URI:  https://wordpress.org/plugins/send-pdf-for-contact-form-7/
 Description: Send a PDF with Contact Form 7. It is originally created for Contact Form 7 plugin.
-Author: Florent Maillefaud
-Version: 0.2
-Author URI: http://restezconnectes.fr/
+Version:     0.4.2
+Author:      Florent Maillefaud
+Author URI:  http://www.restezconnectes.fr
+License:     GPL3 or later
+Domain Path: /languages
+Text Domain: send-pdf-for-contact-form-7
 */
 
 /*  Copyright 2007-2015 Florent Maillefaud (email: contact at restezconectes.fr)
@@ -26,7 +29,7 @@ Author URI: http://restezconnectes.fr/
 */
 
 defined( 'ABSPATH' ) or die( 'Not allowed' );
-if( !defined( 'WPCF7PDF_VERSION' )) { define( 'WPCF7PDF_VERSION', '0.2' ); }
+if( !defined( 'WPCF7PDF_VERSION' )) { define( 'WPCF7PDF_VERSION', '0.4.2' ); }
 
 cf7_sendpdf::instance();
 
@@ -81,14 +84,14 @@ class cf7_sendpdf {
 		}
         
     }
-            
+           
     function init_l10n() {
-		load_plugin_textdomain( 'wp-cf7pdf', false, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
+		load_plugin_textdomain( 'send-pdf-for-contact-form-7', false, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
 	}
     
     // Add "Réglages" link on plugins page
     function wpcf7pdf_plugin_actions( $links ) {
-        $settings_link = '<a href="admin.php?page=wpcf7-send-pdf">'.__('Settings', 'wp-cf7pdf').'</a>';
+        $settings_link = '<a href="admin.php?page=wpcf7-send-pdf">'.__('Settings', 'send-pdf-for-contact-form-7').'</a>';
         array_unshift ( $links, $settings_link );
         return $links;
     }
@@ -98,8 +101,8 @@ class cf7_sendpdf {
     function wpcf7pdf_add_admin() {
     
         $addPDF = add_submenu_page( 'wpcf7',
-		__('Options for CF7 Send PDF', 'wp-cf7pdf'),
-		__('Send PDF with CF7', 'wp-cf7pdf'),
+		__('Options for CF7 Send PDF', 'send-pdf-for-contact-form-7'),
+		__('Send PDF with CF7', 'send-pdf-for-contact-form-7'),
 		'administrator', 'wpcf7-send-pdf',
 		array( $this, 'wpcf7pdf_dashboard_html_page') );
         
@@ -108,14 +111,11 @@ class cf7_sendpdf {
         
         wp_register_script('wpcf7-my-upload', plugins_url( 'js/wpcf7pdf-script.js', __FILE__ ), array('jquery','media-upload','thickbox'));
         wp_enqueue_script('wpcf7-my-upload');
-        
-        // If you're not including an image upload then you can leave this function call out
-        wp_enqueue_media();
-        
+            
         // Now we can localize the script with our data.
         wp_localize_script( 'wpcf7-my-upload', 'Data', array(
-          'textebutton'  =>  __( 'Choose This Image', 'wp-cf7pdf' ),
-          'title'  => __( 'Choose Image', 'wp-cf7pdf' ),
+          'textebutton'  =>  __( 'Choose This Image', 'send-pdf-for-contact-form-7' ),
+          'title'  => __( 'Choose Image', 'send-pdf-for-contact-form-7' ),
         ) );
         
         global $wpdb;        
@@ -213,7 +213,13 @@ class cf7_sendpdf {
                 
                 $text = trim($meta_values['generate_pdf']);
                 $text = str_replace('[reference]', $_SESSION['pdf_uniqueid'], $text);
-                $text = str_replace('[url-pdf]', $createDirectory.'/'.$nameOfPdf.'-'.$_SESSION['pdf_uniqueid'].'.pdf', $text);
+                $text = str_replace('[url-pdf]', $upload_dir['url'].'/'.$nameOfPdf.'-'.$_SESSION['pdf_uniqueid'].'.pdf', $text);
+                if( isset($meta_values['date_format']) && !empty($meta_values['date_format']) ) {
+                    $dateField = date_i18n( $meta_values['date_format'] );
+                } else {
+                    $dateField = date_i18n( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), current_time('timestamp') );
+                }
+                $text = str_replace('[date]', $dateField, $text);
                 
                 $csvTab = array($_SESSION['pdf_uniqueid']);
                 foreach($meta_tags as $ntags => $vtags) {
@@ -226,8 +232,14 @@ class cf7_sendpdf {
                 // On génère le PDF
                 if( isset($meta_values["disable-pdf"]) && $meta_values['disable-pdf'] == 'false') {
 
-                    include(__DIR__.'/mpdf/mpdf.php');
-                    $mpdf=new mPDF('c');
+                    //include(__DIR__.'/mpdf/mpdf.php');
+                    include(plugin_dir_path( __FILE__ ).'/mpdf/mpdf.php');
+                    $mpdf=new mPDF();
+                    $mpdf->autoScriptToLang = true;
+                    $mpdf->baseScript = 1;
+                    $mpdf->autoVietnamese = true;
+                    $mpdf->autoArabic = true;
+                    $mpdf->autoLangToFont = true;
                     $mpdf->ignore_invalid_utf8 = true;
                     if( isset($meta_values["image"]) && !empty($meta_values["image"]) ) {
                         list($width, $height, $type, $attr) = getimagesize($meta_values["image"]);
@@ -331,6 +343,9 @@ class cf7_sendpdf {
             // On recupere les donnees et le nom du pdf personnalisé
             $meta_values = get_post_meta( $post['_wpcf7'], '_wp_cf7pdf', true );
             $nameOfPdf = $this->wpcf7pdf_name_pdf($post['_wpcf7']);
+            
+            // Je déclare le contenu de l'email
+            $messageText = $components['body'];
                 
             if ( 'mail' == $mail->name() ) {
                   // do something for 'Mail'
@@ -406,8 +421,21 @@ class cf7_sendpdf {
                     }
                 }
 
-
             }
+            
+            // Je remplace les codes courts
+            if( isset($messageText) && !empty($messageText) ) {
+                $messageText = str_replace('[reference]', $_SESSION['pdf_uniqueid'], $messageText);
+                $messageText = str_replace('[url-pdf]', $upload_dir['url'].'/'.$nameOfPdf.'-'.$_SESSION['pdf_uniqueid'].'.pdf', $messageText);
+                if( isset($meta_values['date_format']) && !empty($meta_values['date_format']) ) {
+                    $dateField = date_i18n( $meta_values['date_format'] );
+                } else {
+                    $dateField = date_i18n( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), current_time('timestamp') );
+                }
+                $messageText = str_replace('[date]', $dateField, $messageText);
+                $components['body'] = $messageText;
+            }
+            
             //error_log(serialize($components['attachments'])); //not blank, all sorts of stuff
             return $components;
 
