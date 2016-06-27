@@ -153,6 +153,7 @@ jQuery.fn.selectText = function () {
             unlink($createDirectory.'/preview.pdf');
         }
         if( isset($meta_values['generate_pdf']) && !empty($meta_values['generate_pdf']) ) {
+<<<<<<< HEAD
 
             include(plugin_dir_path( __FILE__ ).'/mpdf/mpdf.php');
             $mpdf=new mPDF();
@@ -161,6 +162,10 @@ jQuery.fn.selectText = function () {
             $mpdf->autoVietnamese = true;
             $mpdf->autoArabic = true;
             $mpdf->autoLangToFont = true;
+=======
+            include(__DIR__.'/mpdf/mpdf.php');
+            $mpdf=new mPDF('c');
+>>>>>>> 5a4953756058856badeb3d12d57c74207972a3d4
             $mpdf->ignore_invalid_utf8 = true;
             if( isset($meta_values["image"]) && !empty($meta_values["image"]) ) {
                 if( ini_get('allow_url_fopen')==1) {
@@ -181,6 +186,7 @@ jQuery.fn.selectText = function () {
 
                 $mpdf->WriteHTML('<div style="text-align:'.$imgAlign.'"><img src="'.esc_url($meta_values["image"]).'" '.$attribut.' /></div>');
             }
+<<<<<<< HEAD
             $messageText = $meta_values['generate_pdf'];
             $messageText = str_replace('[reference]', $_SESSION['pdf_uniqueid'], $messageText);
             $messageText = str_replace('[url-pdf]', $upload_dir['url'].'/'.$nameOfPdf.'-'.$_SESSION['pdf_uniqueid'].'.pdf', $messageText);
@@ -192,6 +198,9 @@ jQuery.fn.selectText = function () {
             $messageText = str_replace('[date]', $dateField, $messageText);
             
             $mpdf->WriteHTML( wpautop( $messageText ) );
+=======
+            $mpdf->WriteHTML( wpautop( $meta_values['generate_pdf']) );
+>>>>>>> 5a4953756058856badeb3d12d57c74207972a3d4
             $mpdf->Output($createDirectory.'/preview-'.$idForm.'.pdf', 'F');
         }
         
@@ -400,7 +409,11 @@ jQuery.fn.selectText = function () {
                                     <iframe src=""></iframe>
                                     <div class="round-button">
                                         <div class="round-button-circle">
+<<<<<<< HEAD
                                             <a href="<?php echo $upload_dir['url'].'/preview-'.$idForm.'.pdf'; ?>" class="round-button" target="_blank"><?php _e('Preview your PDF', 'send-pdf-for-contact-form-7'); ?></a>
+=======
+                                            <a href="<?php echo $upload_dir['url'].'/preview-'.$idForm.'.pdf'; ?>" class="round-button" target="_blank"><?php _e('Preview your PDF', 'wp-cf7pdf'); ?></a>
+>>>>>>> 5a4953756058856badeb3d12d57c74207972a3d4
                                         </div>
                                     </div>
                                 <?php } ?>
@@ -415,8 +428,13 @@ jQuery.fn.selectText = function () {
                 <tbody>
                     <tr>
                         <td width="50%">
+<<<<<<< HEAD
                              <div>
                                 <span class="dashicons dashicons-download"></span> <a href="<?php echo wp_nonce_url( admin_url('admin.php?page=wpcf7-send-pdf&amp;idform='.intval($_POST['idform']).'&amp;csv=1'), 'go_generate', 'csv_security'); ?>" alt="<?php _e('Export list', 'send-pdf-for-contact-form-7'); ?>" title="<?php _e('Export list', 'send-pdf-for-contact-form-7'); ?>"><?php _e('Export list in CSV file', 'send-pdf-for-contact-form-7'); ?></a>
+=======
+                            <div>
+                                <span class="dashicons dashicons-download"></span> <a href="<?php echo wp_nonce_url( admin_url('admin.php?page=wpcf7-send-pdf&amp;idform='.intval($_POST['idform']).'&amp;csv=1'), 'go_generate', 'csv_security'); ?>" alt="<?php _e('Export list of participants', 'sponsorpress'); ?>" title="<?php _e('Export list', 'wp-cf7pdf'); ?>"><?php _e('Export list in CSV file', 'wp-cf7pdf'); ?></a>
+>>>>>>> 5a4953756058856badeb3d12d57c74207972a3d4
                             </div>
                     </tr>
                 </tbody>

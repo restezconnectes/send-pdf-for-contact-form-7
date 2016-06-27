@@ -3,12 +3,18 @@
 Plugin Name: Send PDF for Contact Form 7
 Plugin URI:  https://wordpress.org/plugins/send-pdf-for-contact-form-7/
 Description: Send a PDF with Contact Form 7. It is originally created for Contact Form 7 plugin.
+<<<<<<< HEAD
 Version:     0.4.2
 Author:      Florent Maillefaud
 Author URI:  http://www.restezconnectes.fr
 License:     GPL3 or later
 Domain Path: /languages
 Text Domain: send-pdf-for-contact-form-7
+=======
+Author: Florent Maillefaud
+Version: 0.2
+Author URI: http://restezconnectes.fr/
+>>>>>>> 5a4953756058856badeb3d12d57c74207972a3d4
 */
 
 /*  Copyright 2007-2015 Florent Maillefaud (email: contact at restezconectes.fr)
@@ -29,7 +35,11 @@ Text Domain: send-pdf-for-contact-form-7
 */
 
 defined( 'ABSPATH' ) or die( 'Not allowed' );
+<<<<<<< HEAD
 if( !defined( 'WPCF7PDF_VERSION' )) { define( 'WPCF7PDF_VERSION', '0.4.2' ); }
+=======
+if( !defined( 'WPCF7PDF_VERSION' )) { define( 'WPCF7PDF_VERSION', '0.2' ); }
+>>>>>>> 5a4953756058856badeb3d12d57c74207972a3d4
 
 cf7_sendpdf::instance();
 
@@ -232,6 +242,7 @@ class cf7_sendpdf {
                 // On génère le PDF
                 if( isset($meta_values["disable-pdf"]) && $meta_values['disable-pdf'] == 'false') {
 
+<<<<<<< HEAD
                     //include(__DIR__.'/mpdf/mpdf.php');
                     include(plugin_dir_path( __FILE__ ).'/mpdf/mpdf.php');
                     $mpdf=new mPDF();
@@ -240,6 +251,10 @@ class cf7_sendpdf {
                     $mpdf->autoVietnamese = true;
                     $mpdf->autoArabic = true;
                     $mpdf->autoLangToFont = true;
+=======
+                    include(__DIR__.'/mpdf/mpdf.php');
+                    $mpdf=new mPDF('c');
+>>>>>>> 5a4953756058856badeb3d12d57c74207972a3d4
                     $mpdf->ignore_invalid_utf8 = true;
                     if( isset($meta_values["image"]) && !empty($meta_values["image"]) ) {
                         list($width, $height, $type, $attr) = getimagesize($meta_values["image"]);
