@@ -3,13 +3,8 @@ Contributors: Florent73
 Donate link: http://www.restezconnectes.fr/a-propos/
 Tags: WordPress, plugin, contact form, pdf, send, attachment, form, cf7
 Requires at least: 3.0
-<<<<<<< HEAD
 Tested up to: 4.5.3
 Stable tag: 0.4.2
-=======
-Tested up to: 4.4.2
-Stable tag: 0.2
->>>>>>> 5a4953756058856badeb3d12d57c74207972a3d4
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -49,7 +44,6 @@ Yes. Thank you for submitting your changes to update the plugin.
 
 == Upgrade Notice ==
 
-<<<<<<< HEAD
 = 0.4.2 =
 This version is stable
 
@@ -63,18 +57,6 @@ This version is stable
 
 = 0.4 =
 * Multi-languages bug fixed
-=======
-= 0.2 =
-Cette version est stable
-
-== Changelog ==
-
-= 0.2 =
-* Mise à jour traduction / Update translate
-
-= 0.1 =
-* Première version du plugin / First version
->>>>>>> 5a4953756058856badeb3d12d57c74207972a3d4
 
 = 0.3 =
 * Media upload bug fixed
