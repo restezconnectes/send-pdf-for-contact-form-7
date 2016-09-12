@@ -21,29 +21,31 @@ if(!function_exists('imagepalettetotruecolor')) {
 
 // mPDF 5.7
 // Replace a section of an array with the elements in reverse
-function array_splice_reverse(&$arr, $offset, $length) {
-	$tmp = (array_reverse(array_slice($arr, $offset, $length)));
-	array_splice($arr, $offset, $length, $tmp);
+if ( !function_exists('array_splice_reverse') ) {
+    function array_splice_reverse(&$arr, $offset, $length) {
+        $tmp = (array_reverse(array_slice($arr, $offset, $length)));
+        array_splice($arr, $offset, $length, $tmp);
+    }
 }
 
-
-function array_insert(&$array, $value, $offset) {
-	if (is_array($array)) {
-		$array  = array_values($array);
-		$offset = intval($offset);
-		if ($offset < 0 || $offset >= count($array)) { array_push($array, $value); }
-		else if ($offset == 0) { array_unshift($array, $value); }
-		else { 
-			$temp  = array_slice($array, 0, $offset);
-			array_push($temp, $value);
-			$array = array_slice($array, $offset);
-			$array = array_merge($temp, $array);
-		}
-	}
-	else { $array = array($value); }
-	return count($array);
+if ( !function_exists('array_insert') ) {
+    function array_insert(&$array, $value, $offset) {
+        if (is_array($array)) {
+            $array  = array_values($array);
+            $offset = intval($offset);
+            if ($offset < 0 || $offset >= count($array)) { array_push($array, $value); }
+            else if ($offset == 0) { array_unshift($array, $value); }
+            else { 
+                $temp  = array_slice($array, 0, $offset);
+                array_push($temp, $value);
+                $array = array_slice($array, $offset);
+                $array = array_merge($temp, $array);
+            }
+        }
+        else { $array = array($value); }
+        return count($array);
+    }
 }
-
 // mPDF 5.7.4 URLs
 function urldecode_parts($url) {
 	$file=$url;

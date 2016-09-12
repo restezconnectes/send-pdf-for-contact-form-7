@@ -154,7 +154,7 @@ jQuery.fn.selectText = function () {
         }
         if( isset($meta_values['generate_pdf']) && !empty($meta_values['generate_pdf']) ) {
 
-            include(plugin_dir_path( __FILE__ ).'/mpdf/mpdf.php');
+            include(WPCF7PD_DIR.'/mpdf/mpdf.php');
             $mpdf=new mPDF();
             $mpdf->autoScriptToLang = true;
             $mpdf->baseScript = 1;
@@ -266,8 +266,15 @@ jQuery.fn.selectText = function () {
                         </tr>
                         <tr><td colspan="2"><hr /></td></tr>
                         <tr>
-                            <td><?php _e('Enter a name for your PDF', 'send-pdf-for-contact-form-7'); ?><p>(<i><?php _e("By default, the file's name will be 'document-pdf'", 'send-pdf-for-contact-form-7'); ?></i>)</p></td>
-                            <td><input type= "text" name="wp_cf7pdf_settings[pdf-name]" value="<?php if( isset($meta_values["pdf-name"]) && !empty($meta_values["pdf-name"]) ) { echo $meta_values["pdf-name"]; } ?>">.pdf</td>
+                            <td>
+                                <?php _e('Enter a name for your PDF', 'send-pdf-for-contact-form-7'); ?><p>(<i><?php _e("By default, the file's name will be 'document-pdf'", 'send-pdf-for-contact-form-7'); ?></i>)</p>
+                                <br />
+                                <?php _e('Fill in the name of your PDF with your form tags', 'send-pdf-for-contact-form-7'); ?><p>(<i><?php _e("Enter your tags separated by commas", 'send-pdf-for-contact-form-7'); ?></i>)</p>
+                            </td>
+                            <td>
+                                <input type= "text" name="wp_cf7pdf_settings[pdf-name]" value="<?php if( isset($meta_values["pdf-name"]) && !empty($meta_values["pdf-name"]) ) { echo $meta_values["pdf-name"]; } ?>">.pdf<br /><br /><br />
+                                <input type="text" size="30" name="wp_cf7pdf_settings[pdf-add-name]" value="<?php if( isset($meta_values["pdf-add-name"]) && !empty($meta_values["pdf-add-name"]) ) { echo $meta_values["pdf-add-name"]; } ?>" />
+                            </td>
                         </tr>
                         <tr><td colspan="2"><hr /></td></tr>
                         <tr>
@@ -440,6 +447,6 @@ jQuery.fn.selectText = function () {
     </div>
 <?php } ?>
     <div style="margin-top:40px;">
-        <?php _e('Send PDF for Contact Form 7 is brought to you by', 'send-pdf-for-contact-form-7'); ?> <a href="http://www.restezconnectes.fr/" target="_blank">Restez Connectés</a> - <?php _e('If you found this plugin useful', 'send-pdf-for-contact-form-7'); ?> <a href="https://wordpress.org/support/view/plugin-reviews/send-pdf-for-contact-form-7/" target="_blank"><?php _e('give it 5 &#9733; on WordPress.org', 'send-pdf-for-contact-form-7'); ?></a>
+        <?php _e('Send PDF for Contact Form 7 is brought to you by', 'send-pdf-for-contact-form-7'); ?> <a href="http://www.restezconnectes.fr/" target="_blank">Restez Connectés</a> - <?php _e('If you found this plugin useful', 'send-pdf-for-contact-form-7'); ?> <a href="https://wordpress.org/support/plugin/send-pdf-for-contact-form-7/reviews/" target="_blank"><?php _e('give it 5 &#9733; on WordPress.org', 'send-pdf-for-contact-form-7'); ?></a>
     </div>
 </div>

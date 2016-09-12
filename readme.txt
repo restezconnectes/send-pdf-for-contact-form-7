@@ -3,8 +3,8 @@ Contributors: Florent73
 Donate link: http://www.restezconnectes.fr/a-propos/
 Tags: WordPress, plugin, contact form, pdf, send, attachment, form, cf7
 Requires at least: 3.0
-Tested up to: 4.5.3
-Stable tag: 0.4.2
+Tested up to: 4.6.1
+Stable tag: 0.5
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -44,10 +44,19 @@ Yes. Thank you for submitting your changes to update the plugin.
 
 == Upgrade Notice ==
 
-= 0.4.2 =
+= 0.5 =
 This version is stable
 
 == Changelog ==
+
+= 0.5 =
+* Reprogramming, avaible for WordPress 4.6 version
+
+= 0.4.4 =
+* Adding a option, using form tags for complete the name of PDF
+
+= 0.4.3 =
+* Bug fixed upload picture and send pdf
 
 = 0.4.2 =
 * Bug fixed include class mpdf
