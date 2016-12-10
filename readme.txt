@@ -44,7 +44,7 @@ Yes. Thank you for submitting your changes to update the plugin.
 
 == Upgrade Notice ==
 
-= 0.5.2 =
+= 0.5.3 =
 This version is stable
 
 == Changelog ==
