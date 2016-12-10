@@ -1,10 +1,10 @@
 ﻿=== Plugin Name ===
 Contributors: Florent73
-Donate link: http://www.restezconnectes.fr/a-propos/
+Donate link: https://restezconnectes.fr/a-propos/
 Tags: WordPress, plugin, contact form, pdf, send, attachment, form, cf7
 Requires at least: 3.0
-Tested up to: 4.6.1
-Stable tag: 0.5
+Tested up to: 4.7
+Stable tag: 0.5.3
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -16,7 +16,7 @@ Send the PDF for Contact Form plugin will allow you to recover the data yourself
 
 This plugin requires the installation and activation of the plugin Contact Form 7.
 
-Tutorial available here: http://www.restezconnectes.fr/tutoriel-wordpress-lextension-send-pdf-for-contact-form-7/
+Tutorial available here: https://restezconnectes.fr/tutoriel-wordpress-lextension-send-pdf-for-contact-form-7/
 
 File send-pdf-for-contact-form-7.pot available
 
@@ -36,7 +36,7 @@ File send-pdf-for-contact-form-7.pot available
 
 = This plugin is free? =
 
-Yes. If you want, you can support this project here: http://www.restezconnectes.fr/a-propos/
+Yes. If you want, you can support this project here: https://restezconnectes.fr/a-propos/
 
 = Can I change the plugin code? =
 
@@ -44,10 +44,19 @@ Yes. Thank you for submitting your changes to update the plugin.
 
 == Upgrade Notice ==
 
-= 0.5 =
+= 0.5.2 =
 This version is stable
 
 == Changelog ==
+
+= 0.5.3 =
+* Fix bug for other attachements
+
+= 0.5.2 =
+* Adding a new option, generate PDF in a another distinct folder
+
+= 0.5.1 =
+* Adding a new option, send mail without attachements but return a link for downlod PDF
 
 = 0.5 =
 * Reprogramming, avaible for WordPress 4.6 version

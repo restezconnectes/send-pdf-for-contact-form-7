@@ -1,0 +1,93 @@
+
+.round-button {
+	width:25%;
+}
+.round-button-circle {
+	width: 100%;
+	height:0;
+	padding-bottom: 100%;
+    border-radius: 50%;
+	border:10px solid #8a0f00;
+    overflow:hidden;
+    
+    background: #cf1c00; 
+    box-shadow: 0 0 3px gray;
+}
+.round-button-circle:hover {
+	background:#ffffff;
+}
+.round-button-circle a:hover { color:#8a0f00; }
+.round-button a {
+    display:block;
+	float:left;
+	width:100%;
+	padding-top:50%;
+    padding-bottom:50%;
+	line-height:1em;
+	margin-top:-0.5em;
+    
+	text-align:center;
+	color:#ffffff;
+    font-family:Verdana;
+    font-size:1.2em;
+    font-weight:bold;
+    text-decoration:none;
+}
+#wpcf7pdfimgcreated { float:left;9px 0 15px;line-height: 29px; }
+img.wpcf7pdfresponsive {
+display: block;
+max-width: 100%;
+height: auto;
+}
+.wpcf7pdfclassname {
+background-color:#848838;
+-webkit-border-top-left-radius:10px;
+-moz-border-radius-topleft:10px;
+border-top-left-radius:10px;
+-webkit-border-top-right-radius:10px;
+-moz-border-radius-topright:10px;
+border-top-right-radius:10px;
+-webkit-border-bottom-right-radius:10px;
+-moz-border-radius-bottomright:10px;
+border-bottom-right-radius:10px;
+-webkit-border-bottom-left-radius:10px;
+-moz-border-radius-bottomleft:10px;
+border-bottom-left-radius:10px;
+text-indent:0;
+border:3px solid #656830;
+display:inline-block;
+color:#ffffff;
+/*font-family:Arial;*/
+font-size:15px;
+font-weight:bold;
+font-style:normal;
+height:50px;
+line-height:45px;
+width:250px;
+text-decoration:none;
+text-align:center;
+}.wpcf7pdfclassname:hover {
+background-color:#656830;
+color:#ffffff;
+}.wpcf7pdfclassname:active {
+position:relative;
+top:1px;
+color:#ffffff;
+}
+@media (max-width: 1024px) {
+   table, tbody { display: block; }
+   tr {
+      display: table;
+      width: 100%;
+   }
+   th {
+      font-size: 0;
+      border: none;
+      visibility: hidden;
+   }
+   td, th { display: table-row; }
+   td:before {
+      content: attr(data-headers);
+      display: table-cell;
+   }
+}

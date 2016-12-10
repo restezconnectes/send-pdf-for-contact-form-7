@@ -2,7 +2,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Contact Form 7 Send PDF\n"
-"POT-Creation-Date: 2016-08-06 13:28+0200\n"
+"POT-Creation-Date: 2016-10-20 07:16+0200\n"
 "PO-Revision-Date: 2015-03-19 11:19+0100\n"
 "Last-Translator: Florent Maillefaud <contact@restezconnectes.fr>\n"
 "Language-Team: Florent Maillefaud <contact@restezconnectes.fr>\n"
@@ -10,241 +10,287 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 1.8.8\n"
+"X-Generator: Poedit 1.8.10\n"
 "X-Poedit-KeywordsList: __;_e\n"
 "X-Poedit-Basepath: ..\n"
 "Plural-Forms: nplurals=2; plural=n>1;\n"
 "X-Poedit-SourceCharset: UTF-8\n"
 "X-Poedit-SearchPath-0: .\n"
 
-#: wpcf7-send-pdf-admin.php:14
+#: classes/send-pdf.php:51
+msgid "Settings"
+msgstr ""
+
+#: classes/send-pdf.php:73
+msgid "Options for CF7 Send PDF"
+msgstr ""
+
+#: classes/send-pdf.php:74
+msgid "Send PDF with CF7"
+msgstr ""
+
+#: classes/send-pdf.php:92
+msgid "Choose This Image"
+msgstr ""
+
+#: classes/send-pdf.php:93
+msgid "Choose Image"
+msgstr ""
+
+#: includes/shortcodes.php:28 views/send-pdf-admin.php:331
+msgid "Download your PDF"
+msgstr ""
+
+#: views/send-pdf-admin.php:12
+msgid "The upload folder has been deleted."
+msgstr ""
+
+#: views/send-pdf-admin.php:23
 msgid "Options saved."
 msgstr ""
 
-#: wpcf7-send-pdf-admin.php:22
+#: views/send-pdf-admin.php:31
 msgid "All the data has been deleted."
 msgstr ""
 
-#: wpcf7-send-pdf-admin.php:81
+#: views/send-pdf-admin.php:54
 msgid "Send PDF for Contact Form 7 - Settings"
 msgstr ""
 
-#: wpcf7-send-pdf-admin.php:91
+#: views/send-pdf-admin.php:65
 #, php-format
 msgid "No forms have not been found. %s"
 msgstr ""
 
-#: wpcf7-send-pdf-admin.php:91
+#: views/send-pdf-admin.php:65
 msgid "Create your first form here."
 msgstr ""
 
-#: wpcf7-send-pdf-admin.php:98
+#: views/send-pdf-admin.php:72
 msgid "* Select a form *"
 msgstr ""
 
-#: wpcf7-send-pdf-admin.php:114
+#: views/send-pdf-admin.php:91
 #, php-format
 msgid "Read %s here !"
 msgstr ""
 
-#: wpcf7-send-pdf-admin.php:114
+#: views/send-pdf-admin.php:91
 msgid "Tutorial"
 msgstr ""
 
-#: wpcf7-send-pdf-admin.php:118
+#: views/send-pdf-admin.php:95
 msgid "If you want Donate (French Paypal) for my current and future developments:"
 msgstr ""
 
-#: wpcf7-send-pdf-admin.php:218 wpcf7-send-pdf-admin.php:436
+#: views/send-pdf-admin.php:98
+msgid "Donate now!"
+msgstr ""
+
+#: views/send-pdf-admin.php:197 views/send-pdf-admin.php:459
 msgid "Save settings"
 msgstr ""
 
-#: wpcf7-send-pdf-admin.php:226
+#: views/send-pdf-admin.php:206
 msgid "General Settings"
 msgstr ""
 
-#: wpcf7-send-pdf-admin.php:230
+#: views/send-pdf-admin.php:210
 msgid "Disable generate PDF?"
 msgstr ""
 
-#: wpcf7-send-pdf-admin.php:231 wpcf7-send-pdf-admin.php:246
-#: wpcf7-send-pdf-admin.php:255
+#: views/send-pdf-admin.php:211 views/send-pdf-admin.php:226
+#: views/send-pdf-admin.php:235 views/send-pdf-admin.php:313
+#: views/send-pdf-admin.php:322
 msgid "Yes"
 msgstr ""
 
-#: wpcf7-send-pdf-admin.php:231 wpcf7-send-pdf-admin.php:246
-#: wpcf7-send-pdf-admin.php:255
+#: views/send-pdf-admin.php:211 views/send-pdf-admin.php:226
+#: views/send-pdf-admin.php:235 views/send-pdf-admin.php:313
+#: views/send-pdf-admin.php:322
 msgid "No"
 msgstr ""
 
-#: wpcf7-send-pdf-admin.php:234
+#: views/send-pdf-admin.php:214
 msgid "Who send the PDF file?"
 msgstr ""
 
-#: wpcf7-send-pdf-admin.php:237 wpcf7-send-pdf-admin.php:261
-#: wpcf7-send-pdf-admin.php:288
+#: views/send-pdf-admin.php:217 views/send-pdf-admin.php:241
+#: views/send-pdf-admin.php:285
 msgid "Sender"
 msgstr ""
 
-#: wpcf7-send-pdf-admin.php:238 wpcf7-send-pdf-admin.php:262
-#: wpcf7-send-pdf-admin.php:289
+#: views/send-pdf-admin.php:218 views/send-pdf-admin.php:242
+#: views/send-pdf-admin.php:286
 msgid "Recipient"
 msgstr ""
 
-#: wpcf7-send-pdf-admin.php:239 wpcf7-send-pdf-admin.php:263
-#: wpcf7-send-pdf-admin.php:290
+#: views/send-pdf-admin.php:219 views/send-pdf-admin.php:243
+#: views/send-pdf-admin.php:287
 msgid "Both"
 msgstr ""
 
-#: wpcf7-send-pdf-admin.php:245
+#: views/send-pdf-admin.php:225
 msgid "Disable Insert subscribtion in database?"
 msgstr ""
 
-#: wpcf7-send-pdf-admin.php:249
+#: views/send-pdf-admin.php:229
 msgid "Truncate database?"
 msgstr ""
 
-#: wpcf7-send-pdf-admin.php:254
+#: views/send-pdf-admin.php:234
 msgid "Disable generate CSV file?"
 msgstr ""
 
-#: wpcf7-send-pdf-admin.php:258
+#: views/send-pdf-admin.php:238
 msgid "Who send the CSV file?"
 msgstr ""
 
-#: wpcf7-send-pdf-admin.php:270
+#: views/send-pdf-admin.php:250
 msgid "Enter a name for your PDF"
 msgstr ""
 
-#: wpcf7-send-pdf-admin.php:270
+#: views/send-pdf-admin.php:250
 msgid "By default, the file's name will be 'document-pdf'"
 msgstr ""
 
-#: wpcf7-send-pdf-admin.php:272
+#: views/send-pdf-admin.php:252
 msgid "Fill in the name of your PDF with your form tags"
 msgstr ""
 
-#: wpcf7-send-pdf-admin.php:272
+#: views/send-pdf-admin.php:252
 msgid "Enter your tags separated by commas"
 msgstr ""
 
-#: wpcf7-send-pdf-admin.php:281
+#: views/send-pdf-admin.php:262
+msgid "Change uploads folder?"
+msgstr ""
+
+#: views/send-pdf-admin.php:262
+msgid "By default, the uploads folder's name is in /wp-content/uploads/*YEAR*/*MONTH*/"
+msgstr ""
+
+#: views/send-pdf-admin.php:270
+msgid "Delete all files into this uploads folder?"
+msgstr ""
+
+#: views/send-pdf-admin.php:278
 msgid "Other files attachments?"
 msgstr ""
 
-#: wpcf7-send-pdf-admin.php:281
+#: views/send-pdf-admin.php:278
 msgid "Enter one URL file by line"
 msgstr ""
 
-#: wpcf7-send-pdf-admin.php:285
+#: views/send-pdf-admin.php:282
 msgid "Who send the attachments file?"
 msgstr ""
 
-#: wpcf7-send-pdf-admin.php:297
+#: views/send-pdf-admin.php:294
 msgid "Select a page to display after sending the form (optional)"
 msgstr ""
 
-#: wpcf7-send-pdf-admin.php:306
+#: views/send-pdf-admin.php:303
 msgid "Please select a page"
 msgstr ""
 
-#: wpcf7-send-pdf-admin.php:316
+#: views/send-pdf-admin.php:310
+msgid "Send email without attachments?"
+msgstr ""
+
+#: views/send-pdf-admin.php:318
+msgid "Use a link in the redirect page for download PDF?"
+msgstr ""
+
+#: views/send-pdf-admin.php:319
+msgid "* Requires enable option \"insert into a database\""
+msgstr ""
+
+#: views/send-pdf-admin.php:327
+msgid "Enter the name for the link"
+msgstr ""
+
+#: views/send-pdf-admin.php:328
+msgid "Use this shortcode : [wpcf7pdf_download]"
+msgstr ""
+
+#: views/send-pdf-admin.php:339
 msgid "Select a date and time format"
 msgstr ""
 
-#: wpcf7-send-pdf-admin.php:316
+#: views/send-pdf-admin.php:339
 msgid "By default, the date format is defined in the admin settings"
 msgstr ""
 
-#: wpcf7-send-pdf-admin.php:316
+#: views/send-pdf-admin.php:339
 msgid "Formatting Date and Time"
 msgstr ""
 
-#: wpcf7-send-pdf-admin.php:327
+#: views/send-pdf-admin.php:350
 msgid "Enter a URL or upload an image."
 msgstr ""
 
-#: wpcf7-send-pdf-admin.php:328
+#: views/send-pdf-admin.php:351
 msgid "Select or Upload your picture"
 msgstr ""
 
-#: wpcf7-send-pdf-admin.php:331
+#: views/send-pdf-admin.php:354
 msgid "Left"
 msgstr ""
 
-#: wpcf7-send-pdf-admin.php:332
+#: views/send-pdf-admin.php:355
 msgid "Center"
 msgstr ""
 
-#: wpcf7-send-pdf-admin.php:333
+#: views/send-pdf-admin.php:356
 msgid "Right"
 msgstr ""
 
-#: wpcf7-send-pdf-admin.php:335
+#: views/send-pdf-admin.php:358
 msgid "Size"
 msgstr ""
 
-#: wpcf7-send-pdf-admin.php:345
+#: views/send-pdf-admin.php:368
 msgid "Original size is"
 msgstr ""
 
-#: wpcf7-send-pdf-admin.php:362
+#: views/send-pdf-admin.php:385
 msgid "Layout of your PDF"
 msgstr ""
 
-#: wpcf7-send-pdf-admin.php:367
+#: views/send-pdf-admin.php:390
 msgid "For personalize your PDF you can in the following text field, use these mail-tags:"
 msgstr ""
 
-#: wpcf7-send-pdf-admin.php:368
+#: views/send-pdf-admin.php:391
 msgid "[reference] is a simple mail-tag who is used for create unique PDF. It's also recorded in the database. Every PDF is named like this : name-pdf-uniqid() and it's uploaded in the upload folder of WordPress. For example : document-pdf-56BC4A3EF0752.pdf"
 msgstr ""
 
-#: wpcf7-send-pdf-admin.php:410
+#: views/send-pdf-admin.php:433
 msgid "Preview your PDF"
 msgstr ""
 
-#: wpcf7-send-pdf-admin.php:426
+#: views/send-pdf-admin.php:449
 msgid "Export list"
 msgstr ""
 
-#: wpcf7-send-pdf-admin.php:426
+#: views/send-pdf-admin.php:449
 msgid "Export list in CSV file"
 msgstr ""
 
-#: wpcf7-send-pdf-admin.php:446
+#: views/send-pdf-admin.php:469
 #, php-format
 msgid "To work I need %s plugin, but it is apparently not installed or not enabled!"
 msgstr ""
 
-#: wpcf7-send-pdf-admin.php:450
+#: views/send-pdf-admin.php:473
 msgid "Send PDF for Contact Form 7 is brought to you by"
 msgstr ""
 
-#: wpcf7-send-pdf-admin.php:450
+#: views/send-pdf-admin.php:473
 msgid "If you found this plugin useful"
 msgstr ""
 
-#: wpcf7-send-pdf-admin.php:450
+#: views/send-pdf-admin.php:473
 msgid "give it 5 &#9733; on WordPress.org"
-msgstr ""
-
-#: wpcf7-send-pdf.php:94
-msgid "Settings"
-msgstr ""
-
-#: wpcf7-send-pdf.php:104
-msgid "Options for CF7 Send PDF"
-msgstr ""
-
-#: wpcf7-send-pdf.php:105
-msgid "Send PDF with CF7"
-msgstr ""
-
-#: wpcf7-send-pdf.php:123
-msgid "Choose This Image"
-msgstr ""
-
-#: wpcf7-send-pdf.php:124
-msgid "Choose Image"
 msgstr ""
