@@ -389,39 +389,20 @@ jQuery.fn.selectText = function () {
                         </tr>                
                         <tr>
                             <td width="80%">
-                                <legend><?php _e('For personalize your PDF you can in the following text field, use these mail-tags:', 'send-pdf-for-contact-form-7'); ?><br /><br />
+                                <legend>
+                                    <?php _e('For personalize your PDF you can in the following text field, use these mail-tags:', 'send-pdf-for-contact-form-7'); ?><br /><br />
                                     <span class="mailtag code used" onclick="jQuery(this).selectText()" style="cursor: pointer;"><strong>[reference]</strong></span><br /><i>(<?php _e("[reference] is a simple mail-tag who is used for create unique PDF. It's also recorded in the database. Every PDF is named like this : name-pdf-uniqid() and it's uploaded in the upload folder of WordPress. For example : document-pdf-56BC4A3EF0752.pdf", 'send-pdf-for-contact-form-7'); ?>)</i><br /><br />
-                                    <?php
-                                    //preg_match_all( '#(\[[^\]]*\])#', $meta_form, $matches );
-                                    preg_match_all( '#\[(.*?)\]#', $meta_form, $matches );
-                                    $tagsCf7 = array('response', 'text', 'text*', 'email', 'email*', 'tel', 'tel*', 'url', 'url*', 'textarea', 'textarea*', 'number', 'number*', 'range', 'range*', 'date', 'date*', 'checkbox', 'checkbox*', 'radio', 'select', 'select*', 'file', 'file*', 'acceptance', 'placeholder', 'submit');
-
-                                    $nb=count($matches[0]); 
-                                    $wp_cf7pdf_tags = '';
-                                    if($nb>0) { 
-                                        $nb = 0;
-                                        foreach($matches[0] as $complet) {
-                                            
-                                            foreach($tagsCf7 as $str) {                                                
-                                                $complet = str_replace($str.' ', '', $complet);
-                                                $complet = str_replace('response', '', $complet);                        
-                                            }
-                                            $pices = explode(' ', $complet);
-                                            //echo 'ici ->'.$pices[0].']<br /><br />';
-                                            $complet = str_replace(' ', '', $pices[0]);
-                                            $complet = preg_replace('/\"[^)]*\"/', '', $complet);
-                                            $patterns = '/placeholder/';
-                                            if( $complet != '[]' ) {
-                                                $pos = strpos($complet, ']');
-                                                if ($pos === false) {
-                                                    $complet = $complet.']';
-                                                }
-                                                echo '<span class="mailtag code used" onclick="jQuery(this).selectText()" style="cursor: pointer;"><strong>'.preg_replace($patterns, '', $complet).'</strong></span>&nbsp;&nbsp;';
-                                                echo '<input type="hidden" name="wp_cf7pdf_tags[]" value="'.preg_replace($patterns, '', $complet).'" />';
-                                            }
-                                            $nb++;
+                                    <?php 
+                                        $contact_form = WPCF7_ContactForm::get_instance($idForm);
+                                        foreach ( (array) $contact_form->collect_mail_tags() as $mail_tag ) {
+                                            $pattern = sprintf( '/\[(_[a-z]+_)?%s([ \t]+[^]]+)?\]/',
+                                                preg_quote( $mail_tag, '/' ) );
+                                            echo sprintf(
+                                                '<span class="%1$s" onclick="jQuery(this).selectText()" style="cursor: pointer;"><strong>[%2$s]</strong></span>',
+                                                'mailtag code used',
+                                                esc_html( $mail_tag ) );
+                                            echo '<input type="hidden" name="wp_cf7pdf_tags[]" value="['.esc_html( $mail_tag ).']" />';
                                         }
-                                    }
                                     ?>
                                 </legend>
                                 <br /><br />
