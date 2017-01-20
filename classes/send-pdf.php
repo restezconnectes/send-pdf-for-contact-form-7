@@ -13,6 +13,7 @@ class cf7_sendpdf {
         }
         // Maybe disable AJAX requests
         add_filter( 'wpcf7_mail_components', array( $this, 'wpcf7pdf_mail_components' ), 10, 3 );
+        add_action( 'wpcf7_mail_sent', array( $this, 'wpcf7pdf_after_mail_actions' ), 10, 1 );
         add_action( 'admin_menu', array( $this, 'wpcf7pdf_add_admin') );
         //add_filter( 'plugin_action_links_'.plugin_basename(__FILE__), array( $this, 'wpcf7pdf_plugin_actions' ), 10, 2 );
         add_filter( 'plugin_action_links', array( $this, 'wpcf7pdf_plugin_actions'), 10, 2 );
@@ -312,7 +313,7 @@ class cf7_sendpdf {
                         if( empty($meta_values['image-height']) ) { $imgHeight = $height; } else { $imgHeight = $meta_values['image-height'];  } 
 
                         $attribut = 'width='.$imgWidth.' height="'.$imgHeight.'"';
-                        $meta_values["image"] = str_replace('https://', 'http://', $meta_values["image"]);
+                        //$meta_values["image"] = str_replace('https://', 'http://', $meta_values["image"]);
                         $mpdf->WriteHTML('<div style="text-align:'.$imgAlign.'"><img src="'.esc_url($meta_values["image"]).'" '.$attribut.' /></div>');
                     }
                     $mpdf->WriteHTML($text);
@@ -370,7 +371,7 @@ class cf7_sendpdf {
                     }
                     fclose($fpCsv);
 
-                    // Je copy le PDF genere
+                    // Je copy le CSV genere
                     copy($createDirectory.'/'.$nameOfPdf.'-'.$_SESSION['pdf_uniqueid'].'.csv', $createDirectory.'/'.$nameOfPdf.'.csv');
 
                     
@@ -516,6 +517,39 @@ class cf7_sendpdf {
             return $components;
 
         }
+    }
+    
+    /* Run code after the email has been sent */
+    function wpcf7pdf_after_mail_actions() {
+        
+       $submission = WPCF7_Submission::get_instance();
+
+	   if ($submission) {
+            global $post;
+            // récupère le POST            
+            $post = $_POST;
+            $nameOfPdf = $this->wpcf7pdf_name_pdf($post['_wpcf7']);
+            $createDirectory = $this->wpcf7pdf_folder_uploads($post['_wpcf7']);
+            //error_log( $posted_data['your-message'] );
+            $meta_values = get_post_meta( $post['_wpcf7'], '_wp_cf7pdf', true );
+
+            // Si l'option de supprimer les fichiers est activée
+            if( isset($meta_values["pdf-file-delete"]) && $meta_values["pdf-file-delete"]=="true") {
+
+                if( file_exists($createDirectory.'/'.$nameOfPdf.'.pdf') ) {
+                    unlink($createDirectory.'/'.$nameOfPdf.'.pdf');
+                }
+                if( file_exists($createDirectory.'/'.$nameOfPdf.'.csv') ) {
+                    unlink($createDirectory.'/'.$nameOfPdf.'.csv');
+                }
+                if( file_exists($createDirectory.'/'.$nameOfPdf.'-'.$_SESSION['pdf_uniqueid'].'.pdf') ) {
+                    unlink($createDirectory.'/'.$nameOfPdf.'-'.$_SESSION['pdf_uniqueid'].'.pdf');
+                }
+
+            }
+       }
+        //exit('Meta -> '.$meta_values["pdf-file-delete"].' -- Name:'.$createDirectory.'/'.$nameOfPdf.'.pdf');
+        
     }
     
     /* Récupère la liste des formulaires enregistrés */

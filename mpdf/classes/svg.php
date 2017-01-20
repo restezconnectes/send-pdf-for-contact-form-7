@@ -67,7 +67,7 @@ class SVG {
 	var $textjuststarted;	// mPDF 5.7.4
 	var $intext;		// mPDF 5.7.4
 
-	function SVG(&$mpdf){
+	function __construct(&$mpdf){
 		$this->svg_font = array();	// mPDF 6
 		$this->svg_gradient = array();
 		$this->svg_shadinglist = array();
@@ -2707,7 +2707,7 @@ function svgDefineTxtStyle($critere_style)
 					return;
 				}
 				else if (strtolower($name) == 'stop'){
-						if (!$last_gradid) break;
+						//if (!$last_gradid) break;
 						$color = '#000000';
 						if (isset($attribs['style']) AND preg_match('/stop-color:\s*([^;]*)/i',$attribs['style'],$m)) {
 							$color = trim($m[1]);
