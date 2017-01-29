@@ -441,6 +441,7 @@ class cf7_sendpdf {
             $upload_dir = wp_upload_dir();
             // On récupère le dossier upload de l'extension (/sendpdfcf7_uploads/)
             $createDirectory = $this->wpcf7pdf_folder_uploads($post['_wpcf7']);
+            $uploaded_files = $submission->uploaded_files();
             //$createDirectory = $upload_dir['basedir'].$upload_dir['subdir'];
             // on va chercher les options du formulaire
             
@@ -535,6 +536,21 @@ class cf7_sendpdf {
             // Je remplace les codes courts
             if( isset($messageText) && !empty($messageText) ) {
                 
+                // On va chercher les tags FILE destinés aux images
+                $cf7_file_field_name = $meta_values['file_tags']; // [file uploadyourfile]
+                if( !empty($cf7_file_field_name) ) {
+                    $contentTagsOnMail  = explode('[', $cf7_file_field_name);
+                    foreach($contentTagsOnMail as $tagsOnMail) {
+                        if( isset($tagsOnMail) && $tagsOnMail != '' ) {
+                            $tagsOnMail = substr($tagsOnMail, 0, -1);
+                            $image_name2 = $posted_data[$tagsOnMail];
+                            $chemin_final2[$tagsOnMail] = str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $createDirectory).'/'.$image_name2;
+                            if( file_exists($chemin_final2[$tagsOnMail]) ) {
+                                $messageText = str_replace('[url-'.$tagsOnMail.']', $chemin_final2[$tagsOnMail], $messageText);
+                            }
+                        }
+                    }
+                }
                 $messageText = str_replace('[reference]', $_SESSION['pdf_uniqueid'], $messageText);
                 $messageText = str_replace('[url-pdf]', str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $createDirectory ).'/'.$nameOfPdf.'-'.$_SESSION['pdf_uniqueid'].'.pdf', $messageText);
                 if( isset($meta_values['date_format']) && !empty($meta_values['date_format']) ) {
