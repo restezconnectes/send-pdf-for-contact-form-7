@@ -186,7 +186,7 @@ class cf7_sendpdf {
         
         $upload_dir = wp_upload_dir();
         
-        if( isset($meta_values["pdf-uploads"]) && $meta_values["pdf-uploads"]==true ) {
+        if( isset($meta_values["pdf-uploads"]) && $meta_values["pdf-uploads"]=='true' ) {
             
             $newDirectory = $upload_dir['basedir'].'/sendpdfcf7_uploads';            
             if( is_dir($newDirectory) == false ) {
@@ -290,15 +290,17 @@ class cf7_sendpdf {
                 $nameOfPdf = $this->wpcf7pdf_name_pdf($post['_wpcf7']);
                 //$text = preg_replace("/(\r\n|\n|\r)/", "---", $meta_values['generate_pdf']);
                 $text = trim($meta_values['generate_pdf']);
-                $text = str_replace('https://', 'http://', $text);
+                //$text = str_replace('https://', 'http://', $text);
                 $text = str_replace('[reference]', $_SESSION['pdf_uniqueid'], $text);
-                $text = str_replace('[url-pdf]', $upload_dir['url'].'/'.$nameOfPdf.'-'.$_SESSION['pdf_uniqueid'].'.pdf', $text);
+                $text = str_replace('[url-pdf]', str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $createDirectory).'/'.$nameOfPdf.'-'.$_SESSION['pdf_uniqueid'].'.pdf', $text);
                 if( !empty($cf7_file_field_name) ) {
                     $contentTagsOnPdf  = explode('[', $cf7_file_field_name);
                     foreach($contentTagsOnPdf as $tagsOnPdf) {
                         if( isset($tagsOnPdf) && $tagsOnPdf != '' ) {
                             $tagsOnPdf = substr($tagsOnPdf, 0, -1);
-                            $text = str_replace('['.$tagsOnPdf.']', $chemin_final[$tagsOnPdf], $text);
+                            $image_name2 = $posted_data[$tagsOnPdf];
+                            $chemin_final2[$tagsOnPdf] = str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $createDirectory).'/'.$image_name2; 
+                            $text = str_replace('['.$tagsOnPdf.']', $chemin_final2[$tagsOnPdf], $text);
                             //error_log( 'chemin:'.str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $chemin_final[$tagsOnPdf] ) ); //not blank, all sorts of stuff
                         }
                     }
@@ -532,8 +534,9 @@ class cf7_sendpdf {
                     
             // Je remplace les codes courts
             if( isset($messageText) && !empty($messageText) ) {
+                
                 $messageText = str_replace('[reference]', $_SESSION['pdf_uniqueid'], $messageText);
-                $messageText = str_replace('[url-pdf]', $upload_dir['url'].'/'.$nameOfPdf.'-'.$_SESSION['pdf_uniqueid'].'.pdf', $messageText);
+                $messageText = str_replace('[url-pdf]', str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $createDirectory ).'/'.$nameOfPdf.'-'.$_SESSION['pdf_uniqueid'].'.pdf', $messageText);
                 if( isset($meta_values['date_format']) && !empty($meta_values['date_format']) ) {
                     $dateField = date_i18n( $meta_values['date_format'] );
                 } else {
