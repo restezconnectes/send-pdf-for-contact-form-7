@@ -225,11 +225,7 @@ function toggle_visibility(id) {
         <!-- Disable GENERATE PDF -->                
         <table class="wp-list-table widefat fixed" cellspacing="0">
             <tbody id="the-list">
-                <tr>
-                    <td>
-                        <h3 class="hndle"><span class="dashicons dashicons-dashboard"></span> <?php _e('General Settings', 'send-pdf-for-contact-form-7'); ?></h3>
-                    </td>
-                </tr>
+
                 <tr>
                     <td><?php _e('Disable generate PDF?', 'send-pdf-for-contact-form-7'); ?></td>
                     <td><input type="radio" name="wp_cf7pdf_settings[disable-pdf]" value="true" <?php if( isset($meta_values["disable-pdf"]) && $meta_values["disable-pdf"]=="true" ) { echo ' checked'; } ?>>&nbsp;<?php _e('Yes', 'send-pdf-for-contact-form-7'); ?>&nbsp;<input type="radio" name="wp_cf7pdf_settings[disable-pdf]" value="false" <?php if( ( isset($meta_values["disable-pdf"]) && $meta_values["disable-pdf"]=="false") or empty($meta_values["disable-pdf"]) ) { echo ' checked'; } ?> />&nbsp;<?php _e('No', 'send-pdf-for-contact-form-7'); ?></td>
@@ -437,9 +433,13 @@ function toggle_visibility(id) {
                                 <span class="mailtag code used" onclick="jQuery(this).selectText()" style="cursor: pointer;"><strong>[reference]</strong></span><br /><i>(<?php _e("[reference] is a simple mail-tag who is used for create unique PDF. It's also recorded in the database. Every PDF is named like this : name-pdf-uniqid() and it's uploaded in the upload folder of WordPress. For example : document-pdf-56BC4A3EF0752.pdf", 'send-pdf-for-contact-form-7'); ?>)</i><br /><br />
                                 <?php 
                                     $contact_form = WPCF7_ContactForm::get_instance($idForm);
+                                    $fileTags = '';
                                     foreach ( (array) $contact_form->collect_mail_tags() as $mail_tag ) {
                                         $pattern = sprintf( '/\[(_[a-z]+_)?%s([ \t]+[^]]+)?\]/',
                                             preg_quote( $mail_tag, '/' ) );
+                                        if( substr($mail_tag, 0, 4) == 'file' ) {
+                                            $fileTags .= '<span class="%1$s" onclick="jQuery(this).selectText()" style="cursor: pointer;"><strong>['.$mail_tag.']</strong></span>';
+                                        }
                                         echo sprintf(
                                             '<span class="%1$s" onclick="jQuery(this).selectText()" style="cursor: pointer;"><strong>[%2$s]</strong></span>',
                                             'mailtag code used',
@@ -448,7 +448,10 @@ function toggle_visibility(id) {
                                     }
                                 ?>
                             </legend>
-                            <br /><br />
+                            <br />
+                            <?php if( $fileTags == '') {$fileTags = '[file-1][file-2]'; } ?>
+                            <i><?php echo sprintf( __('The <strong>[file]</strong> tags are for images? Enter them here to display them in images on your PDF and like this: %s', 'send-pdf-for-contact-form-7'), $fileTags ); ?></i><br /><small><?php _e('It will then be necessary to put them in the image HTML tag for the PDF layout.', 'send-pdf-for-contact-form-7'); ?></small><br /><input type="text" name="wp_cf7pdf_settings[file_tags]" size="25" value="<?php if( isset($meta_values['file_tags'])) { echo $meta_values['file_tags']; } ?>" /><br />
+                            <br />
                             <textarea name="wp_cf7pdf_settings[generate_pdf]" rows="25" cols="80%"><?php if( empty($meta_values['generate_pdf']) ) { echo $messagePdf; } else { echo esc_textarea($meta_values['generate_pdf']); } ?></textarea>
                         </td>
                         <td align="center" width="20%">

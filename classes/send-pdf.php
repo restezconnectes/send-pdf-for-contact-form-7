@@ -253,6 +253,7 @@ class cf7_sendpdf {
             $post = $_POST;
             
             $upload_dir = wp_upload_dir();
+            $uploaded_files = $submission->uploaded_files(); // this allows you access to the upload file in the temp location
             
             //error_log( $posted_data['your-message'] );
             $meta_values = get_post_meta( $post['_wpcf7'], '_wp_cf7pdf', true );
@@ -261,6 +262,25 @@ class cf7_sendpdf {
             // On récupère le dossier upload de WP
             $createDirectory = $this->wpcf7pdf_folder_uploads($post['_wpcf7']);
 
+            // On va chercher les tags FILE destinés aux images
+            $cf7_file_field_name = $meta_values['file_tags']; // [file uploadyourfile]
+            if( !empty($cf7_file_field_name) ) {
+                $contentTags  = explode('[', $cf7_file_field_name);
+                foreach($contentTags as $tags) {
+                    // On enlève les []
+                    if( isset($tags) && $tags != '' ) {
+                        $tags = substr($tags, 0, -1);
+                        $image_name = $posted_data[$tags];
+                        $image_location = $uploaded_files[$tags];
+                        $chemin_final[$tags] = $createDirectory.'/'.$image_name; 
+                        if ( $image_name > '' ) {
+                            // On copie l'image dans le dossier
+                            copy($image_location, $chemin_final[$tags]);
+                        }
+                    }
+                }
+            }
+            
             // On va cherche les champs du formulaire
             $meta_tags = get_post_meta( $post['_wpcf7'], '_wp_cf7pdf_fields', true );
         
@@ -273,6 +293,16 @@ class cf7_sendpdf {
                 $text = str_replace('https://', 'http://', $text);
                 $text = str_replace('[reference]', $_SESSION['pdf_uniqueid'], $text);
                 $text = str_replace('[url-pdf]', $upload_dir['url'].'/'.$nameOfPdf.'-'.$_SESSION['pdf_uniqueid'].'.pdf', $text);
+                if( !empty($cf7_file_field_name) ) {
+                    $contentTagsOnPdf  = explode('[', $cf7_file_field_name);
+                    foreach($contentTagsOnPdf as $tagsOnPdf) {
+                        if( isset($tagsOnPdf) && $tagsOnPdf != '' ) {
+                            $tagsOnPdf = substr($tagsOnPdf, 0, -1);
+                            $text = str_replace('['.$tagsOnPdf.']', $chemin_final[$tagsOnPdf], $text);
+                            //error_log( 'chemin:'.str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $chemin_final[$tagsOnPdf] ) ); //not blank, all sorts of stuff
+                        }
+                    }
+                }
                 if( isset($meta_values['date_format']) && !empty($meta_values['date_format']) ) {
                     $dateField = date_i18n( $meta_values['date_format'] );
                 } else {
@@ -525,6 +555,9 @@ class cf7_sendpdf {
        $submission = WPCF7_Submission::get_instance();
 
 	   if ($submission) {
+           
+            $posted_data = $submission->get_posted_data();
+           
             global $post;
             // récupère le POST            
             $post = $_POST;
@@ -532,7 +565,8 @@ class cf7_sendpdf {
             $createDirectory = $this->wpcf7pdf_folder_uploads($post['_wpcf7']);
             //error_log( $posted_data['your-message'] );
             $meta_values = get_post_meta( $post['_wpcf7'], '_wp_cf7pdf', true );
-
+            $cf7_file_field_name = $meta_values['file_tags'];
+           
             // Si l'option de supprimer les fichiers est activée
             if( isset($meta_values["pdf-file-delete"]) && $meta_values["pdf-file-delete"]=="true") {
 
@@ -544,6 +578,17 @@ class cf7_sendpdf {
                 }
                 if( file_exists($createDirectory.'/'.$nameOfPdf.'-'.$_SESSION['pdf_uniqueid'].'.pdf') ) {
                     unlink($createDirectory.'/'.$nameOfPdf.'-'.$_SESSION['pdf_uniqueid'].'.pdf');
+                }
+                if( !empty($cf7_file_field_name) ) {
+                    $contentTagsOnPdf  = explode('[', $cf7_file_field_name);
+                    foreach($contentTagsOnPdf as $tagsOnPdf) {
+                        $tagsOnPdf = substr($tagsOnPdf, 0, -1);
+                        $image_name = $posted_data[$tagsOnPdf];
+                        $chemin_final[$tagsOnPdf] = $createDirectory.'/'.$image_name; // http:// -> /wp-content/uploads/
+                        if( file_exists($chemin_final[$tagsOnPdf]) ) {
+                            unlink($chemin_final[$tagsOnPdf]);
+                        }
+                    }
                 }
 
             }

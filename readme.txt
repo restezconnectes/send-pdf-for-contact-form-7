@@ -4,7 +4,7 @@ Donate link: https://restezconnectes.fr/a-propos/
 Tags: WordPress, plugin, contact form, pdf, send, attachment, form, cf7
 Requires at least: 3.0
 Tested up to: 4.7.1
-Stable tag: 0.5.5
+Stable tag: 0.5.6
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -44,10 +44,13 @@ Yes. Thank you for submitting your changes to update the plugin.
 
 == Upgrade Notice ==
 
-= 0.5.5 =
+= 0.5.6 =
 This version is stable
 
 == Changelog ==
+
+= 0.5.6 =
+* Adding a option : convert [file] tags to image for your PDF
 
 = 0.5.5 =
 * Adding a option, delete all files after sent email
