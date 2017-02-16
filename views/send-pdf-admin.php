@@ -450,9 +450,7 @@ function toggle_visibility(id) {
                             </legend>
                             <br />
                             <?php if( $fileTags == '') {$fileTags = '[file-1][file-2]'; } ?>
-                            <i><?php echo sprintf( __('The <strong>[file]</strong> tags are for images? Enter them here to display them in images on your PDF and like this: %s', 'send-pdf-for-contact-form-7'), $fileTags ); ?></i><br /><small><?php _e('It will then be necessary to put them in the image HTML tag for the PDF layout.', 'send-pdf-for-contact-form-7'); ?></small><br /><input type="text" name="wp_cf7pdf_settings[file_tags]" size="25" value="<?php if( isset($meta_values['file_tags'])) { echo $meta_values['file_tags']; } ?>" /><br />
-                            <br />
-                            <textarea name="wp_cf7pdf_settings[generate_pdf]" rows="25" cols="80%"><?php if( empty($meta_values['generate_pdf']) ) { echo $messagePdf; } else { echo esc_textarea($meta_values['generate_pdf']); } ?></textarea>
+                            <i><?php echo sprintf( __('The <strong>[file]</strong> tags are for images? Enter them here to display them in images on your PDF and like this: %s', 'send-pdf-for-contact-form-7'), $fileTags ); ?></i><br /><small><?php _e('It will then be necessary to put them in the image HTML tag for the PDF layout.', 'send-pdf-for-contact-form-7'); ?></small><br /><input type="text" name="wp_cf7pdf_settings[file_tags]" size="25" value="<?php if( isset($meta_values['file_tags'])) { echo $meta_values['file_tags']; } ?>" />
                         </td>
                         <td align="center" width="20%">
                             <?php if( file_exists($createDirectory.'/preview-'.$idForm.'.pdf') ) { ?>
@@ -463,6 +461,11 @@ function toggle_visibility(id) {
                                     </div>
                                 </div>
                             <?php } ?>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="2">
+                            <textarea id="cf7pdf_html" name="wp_cf7pdf_settings[generate_pdf]" rows="25" cols="80%"><?php if( empty($meta_values['generate_pdf']) ) { echo $messagePdf; } else { echo esc_textarea($meta_values['generate_pdf']); } ?></textarea>
                         </td>
                     </tr>
                 </tbody>
@@ -492,6 +495,22 @@ function toggle_visibility(id) {
 
     </div>
 </form>
+<script>
+    var mixedMode = {
+        name: "htmlmixed",
+        scriptTypes: [{matches: /\/x-handlebars-template|\/x-mustache/i,
+                       mode: null},
+                      {matches: /(text|application)\/(x-)?vb(a|script)/i,
+                       mode: "vbscript"}]
+      };
+      var editor = CodeMirror.fromTextArea(document.getElementById("cf7pdf_html"), {
+        mode: mixedMode,
+        selectionPointer: true,
+        lineNumbers: true,
+        textWrapping: true,
+        theme: "pastel-on-dark",
+      });   
+</script>
 <?php } ?>
 <?php } else { ?>
     <div style="margin-left: 0px;margin-top: 5px;background-color: #ffffff;border: 1px solid #cccccc;padding: 10px;">

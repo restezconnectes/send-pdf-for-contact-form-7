@@ -88,6 +88,34 @@ class cf7_sendpdf {
             wp_register_script('wpcf7-my-upload', WPCF7PD_URL.'js/wpcf7pdf-script.js', array('jquery','media-upload','thickbox'));
             wp_enqueue_script('wpcf7-my-upload');
 
+            // Create a simple CodeMirror instance
+            // Mode http://codemirror.net/mode/php/index.html
+            wp_register_style( 'codemirror_css', WPCF7PD_URL.'js/lib/codemirror.css', false, '1.0.0' );
+            wp_enqueue_style( 'codemirror_css' );
+            wp_register_style( 'codemirror_theme_css', WPCF7PD_URL.'js/lib/theme/pastel-on-dark.css', false, '1.0.0' );
+            wp_enqueue_style( 'codemirror_theme_css' );
+            
+            wp_register_script('codemirror', WPCF7PD_URL.'js/lib/codemirror.js', 'jquery', '1.0');
+            wp_enqueue_script('codemirror');
+            
+            wp_register_script('codemirror_css', WPCF7PD_URL.'js/lib/css.js', 'jquery', '1.0');
+            wp_enqueue_script('codemirror_css');
+            
+            wp_register_script('codemirror_selection', WPCF7PD_URL.'js/lib/addon/selection/selection-pointer.js', 'jquery', '1.0');
+            wp_enqueue_script('codemirror_selection');
+            
+            wp_register_script('codemirror_xml', WPCF7PD_URL.'js/lib/xml.js', 'jquery', '1.0');
+            wp_enqueue_script('codemirror_xml');
+            
+            wp_register_script('codemirror_java', WPCF7PD_URL.'js/lib/javascript.js', 'jquery', '1.0');
+            wp_enqueue_script('codemirror_java');
+            
+            wp_register_script('codemirror_vbscript', WPCF7PD_URL.'js/lib/vbscript.js', 'jquery', '1.0');
+            wp_enqueue_script('codemirror_vbscript');
+            
+            wp_register_script('codemirror_htmlmixed', WPCF7PD_URL.'js/lib/htmlmixed.js', 'jquery', '1.0');
+            wp_enqueue_script('codemirror_htmlmixed');
+            
             // Now we can localize the script with our data.
             wp_localize_script( 'wpcf7-my-upload', 'Data', array(
               'textebutton'  =>  __( 'Choose This Image', 'send-pdf-for-contact-form-7' ),
