@@ -969,7 +969,7 @@ class cf7_sendpdf {
         $alpha = "abcdefghijklmnopqrstuvwxyz";
         $alpha_upper = strtoupper($alpha);
         $numeric = "0123456789";
-        $special = ".-+=_,!@$#*%<>[]{}";
+        $special = "-+=_,!@$#*%<>[]{}";
         $chars = "";
 
         $chars = $alpha . $special . $alpha_upper . $numeric . $special;
