@@ -533,7 +533,12 @@ class cf7_sendpdf {
                     $mpdf->SetCreator(get_bloginfo('name'));
                     $mpdf->ignore_invalid_utf8 = true;
                     if( isset($meta_values["image"]) && !empty($meta_values["image"]) ) {
-                        list($width, $height, $type, $attr) = getimagesize($meta_values["image"]);
+                        if( ini_get('allow_url_fopen')==1) {
+                            list($width, $height, $type, $attr) = getimagesize($meta_values["image"]);
+                        } else {
+                            $width = 150;
+                            $height = 80;
+                        }
                         $imgAlign = 'left';
                         if( isset($meta_values['image-alignment']) ) {
                             $imgAlign = $meta_values['image-alignment'];
