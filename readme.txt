@@ -3,8 +3,8 @@ Contributors: Florent73
 Donate link: https://www.paypal.me/RestezConnectes/
 Tags: WordPress, plugin, contact form, pdf, send, attachment, form, cf7
 Requires at least: 3.0
-Tested up to: 4.8.1
-Stable tag: 0.6.4
+Tested up to: 4.9
+Stable tag: 0.6.5
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -48,8 +48,10 @@ Yes. Thank you for submitting your changes to update the plugin.
 
 == Upgrade Notice ==
 
-= 0.6.4 =
-This version is stable
+= 0.6.5 =
+* Set event listener instead of using soon to be removed onSentOk
+* Compatible with signature add-on plugin
+* Compatible with multi-step module plugin
 
 == Changelog ==
 
