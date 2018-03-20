@@ -13,9 +13,27 @@ $colors      = $_wp_admin_css_colors[$admin_color]->colors;
 if( (isset($_POST['action']) && isset($_POST['idform']) && $_POST['action'] == 'update') && isset( $_POST['security-sendform'] ) && wp_verify_nonce($_POST['security-sendform'], 'go-sendform') ) {
 
     if( isset($_POST['wp_cf7pdf_settings']['pdf-uploads-delete']) && $_POST['wp_cf7pdf_settings']['pdf-uploads-delete']=="true" ) {
+        
+        $dossier_traite = cf7_sendpdf::wpcf7pdf_folder_uploads($_POST['idform']);
+        //var_dump($dossier_traite);
+        
+        if( isset($dossier_traite) && is_dir($dossier_traite) ) {
+            
+            //$dossier_traite = unserialize($_POST['path_uploads']);
+            $repertoire = opendir($dossier_traite); // On définit le répertoire dans lequel on souhaite travailler.
+ 
+            while (false !== ($fichier = readdir($repertoire))) // On lit chaque fichier du répertoire dans la boucle.
+            {
+            $chemin = $dossier_traite."/".$fichier; // On définit le chemin du fichier à effacer.
 
-        if( isset($_POST['path_uploads']) && is_dir($_POST['path_uploads']) ) {
-            rmdir( $_POST['path_uploads'], true );
+            // Si le fichier n'est pas un répertoire…
+            if ($fichier != ".." AND $fichier != "." AND !is_dir($fichier))
+                   {
+                   unlink($chemin); // On efface.
+                   }
+            }
+            closedir($repertoire);
+            
             echo '<div id="message" class="updated fade"><p><strong>'.__('The upload folder has been deleted.', 'send-pdf-for-contact-form-7').'</strong></p></div>';
         }
 
@@ -24,6 +42,9 @@ if( (isset($_POST['action']) && isset($_POST['idform']) && $_POST['action'] == '
     update_post_meta( intval($_POST['idform']), '_wp_cf7pdf', $_POST["wp_cf7pdf_settings"] );
     if (isset($_POST["wp_cf7pdf_tags"]) ) {
         update_post_meta( intval($_POST['idform']), '_wp_cf7pdf_fields', $_POST["wp_cf7pdf_tags"] );
+    }
+    if ( isset($_POST["wp_cf7pdf_tags_scan"]) ) {
+        update_post_meta( intval($_POST['idform']), '_wp_cf7pdf_fields_scan', $_POST["wp_cf7pdf_tags_scan"] );
     }
     //update_option('wp_cf7pdf_settings', $_POST["wp_cf7pdf_settings"]);
     $options_saved = true;
@@ -221,6 +242,34 @@ jQuery(document).ready(function() {
             }
             $messageText = $meta_values['generate_pdf'];
             
+            $contact_form = WPCF7_ContactForm::get_instance($idForm);
+            $contact_tag = $contact_form->form_scan_shortcode();
+            foreach ( $contact_tag as $sh_tag ) {
+                
+                $tagOptions = $sh_tag["options"];
+                
+                if( $sh_tag["basetype"] == 'checkbox') {
+                    foreach($sh_tag["values"] as $id=>$val) {
+                        if( in_array('label_first', $tagOptions) ) {
+                            $inputCheckbox .= ''.$val.' <input type="checkbox" name="'.$sh_tag["name"].'" value="'.$val.'" /> ';
+                        } else {
+                            $inputCheckbox .= '<input type="checkbox" name="'.$sh_tag["name"].'" value="'.$val.'" /> '.$val.' ';
+                        }
+                        
+                    }
+                    $messageText = str_replace('['.$sh_tag["name"].']', $inputCheckbox, $messageText);
+                } else if ( $sh_tag["basetype"] == 'radio') {
+                    foreach($sh_tag["values"] as $id=>$val) {
+                        if( in_array('label_first', $tagOptions) ) {
+                            $inputRadio .= ''.$val.' <input type="radio" name="'.$sh_tag["name"].'" value="'.$val.'" > ';
+                        } else {
+                            $inputRadio .= '<input type="radio" name="'.$sh_tag["name"].'" value="'.$val.'" > '.$val.' ';
+                        }
+                    }
+                    $messageText = str_replace('['.$sh_tag["name"].']', $inputRadio, $messageText);
+                }
+            }
+            
             // read all image tags into an array
             preg_match_all('/<img[^>]+>/i', $messageText, $imgTags); 
 
@@ -294,14 +343,15 @@ jQuery(document).ready(function() {
 
 ';
 
-
-    ?>
+$pathFolder = serialize($createDirectory);
+        
+?>
 
 <form method="post" action="" name="valide_settings">
 
 <input type="hidden" name="action" value="update" />
 <input type="hidden" name="idform" value="<?php echo $idForm; ?>"/>
-<input type="hidden" name="path_uploads" value="<?php echo $createDirectory; ?>" />
+<input type="hidden" name="path_uploads" value="<?php echo $pathFolder; ?>" />
 <?php wp_nonce_field('go-sendform', 'security-sendform'); ?>
 
 <div style="text-align:right;">
@@ -445,9 +495,9 @@ jQuery(document).ready(function() {
                 <td>
                     <div style="">
                         <div class="switch-field">
-                        <input class="switch_left" type="radio" id="switch_delete" name="wp_cf7pdf_settings[pdf-uploads-delete]" value="true" <?php if( isset($meta_values["pdf-uploads-delete"]) && $meta_values["pdf-uploads-delete"]=='true') { echo ' checked'; } ?>/>
+                        <input class="switch_left" type="radio" id="switch_delete" name="wp_cf7pdf_settings[pdf-uploads-delete]" value="true" />
                         <label for="switch_delete"><?php _e('Yes', 'send-pdf-for-contact-form-7'); ?></label>
-                        <input class="switch_right" type="radio" id="switch_delete_no" name="wp_cf7pdf_settings[pdf-uploads-delete]" value="false" <?php if( empty($meta_values["pdf-uploads-delete"]) || (isset($meta_values["pdf-uploads-delete"]) && $meta_values["pdf-uploads-delete"]=='false') ) { echo ' checked'; } ?> />
+                        <input class="switch_right" type="radio" id="switch_delete_no" name="wp_cf7pdf_settings[pdf-uploads-delete]" value="false" checked />
                         <label for="switch_delete_no"><?php _e('No', 'send-pdf-for-contact-form-7'); ?></label>
                         </div>
                     </div>
@@ -460,9 +510,9 @@ jQuery(document).ready(function() {
                 <td>
                     <div style="">
                       <div class="switch-field">
-                          <input class="switch_left" type="radio" id="switch_filedelete" name="wp_cf7pdf_settings[pdf-file-delete]" value="true" <?php if( isset($meta_values["pdf-uploads-delete"]) && $meta_values["pdf-uploads-delete"]=='true') { echo ' checked'; } ?>/>
+                          <input class="switch_left" type="radio" id="switch_filedelete" name="wp_cf7pdf_settings[pdf-file-delete]" value="true" <?php if( isset($meta_values["pdf-uploads-delete"]) && $meta_values["pdf-file-delete"]=='true') { echo ' checked'; } ?>/>
                           <label for="switch_filedelete"><?php _e('Yes', 'send-pdf-for-contact-form-7'); ?></label>
-                          <input class="switch_right" type="radio" id="switch_filedelete_no" name="wp_cf7pdf_settings[pdf-file-delete]" value="false" <?php if( empty($meta_values["pdf-uploads-delete"]) || (isset($meta_values["pdf-file-delete"]) && $meta_values["pdf-uploads-delete"]=='false') ) { echo ' checked'; } ?> />
+                          <input class="switch_right" type="radio" id="switch_filedelete_no" name="wp_cf7pdf_settings[pdf-file-delete]" value="false" <?php if( empty($meta_values["pdf-file-delete"]) || (isset($meta_values["pdf-file-delete"]) && $meta_values["pdf-file-delete"]=='false') ) { echo ' checked'; } ?> />
                           <label for="switch_filedelete_no"><?php _e('No', 'send-pdf-for-contact-form-7'); ?></label>
                       </div>
                     </div>
@@ -788,8 +838,13 @@ jQuery(document).ready(function() {
                                 <tr>
                                     <td colspan="2">
                                     <?php
+                                            /*
+                                             * ECRIT DANS UN POST-META LES TAGS DU FORMULAIRE 
+                                             *
+                                             */
                                             $contact_form = WPCF7_ContactForm::get_instance($idForm);
                                             $fileTags = '';
+        
                                             foreach ( (array) $contact_form->collect_mail_tags() as $mail_tag ) {
                                                 $pattern = sprintf( '/\[(_[a-z]+_)?%s([ \t]+[^]]+)?\]/',
                                                     preg_quote( $mail_tag, '/' ) );
@@ -801,6 +856,31 @@ jQuery(document).ready(function() {
                                                     'mailtag code used',
                                                     esc_html( $mail_tag ) );
                                                 echo '<input type="hidden" name="wp_cf7pdf_tags[]" value="['.esc_html( $mail_tag ).']" />';
+                                            }
+                                            /*
+                                             * ECRIT DANS UN POST-META LES PROPRIETES DES TAGS DU FORMULAIRE 
+                                             *
+                                             */
+                                            $contact_tag = $contact_form->scan_form_tags();
+                                            foreach ( $contact_tag as $sh_tag ) {
+                                                //echo '<br /><br />';
+                                                //print_r($sh_tag);
+                                                if( !empty($sh_tag["options"]) ) {
+                                                    $valOpt = 'array(';
+                                                    foreach($sh_tag["options"] as $idOpt=>$opt) {
+                                                        $valOpt .= '['.$idOpt.']=>'.$opt;
+                                                    }
+                                                    $valOpt .= ')';
+                                                }
+                                                if( !empty($sh_tag["values"]) ) {
+                                                    $valTag = 'array(';
+                                                    foreach($sh_tag["values"] as $id=>$val) {
+                                                        $valTag .= '['.$id.']=>'.$val;
+                                                    }
+                                                    $valTag .= ')'; 
+                                                }
+                                                $mail_tag_scan = '['.$sh_tag["name"].'],'.$sh_tag["basetype"].','.$valTag.','.$valOpt;
+                                                echo '<input type="hidden" name="wp_cf7pdf_tags_scan[]" value="'.$mail_tag_scan.'" />';
                                             }
                                         ?>
                                     </td>

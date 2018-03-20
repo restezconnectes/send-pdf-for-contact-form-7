@@ -472,11 +472,61 @@ class cf7_sendpdf {
             // On va cherche les champs du formulaire
             $meta_tags = get_post_meta( $post['_wpcf7'], '_wp_cf7pdf_fields', true );
 
+            // On va cherche les champs détaillés du formulaire
+            $meta_tags_scan = get_post_meta( $post['_wpcf7'], '_wp_cf7pdf_fields_scan', true );
+            
             // SAVE FORM FIELD DATA AS VARIABLES
             if( isset($meta_values['generate_pdf']) && !empty($meta_values['generate_pdf']) ) {
 
                 $nameOfPdf = $this->wpcf7pdf_name_pdf($post['_wpcf7']);
                 $text = trim($meta_values['generate_pdf']);
+                
+                $contact_form = WPCF7_ContactForm::get_instance($post['_wpcf7']);
+                $contact_tag = $contact_form->scan_form_tags();
+                foreach ( $contact_tag as $sh_tag ) {
+
+                    $tagOptions = $sh_tag["options"];
+                    /*if( $sh_tag["basetype"] == 'text' or $sh_tag["basetype"] == 'email' ) {
+                        
+                        $valueTag = wpcf7_mail_replace_tags('['.$sh_tag["name"].']');
+                        $inputText = '<input type="text" class="wpcf7-text" name="'.$sh_tag["name"].'" value="'.$valueTag.'" />';
+                        $text = str_replace('['.$sh_tag["name"].']', $inputText, $text);
+                        
+                    } else */if( $sh_tag["basetype"] == 'checkbox') {
+                        
+                        foreach($sh_tag["values"] as $id=>$val) {
+                            $caseChecked = '';
+                            $valueTag = wpcf7_mail_replace_tags('['.$sh_tag["name"].']');
+                            if( $val == $valueTag ) {
+                                $caseChecked = 'checked="checked"';
+                            }
+                            if( in_array('label_first', $tagOptions) ) {
+                                $inputCheckbox .= ''.$val.' <input type="checkbox" class="wpcf7-checkbox" name="'.$sh_tag["name"].'" value="'.$val.'" '.$caseChecked.' /> ';
+                            } else {
+                                $inputCheckbox .= '<input type="checkbox" class="wpcf7-checkbox" name="'.$sh_tag["name"].'" value="'.$val.'" '.$caseChecked.' /> '.$val.' ';
+                            }
+
+                        }
+                        $text = str_replace('['.$sh_tag["name"].']', $inputCheckbox, $text);
+                        
+                    } else if ( $sh_tag["basetype"] == 'radio') {
+                        
+                        foreach($sh_tag["values"] as $id=>$val) {
+                            $radioChecked = '';
+                            $valueTag = wpcf7_mail_replace_tags('['.$sh_tag["name"].']');
+                            if( $val == $valueTag ) {
+                                $radioChecked = 'checked="checked"';
+                            }                            
+                            if( in_array('label_first', $tagOptions) ) {
+                                $inputRadio .= ''.$val.' <input type="radio" class="wpcf7-radio" name="'.$sh_tag["name"].'" value="'.$val.'" '.$radioChecked.' > ';
+                            } else {
+                                $inputRadio .= '<input type="radio" class="wpcf7-radio" name="'.$sh_tag["name"].'" value="'.$val.'" '.$radioChecked.' > '.$val.' ';
+                            }
+                        }
+                        $text = str_replace('['.$sh_tag["name"].']', $inputRadio, $text);
+                        
+                    }
+                }
                             
                 $text = str_replace('[reference]', $_SESSION['pdf_uniqueid'], $text);
                 $text = str_replace('[url-pdf]', str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $createDirectory).'/'.$nameOfPdf.'-'.$_SESSION['pdf_uniqueid'].'.pdf', $text);
@@ -509,7 +559,9 @@ class cf7_sendpdf {
                 $text = str_replace('[time]', $timeField, $text);
 
                 $csvTab = array($_SESSION['pdf_uniqueid']);
+                /* Prepare les valeurs dans tableau CSV */
                 foreach($meta_tags as $ntags => $vtags) {
+                    //error_log('Ntags: '.$ntags.' => Tag:'.$vtags);
                     $returnValue = wpcf7_mail_replace_tags($vtags);
                     array_push($csvTab, $returnValue);
                 }
@@ -608,6 +660,10 @@ class cf7_sendpdf {
                             $pdfPassword = $_SESSION['pdf_password'];
                         }
                         $mpdf->SetProtection(array('print', 'copy'), $pdfPassword, '128');
+                    } else {
+                        
+                        $mpdf->useActiveForms = true;
+                        $mpdf->SetProtection(array('copy', 'print', 'fill-forms', 'modify', 'annot-forms' ),'', '');
                     }
 
                     $mpdf->Output($createDirectory.'/'.$nameOfPdf.'-'.$_SESSION['pdf_uniqueid'].'.pdf', 'F');
