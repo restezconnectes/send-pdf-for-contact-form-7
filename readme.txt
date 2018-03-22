@@ -4,7 +4,7 @@ Donate link: https://www.paypal.me/RestezConnectes/
 Tags: WordPress, plugin, contact form, pdf, send, attachment, form, cf7
 Requires at least: 3.0
 Tested up to: 4.9
-Stable tag: 0.6.7
+Stable tag: 0.6.6
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -48,13 +48,10 @@ Yes. Thank you for submitting your changes to update the plugin.
 
 == Upgrade Notice ==
 
-= 0.6.7 =
-* The PDF file recognize now the checkbox and radio fields
-
-== Changelog ==
-
 = 0.6.6 =
 * Bug on ption "Delete all files into this uploads folder" fixed
+
+== Changelog ==
 
 = 0.6.5 =
 * Set event listener instead of using soon to be removed onSentOk

@@ -449,7 +449,7 @@ $pathFolder = serialize($createDirectory);
                 <td>
                     <?php _e('Enter a name for your PDF', 'send-pdf-for-contact-form-7'); ?><p>(<i><?php _e("By default, the file's name will be 'document-pdf'", 'send-pdf-for-contact-form-7'); ?></i>)</p>
                     <br />
-                    <?php _e('Fill in the name of your PDF with your form tags', 'send-pdf-for-contact-form-7'); ?><p>(<i><?php _e("Enter your tags separated by commas", 'send-pdf-for-contact-form-7'); ?></i>)</p>
+                    <p><?php _e("You can use this tags (separated by commas):", 'send-pdf-for-contact-form-7'); ?></p>
                     <p>
                     <span class="dashicons dashicons-arrow-right"></span> <?php echo sprintf( __('Use %s in the name of your PDF', 'send-pdf-for-contact-form-7'), ' <span class="mailtag code used" onclick="jQuery(this).selectText()" style="cursor: pointer;"><strong>[reference]</strong></span>' ); ?><br />
                     <span class="dashicons dashicons-arrow-right"></span> <?php echo sprintf( __('Use %s in the name of your PDF', 'send-pdf-for-contact-form-7'), ' <span class="mailtag code used" onclick="jQuery(this).selectText()" style="cursor: pointer;"><strong>[date]</strong></span>' ); ?><br />

@@ -23,13 +23,11 @@ class cf7_sendpdf {
         add_filter( 'wpcf7_mail_components', array( $this, 'wpcf7pdf_mail_components' ), 10, 3 );
         add_action( 'wpcf7_mail_sent', array( $this, 'wpcf7pdf_after_mail_actions' ), 10, 1 );
         add_action( 'admin_menu', array( $this, 'wpcf7pdf_add_admin') );
-        //add_filter( 'plugin_action_links_'.plugin_basename(__FILE__), array( $this, 'wpcf7pdf_plugin_actions' ), 10, 2 );
         add_filter( 'plugin_action_links', array( $this, 'wpcf7pdf_plugin_actions'), 10, 2 );
         add_action( 'init', array( $this, 'wpcf7pdf_session_start'), 1 );
         add_action('admin_head', array( $this, 'wpcf7pdf_admin_head') );
         add_action( 'admin_init', array( $this, 'wpcf7pdf_process_settings_import') );
         add_action( 'admin_init', array( $this, 'wpcf7pdf_process_settings_export') );
-        //add_action( 'admin_init', array( $this, 'wpcf7_export_csv') );
         add_action( 'wpcf7_before_send_mail', array( $this, 'wpcf7pdf_send_pdf' ) );
         
         add_action('wp_footer', array( $this, 'wpcf7_add_footer'), 90 );
@@ -53,8 +51,7 @@ class cf7_sendpdf {
 
     // Add "Réglages" link on plugins page
     function wpcf7pdf_plugin_actions( $links, $file ) {
-        //$settings_link = '<a href="admin.php?page=wpcf7-send-pdf">'.__('Settings', 'send-pdf-for-contact-form-7').'</a>';
-        //return array_merge( $links, $settings_link );
+
         if ( $file != WPCF7PDF_PLUGIN_BASENAME ) {
 		  return $links;
         } else {
@@ -85,7 +82,6 @@ class cf7_sendpdf {
         return;
 
         $settings = get_post_meta( intval($_POST['wpcf7pdf_export_id']), '_wp_cf7pdf', true );
-        //$settingsFields = get_post_meta( intval($_POST['wpcf7pdf_export_id']), '_wp_cf7pdf_fields', true );
 
         ignore_user_abort( true );
 
@@ -95,7 +91,6 @@ class cf7_sendpdf {
         header( "Expires: 0" );
 
         echo json_encode( $settings );
-        //echo json_encode( $settingsFields );
         exit;
     }
 
@@ -117,10 +112,8 @@ class cf7_sendpdf {
         if( empty($_POST['wpcf7pdf_import_id']) )
         return;
 
-        //$extension = end( (explode( '.', $_FILES['wpcf7_import_file']['name'] )) );
         $extensionExploded = explode('.', $_FILES['wpcf7_import_file']['name']);
         $extension = strtolower(end($extensionExploded));
-        //error_log( 'FILE: '.$_FILES['wpcf7_import_file']['name'] );
 
         if( $extension != 'json' ) {
             wp_die( __( 'Please upload a valid .json file' ) );
@@ -135,7 +128,6 @@ class cf7_sendpdf {
         // Retrieve the settings from the file and convert the json object to an array.
         $settings = (array) json_decode( file_get_contents( $import_file ) );
 
-        //update_post_meta( intval($_POST['wpcf7pdf_export_id']), '_wp_cf7pdf_fields', $settings );
         update_post_meta( intval($_POST['wpcf7pdf_import_id']), '_wp_cf7pdf', $settings );
 
       echo '<div id="message" class="updated fade"><p><strong>' . __('New settings imported successfully!', 'send-pdf-for-contact-form-7') . '</strong></p></div>';
@@ -439,15 +431,12 @@ class cf7_sendpdf {
             $upload_dir = wp_upload_dir();
             $uploaded_files = $submission->uploaded_files(); // this allows you access to the upload file in the temp location
 
-            //error_log( $posted_data['your-message'] );
             $meta_values = get_post_meta( $post['_wpcf7'], '_wp_cf7pdf', true );
             $meta_fields = get_post_meta( $post['_wpcf7'], '_wp_cf7pdf_fields', true );
             
             // On récupère le dossier upload de WP
             $createDirectory = $this->wpcf7pdf_folder_uploads($post['_wpcf7']);
 
-            //$this->wpcf7pdf_session_start();
-            
             // On va chercher les tags FILE destinés aux images
             if( isset( $meta_values['file_tags'] ) && $meta_values['file_tags']!='' ) {
                 $cf7_file_field_name = $meta_values['file_tags']; // [file uploadyourfile]
@@ -540,7 +529,6 @@ class cf7_sendpdf {
                                 $chemin_final2[$tagsOnPdf] = str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $createDirectory).'/'.$image_name2;
                                 $text = str_replace('['.$tagsOnPdf.']', $chemin_final2[$tagsOnPdf], $text);
                                 $text = str_replace('[url-'.$tagsOnPdf.']', $chemin_final2[$tagsOnPdf], $text);
-                                //error_log( '[url-'.$tagsOnPdf.'] :'.$chemin_final2[$tagsOnPdf] ); //not blank, all sorts of stuff
                             }
                         }
                     }
@@ -561,7 +549,6 @@ class cf7_sendpdf {
                 $csvTab = array($_SESSION['pdf_uniqueid']);
                 /* Prepare les valeurs dans tableau CSV */
                 foreach($meta_tags as $ntags => $vtags) {
-                    //error_log('Ntags: '.$ntags.' => Tag:'.$vtags);
                     $returnValue = wpcf7_mail_replace_tags($vtags);
                     array_push($csvTab, $returnValue);
                 }
@@ -570,14 +557,12 @@ class cf7_sendpdf {
                 if( empty( $meta_values["linebreak"] ) or ( isset($meta_values["linebreak"]) && $meta_values["linebreak"] == 'false') ) {
                     $text = preg_replace("/(\r\n|\n|\r)/", "<div></div>", $text);
                     $text = str_replace("<div></div><div></div>", '<div style="height:10px;"></div>', $text);
-                    //error_log( $text ); //not blank, all sorts of stuff
                 }
 
                 // On génère le PDF
                 if( isset($meta_values["disable-pdf"]) && $meta_values['disable-pdf'] == 'false') {
 
                     require WPCF7PDF_DIR . '/mpdf/vendor/autoload.php';
-                    //include(WPCF7PDF_DIR.'/mpdf/mpdf.php');
 
                     if( isset($meta_values['pdf-type']) && isset($meta_values['pdf-orientation']) ) {
                         $formatPdf = $meta_values['pdf-type'].$meta_values['pdf-orientation'];
@@ -609,7 +594,6 @@ class cf7_sendpdf {
                         if( empty($meta_values['image-height']) ) { $imgHeight = $height; } else { $imgHeight = $meta_values['image-height'];  }
 
                         $attribut = 'width='.$imgWidth.' height="'.$imgHeight.'"';
-                        //$meta_values["image"] = str_replace('https://', 'http://', $meta_values["image"]);
                         $mpdf->WriteHTML('<div style="text-align:'.$imgAlign.'"><img src="'.esc_url($meta_values["image"]).'" '.$attribut.' /></div>');
                     }
                     
@@ -725,8 +709,6 @@ class cf7_sendpdf {
 
                 }
                 // END GENERATE CSV
-                
-                //error_log(serialize($redirect)); //not blank, all sorts of stuff
             }
         }
     }
@@ -745,10 +727,8 @@ class cf7_sendpdf {
             // On récupère le dossier upload de l'extension (/sendpdfcf7_uploads/)
             $createDirectory = $this->wpcf7pdf_folder_uploads($post['_wpcf7']);
             $uploaded_files = $submission->uploaded_files();
-            //$createDirectory = $upload_dir['basedir'].$upload_dir['subdir'];
             // on va chercher les options du formulaire
 
-            //$components['send'] = false;
             // On recupere les donnees et le nom du pdf personnalisé
             $meta_values = get_post_meta( $post['_wpcf7'], '_wp_cf7pdf', true );
             $nameOfPdf = $this->wpcf7pdf_name_pdf($post['_wpcf7']);
@@ -822,7 +802,6 @@ class cf7_sendpdf {
                         $tabDocs2 = array_filter($tabDocs2);// Supprime les éléments vides (= lignes vides) non
 
                         $nbDocs2 = count($tabDocs2);
-                        //echo 'Total de '.$nb_lignes.' lignes : <br />';
                         if( $nbDocs2 >= 1) {
                             foreach($tabDocs2 as $urlDocs2) {
                                 $urlDocs2 = str_replace($upload_dir['baseurl'], $upload_dir['basedir'], $urlDocs2);
@@ -850,15 +829,11 @@ class cf7_sendpdf {
                                 $image_name2 = $posted_data[$tagsOnMail];
                                 if( isset($image_name2) && $image_name2 !='' ) {
                                     $chemin_final2[$tagsOnMail] = str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $createDirectory).'/'.$image_name2;
-                                    //if( file_exists( $createDirectory.'/'.$image_name2 ) ) {
-                                        $messageText = str_replace('[url-'.$tagsOnMail.']', $chemin_final2[$tagsOnMail], $messageText);
-                                    //}
-                                    //error_log('image:'.$image_name2.' --> [url-'.$tagsOnMail.'] CH: '.$chemin_final2[$tagsOnMail]);
-                                   
+                                    $messageText = str_replace('[url-'.$tagsOnMail.']', $chemin_final2[$tagsOnMail], $messageText);
                                 }
-                                  //not blank, all sorts of stuff
+                                  
                             }
-                            //$messageText = $upload_dir['basedir'].' -> '.$upload_dir['baseurl'].' -> '.$createDirectory.'/'.$image_name2;
+                            
                         }
                     }
                 }
@@ -872,7 +847,6 @@ class cf7_sendpdf {
                         $pdfPassword = $_SESSION['pdf_password'];
                     }
                     $messageText = str_replace('[pdf-password]', $pdfPassword, $messageText);
-                    //error_log('Password:'.$pdfPassword);
                 }
                 
                 $messageText = str_replace('[reference]', $_SESSION['pdf_uniqueid'], $messageText);
@@ -891,8 +865,6 @@ class cf7_sendpdf {
                 $messageText = str_replace('[time]', $timeField, $messageText);
                 $components['body'] = $messageText;
             }
-
-            //error_log(serialize($components['attachments'])); //not blank, all sorts of stuff
             return $components;
 
         }
@@ -946,7 +918,6 @@ class cf7_sendpdf {
             }
            unset( $_SESSION['pdf_uniqueid'] );
        }
-        //exit('Meta -> '.$meta_values["pdf-file-delete"].' -- Name:'.$createDirectory.'/'.$nameOfPdf.'.pdf');
 
     }
 
@@ -1052,7 +1023,6 @@ class cf7_sendpdf {
                 foreach($meta_fields as $field) {
 
                     preg_match_all( '#\[(.*?)\]#', $field, $nameField );
-                    //print_r($nameField);
                     $nb=count($nameField[1]);
 
                     for($i=0;$i<$nb;$i++) {
@@ -1068,16 +1038,13 @@ class cf7_sendpdf {
                     
                     array_push($list, $createDirectory.'/'.$nameOfPdf.'-'.$pdfData[0].'.pdf');
                     foreach($pdfData as $data) {
-                        //$lignes[] = $data;
                         array_push($list, $data);
                     }
                     
-                    //print_r($list);
                     array_push($lignes, $list);
 
                 }
             }
-            //return $lignes;
 
             // Affichage de la ligne de titre, terminée par un retour chariot
             $csv_output .= implode($separateur, $entete)."\r\n";
@@ -1093,7 +1060,6 @@ class cf7_sendpdf {
     
         // Multi STEP plugin?
         global $cf7msm_redirect_urls;
-        //var_dump($cf7msm_redirect_urls);
         $displayAddEventList = 0;
         
         if ( ! session_id() ) {
