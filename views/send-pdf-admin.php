@@ -15,11 +15,9 @@ if( (isset($_POST['action']) && isset($_POST['idform']) && $_POST['action'] == '
     if( isset($_POST['wp_cf7pdf_settings']['pdf-uploads-delete']) && $_POST['wp_cf7pdf_settings']['pdf-uploads-delete']=="true" ) {
         
         $dossier_traite = cf7_sendpdf::wpcf7pdf_folder_uploads($_POST['idform']);
-        //var_dump($dossier_traite);
         
         if( isset($dossier_traite) && is_dir($dossier_traite) ) {
             
-            //$dossier_traite = unserialize($_POST['path_uploads']);
             $repertoire = opendir($dossier_traite); // On définit le répertoire dans lequel on souhaite travailler.
  
             while (false !== ($fichier = readdir($repertoire))) // On lit chaque fichier du répertoire dans la boucle.
@@ -46,7 +44,6 @@ if( (isset($_POST['action']) && isset($_POST['idform']) && $_POST['action'] == '
     if ( isset($_POST["wp_cf7pdf_tags_scan"]) ) {
         update_post_meta( intval($_POST['idform']), '_wp_cf7pdf_fields_scan', $_POST["wp_cf7pdf_tags_scan"] );
     }
-    //update_option('wp_cf7pdf_settings', $_POST["wp_cf7pdf_settings"]);
     $options_saved = true;
     echo '<div id="message" class="updated fade"><p><strong>'.__('Options saved.', 'send-pdf-for-contact-form-7').'</strong></p></div>';
 
@@ -172,10 +169,7 @@ jQuery(document).ready(function() {
         /**********************************************/
         // On récupère le dossier upload de WP
         $upload_dir = wp_upload_dir();
-        //$upload_dir = wp_upload_dir( null, false, true );
         $createDirectory = cf7_sendpdf::wpcf7pdf_folder_uploads($idForm);
-        //echo str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $createDirectory );
-        //echo '<br />'.$createDirectory;
         // On récupère le format de date dans les paramètres
         $date_format = get_option( 'date_format' );
         $hour_format = get_option('time_format');
@@ -191,7 +185,6 @@ jQuery(document).ready(function() {
             } else {
                 $formatPdf = 'A4-P';
             }
-            //include(WPCF7PDF_DIR.'/mpdf/mpdf.php');
             require WPCF7PDF_DIR . '/mpdf/vendor/autoload.php';
             $mpdf=new mPDF('utf-8', $formatPdf);
             $mpdf->autoScriptToLang = true;
@@ -237,39 +230,62 @@ jQuery(document).ready(function() {
                 if( empty($meta_values['image-height']) ) { $imgHeight = $height; } else { $imgHeight = $meta_values['image-height'];  }
 
                 $attribut = 'width='.$imgWidth.' height="'.$imgHeight.'"';
-                //$meta_values["image"] = str_replace('https://', 'http://', $meta_values["image"]);
                 $mpdf->WriteHTML('<div style="text-align:'.$imgAlign.'"><img src="'.esc_url($meta_values["image"]).'" '.$attribut.' /></div>');
             }
+       
             $messageText = $meta_values['generate_pdf'];
             
-            $contact_form = WPCF7_ContactForm::get_instance($idForm);
-            $contact_tag = $contact_form->form_scan_shortcode();
-            foreach ( $contact_tag as $sh_tag ) {
-                
-                $tagOptions = $sh_tag["options"];
-                
-                if( $sh_tag["basetype"] == 'checkbox') {
-                    foreach($sh_tag["values"] as $id=>$val) {
-                        if( in_array('label_first', $tagOptions) ) {
-                            $inputCheckbox .= ''.$val.' <input type="checkbox" name="'.$sh_tag["name"].'" value="'.$val.'" /> ';
-                        } else {
-                            $inputCheckbox .= '<input type="checkbox" name="'.$sh_tag["name"].'" value="'.$val.'" /> '.$val.' ';
-                        }
-                        
-                    }
-                    $messageText = str_replace('['.$sh_tag["name"].']', $inputCheckbox, $messageText);
-                } else if ( $sh_tag["basetype"] == 'radio') {
-                    foreach($sh_tag["values"] as $id=>$val) {
-                        if( in_array('label_first', $tagOptions) ) {
-                            $inputRadio .= ''.$val.' <input type="radio" name="'.$sh_tag["name"].'" value="'.$val.'" > ';
-                        } else {
-                            $inputRadio .= '<input type="radio" name="'.$sh_tag["name"].'" value="'.$val.'" > '.$val.' ';
-                        }
-                    }
-                    $messageText = str_replace('['.$sh_tag["name"].']', $inputRadio, $messageText);
-                }
-            }
             
+            if (isset($meta_values['data_input']) && $meta_values['data_input']=='true') {
+                    
+                    $contact_form = WPCF7_ContactForm::get_instance($idForm);
+                    $contact_tag = $contact_form->scan_form_tags();
+                    foreach ( $contact_tag as $sh_tag ) {
+
+                        $tagOptions = $sh_tag["options"];
+
+                        if( $sh_tag["basetype"] == 'checkbox') {
+                            
+                            $inputCheckbox = '';
+                            foreach($sh_tag["values"] as $id=>$val) {
+                                $caseChecked = '';
+                                $valueTag = wpcf7_mail_replace_tags('['.$sh_tag["name"].']');
+                                if( $val == $valueTag ) {
+                                    $caseChecked = 'checked="checked"';
+                                }
+                                if( in_array('label_first', $tagOptions) ) {
+                                    $inputCheckbox .= ''.$val.' <input type="checkbox" class="wpcf7-checkbox" name="'.$sh_tag["name"].'" value="'.$val.'" '.$caseChecked.' /> ';
+                                } else {
+                                    $inputCheckbox .= '<input type="checkbox" class="wpcf7-checkbox" name="'.$sh_tag["name"].'" value="'.$val.'" '.$caseChecked.' /> '.$val.' ';
+                                }
+
+                            }
+                            $messageText = str_replace('['.$sh_tag["name"].']', $inputCheckbox, $messageText);
+
+                        } else if ( $sh_tag["basetype"] == 'radio') {
+                            
+                            $inputRadio = '';
+                            foreach($sh_tag["values"] as $id=>$val) {
+                                $radioChecked = '';
+                                $valueTag = wpcf7_mail_replace_tags('['.$sh_tag["name"].']');
+                                if( $val == $valueTag ) {
+                                    $radioChecked = 'checked="checked"';
+                                }                            
+                                if( in_array('label_first', $tagOptions) ) {
+                                    $inputRadio .= ''.$val.' <input type="radio" class="wpcf7-radio" name="'.$sh_tag["name"].'" value="'.$val.'" '.$radioChecked.' > ';
+                                } else {
+                                    $inputRadio .= '<input type="radio" class="wpcf7-radio" name="'.$sh_tag["name"].'" value="'.$val.'" '.$radioChecked.' > '.$val.' ';
+                                }
+                            }
+                            $messageText = str_replace('['.$sh_tag["name"].']', $inputRadio, $messageText);
+
+                        } else {
+                            
+                            $valueTag = wpcf7_mail_replace_tags('['.$sh_tag["name"].']');                            
+                            $messageText = str_replace('['.$sh_tag["name"].']', $valueTag, $messageText);
+                        }
+                    }
+                }
             // read all image tags into an array
             preg_match_all('/<img[^>]+>/i', $messageText, $imgTags); 
 
@@ -282,7 +298,6 @@ jQuery(document).ready(function() {
                 if( strpos( $origImageSrc, 'http' ) === false ) {
                 
                     $messageText = str_replace( $origImageSrc, WPCF7PDF_DIR.'images/temporary-image.jpg', $messageText);
-                    //error_log( 'OK image pas trouvée :'.$origImageSrc ); //not blank, all sorts of stuff
                 }
             }
             
@@ -304,7 +319,22 @@ jQuery(document).ready(function() {
             }
             $messageText = str_replace('[date]', $dateField, $messageText);
             $messageText = str_replace('[time]', $timeField, $messageText);
-
+            
+            // Enable Fillable Form
+            if( isset($meta_values['fillable_data']) && $meta_values['fillable_data']=='true') {
+                $mpdf->useActiveForms = true;
+                $mpdf->SetProtection(array('copy', 'print', 'fill-forms', 'modify', 'annot-forms' ),'', '');
+                $mpdf->formUseZapD = false;
+                $mpdf->formSubmitNoValueFields = true;
+                $mpdf->formExportType = 'xfdf'; // 'html' or 'xfdf'
+                $mpdf->formSelectDefaultOption = true;
+                $mpdf->form_border_color = '0.6 0.6 0.72';
+                $mpdf->form_button_border_width = '2';
+                $mpdf->form_button_border_style = 'S';
+                $mpdf->form_radio_color = '0.0 0.0 0.4'; // radio and checkbox
+                $mpdf->form_radio_background_color = '0.9 0.9 0.9';
+            }
+            
             // En cas de saut de page avec le tag [addpage]
             if( stripos($messageText, '[addpage]') !== false ) {
 
@@ -321,13 +351,10 @@ jQuery(document).ready(function() {
                 $mpdf->WriteHTML( wpautop( $messageText ) );
 
             }
+            $pdfPassword = '';
             if ( isset($meta_values["protect"]) && $meta_values["protect"]=='true') {
-                $pdfPassword = '';
-                if( isset($meta_values["protect_password"]) && $meta_values["protect_password"]!='' ) {
-                    $pdfPassword = $meta_values["protect_password"];
-                }
-                $mpdf->SetProtection(array(), $pdfPassword, '');
-            }
+                $mpdf->SetProtection(array('print', 'fill-forms', 'modify', 'copy'), $pdfPassword, $pdfPassword, '128');
+            }            
             $mpdf->Output($createDirectory.'/preview-'.$idForm.'.pdf', 'F');
 
         }
@@ -645,6 +672,40 @@ $pathFolder = serialize($createDirectory);
                         <label for="switch_linebreak"><?php _e('Yes', 'send-pdf-for-contact-form-7'); ?></label>
                         <input class="switch_right" type="radio" id="switch_linebreak_no" name="wp_cf7pdf_settings[linebreak]" value="false" <?php if( empty($meta_values["linebreak"]) || (isset($meta_values["linebreak"]) && $meta_values["linebreak"]=='false') ) { echo ' checked'; } ?> />
                         <label for="switch_linebreak_no"><?php _e('No', 'send-pdf-for-contact-form-7'); ?></label>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2"><hr style="background-color: <?php echo $colors[2]; ?>; height: 1px; border: 0;"></td>
+            </tr>
+            <tr>
+                <td><!-- Propose de mettre la cases réelles des Checkbox et Radio -->
+                    <?php _e('Enable display data in the checkbox or radio buttons of your PDF file?', 'send-pdf-for-contact-form-7'); ?>
+                </td>
+                <td>
+                    <div style="">
+                        <div class="switch-field">
+                        <input class="switch_left" type="radio" id="switch_data_input" name="wp_cf7pdf_settings[data_input]" value="true" <?php if( isset($meta_values["data_input"]) && $meta_values["data_input"]=='true') { echo ' checked'; } ?>/>
+                        <label for="switch_data_input"><?php _e('Yes', 'send-pdf-for-contact-form-7'); ?></label>
+                        <input class="switch_right" type="radio" id="switch_data_input_no" name="wp_cf7pdf_settings[data_input]" value="false" <?php if( empty($meta_values["data_input"]) || (isset($meta_values["data_input"]) && $meta_values["data_input"]=='false') ) { echo ' checked'; } ?> />
+                        <label for="switch_data_input_no"><?php _e('No', 'send-pdf-for-contact-form-7'); ?></label>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td><!-- Propose de mettre le PDF en mode éditable -->
+                    <?php _e('Enable fillable PDF Forms?', 'send-pdf-for-contact-form-7'); ?>
+                    <p><i><?php _e("Don't works if your PDF is protected.", 'send-pdf-for-contact-form-7'); ?></i></p>
+                </td>
+                <td>
+                    <div style="">
+                        <div class="switch-field">
+                        <input class="switch_left" type="radio" id="switch_fillable_data" name="wp_cf7pdf_settings[fillable_data]" value="true" <?php if( isset($meta_values["fillable_data"]) && $meta_values["fillable_data"]=='true') { echo ' checked'; } ?>/>
+                        <label for="switch_fillable_data"><?php _e('Yes', 'send-pdf-for-contact-form-7'); ?></label>
+                        <input class="switch_right" type="radio" id="switch_fillable_data_no" name="wp_cf7pdf_settings[fillable_data]" value="false" <?php if( empty($meta_values["fillable_data"]) || (isset($meta_values["fillable_data"]) && $meta_values["fillable_data"]=='false') ) { echo ' checked'; } ?> />
+                        <label for="switch_fillable_data_no"><?php _e('No', 'send-pdf-for-contact-form-7'); ?></label>
                         </div>
                     </div>
                 </td>

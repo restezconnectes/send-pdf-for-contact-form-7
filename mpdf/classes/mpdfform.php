@@ -1096,7 +1096,7 @@ class mpdfform
 		}
 		if ($type == 'radio' || $type == 'checkbox') {
 			if (!preg_match('/^[a-zA-Z0-9_:\-\.]+$/', $value)) {
-				$this->mpdf->Error("Field '" . $name . "' must have a value, which can only contain letters, numbers, colon(:), undersore(_), hyphen(-) or period(.)");
+				//$this->mpdf->Error("Field '" . $name . "' must have a value, which can only contain letters, numbers, colon(:), undersore(_), hyphen(-) or period(.)");
 			}
 		}
 		if ($type == 'radio') {

@@ -49,6 +49,7 @@ Yes. Thank you for submitting your changes to update the plugin.
 == Upgrade Notice ==
 
 = 0.6.7 =
+* The PDF file is now in fillable mode
 * The PDF file recognize now the checkbox and radio fields
 
 == Changelog ==
