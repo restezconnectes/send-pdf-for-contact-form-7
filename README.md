@@ -1,4 +1,7 @@
 # Send PDF for Contact Form 7
+
+VERSION 0.6.7
+
 This plugin adds conditional logic to <a href="https://wordpress.org/plugins/contact-form-7/">[Contact Form 7]</a>.
 
 Send the PDF for Contact Form plugin will allow you to recover the data yourself via your form to insert them into a PDF built and prepared by you.
