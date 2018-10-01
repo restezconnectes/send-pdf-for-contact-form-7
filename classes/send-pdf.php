@@ -788,7 +788,8 @@ class cf7_sendpdf {
                     }
                 }
 
-            } elseif ( 'mail_2' == $mail->name() ) {
+            }
+            if ( 'mail_2' == $mail->name() ) {
 
                 // do something for 'Mail (2)'
                 // Send PDF
