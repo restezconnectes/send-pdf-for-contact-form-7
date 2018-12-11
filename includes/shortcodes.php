@@ -42,7 +42,9 @@ function wpcf7pdf_analytics_shortcode( $atts ) {
                 return '<a href="'.$infos->wpcf7pdf_files.'" target="'.$target.'"><button class="'.$class.'" type="button">'.$iconDashicons.$downloadText.'</button></a>';
             }
             
-        } 
+        } else {
+            return '<div style="text-align:center;width:80%;margin-left:auto;margin-right:right;background-color:#333;color:#ffffff;"><strong>ERROR Send PDF for Contact Form 7</strong><br />'.__('"Disable data submit in a database?" option is enabled!<br />Please disable "Disable data submit in a database?" option', 'send-pdf-for-contact-form-7').'</div>';
+        }
         
     } else {
         return '';

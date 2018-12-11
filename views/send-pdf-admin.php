@@ -422,7 +422,7 @@ $pathFolder = serialize($createDirectory);
             </tr>
             <tr><td colspan="2"><hr style="background-color: <?php echo $colors[2]; ?>; height: 1px; border: 0;"></td></tr>
             <tr style="vertical-align: middle;margin-top:15px;">
-                <td><?php _e('Disable Insert subscribtion in database?', 'send-pdf-for-contact-form-7'); ?></td>
+                <td><?php _e("Disable data submit in a database?", 'send-pdf-for-contact-form-7'); ?></td>
                 <td align="left">
 					<div style="">
                       <div class="switch-field">
@@ -828,7 +828,6 @@ $pathFolder = serialize($createDirectory);
                     <tr>
                         <td><?php _e('Page size & Orientation', 'send-pdf-for-contact-form-7'); ?></td>
                         <td>
-                            <?php if( empty($meta_values['pdf-type']) ) { $meta_values['pdf-type']=="A4"; } ?>
                             <select name="wp_cf7pdf_settings[pdf-type]" class="wpcf7-form-field">
                                 <option value="Letter" <?php if( isset($meta_values['pdf-type']) && ($meta_values['pdf-type']=='Letter') ) { echo 'selected'; } ?>>Letter</option>
                                 <option value="Legal" <?php if( isset($meta_values['pdf-type']) && ($meta_values['pdf-type']=='Legal') ) { echo 'selected'; } ?>>Legal</option>
@@ -841,7 +840,7 @@ $pathFolder = serialize($createDirectory);
                                 <?php
                                 for ($typeA = 0; $typeA <= 10; $typeA++) {
                                     echo '<option value="A'.$typeA.'"';
-                                        if( isset($meta_values['pdf-type']) && ($meta_values['pdf-type']=='A'.$typeA) ) { echo 'selected'; }
+                                    if( (isset($meta_values['pdf-type']) && ($meta_values['pdf-type']=='A'.$typeA)) OR (empty($meta_values['pdf-type']) && $typeA==4) ) { echo 'selected'; }
                                     echo '>A'.$typeA.'</option>';
                                 }
                                 for ($typeB = 0; $typeB <= 10; $typeB++) {
@@ -866,9 +865,8 @@ $pathFolder = serialize($createDirectory);
                                 }
                                 ?>
                             </select>
-                            <?php if( empty($meta_values['pdf-orientation']) ) { $meta_values['pdf-orientation']=="-P"; } ?>
                             <select name="wp_cf7pdf_settings[pdf-orientation]" class="wpcf7-form-field">
-                                <option value="-P" <?php if( isset($meta_values['pdf-orientation']) && ($meta_values['pdf-orientation']=='-P') ) { echo 'selected'; } ?>><?php _e('Portrait', 'send-pdf-for-contact-form-7'); ?></option>
+                                <option value="-P" <?php if( (isset($meta_values['pdf-orientation']) && ($meta_values['pdf-orientation']=='-P')) OR empty($meta_values['pdf-orientation']) ) { echo 'selected'; } ?>><?php _e('Portrait', 'send-pdf-for-contact-form-7'); ?></option>
                                 <option value="-L" <?php if( isset($meta_values['pdf-orientation']) && ($meta_values['pdf-orientation']=='-L') ) { echo 'selected'; } ?>><?php _e('Landscape', 'send-pdf-for-contact-form-7'); ?></option>
                             </select>
                         </td>

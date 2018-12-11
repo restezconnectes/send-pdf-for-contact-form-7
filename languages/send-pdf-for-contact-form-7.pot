@@ -2,7 +2,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Contact Form 7 Send PDF\n"
-"POT-Creation-Date: 2018-03-23 14:58+0100\n"
+"POT-Creation-Date: 2018-12-11 14:53+0100\n"
 "PO-Revision-Date: 2015-03-19 11:19+0100\n"
 "Last-Translator: Florent Maillefaud <contact@restezconnectes.fr>\n"
 "Language-Team: Florent Maillefaud <contact@restezconnectes.fr>\n"
@@ -10,7 +10,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 2.0.6\n"
+"X-Generator: Poedit 2.2\n"
 "X-Poedit-KeywordsList: __;_e\n"
 "X-Poedit-Basepath: ..\n"
 "Plural-Forms: nplurals=2; plural=n>1;\n"
@@ -51,6 +51,10 @@ msgstr ""
 
 #: includes/shortcodes.php:28 views/send-pdf-admin.php:617
 msgid "Download your PDF"
+msgstr ""
+
+#: includes/shortcodes.php:46
+msgid "\"Disable data submit in a database?\" option is enabled!<br />Please disable \"Disable data submit in a database?\" option"
 msgstr ""
 
 #: views/send-pdf-admin.php:35
@@ -99,14 +103,14 @@ msgstr ""
 msgid "Donate now!"
 msgstr ""
 
-#: views/send-pdf-admin.php:386 views/send-pdf-admin.php:988
+#: views/send-pdf-admin.php:386 views/send-pdf-admin.php:990
 msgid "Save settings"
 msgstr ""
 
 #: views/send-pdf-admin.php:392 views/send-pdf-admin.php:393
 #: views/send-pdf-admin.php:762 views/send-pdf-admin.php:763
-#: views/send-pdf-admin.php:996 views/send-pdf-admin.php:997
-#: views/send-pdf-admin.php:1012 views/send-pdf-admin.php:1013
+#: views/send-pdf-admin.php:998 views/send-pdf-admin.php:999
+#: views/send-pdf-admin.php:1014 views/send-pdf-admin.php:1015
 msgid "Click to toggle"
 msgstr ""
 
@@ -160,7 +164,7 @@ msgid "Both"
 msgstr ""
 
 #: views/send-pdf-admin.php:425
-msgid "Disable Insert subscribtion in database?"
+msgid "Disable data submit in a database?"
 msgstr ""
 
 #: views/send-pdf-admin.php:438
@@ -425,51 +429,51 @@ msgstr ""
 msgid "It will then be necessary to put them in the image HTML tag for the PDF layout."
 msgstr ""
 
-#: views/send-pdf-admin.php:953
+#: views/send-pdf-admin.php:955
 msgid "Preview your PDF"
 msgstr ""
 
-#: views/send-pdf-admin.php:978
+#: views/send-pdf-admin.php:980
 msgid "Export list"
 msgstr ""
 
-#: views/send-pdf-admin.php:978
+#: views/send-pdf-admin.php:980
 msgid "Export list in CSV file"
 msgstr ""
 
-#: views/send-pdf-admin.php:997
+#: views/send-pdf-admin.php:999
 msgid "Export Settings"
 msgstr ""
 
-#: views/send-pdf-admin.php:1006
+#: views/send-pdf-admin.php:1008
 msgid "Export"
 msgstr ""
 
-#: views/send-pdf-admin.php:1013
+#: views/send-pdf-admin.php:1015
 msgid "Import Settings"
 msgstr ""
 
-#: views/send-pdf-admin.php:1015
+#: views/send-pdf-admin.php:1017
 msgid "Import the plugin settings from a .json file. This file can be obtained by exporting the settings on another site using the form above."
 msgstr ""
 
-#: views/send-pdf-admin.php:1025
+#: views/send-pdf-admin.php:1027
 msgid "Import"
 msgstr ""
 
-#: views/send-pdf-admin.php:1062
+#: views/send-pdf-admin.php:1064
 #, php-format
 msgid "To work I need %s plugin, but it is apparently not installed or not enabled!"
 msgstr ""
 
-#: views/send-pdf-admin.php:1066
+#: views/send-pdf-admin.php:1068
 msgid "Send PDF for Contact Form 7 is brought to you by"
 msgstr ""
 
-#: views/send-pdf-admin.php:1066
+#: views/send-pdf-admin.php:1068
 msgid "If you found this plugin useful"
 msgstr ""
 
-#: views/send-pdf-admin.php:1066
+#: views/send-pdf-admin.php:1068
 msgid "give it 5 &#9733; on WordPress.org"
 msgstr ""
