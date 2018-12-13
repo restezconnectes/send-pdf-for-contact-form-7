@@ -51,6 +51,7 @@ Yes. Thank you for submitting your changes to update the plugin.
 = 0.6.9 =
 * Add message for download button if "Insert subscribtion in database" option is disabled!
 * Fixed bugs Warning PHP
+* Fixed bug picture view in PDF file
 
 == Changelog ==
 

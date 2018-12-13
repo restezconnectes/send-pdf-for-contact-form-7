@@ -441,17 +441,16 @@ class cf7_sendpdf {
             if( isset( $meta_values['file_tags'] ) && $meta_values['file_tags']!='' ) {
                 $cf7_file_field_name = $meta_values['file_tags']; // [file uploadyourfile]
                 if( !empty($cf7_file_field_name) ) {
-                    $contentTags  = explode('[', $cf7_file_field_name);
+
+                    preg_match_all('`\[([^\]]*)\]`', '1 '.$cf7_file_field_name, $contentTags, PREG_SET_ORDER, 0);
                     foreach($contentTags as $tags) {
-                        // On enlève les []
-                        if( isset($tags) && $tags != '' ) {
-                            $tags = substr($tags, 0, -1);
-                            $image_name = $posted_data[$tags];
+                        if( isset($tags[1]) && $tags[1] != '' ) {
+                            $image_name = $posted_data[$tags[1]];
                             if( isset($image_name) && $image_name!='' ) {
-                                $image_location = $uploaded_files[$tags];
-                                $chemin_final[$tags] = $createDirectory.'/'.$image_name;
+                                $image_location = $uploaded_files[$tags[1]];
+                                $chemin_final[$tags[1]] = $createDirectory.'/'.$_SESSION['pdf_uniqueid'].'-'.$image_name;
                                 // On copie l'image dans le dossier
-                                copy($image_location, $chemin_final[$tags]);
+                                copy($image_location, $chemin_final[$tags[1]]);
                             }
                         }
                     }
@@ -524,16 +523,18 @@ class cf7_sendpdf {
                             
                 $text = str_replace('[reference]', $_SESSION['pdf_uniqueid'], $text);
                 $text = str_replace('[url-pdf]', str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $createDirectory).'/'.$nameOfPdf.'-'.$_SESSION['pdf_uniqueid'].'.pdf', $text);
+
+                $cf7_file_field_name = $meta_values['file_tags']; // [file uploadyourfile]
                 if( !empty($cf7_file_field_name) ) {
-                    $contentTagsOnPdf  = explode('[', $cf7_file_field_name);
+
+                    preg_match_all('`\[([^\]]*)\]`', '1 '.$cf7_file_field_name, $contentTagsOnPdf, PREG_SET_ORDER, 0);
                     foreach($contentTagsOnPdf as $tagsOnPdf) {
-                        if( isset($tagsOnPdf) && $tagsOnPdf != '' ) {
-                            $tagsOnPdf = substr($tagsOnPdf, 0, -1);
-                            $image_name2 = $posted_data[$tagsOnPdf];
+                        if( isset($tagsOnPdf[1]) && $tagsOnPdf[1] != '' ) {
+                            $image_name2 = $posted_data[$tagsOnPdf[1]];
                             if( isset($image_name2) && $image_name2!='' ) {
-                                $chemin_final2[$tagsOnPdf] = str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $createDirectory).'/'.$image_name2;
-                                $text = str_replace('['.$tagsOnPdf.']', $chemin_final2[$tagsOnPdf], $text);
-                                $text = str_replace('[url-'.$tagsOnPdf.']', $chemin_final2[$tagsOnPdf], $text);
+                                $chemin_final2[$tagsOnPdf[1]] = str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $createDirectory).'/'.$_SESSION['pdf_uniqueid'].'-'.$image_name2;
+                                $text = str_replace('['.$tagsOnPdf[1].']', $image_name2, $text);
+                                $text = str_replace('[url-'.$tagsOnPdf[1].']', $chemin_final2[$tagsOnPdf[1]], $text);
                             }
                         }
                     }
@@ -841,7 +842,8 @@ class cf7_sendpdf {
                                 $tagsOnMail = substr($tagsOnMail, 0, -1);
                                 $image_name2 = $posted_data[$tagsOnMail];
                                 if( isset($image_name2) && $image_name2 !='' ) {
-                                    $chemin_final2[$tagsOnMail] = str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $createDirectory).'/'.$image_name2;
+                                    $chemin_final2[$tagsOnMail] = str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $createDirectory).'/'.$_SESSION['pdf_uniqueid'].'-'.$image_name2;
+                                    $messageText = str_replace('['.$tagsOnMail.']', $image_name2, $messageText);
                                     $messageText = str_replace('[url-'.$tagsOnMail.']', $chemin_final2[$tagsOnMail], $messageText);
                                 }
                                   
@@ -1149,5 +1151,3 @@ $js .= '}
         }
     }
 }
-
-?>

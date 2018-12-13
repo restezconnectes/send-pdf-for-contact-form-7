@@ -202,7 +202,7 @@ jQuery(document).ready(function() {
                 if( isset($meta_values['date_format']) && !empty($meta_values['date_format']) ) {
                     $dateField = date_i18n($meta_values['date_format']);
                 } else {
-                    $dateField = date_i18n( $date_format . ' ' . $hour_format, current_time('timestamp'));
+                    $dateField = date_i18n( $date_format, current_time('timestamp'));
                 }
                 if( isset($meta_values['time_format']) && !empty($meta_values['time_format']) ) {
                     $timeField = date_i18n($meta_values['time_format']);
@@ -310,7 +310,7 @@ jQuery(document).ready(function() {
             if( isset($meta_values['date_format']) && !empty($meta_values['date_format']) ) {
                 $dateField = date_i18n($meta_values['date_format']);
             } else {
-                $dateField = date_i18n( $date_format . ' ' . $hour_format, current_time('timestamp'));
+                $dateField = date_i18n($date_format, current_time('timestamp'));
             }
             if( isset($meta_values['time_format']) && !empty($meta_values['time_format']) ) {
                 $timeField = date_i18n($meta_values['time_format']);
@@ -644,13 +644,13 @@ $pathFolder = serialize($createDirectory);
                 <td>
                     <?php
 
-                      $formatDate = stripslashes($date_format . ' ' . $hour_format);
+                      $formatDate = stripslashes($date_format);
                       $formatTime = $hour_format;
                       if( isset($meta_values['date_format']) && !empty($meta_values['date_format']) ) {
                         $formatDate = stripslashes($meta_values['date_format']);
                       }
                       if( isset($meta_values['time_format']) && !empty($meta_values['time_format']) ) {
-                        $formatTime = stripslashes($meta_values['time_format']);
+                        $formatTime = $meta_values['time_format'];
                       }
                       ?>
                       <input id="date_format" class="wpcf7-form-field" size="16" name="wp_cf7pdf_settings[date_format]" value="<?php echo $formatDate; ?>" type="text" /> <?php _e('Date:', 'send-pdf-for-contact-form-7'); ?> <?php echo date_i18n($formatDate); ?><br />
