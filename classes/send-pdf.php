@@ -442,8 +442,9 @@ class cf7_sendpdf {
                 $cf7_file_field_name = $meta_values['file_tags']; // [file uploadyourfile]
                 if( !empty($cf7_file_field_name) ) {
 
-                    preg_match_all('`\[([^\]]*)\]`', '1 '.$cf7_file_field_name, $contentTags, PREG_SET_ORDER, 0);
+                    preg_match_all('`\[([^\]]*)\]`', $cf7_file_field_name, $contentTags, PREG_SET_ORDER, 0);
                     foreach($contentTags as $tags) {
+                        $image_name = '';
                         if( isset($tags[1]) && $tags[1] != '' ) {
                             $image_name = $posted_data[$tags[1]];
                             if( isset($image_name) && $image_name!='' ) {
@@ -527,8 +528,9 @@ class cf7_sendpdf {
                 $cf7_file_field_name = $meta_values['file_tags']; // [file uploadyourfile]
                 if( !empty($cf7_file_field_name) ) {
 
-                    preg_match_all('`\[([^\]]*)\]`', '1 '.$cf7_file_field_name, $contentTagsOnPdf, PREG_SET_ORDER, 0);
+                    preg_match_all('`\[([^\]]*)\]`', $cf7_file_field_name, $contentTagsOnPdf, PREG_SET_ORDER, 0);
                     foreach($contentTagsOnPdf as $tagsOnPdf) {
+                        $image_name2 = '';
                         if( isset($tagsOnPdf[1]) && $tagsOnPdf[1] != '' ) {
                             $image_name2 = $posted_data[$tagsOnPdf[1]];
                             if( isset($image_name2) && $image_name2!='' ) {
@@ -836,19 +838,18 @@ class cf7_sendpdf {
                 if( isset( $meta_values['file_tags'] ) && $meta_values['file_tags']!='' ) {
                     $cf7_file_field_name = $meta_values['file_tags']; // [file uploadyourfile]
                     if( !empty($cf7_file_field_name) ) {
-                        $contentTagsOnMail  = explode('[', $cf7_file_field_name);
+
+                        preg_match_all('`\[([^\]]*)\]`', $cf7_file_field_name, $contentTagsOnMail, PREG_SET_ORDER, 0);
                         foreach($contentTagsOnMail as $tagsOnMail) {
-                            if( isset($tagsOnMail) && $tagsOnMail != '' ) {
-                                $tagsOnMail = substr($tagsOnMail, 0, -1);
-                                $image_name2 = $posted_data[$tagsOnMail];
-                                if( isset($image_name2) && $image_name2 !='' ) {
-                                    $chemin_final2[$tagsOnMail] = str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $createDirectory).'/'.$_SESSION['pdf_uniqueid'].'-'.$image_name2;
-                                    $messageText = str_replace('['.$tagsOnMail.']', $image_name2, $messageText);
-                                    $messageText = str_replace('[url-'.$tagsOnMail.']', $chemin_final2[$tagsOnMail], $messageText);
+                            $image_name_mail = '';
+                            if( isset($tagsOnMail[1]) && $tagsOnMail[1] != '' ) {
+                                $image_name_mail = $posted_data[$tagsOnMail[1]];
+                                if( isset($image_name_mail) && $image_name_mail!='' ) {
+                                    $chemin_final_mail[$tagsOnMail[1]] = str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $createDirectory).'/'.$_SESSION['pdf_uniqueid'].'-'.$image_name_mail;
+                                    $messageText = str_replace('['.$tagsOnMail[1].']', $image_name_mail, $messageText);
+                                    $messageText = str_replace('[url-'.$tagsOnMail[1].']', $chemin_final_mail[$tagsOnMail[1]], $messageText);
                                 }
-                                  
                             }
-                            
                         }
                     }
                 }
@@ -919,13 +920,17 @@ class cf7_sendpdf {
                     unlink($createDirectory.'/'.$nameOfPdf.'-'.$_SESSION['pdf_uniqueid'].'.pdf');
                 }
                 if( !empty($cf7_file_field_name) ) {
-                    $contentTagsOnPdf  = explode('[', $cf7_file_field_name);
-                    foreach($contentTagsOnPdf as $tagsOnPdf) {
-                        $tagsOnPdf = substr($tagsOnPdf, 0, -1);
-                        $image_name = $posted_data[$tagsOnPdf];
-                        $chemin_final[$tagsOnPdf] = $createDirectory.'/'.$image_name; // http:// -> /wp-content/uploads/
-                        if( file_exists($chemin_final[$tagsOnPdf]) ) {
-                            unlink($chemin_final[$tagsOnPdf]);
+
+                    preg_match_all('`\[([^\]]*)\]`', $cf7_file_field_name, $contentTagsDelete, PREG_SET_ORDER, 0);
+                    foreach($contentTagsDelete as $tagsDelete) {
+                        if( isset($tagsDelete[1]) && $tagsDelete[1] != '' ) {
+                            $image_name_delete = $posted_data[$tagsDelete[1]];
+                            if( isset($image_name_delete) && $image_name_delete!='' ) {
+                                $chemin_final_delete[$tagsDelete[1]] = $createDirectory.'/'.$_SESSION['pdf_uniqueid'].'-'.$image_name_delete;
+                                if( file_exists($chemin_final_delete[$tagsDelete[1]]) ) {
+                                    unlink($chemin_final_delete[$tagsDelete[1]]);
+                                }
+                            }
                         }
                     }
                 }
@@ -1151,3 +1156,4 @@ $js .= '}
         }
     }
 }
+
