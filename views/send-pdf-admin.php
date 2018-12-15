@@ -620,6 +620,7 @@ $pathFolder = serialize($createDirectory);
             <tr>
                 <td><!-- Propose la redirection vers le pdf direct -->
                     <?php _e('Redirects directly to the PDF after sending the form?', 'send-pdf-for-contact-form-7'); ?>
+                    <p><i><?php _e( 'This option disable the Page Redirection selected', 'send-pdf-for-contact-form-7'); ?>(<?php _e( 'Except the popup window option', 'send-pdf-for-contact-form-7'); ?>)</i></p>
                 </td>
                 <td>
                     <div style="">
