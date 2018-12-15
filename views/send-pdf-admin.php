@@ -620,7 +620,6 @@ $pathFolder = serialize($createDirectory);
             <tr>
                 <td><!-- Propose la redirection vers le pdf direct -->
                     <?php _e('Redirects directly to the PDF after sending the form?', 'send-pdf-for-contact-form-7'); ?>
-                    <p><i><?php _e( 'This option disable the Page Redirection selected', 'send-pdf-for-contact-form-7'); ?></i></p>
                 </td>
                 <td>
                     <div style="">
@@ -631,7 +630,7 @@ $pathFolder = serialize($createDirectory);
                         <label for="switch_redirect_no"><?php _e('No', 'send-pdf-for-contact-form-7'); ?></label>
                         </div>
                     </div><br />
-                    <input type="radio" class="wpcf7-form-field" name="wp_cf7pdf_settings[redirect-window]" value="on" <?php if( (isset($meta_values["redirect-window"]) && $meta_values["redirect-window"]=='on') or empty($meta_values["redirect-window"]) ) { echo ' checked'; } ?>  /><?php _e('Same Window', 'send-pdf-for-contact-form-7'); ?> <input type="radio" class="wpcf7-form-field" name="wp_cf7pdf_settings[redirect-window]" value="off" <?php if( isset($meta_values["redirect-window"]) && $meta_values["redirect-window"]=='off') { echo 'checked'; } ?> /><?php _e('New Window', 'send-pdf-for-contact-form-7'); ?>
+                    <input type="radio" class="wpcf7-form-field" name="wp_cf7pdf_settings[redirect-window]" value="on" <?php if( (isset($meta_values["redirect-window"]) && $meta_values["redirect-window"]=='on') or empty($meta_values["redirect-window"]) ) { echo ' checked'; } ?>  /><?php _e('Same Window', 'send-pdf-for-contact-form-7'); ?> <input type="radio" class="wpcf7-form-field" name="wp_cf7pdf_settings[redirect-window]" value="off" <?php if( isset($meta_values["redirect-window"]) && $meta_values["redirect-window"]=='off') { echo 'checked'; } ?> /><?php _e('New Window', 'send-pdf-for-contact-form-7'); ?> <input type="radio" class="wpcf7-form-field" name="wp_cf7pdf_settings[redirect-window]" value="popup" <?php if( isset($meta_values["redirect-window"]) && $meta_values["redirect-window"]=='popup') { echo 'checked'; } ?> /><?php _e('Popup Window', 'send-pdf-for-contact-form-7'); ?>
                 </td>
             </tr>
             <tr>

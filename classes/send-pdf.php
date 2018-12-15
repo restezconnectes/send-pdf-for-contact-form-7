@@ -1108,7 +1108,7 @@ class cf7_sendpdf {
             if( isset($meta_values['page_next']) && is_numeric($meta_values['page_next']) ) {
 
                 if( isset($meta_values['download-pdf']) && $meta_values['download-pdf']=="true" ) {
-                    $redirect = get_permalink($meta_values['page_next']).'?&pdf-reference='.$_SESSION['pdf_uniqueid'];
+                    $redirect = get_permalink($meta_values['page_next']).'?pdf-reference='.$_SESSION['pdf_uniqueid'];
                 } else {
                     $redirect = get_permalink($meta_values['page_next']);
                 }
@@ -1121,12 +1121,15 @@ class cf7_sendpdf {
                 if( isset($meta_values["redirect-window"]) && $meta_values["redirect-window"] == 'off' ) {
                     $targetPDF = '_blank';
                 }
-                $redirectPDF = str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $createDirectory).'/'.$nameOfPdf.'-'.$_SESSION['pdf_uniqueid'].'.pdf';
+                $urlRredirectPDF = str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $createDirectory).'/'.$nameOfPdf.'-'.$_SESSION['pdf_uniqueid'].'.pdf';
                 $redirectPDF = "
-                if ( event.detail.contactFormId === '" . $id . "') {
-                var redirectWindow = window.open('".$redirectPDF."', '".$targetPDF."');
-            redirectWindow.location;
-            }";
+                if ( event.detail.contactFormId === '" . $id . "') {";
+                    if( isset($meta_values["redirect-window"]) && $meta_values["redirect-window"] == 'popup' ) {
+                        $redirectPDF .= "window.open('".$urlRredirectPDF."','".$nameOfPdf."','menubar=no, status=no, scrollbars=yes, menubar=no, width=600, height=900');";
+                     } else { 
+                        $redirectPDF .= "location = '".$urlRredirectPDF."', '".$targetPDF."---".$meta_values["redirect-window"]."';";
+                    }
+                $redirectPDF .= "}";
                 $displayAddEventList = 1;
 
             }
@@ -1147,7 +1150,7 @@ $js .= '}
 <script type='text/javascript'>
     document.addEventListener( 'wpcf7mailsent', function( event ) {
         <?php if( isset($redirectPDF) ) { echo $redirectPDF; } ?>
-    <?php if( isset($meta_values['page_next']) && is_numeric($meta_values['page_next']) ) { echo $js; } ?>
+    <?php if( (isset($meta_values['page_next']) && is_numeric($meta_values['page_next'])) ) { echo $js; } ?>
     }, false );
 </script>
 <!-- END :: Send PDF for CF7 -->
@@ -1156,4 +1159,3 @@ $js .= '}
         }
     }
 }
-
