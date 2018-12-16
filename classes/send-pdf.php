@@ -537,6 +537,8 @@ class cf7_sendpdf {
                                 $chemin_final2[$tagsOnPdf[1]] = str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $createDirectory).'/'.$_SESSION['pdf_uniqueid'].'-'.$image_name2;
                                 $text = str_replace('['.$tagsOnPdf[1].']', $image_name2, $text);
                                 $text = str_replace('[url-'.$tagsOnPdf[1].']', $chemin_final2[$tagsOnPdf[1]], $text);
+                            } else {
+                                $text = str_replace('[url-'.$tagsOnPdf[1].']', WPCF7PD_URL.'images/onepixel.png', $text);
                             }
                         }
                     }
@@ -848,6 +850,8 @@ class cf7_sendpdf {
                                     $chemin_final_mail[$tagsOnMail[1]] = str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $createDirectory).'/'.$_SESSION['pdf_uniqueid'].'-'.$image_name_mail;
                                     $messageText = str_replace('['.$tagsOnMail[1].']', $image_name_mail, $messageText);
                                     $messageText = str_replace('[url-'.$tagsOnMail[1].']', $chemin_final_mail[$tagsOnMail[1]], $messageText);
+                                } else {
+                                    $messageText = str_replace('[url-'.$tagsOnMail[1].']', WPCF7PD_URL.'images/onepixel.png', $messageText);
                                 }
                             }
                         }
