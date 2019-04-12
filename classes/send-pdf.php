@@ -572,13 +572,14 @@ class cf7_sendpdf {
                 // On génère le PDF
                 if( isset($meta_values["disable-pdf"]) && $meta_values['disable-pdf'] == 'false') {
 
-                    require WPCF7PDF_DIR . '/mpdf/vendor/autoload.php';
+                    require WPCF7PDF_DIR . 'mpdf/vendor/autoload.php';
 
                     if( isset($meta_values['pdf-type']) && isset($meta_values['pdf-orientation']) ) {
                         $formatPdf = $meta_values['pdf-type'].$meta_values['pdf-orientation'];
-                        $mpdf=new mPDF('utf-8', $formatPdf);
+                        //$mpdf=new mPDF('utf-8', $formatPdf);
+                        $mpdf = new \Mpdf\Mpdf(['mode' => 'utf-8', 'format' => $formatPdf]);
                     } else {
-                        $mpdf=new mPDF();
+                        $mpdf = new \Mpdf\Mpdf(['mode' => 'utf-8', 'format' => 'A4-L']);
                     }
                     $mpdf->autoScriptToLang = true;
                     $mpdf->baseScript = 1;
@@ -591,7 +592,7 @@ class cf7_sendpdf {
                     
                     if( isset($meta_values['fillable_data']) && $meta_values['fillable_data']==true) {
                         $mpdf->useActiveForms = true;
-                        $mpdf->formUseZapD = false;
+                        /*$mpdf->formUseZapD = false;
                         $mpdf->formSubmitNoValueFields = true;
                         $mpdf->formExportType = 'xfdf'; // 'html' or 'xfdf'
                         $mpdf->formSelectDefaultOption = true;
@@ -599,7 +600,7 @@ class cf7_sendpdf {
                         $mpdf->form_button_border_width = '2';
                         $mpdf->form_button_border_style = 'S';
                         $mpdf->form_radio_color = '0.0 0.0 0.4'; // radio and checkbox
-                        $mpdf->form_radio_background_color = '0.9 0.9 0.9';
+                        $mpdf->form_radio_background_color = '0.9 0.9 0.9';*/
                     }
                     
                     if( isset($meta_values["image"]) && !empty($meta_values["image"]) ) {
@@ -1123,17 +1124,18 @@ class cf7_sendpdf {
             if( isset($meta_values["redirect-to-pdf"]) && $meta_values["redirect-to-pdf"]=="true" ) {
 
                 if( isset($meta_values["redirect-window"]) && $meta_values["redirect-window"] == 'off' ) {
-                    $targetPDF = '_blank';
+                    $targetPDF = '_tab';
                 }
                 $urlRredirectPDF = str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $createDirectory).'/'.$nameOfPdf.'-'.$_SESSION['pdf_uniqueid'].'.pdf';
-                $redirectPDF = "
-                if ( event.detail.contactFormId === '" . $id . "') {";
+                $redirectPDF = "/* REDICTION DIRECT */
+        if ( '" . $id . "' === event.detail.contactFormId ) {";
                     if( isset($meta_values["redirect-window"]) && $meta_values["redirect-window"] == 'popup' ) {
                         $redirectPDF .= "window.open('".$urlRredirectPDF."','".$nameOfPdf."','menubar=no, status=no, scrollbars=yes, menubar=no, width=600, height=900');";
                      } else { 
-                        $redirectPDF .= "location = '".$urlRredirectPDF."', '".$targetPDF."---".$meta_values["redirect-window"]."';";
+                        $redirectPDF .= "var location = '".$urlRredirectPDF."'; window.open(location, '".$targetPDF."');";
                     }
-                $redirectPDF .= "}";
+                $redirectPDF .= "}
+";
                 $displayAddEventList = 1;
 
             }
@@ -1142,8 +1144,8 @@ class cf7_sendpdf {
                 $displayAddEventList = 0;
             }
             
-$js .= '
-        if ( event.detail.contactFormId === "' . $id . '") { ';
+$js .= '/* REDIRECTION  */
+        if ( "' . $id . '" === event.detail.contactFormId) { ';
 $js .= sprintf('location.replace("%1$s");', htmlspecialchars_decode( esc_url( $redirect ) ) );
 $js .= '}
 ';  
@@ -1155,7 +1157,7 @@ $js .= '}
     document.addEventListener( 'wpcf7mailsent', function( event ) {
         <?php if( isset($redirectPDF) ) { echo $redirectPDF; } ?>
     <?php if( (isset($meta_values['page_next']) && is_numeric($meta_values['page_next'])) ) { echo $js; } ?>
-    }, false );
+}, false );
 </script>
 <!-- END :: Send PDF for CF7 -->
     <?php

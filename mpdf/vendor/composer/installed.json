@@ -1,17 +1,533 @@
 [
     {
-        "name": "setasign/fpdi",
-        "version": "1.6.1",
-        "version_normalized": "1.6.1.0",
+        "name": "codeguy/upload",
+        "version": "1.3.2",
+        "version_normalized": "1.3.2.0",
         "source": {
             "type": "git",
-            "url": "https://github.com/Setasign/FPDI.git",
-            "reference": "5b899b2b41463bf261aa69840fd30b50950a500c"
+            "url": "https://github.com/brandonsavage/Upload.git",
+            "reference": "6a9e5e1fb58d65346d0e557db2d46fb25efd3e37"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/Setasign/FPDI/zipball/5b899b2b41463bf261aa69840fd30b50950a500c",
-            "reference": "5b899b2b41463bf261aa69840fd30b50950a500c",
+            "url": "https://api.github.com/repos/brandonsavage/Upload/zipball/6a9e5e1fb58d65346d0e557db2d46fb25efd3e37",
+            "reference": "6a9e5e1fb58d65346d0e557db2d46fb25efd3e37",
+            "shasum": ""
+        },
+        "require": {
+            "ext-fileinfo": "*",
+            "php": ">=5.3.0"
+        },
+        "require-dev": {
+            "phpunit/phpunit": "3.7.*"
+        },
+        "time": "2013-07-07T17:01:41+00:00",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "psr-0": {
+                "Upload": "src"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "Josh Lockhart",
+                "email": "info@joshlockhart.com",
+                "homepage": "http://www.joshlockhart.com/"
+            }
+        ],
+        "description": "Handle file uploads with extensible validation and storage strategies",
+        "homepage": "http://github.com/codeguy/Upload",
+        "keywords": [
+            "file",
+            "upload",
+            "validation"
+        ]
+    },
+    {
+        "name": "league/url",
+        "version": "3.3.5",
+        "version_normalized": "3.3.5.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/thephpleague/url.git",
+            "reference": "1ae2c3ce29a7c5438339ff6388225844e6479da8"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/thephpleague/url/zipball/1ae2c3ce29a7c5438339ff6388225844e6479da8",
+            "reference": "1ae2c3ce29a7c5438339ff6388225844e6479da8",
+            "shasum": ""
+        },
+        "require": {
+            "ext-mbstring": "*",
+            "php": ">=5.3.0",
+            "true/punycode": "^2.0"
+        },
+        "require-dev": {
+            "phpunit/phpunit": "^4.0"
+        },
+        "time": "2015-07-15T08:24:12+00:00",
+        "type": "library",
+        "extra": {
+            "branch-alias": {
+                "dev-master": "3.3-dev"
+            }
+        },
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "League\\Url\\": "src"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "Ignace Nyamagana Butera",
+                "email": "nyamsprod@gmail.com",
+                "homepage": "https://github.com/nyamsprod/",
+                "role": "Developer"
+            }
+        ],
+        "description": "League/url is a lightweight PHP Url manipulating library",
+        "homepage": "http://url.thephpleague.com",
+        "keywords": [
+            "parse_url",
+            "php",
+            "url"
+        ],
+        "abandoned": "league/uri"
+    },
+    {
+        "name": "masterminds/html5",
+        "version": "2.5.0",
+        "version_normalized": "2.5.0.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/Masterminds/html5-php.git",
+            "reference": "b5d892a4bd058d61f736935d32a9c248f11ccc93"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/Masterminds/html5-php/zipball/b5d892a4bd058d61f736935d32a9c248f11ccc93",
+            "reference": "b5d892a4bd058d61f736935d32a9c248f11ccc93",
+            "shasum": ""
+        },
+        "require": {
+            "ext-ctype": "*",
+            "ext-dom": "*",
+            "ext-libxml": "*",
+            "php": ">=5.3.0"
+        },
+        "require-dev": {
+            "phpunit/phpunit": "^4.8.35",
+            "sami/sami": "~2.0",
+            "satooshi/php-coveralls": "1.0.*"
+        },
+        "time": "2018-12-27T22:03:43+00:00",
+        "type": "library",
+        "extra": {
+            "branch-alias": {
+                "dev-master": "2.4-dev"
+            }
+        },
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "Masterminds\\": "src"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "Matt Butcher",
+                "email": "technosophos@gmail.com"
+            },
+            {
+                "name": "Asmir Mustafic",
+                "email": "goetas@gmail.com"
+            },
+            {
+                "name": "Matt Farina",
+                "email": "matt@mattfarina.com"
+            }
+        ],
+        "description": "An HTML5 parser and serializer.",
+        "homepage": "http://masterminds.github.io/html5-php",
+        "keywords": [
+            "HTML5",
+            "dom",
+            "html",
+            "parser",
+            "querypath",
+            "serializer",
+            "xml"
+        ]
+    },
+    {
+        "name": "monolog/monolog",
+        "version": "1.24.0",
+        "version_normalized": "1.24.0.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/Seldaek/monolog.git",
+            "reference": "bfc9ebb28f97e7a24c45bdc3f0ff482e47bb0266"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/Seldaek/monolog/zipball/bfc9ebb28f97e7a24c45bdc3f0ff482e47bb0266",
+            "reference": "bfc9ebb28f97e7a24c45bdc3f0ff482e47bb0266",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.3.0",
+            "psr/log": "~1.0"
+        },
+        "provide": {
+            "psr/log-implementation": "1.0.0"
+        },
+        "require-dev": {
+            "aws/aws-sdk-php": "^2.4.9 || ^3.0",
+            "doctrine/couchdb": "~1.0@dev",
+            "graylog2/gelf-php": "~1.0",
+            "jakub-onderka/php-parallel-lint": "0.9",
+            "php-amqplib/php-amqplib": "~2.4",
+            "php-console/php-console": "^3.1.3",
+            "phpunit/phpunit": "~4.5",
+            "phpunit/phpunit-mock-objects": "2.3.0",
+            "ruflin/elastica": ">=0.90 <3.0",
+            "sentry/sentry": "^0.13",
+            "swiftmailer/swiftmailer": "^5.3|^6.0"
+        },
+        "suggest": {
+            "aws/aws-sdk-php": "Allow sending log messages to AWS services like DynamoDB",
+            "doctrine/couchdb": "Allow sending log messages to a CouchDB server",
+            "ext-amqp": "Allow sending log messages to an AMQP server (1.0+ required)",
+            "ext-mongo": "Allow sending log messages to a MongoDB server",
+            "graylog2/gelf-php": "Allow sending log messages to a GrayLog2 server",
+            "mongodb/mongodb": "Allow sending log messages to a MongoDB server via PHP Driver",
+            "php-amqplib/php-amqplib": "Allow sending log messages to an AMQP server using php-amqplib",
+            "php-console/php-console": "Allow sending log messages to Google Chrome",
+            "rollbar/rollbar": "Allow sending log messages to Rollbar",
+            "ruflin/elastica": "Allow sending log messages to an Elastic Search server",
+            "sentry/sentry": "Allow sending log messages to a Sentry server"
+        },
+        "time": "2018-11-05T09:00:11+00:00",
+        "type": "library",
+        "extra": {
+            "branch-alias": {
+                "dev-master": "2.0.x-dev"
+            }
+        },
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "Monolog\\": "src/Monolog"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "Jordi Boggiano",
+                "email": "j.boggiano@seld.be",
+                "homepage": "http://seld.be"
+            }
+        ],
+        "description": "Sends your logs to files, sockets, inboxes, databases and various web services",
+        "homepage": "http://github.com/Seldaek/monolog",
+        "keywords": [
+            "log",
+            "logging",
+            "psr-3"
+        ]
+    },
+    {
+        "name": "mpdf/mpdf",
+        "version": "v7.1.9",
+        "version_normalized": "7.1.9.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/mpdf/mpdf.git",
+            "reference": "a0fc1215d2306aa3b4ba6e97bd6ebe4bab6a88fb"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/mpdf/mpdf/zipball/a0fc1215d2306aa3b4ba6e97bd6ebe4bab6a88fb",
+            "reference": "a0fc1215d2306aa3b4ba6e97bd6ebe4bab6a88fb",
+            "shasum": ""
+        },
+        "require": {
+            "ext-gd": "*",
+            "ext-mbstring": "*",
+            "myclabs/deep-copy": "^1.7",
+            "paragonie/random_compat": "^1.4|^2.0|9.99.99",
+            "php": "^5.6 || ~7.0.0 || ~7.1.0 || ~7.2.0 || ~7.3.0",
+            "psr/log": "^1.0",
+            "setasign/fpdi": "1.6.*"
+        },
+        "require-dev": {
+            "mockery/mockery": "^0.9.5",
+            "phpunit/phpunit": "^5.0",
+            "squizlabs/php_codesniffer": "^2.7.0",
+            "tracy/tracy": "^2.4"
+        },
+        "suggest": {
+            "ext-bcmath": "Needed for generation of some types of barcodes",
+            "ext-xml": "Needed mainly for SVG manipulation",
+            "ext-zlib": "Needed for compression of embedded resources, such as fonts"
+        },
+        "time": "2019-02-06T13:32:19+00:00",
+        "type": "library",
+        "extra": {
+            "branch-alias": {
+                "dev-development": "7.x-dev"
+            }
+        },
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "Mpdf\\": "src/"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "GPL-2.0-only"
+        ],
+        "authors": [
+            {
+                "name": "Matěj Humpál",
+                "role": "Developer, maintainer"
+            },
+            {
+                "name": "Ian Back",
+                "role": "Developer (retired)"
+            }
+        ],
+        "description": "PHP library generating PDF files from UTF-8 encoded HTML",
+        "homepage": "https://mpdf.github.io",
+        "keywords": [
+            "pdf",
+            "php",
+            "utf-8"
+        ]
+    },
+    {
+        "name": "myclabs/deep-copy",
+        "version": "1.7.0",
+        "version_normalized": "1.7.0.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/myclabs/DeepCopy.git",
+            "reference": "3b8a3a99ba1f6a3952ac2747d989303cbd6b7a3e"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/myclabs/DeepCopy/zipball/3b8a3a99ba1f6a3952ac2747d989303cbd6b7a3e",
+            "reference": "3b8a3a99ba1f6a3952ac2747d989303cbd6b7a3e",
+            "shasum": ""
+        },
+        "require": {
+            "php": "^5.6 || ^7.0"
+        },
+        "require-dev": {
+            "doctrine/collections": "^1.0",
+            "doctrine/common": "^2.6",
+            "phpunit/phpunit": "^4.1"
+        },
+        "time": "2017-10-19T19:58:43+00:00",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "DeepCopy\\": "src/DeepCopy/"
+            },
+            "files": [
+                "src/DeepCopy/deep_copy.php"
+            ]
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "description": "Create deep copies (clones) of your objects",
+        "keywords": [
+            "clone",
+            "copy",
+            "duplicate",
+            "object",
+            "object graph"
+        ]
+    },
+    {
+        "name": "paragonie/random_compat",
+        "version": "v2.0.18",
+        "version_normalized": "2.0.18.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/paragonie/random_compat.git",
+            "reference": "0a58ef6e3146256cc3dc7cc393927bcc7d1b72db"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/paragonie/random_compat/zipball/0a58ef6e3146256cc3dc7cc393927bcc7d1b72db",
+            "reference": "0a58ef6e3146256cc3dc7cc393927bcc7d1b72db",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.2.0"
+        },
+        "require-dev": {
+            "phpunit/phpunit": "4.*|5.*"
+        },
+        "suggest": {
+            "ext-libsodium": "Provides a modern crypto API that can be used to generate random bytes."
+        },
+        "time": "2019-01-03T20:59:08+00:00",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "files": [
+                "lib/random.php"
+            ]
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "Paragon Initiative Enterprises",
+                "email": "security@paragonie.com",
+                "homepage": "https://paragonie.com"
+            }
+        ],
+        "description": "PHP 5.x polyfill for random_bytes() and random_int() from PHP 7",
+        "keywords": [
+            "csprng",
+            "polyfill",
+            "pseudorandom",
+            "random"
+        ]
+    },
+    {
+        "name": "psr/log",
+        "version": "1.1.0",
+        "version_normalized": "1.1.0.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/php-fig/log.git",
+            "reference": "6c001f1daafa3a3ac1d8ff69ee4db8e799a654dd"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/php-fig/log/zipball/6c001f1daafa3a3ac1d8ff69ee4db8e799a654dd",
+            "reference": "6c001f1daafa3a3ac1d8ff69ee4db8e799a654dd",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.3.0"
+        },
+        "time": "2018-11-20T15:27:04+00:00",
+        "type": "library",
+        "extra": {
+            "branch-alias": {
+                "dev-master": "1.0.x-dev"
+            }
+        },
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "Psr\\Log\\": "Psr/Log/"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "PHP-FIG",
+                "homepage": "http://www.php-fig.org/"
+            }
+        ],
+        "description": "Common interface for logging libraries",
+        "homepage": "https://github.com/php-fig/log",
+        "keywords": [
+            "log",
+            "psr",
+            "psr-3"
+        ]
+    },
+    {
+        "name": "querypath/querypath",
+        "version": "3.0.5",
+        "version_normalized": "3.0.5.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/technosophos/querypath.git",
+            "reference": "6b8e2395fac61fac25bbe962f94def556cb85f7d"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/technosophos/querypath/zipball/6b8e2395fac61fac25bbe962f94def556cb85f7d",
+            "reference": "6b8e2395fac61fac25bbe962f94def556cb85f7d",
+            "shasum": ""
+        },
+        "require": {
+            "masterminds/html5": "2.*",
+            "php": ">=5.3.0"
+        },
+        "time": "2016-08-01T22:40:30+00:00",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "psr-0": {
+                "QueryPath": "src/"
+            },
+            "files": [
+                "src/qp_functions.php"
+            ]
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "description": "HTML/XML querying (CSS 4 or XPath) and processing (like jQuery)",
+        "homepage": "https://github.com/technosophos/querypath",
+        "keywords": [
+            "css",
+            "html",
+            "jquery",
+            "xml",
+            "xslt"
+        ]
+    },
+    {
+        "name": "setasign/fpdi",
+        "version": "1.6.2",
+        "version_normalized": "1.6.2.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/Setasign/FPDI.git",
+            "reference": "a6ad58897a6d97cc2d2cd2adaeda343b25a368ea"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/Setasign/FPDI/zipball/a6ad58897a6d97cc2d2cd2adaeda343b25a368ea",
+            "reference": "a6ad58897a6d97cc2d2cd2adaeda343b25a368ea",
             "shasum": ""
         },
         "suggest": {
@@ -19,7 +535,7 @@
             "setasign/fpdi-fpdf": "Use this package to automatically evaluate dependencies to FPDF.",
             "setasign/fpdi-tcpdf": "Use this package to automatically evaluate dependencies to TCPDF."
         },
-        "time": "2015-11-30 10:53:14",
+        "time": "2017-05-11T14:25:49+00:00",
         "type": "library",
         "installation-source": "dist",
         "autoload": {
@@ -48,6 +564,173 @@
             "fpdf",
             "fpdi",
             "pdf"
+        ]
+    },
+    {
+        "name": "spatie/url-signer",
+        "version": "1.0.2",
+        "version_normalized": "1.0.2.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/spatie/url-signer.git",
+            "reference": "945bf049d50eeaadd774e777114c6507eb6df58a"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/spatie/url-signer/zipball/945bf049d50eeaadd774e777114c6507eb6df58a",
+            "reference": "945bf049d50eeaadd774e777114c6507eb6df58a",
+            "shasum": ""
+        },
+        "require": {
+            "league/url": "^3.3",
+            "php": ">=5.6.0"
+        },
+        "require-dev": {
+            "henrikbjorn/phpspec-code-coverage": "^1.0",
+            "phpspec/phpspec": "^2.2"
+        },
+        "time": "2017-04-09T08:13:03+00:00",
+        "type": "library",
+        "extra": {
+            "branch-alias": {
+                "dev-master": "1.0-dev"
+            }
+        },
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "Spatie\\UrlSigner\\": "src"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "Sebastian De Deyne",
+                "email": "sebastian@spatie.be",
+                "homepage": "https://github.com/sebastiandedeyne",
+                "role": "Developer"
+            }
+        ],
+        "description": "Generate a url with an expiration date and signature to prevent unauthorized access",
+        "homepage": "https://github.com/spatie/url-signer",
+        "keywords": [
+            "encryption",
+            "security",
+            "sign",
+            "spatie",
+            "url"
+        ]
+    },
+    {
+        "name": "symfony/polyfill-mbstring",
+        "version": "v1.10.0",
+        "version_normalized": "1.10.0.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/symfony/polyfill-mbstring.git",
+            "reference": "c79c051f5b3a46be09205c73b80b346e4153e494"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/symfony/polyfill-mbstring/zipball/c79c051f5b3a46be09205c73b80b346e4153e494",
+            "reference": "c79c051f5b3a46be09205c73b80b346e4153e494",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.3.3"
+        },
+        "suggest": {
+            "ext-mbstring": "For best performance"
+        },
+        "time": "2018-09-21T13:07:52+00:00",
+        "type": "library",
+        "extra": {
+            "branch-alias": {
+                "dev-master": "1.9-dev"
+            }
+        },
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "Symfony\\Polyfill\\Mbstring\\": ""
+            },
+            "files": [
+                "bootstrap.php"
+            ]
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "Nicolas Grekas",
+                "email": "p@tchwork.com"
+            },
+            {
+                "name": "Symfony Community",
+                "homepage": "https://symfony.com/contributors"
+            }
+        ],
+        "description": "Symfony polyfill for the Mbstring extension",
+        "homepage": "https://symfony.com",
+        "keywords": [
+            "compatibility",
+            "mbstring",
+            "polyfill",
+            "portable",
+            "shim"
+        ]
+    },
+    {
+        "name": "true/punycode",
+        "version": "v2.1.1",
+        "version_normalized": "2.1.1.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/true/php-punycode.git",
+            "reference": "a4d0c11a36dd7f4e7cd7096076cab6d3378a071e"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/true/php-punycode/zipball/a4d0c11a36dd7f4e7cd7096076cab6d3378a071e",
+            "reference": "a4d0c11a36dd7f4e7cd7096076cab6d3378a071e",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.3.0",
+            "symfony/polyfill-mbstring": "^1.3"
+        },
+        "require-dev": {
+            "phpunit/phpunit": "~4.7",
+            "squizlabs/php_codesniffer": "~2.0"
+        },
+        "time": "2016-11-16T10:37:54+00:00",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "TrueBV\\": "src/"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "Renan Gonçalves",
+                "email": "renan.saddam@gmail.com"
+            }
+        ],
+        "description": "A Bootstring encoding of Unicode for Internationalized Domain Names in Applications (IDNA)",
+        "homepage": "https://github.com/true/php-punycode",
+        "keywords": [
+            "idna",
+            "punycode"
         ]
     }
 ]

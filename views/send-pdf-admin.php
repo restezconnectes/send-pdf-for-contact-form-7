@@ -164,6 +164,9 @@ jQuery(document).ready(function() {
         $meta_values = get_post_meta( $idForm, '_wp_cf7pdf', true );
         $meta_form = get_post_meta( $idForm, '_form', true);
 
+        // Genere le nom du PDF
+        $nameOfPdf = cf7_sendpdf::wpcf7pdf_name_pdf($idForm);
+        
         /**********************************************/
         /******** ON GENERE UN PDF DE PREVIEW *********/
         /**********************************************/
@@ -185,8 +188,11 @@ jQuery(document).ready(function() {
             } else {
                 $formatPdf = 'A4-P';
             }
-            require WPCF7PDF_DIR . '/mpdf/vendor/autoload.php';
-            $mpdf=new mPDF('utf-8', $formatPdf);
+            require WPCF7PDF_DIR . 'mpdf/vendor/autoload.php';
+            //$mpdf=new \Mpdf\Mpdf();
+            $mpdf = new \Mpdf\Mpdf(['mode' => 'utf-8', 'format' => $formatPdf]);
+            
+            //$mpdf=new mPDF('utf-8', $formatPdf);
             $mpdf->autoScriptToLang = true;
             $mpdf->baseScript = 1;
             $mpdf->autoVietnamese = true;
@@ -324,7 +330,7 @@ jQuery(document).ready(function() {
             if( isset($meta_values['fillable_data']) && $meta_values['fillable_data']=='true') {
                 $mpdf->useActiveForms = true;
                 $mpdf->SetProtection(array('copy', 'print', 'fill-forms', 'modify', 'annot-forms' ),'', '');
-                $mpdf->formUseZapD = false;
+                /*$mpdf->formUseZapD = false;
                 $mpdf->formSubmitNoValueFields = true;
                 $mpdf->formExportType = 'xfdf'; // 'html' or 'xfdf'
                 $mpdf->formSelectDefaultOption = true;
@@ -332,7 +338,7 @@ jQuery(document).ready(function() {
                 $mpdf->form_button_border_width = '2';
                 $mpdf->form_button_border_style = 'S';
                 $mpdf->form_radio_color = '0.0 0.0 0.4'; // radio and checkbox
-                $mpdf->form_radio_background_color = '0.9 0.9 0.9';
+                $mpdf->form_radio_background_color = '0.9 0.9 0.9';*/
             }
             
             // En cas de saut de page avec le tag [addpage]

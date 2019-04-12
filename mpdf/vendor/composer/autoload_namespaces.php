@@ -6,4 +6,6 @@ $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
 return array(
+    'Upload' => array($vendorDir . '/codeguy/upload/src'),
+    'QueryPath' => array($vendorDir . '/querypath/querypath/src'),
 );
