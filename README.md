@@ -1,6 +1,6 @@
 # Send PDF for Contact Form 7
 
-VERSION 0.7
+VERSION 0.7.2
 
 This plugin adds conditional logic to <a href="https://wordpress.org/plugins/contact-form-7/">[Contact Form 7]</a>.
 
@@ -28,6 +28,7 @@ Create and Personalize your PDF with:
 - A page to display after sending the form
 - Redirects directly to the PDF after sending the form
 - Protect your PDF file
+- Send just PDF / CVS files in a ZIP
 
 And others options...
 

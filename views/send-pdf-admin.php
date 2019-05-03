@@ -190,8 +190,13 @@ jQuery(document).ready(function() {
             }
             require WPCF7PDF_DIR . 'mpdf/vendor/autoload.php';
             //$mpdf=new \Mpdf\Mpdf();
-            $mpdf = new \Mpdf\Mpdf(['mode' => 'utf-8', 'format' => $formatPdf]);
-            
+            if( isset($meta_values['fillable_data']) && $meta_values['fillable_data']== 'true') {
+                $mpdf = new \Mpdf\Mpdf(['mode' => 'c', 'format' => $formatPdf]);
+            } else {
+                $mpdf = new \Mpdf\Mpdf(['mode' => 'utf-8', 'format' => $formatPdf]);
+            }
+            //var_dump($meta_values);
+            ///exit();
             //$mpdf=new mPDF('utf-8', $formatPdf);
             $mpdf->autoScriptToLang = true;
             $mpdf->baseScript = 1;
@@ -253,17 +258,19 @@ jQuery(document).ready(function() {
                         if( $sh_tag["basetype"] == 'checkbox') {
                             
                             $inputCheckbox = '';
+                            $i = 1;
                             foreach($sh_tag["values"] as $id=>$val) {
                                 $caseChecked = '';
                                 $valueTag = wpcf7_mail_replace_tags('['.$sh_tag["name"].']');
                                 if( $val == $valueTag ) {
-                                    $caseChecked = 'checked="checked"';
+                                    $caseChecked = 'checked';
                                 }
                                 if( in_array('label_first', $tagOptions) ) {
-                                    $inputCheckbox .= ''.$val.' <input type="checkbox" class="wpcf7-checkbox" name="'.$sh_tag["name"].'" value="'.$val.'" '.$caseChecked.' /> ';
+                                    $inputCheckbox .= ''.$val.' <input type="checkbox" class="wpcf7-checkbox" name="'.$sh_tag["name"].$i.'" value="'.$i.'" '.$caseChecked.'> ';
                                 } else {
-                                    $inputCheckbox .= '<input type="checkbox" class="wpcf7-checkbox" name="'.$sh_tag["name"].'" value="'.$val.'" '.$caseChecked.' /> '.$val.' ';
+                                    $inputCheckbox .= '<input type="checkbox" class="wpcf7-checkbox" name="'.$sh_tag["name"].$i.'" value="'.$i.'" '.$caseChecked.'> '.$val.' ';
                                 }
+                                $i++;
 
                             }
                             $messageText = str_replace('['.$sh_tag["name"].']', $inputCheckbox, $messageText);
@@ -271,17 +278,19 @@ jQuery(document).ready(function() {
                         } else if ( $sh_tag["basetype"] == 'radio') {
                             
                             $inputRadio = '';
+                            $i = 1;
                             foreach($sh_tag["values"] as $id=>$val) {
                                 $radioChecked = '';
                                 $valueTag = wpcf7_mail_replace_tags('['.$sh_tag["name"].']');
                                 if( $val == $valueTag ) {
-                                    $radioChecked = 'checked="checked"';
+                                    $radioChecked = 'checked';
                                 }                            
                                 if( in_array('label_first', $tagOptions) ) {
-                                    $inputRadio .= ''.$val.' <input type="radio" class="wpcf7-radio" name="'.$sh_tag["name"].'" value="'.$val.'" '.$radioChecked.' > ';
+                                    $inputRadio .= ''.$val.' <input type="radio" class="wpcf7-radio" name="'.$sh_tag["name"].'" value="'.$i.'" '.$radioChecked.' > ';
                                 } else {
-                                    $inputRadio .= '<input type="radio" class="wpcf7-radio" name="'.$sh_tag["name"].'" value="'.$val.'" '.$radioChecked.' > '.$val.' ';
+                                    $inputRadio .= '<input type="radio" class="wpcf7-radio" name="'.$sh_tag["name"].'" value="'.$i.'" '.$radioChecked.' > '.$val.' ';
                                 }
+                                $i++;
                             }
                             $messageText = str_replace('['.$sh_tag["name"].']', $inputRadio, $messageText);
 
@@ -329,16 +338,7 @@ jQuery(document).ready(function() {
             // Enable Fillable Form
             if( isset($meta_values['fillable_data']) && $meta_values['fillable_data']=='true') {
                 $mpdf->useActiveForms = true;
-                $mpdf->SetProtection(array('copy', 'print', 'fill-forms', 'modify', 'annot-forms' ),'', '');
-                /*$mpdf->formUseZapD = false;
-                $mpdf->formSubmitNoValueFields = true;
-                $mpdf->formExportType = 'xfdf'; // 'html' or 'xfdf'
-                $mpdf->formSelectDefaultOption = true;
-                $mpdf->form_border_color = '0.6 0.6 0.72';
-                $mpdf->form_button_border_width = '2';
-                $mpdf->form_button_border_style = 'S';
-                $mpdf->form_radio_color = '0.0 0.0 0.4'; // radio and checkbox
-                $mpdf->form_radio_background_color = '0.9 0.9 0.9';*/
+                $mpdf->SetProtection(array('copy', 'print', 'fill-forms', 'modify', 'annot-forms' ), '', '', 128);
             }
             
             // En cas de saut de page avec le tag [addpage]
@@ -358,8 +358,9 @@ jQuery(document).ready(function() {
 
             }
             $pdfPassword = '';
+            //error_log($pdfPassword );
             if ( isset($meta_values["protect"]) && $meta_values["protect"]=='true') {
-                $mpdf->SetProtection(array('print', 'fill-forms', 'modify', 'copy'), $pdfPassword, $pdfPassword, '128');
+                $mpdf->SetProtection(array('print', 'fill-forms', 'modify', 'copy'), $pdfPassword, $pdfPassword, 128);
             }            
             $mpdf->Output($createDirectory.'/preview-'.$idForm.'.pdf', 'F');
 
@@ -638,6 +639,25 @@ $pathFolder = serialize($createDirectory);
                         </div>
                     </div><br />
                     <input type="radio" class="wpcf7-form-field" name="wp_cf7pdf_settings[redirect-window]" value="on" <?php if( (isset($meta_values["redirect-window"]) && $meta_values["redirect-window"]=='on') or empty($meta_values["redirect-window"]) ) { echo ' checked'; } ?>  /><?php _e('Same Window', 'send-pdf-for-contact-form-7'); ?> <input type="radio" class="wpcf7-form-field" name="wp_cf7pdf_settings[redirect-window]" value="off" <?php if( isset($meta_values["redirect-window"]) && $meta_values["redirect-window"]=='off') { echo 'checked'; } ?> /><?php _e('New Window', 'send-pdf-for-contact-form-7'); ?> <input type="radio" class="wpcf7-form-field" name="wp_cf7pdf_settings[redirect-window]" value="popup" <?php if( isset($meta_values["redirect-window"]) && $meta_values["redirect-window"]=='popup') { echo 'checked'; } ?> /><?php _e('Popup Window', 'send-pdf-for-contact-form-7'); ?>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2"><hr style="background-color: <?php echo $colors[2]; ?>; height: 1px; border: 0;"></td>
+            </tr>
+            <tr>
+                <td><!-- Propose l'envoi d'un zip dans l'email plutôt que le PDF -->
+                    <?php _e('Send a ZIP instead PDF?', 'send-pdf-for-contact-form-7'); ?>
+                    <p><i><?php _e( 'This option send all your files in a ZIP', 'send-pdf-for-contact-form-7'); ?></p>
+                </td>
+                <td>
+                    <div style="">
+                        <div class="switch-field">
+                        <input class="switch_left" type="radio" id="switch_pdf_zip" name="wp_cf7pdf_settings[pdf-to-zip]" value="true" <?php if( isset($meta_values["pdf-to-zip"]) && $meta_values["pdf-to-zip"]=='true') { echo ' checked'; } ?>/>
+                        <label for="switch_pdf_zip"><?php _e('Yes', 'send-pdf-for-contact-form-7'); ?></label>
+                        <input class="switch_right" type="radio" id="switch_pdf_zip_no" name="wp_cf7pdf_settings[pdf-to-zip]" value="false" <?php if( empty($meta_values["pdf-to-zip"]) || (isset($meta_values["pdf-to-zip"]) && $meta_values["pdf-to-zip"]=='false') ) { echo ' checked'; } ?> />
+                        <label for="switch_pdf_zip_no"><?php _e('No', 'send-pdf-for-contact-form-7'); ?></label>
+                        </div>
+                    </div>
                 </td>
             </tr>
             <tr>
