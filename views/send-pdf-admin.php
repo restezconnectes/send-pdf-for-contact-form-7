@@ -191,9 +191,9 @@ jQuery(document).ready(function() {
             require WPCF7PDF_DIR . 'mpdf/vendor/autoload.php';
             //$mpdf=new \Mpdf\Mpdf();
             if( isset($meta_values['fillable_data']) && $meta_values['fillable_data']== 'true') {
-                $mpdf = new \Mpdf\Mpdf(['mode' => 'c', 'format' => $formatPdf]);
+                $mpdf = new \Mpdf\Mpdf(['mode' => 'c', 'format' => $formatPdf, 'margin_header' => 10,'margin_top' => 40,]);
             } else {
-                $mpdf = new \Mpdf\Mpdf(['mode' => 'utf-8', 'format' => $formatPdf]);
+                $mpdf = new \Mpdf\Mpdf(['mode' => 'utf-8', 'format' => $formatPdf, 'margin_header' => 10,'margin_top' => 40,]);
             }
             //var_dump($meta_values);
             ///exit();
@@ -225,6 +225,7 @@ jQuery(document).ready(function() {
                 $mpdf->SetHTMLFooter($footerText);
             }
             
+            $entetePage = '';
             if( isset($meta_values["image"]) && !empty($meta_values["image"]) ) {
                 if( ini_get('allow_url_fopen')==1) {
                     $image_path = str_replace(get_bloginfo('url'), ABSPATH, $meta_values['image']);
@@ -241,9 +242,11 @@ jQuery(document).ready(function() {
                 if( empty($meta_values['image-height']) ) { $imgHeight = $height; } else { $imgHeight = $meta_values['image-height'];  }
 
                 $attribut = 'width='.$imgWidth.' height="'.$imgHeight.'"';
-                $mpdf->WriteHTML('<div style="text-align:'.$imgAlign.'"><img src="'.esc_url($meta_values["image"]).'" '.$attribut.' /></div>');
+                $entetePage = '<div style="text-align:'.$imgAlign.'"><img src="'.esc_url($meta_values["image"]).'" '.$attribut.' /></div>';
             }
-       
+            //$mpdf->WriteHTML($entetePage);
+            $mpdf->SetHTMLHeader($entetePage);
+
             $messageText = $meta_values['generate_pdf'];
             
             
@@ -346,9 +349,15 @@ jQuery(document).ready(function() {
 
                 $newPage = explode('[addpage]', $messageText);
                 for($i = 0, $size = count($newPage); $i < $size; ++$i) {
+                    
                     $mpdf->WriteHTML($newPage[$i]);
+                    if( isset($meta_values["page_header"]) && $meta_values["page_header"]==0) { $mpdf->SetHTMLHeader(); }
                     if( $i < (count($newPage)-1) ) {
-                        $mpdf->AddPage();
+                        if( isset($meta_values["page_header"]) && $meta_values["page_header"]==1) {
+                            $mpdf->AddPage();
+                        } else {
+                            $mpdf->AddPage('','','','','',15,15,15,15,5,5);
+                        }  
                     }
                 }
 
@@ -793,7 +802,7 @@ $pathFolder = serialize($createDirectory);
             <tbody id="the-list">
                 <tr>
                     <td>
-                        <h3 class="hndle"><span class="dashicons dashicons-format-image"></span> <?php _e('Image header', 'send-pdf-for-contact-form-7'); ?></h3>
+                        <h3 class="hndle"><span class="dashicons dashicons-format-image"></span>&nbsp;&nbsp;<?php _e('Image header', 'send-pdf-for-contact-form-7'); ?></h3>
                     </td>
                 </tr>
                 <tr>
@@ -806,7 +815,16 @@ $pathFolder = serialize($createDirectory);
                                 <option value="center" <?php if( isset($meta_values['image-alignment']) && ($meta_values['image-alignment']=='center') ) { echo 'selected'; } ?>><?php _e('Center', 'send-pdf-for-contact-form-7'); ?></option>
                                 <option value="right" <?php if( isset($meta_values['image-alignment']) && ($meta_values['image-alignment']=='right') ) { echo 'selected'; } ?>><?php _e('Right', 'send-pdf-for-contact-form-7'); ?></option>
                             </select>
-                            <?php _e('Size', 'send-pdf-for-contact-form-7'); ?> <input type="text" class="wpcf7-form-field" size="3" name="wp_cf7pdf_settings[image-width]" value="<?php if( isset($meta_values['image-width']) ) { echo $meta_values['image-width']; } else { echo '150'; } ?>" />&nbsp;X&nbsp;<input type="text" class="wpcf7-form-field" name="wp_cf7pdf_settings[image-height]" size="3" value="<?php if( isset($meta_values['image-height']) ) { echo $meta_values['image-height']; } ?>" />px
+                            <?php _e('Size', 'send-pdf-for-contact-form-7'); ?> <input type="text" class="wpcf7-form-field" size="3" name="wp_cf7pdf_settings[image-width]" value="<?php if( isset($meta_values['image-width']) ) { echo $meta_values['image-width']; } else { echo '150'; } ?>" />&nbsp;X&nbsp;<input type="text" class="wpcf7-form-field" name="wp_cf7pdf_settings[image-height]" size="3" value="<?php if( isset($meta_values['image-height']) ) { echo $meta_values['image-height']; } ?>" />px<br /><br />
+                            
+                            <div style=""><?php _e('Display header on each page?', 'send-pdf-for-contact-form-7'); ?>
+                                <div class="switch-field-mini">
+                                <input class="switch_left" type="radio" id="switch_page_header" name="wp_cf7pdf_settings[page_header]" value="1" <?php if( isset($meta_values["page_header"]) && $meta_values["page_header"]==1) { echo ' checked'; } ?>/>
+                                <label for="switch_page_header"><?php _e('Yes', 'send-pdf-for-contact-form-7'); ?></label>
+                                <input class="switch_right" type="radio" id="switch_page_header_no" name="wp_cf7pdf_settings[page_header]" value="0" <?php if( empty($meta_values["page_header"]) || (isset($meta_values["page_header"]) && $meta_values["page_header"]==0) ) { echo ' checked'; } ?> />
+                                <label for="switch_page_header_no"><?php _e('No', 'send-pdf-for-contact-form-7'); ?></label>
+                            </div>
+                    </div>
 
                         </div>
                     </td>

@@ -53,10 +53,17 @@
   box-shadow: none;
   color: #e4e4e4;
 }
+.switch-field-mini label {display:inline-block;text-align:center}
+.switch-field-mini{font-family:"Lucida Grande",Tahoma,Verdana,sans-serif;overflow:hidden;margin-left:auto}
+.switch-mini-title{margin-bottom:6px}
+.switch-field-mini input{position:absolute!important;clip:rect(0,0,0,0);height:1px;width:1px;border:0;overflow:hidden}
+.switch-field-mini label{float:left;width:40px;background-color:#e4e4e4;color:#333;font-size:12px;text-shadow:none;padding:0;border:1px solid rgba(0,0,0,.2);-webkit-box-shadow:inset 0 1px 3px rgba(0,0,0,.3),0 1px rgba(255,255,255,.1);
+box-shadow:inset 0 1px 3px rgba(0,0,0,.3),0 1px rgba(255,255,255,.1);-webkit-transition:all .1s ease-in-out;-moz-transition:all .1s ease-in-out;-ms-transition:all .1s ease-in-out;-o-transition:all .1s ease-in-out;transition:all .1s ease-in-out}
+.switch-field-mini label:hover{cursor:pointer}
+.switch-field-mini input:checked+label{-webkit-box-shadow:none;box-shadow:none;color:#e4e4e4}
+.switch-field-mini label:first-of-type{border-radius:4px 0 0 4px}
+.switch-field-mini label:last-of-type{border-radius:0 4px 4px 0}
 
-.switch-field label:first-of-type {
-  border-radius: 4px 0 0 4px;
-}
 
 .switch-field label:last-of-type {
   border-radius: 0 4px 4px 0;

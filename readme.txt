@@ -52,6 +52,7 @@ Yes. Thank you for submitting your changes to update the plugin.
 = 0.7.2 =
 * Fixed bug PDF protection
 * Add send ZIP option
+* Add Header page option
 
 = 0.7.1 =
 * Fixed bug uninstall plugin

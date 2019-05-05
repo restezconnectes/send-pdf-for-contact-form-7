@@ -174,6 +174,8 @@ class cf7_sendpdf {
     background-color: '.$colors[0].'!important;
     color:#e4e4e4!important;
 }
+.switch-field-mini input:checked + label { background-color: '.$colors[2].'; }
+.switch-field-mini input:checked + label:last-of-type {background-color: '.$colors[0].'!important;color:#e4e4e4!important;}
 .preview-btn {
     background: '.$colors[2].';
 }
@@ -580,11 +582,11 @@ class cf7_sendpdf {
                     if( isset($meta_values['pdf-type']) && isset($meta_values['pdf-orientation']) ) {
                         $formatPdf = $meta_values['pdf-type'].$meta_values['pdf-orientation'];
                         //$mpdf=new mPDF('utf-8', $formatPdf);
-                        $mpdf = new \Mpdf\Mpdf(['mode' => 'utf-8', 'format' => $formatPdf]);
+                        $mpdf = new \Mpdf\Mpdf(['mode' => 'utf-8', 'format' => $formatPdf, 'margin_header' => 10, 'margin_top' => 40,]);
                     } else if( isset($meta_values['fillable_data']) && $meta_values['fillable_data']== 'true') {
-                        $mpdf = new \Mpdf\Mpdf(['mode' => 'c', 'format' => $formatPdf]);
+                        $mpdf = new \Mpdf\Mpdf(['mode' => 'c', 'format' => $formatPdf, 'margin_header' => 10, 'margin_top' => 40,]);
                     } else {
-                        $mpdf = new \Mpdf\Mpdf(['mode' => 'utf-8', 'format' => 'A4-L']);
+                        $mpdf = new \Mpdf\Mpdf(['mode' => 'utf-8', 'format' => 'A4-L', 'margin_header' => 10, 'margin_top' => 40,]);
                     }
                     $mpdf->autoScriptToLang = true;
                     $mpdf->baseScript = 1;
@@ -607,7 +609,7 @@ class cf7_sendpdf {
                         $mpdf->form_radio_color = '0.0 0.0 0.4'; // radio and checkbox
                         $mpdf->form_radio_background_color = '0.9 0.9 0.9';*/
                     }
-                    
+                    $entetePage = '';
                     if( isset($meta_values["image"]) && !empty($meta_values["image"]) ) {
                         if( ini_get('allow_url_fopen')==1) {
                             list($width, $height, $type, $attr) = getimagesize($meta_values["image"]);
@@ -623,9 +625,11 @@ class cf7_sendpdf {
                         if( empty($meta_values['image-height']) ) { $imgHeight = $height; } else { $imgHeight = $meta_values['image-height'];  }
 
                         $attribut = 'width='.$imgWidth.' height="'.$imgHeight.'"';
-                        $mpdf->WriteHTML('<div style="text-align:'.$imgAlign.'"><img src="'.esc_url($meta_values["image"]).'" '.$attribut.' /></div>');
+                        $entetePage = '<div style="text-align:'.$imgAlign.';height:'.$imgHeight.'"><img src="'.esc_url($meta_values["image"]).'" '.$attribut.' /></div>';
                     }
+                    $mpdf->SetHTMLHeader($entetePage);
                     
+
                     if( isset($meta_values['footer_generate_pdf']) && $meta_values['footer_generate_pdf']!='' ) {
                         $footerText = str_replace('[reference]', $_SESSION['pdf_uniqueid'], $meta_values['footer_generate_pdf']);
                         $footerText = str_replace('[url-pdf]', $upload_dir['url'].'/'.$nameOfPdf.'-'.$_SESSION['pdf_uniqueid'].'.pdf', $footerText);
@@ -649,9 +653,15 @@ class cf7_sendpdf {
 
                         $newPage = explode('[addpage]', $text);
                         for($i = 0, $size = count($newPage); $i < $size; ++$i) {
+
                             $mpdf->WriteHTML($newPage[$i]);
+                            if( isset($meta_values["page_header"]) && $meta_values["page_header"]==0) { $mpdf->SetHTMLHeader(); }
                             if( $i < (count($newPage)-1) ) {
-                                $mpdf->AddPage();
+                                if( isset($meta_values["page_header"]) && $meta_values["page_header"]==1) {
+                                    $mpdf->AddPage();
+                                } else {
+                                    $mpdf->AddPage('','','','','',15,15,15,15,5,5);
+                                }                                  
                             }
                         }
 
