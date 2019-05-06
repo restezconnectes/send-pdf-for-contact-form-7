@@ -692,22 +692,6 @@ class cf7_sendpdf {
                     // Je copy le PDF genere
                     copy($createDirectory.'/'.$nameOfPdf.'-'.$_SESSION['pdf_uniqueid'].'.pdf', $createDirectory.'/'.$nameOfPdf.'.pdf');
 
-                    // Création du zip
-                    if( isset($meta_values["pdf-to-zip"]) && $meta_values["pdf-to-zip"] == 'true' ) {
-                        $zip = new ZipArchive(); 
-                        if($zip->open($createDirectory.'/'.$nameOfPdf.'-'.$_SESSION['pdf_uniqueid'].'.zip', ZipArchive::CREATE) === true) {
-                            // Ajout des fichiers.
-                            if( isset($meta_values["disable-pdf"]) && $meta_values['disable-pdf'] == 'false' ) {
-                                $zip->addFile($createDirectory.'/'.$nameOfPdf.'.pdf');
-                            }
-                            if( isset($meta_values["disable-csv"]) && $meta_values['disable-csv'] == 'false' ) {
-                                $zip->addFile($createDirectory.'/'.$nameOfPdf.'.csv');
-                            }
-
-                            $zip->close();
-                        }
-                    }
-
                 }
                 // END GENERATE PDF
 
@@ -788,86 +772,168 @@ class cf7_sendpdf {
             // Si la fonction envoi mail est activée
             if( empty($meta_values['disable-attachments']) OR (isset($meta_values['disable-attachments']) && $meta_values['disable-attachments'] == 'false') ) {
 
-            // On envoi les mails
-            if ( 'mail' == $mail->name() ) {
-                  // do something for 'Mail'
+                // On envoi les mails
+                if ( 'mail' == $mail->name() ) {
+                    // do something for 'Mail'
 
-                // Send just zip
-                if( isset($meta_values["pdf-to-zip"]) && $meta_values["pdf-to-zip"] == 'true' ) {
-                    $components['attachments'][] = $createDirectory.'/'.$nameOfPdf.'.zip';
-                } else {
-                    // Send PDF
-                    if( isset($meta_values["disable-pdf"]) && $meta_values['disable-pdf'] == 'false' ) {
-                        if( isset($meta_values["send-attachment"]) && ($meta_values["send-attachment"] == 'sender' OR $meta_values["send-attachment"] == 'both') ) {
-                            $components['attachments'][] = $createDirectory.'/'.$nameOfPdf.'.pdf';
-                        }
-                    }
+                    // Send just zip
+                    if( isset($meta_values["pdf-to-zip"]) && $meta_values["pdf-to-zip"] == 'true' ) {
 
-                    // SEND CSV
-                    if( isset($meta_values["disable-csv"]) && $meta_values['disable-csv'] == 'false' ) {
-                        if( isset($meta_values["send-attachment2"]) && ($meta_values["send-attachment2"] == 'sender' OR $meta_values["send-attachment2"] == 'both') ) {
-                            $components['attachments'][] = $createDirectory.'/'.$nameOfPdf.'.csv';
-                        }
-                    }
-                }
-                //SEND OTHER
-                if( isset($meta_values["pdf-files-attachments"]) ) {
-                    if( isset($meta_values["send-attachment3"]) && ($meta_values["send-attachment3"] == 'sender' OR $meta_values["send-attachment3"] == 'both') ) {
+                        
+                        // Création du zip
+                        $zip = new ZipArchive(); 
+                        if($zip->open($createDirectory.'/'.$nameOfPdf.'-'.$_SESSION['pdf_uniqueid'].'.zip', ZipArchive::CREATE) === true) {
 
-                        $tabDocs = explode("\n", $meta_values["pdf-files-attachments"]);
-                        $tabDocs = array_map('trim',$tabDocs);// Enlève les espaces vides
-                        $tabDocs = array_filter($tabDocs);// Supprime les éléments vides (= lignes vides) non
-
-                        $nbDocs = count($tabDocs);
-
-                        if( $nbDocs >= 1) {
-                            foreach($tabDocs as $urlDocs) {
-                                $urlDocs = str_replace($upload_dir['baseurl'], $upload_dir['basedir'], $urlDocs);
-                                $components['attachments'][] = $urlDocs;
+                            // Ajout des fichiers.
+                            if( isset($meta_values["disable-pdf"]) && $meta_values['disable-pdf'] == 'false' ) {
+                                if( isset($meta_values["send-attachment"]) && ($meta_values["send-attachment"] == 'sender' OR $meta_values["send-attachment"] == 'both') ) {
+                                    $zip->addFile($createDirectory.'/'.$nameOfPdf.'.pdf', $nameOfPdf.'.pdf');
+                                }
                             }
+                            if( isset($meta_values["disable-csv"]) && $meta_values['disable-csv'] == 'false' ) {
+                                if( isset($meta_values["send-attachment2"]) && ($meta_values["send-attachment2"] == 'sender' OR $meta_values["send-attachment2"] == 'both') ) {
+                                    $zip->addFile($createDirectory.'/'.$nameOfPdf.'.csv', $nameOfPdf.'.csv');
+                                }
+                            }
+                            if( isset($meta_values["send-attachment3"]) && ($meta_values["send-attachment3"] == 'sender' OR $meta_values["send-attachment3"] == 'both') ) {
+
+                                $tabDocs = explode("\n", $meta_values["pdf-files-attachments"]);
+                                $tabDocs = array_map('trim',$tabDocs);// Enlève les espaces vides
+                                $tabDocs = array_filter($tabDocs);// Supprime les éléments vides (= lignes vides) non
+        
+                                $nbDocs = count($tabDocs);
+        
+                                if( $nbDocs >= 1) {
+                                    foreach($tabDocs as $urlDocs) {
+                                        $urlDocs = str_replace($upload_dir['baseurl'], $upload_dir['basedir'], $urlDocs);
+                                        $nameFile = basename($urlDocs);
+                                        $zip->addFile($urlDocs, $nameFile);
+                                    }
+                                }
+                            }
+
+                            $zip->close();
                         }
-                    }
-                }
+                        
+                        $components['attachments'][] = $createDirectory.'/'.$nameOfPdf.'-'.$_SESSION['pdf_uniqueid'].'.zip';
+                        //error_log('ZIP : '.$createDirectory.'/'.$nameOfPdf.'-'.$_SESSION['pdf_uniqueid'].'.zip');
 
-            }
-            if ( 'mail_2' == $mail->name() ) {
+                    } else {
 
-                // do something for 'Mail (2)'
-                // Send PDF
-                if( isset($meta_values["disable-pdf"]) && $meta_values['disable-pdf'] == 'false' ) {
-                    if( isset($meta_values["send-attachment"]) && ($meta_values["send-attachment"] == 'recipient' OR $meta_values["send-attachment"] == 'both') ) {
-                        $components['attachments'][] = $createDirectory.'/'.$nameOfPdf.'.pdf';
-                        $components['attachments'][] = $createDirectory.'/'.$nameOfPdf.'.zip';
-                    }
-                }
-
-                // SEND CSV
-                if( isset($meta_values["disable-csv"]) && $meta_values['disable-csv'] == 'false' ) {
-                    if( isset($meta_values["send-attachment2"]) && ($meta_values["send-attachment2"] == 'recipient' OR $meta_values["send-attachment2"] == 'both') ) {
-                        $components['attachments'][] = $createDirectory.'/'.$nameOfPdf.'.csv';
-                    }
-                }
-
-                 //SEND OTHER
-                if( isset($meta_values["pdf-files-attachments"]) ) {
-                    if( isset($meta_values["send-attachment3"]) && ($meta_values["send-attachment3"] == 'recipient' OR $meta_values["send-attachment3"] == 'both') ) {
-
-                        $tabDocs2 = explode("\n", $meta_values["pdf-files-attachments"]);
-                        $tabDocs2 = array_map('trim',$tabDocs2);// Enlève les espaces vides
-                        $tabDocs2 = array_filter($tabDocs2);// Supprime les éléments vides (= lignes vides) non
-
-                        $nbDocs2 = count($tabDocs2);
-                        if( $nbDocs2 >= 1) {
-                            foreach($tabDocs2 as $urlDocs2) {
-                                $urlDocs2 = str_replace($upload_dir['baseurl'], $upload_dir['basedir'], $urlDocs2);
-                                $components['attachments'][] = $urlDocs2;
+                        // Send PDF
+                        if( isset($meta_values["disable-pdf"]) && $meta_values['disable-pdf'] == 'false' ) {
+                            if( isset($meta_values["send-attachment"]) && ($meta_values["send-attachment"] == 'sender' OR $meta_values["send-attachment"] == 'both') ) {
+                                $components['attachments'][] = $createDirectory.'/'.$nameOfPdf.'.pdf';
                             }
                         }
 
-                    }
-                }
+                        // SEND CSV
+                        if( isset($meta_values["disable-csv"]) && $meta_values['disable-csv'] == 'false' ) {
+                            if( isset($meta_values["send-attachment2"]) && ($meta_values["send-attachment2"] == 'sender' OR $meta_values["send-attachment2"] == 'both') ) {
+                                $components['attachments'][] = $createDirectory.'/'.$nameOfPdf.'.csv';
+                            }
+                        }
+                    
+                        //SEND OTHER
+                        if( isset($meta_values["pdf-files-attachments"]) ) {
+                            if( isset($meta_values["send-attachment3"]) && ($meta_values["send-attachment3"] == 'sender' OR $meta_values["send-attachment3"] == 'both') ) {
 
-            }
+                                $tabDocs = explode("\n", $meta_values["pdf-files-attachments"]);
+                                $tabDocs = array_map('trim',$tabDocs);// Enlève les espaces vides
+                                $tabDocs = array_filter($tabDocs);// Supprime les éléments vides (= lignes vides) non
+
+                                $nbDocs = count($tabDocs);
+
+                                if( $nbDocs >= 1) {
+                                    foreach($tabDocs as $urlDocs) {
+                                        $urlDocs = str_replace($upload_dir['baseurl'], $upload_dir['basedir'], $urlDocs);
+                                        $components['attachments'][] = $urlDocs;
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                }
+                if ( 'mail_2' == $mail->name() ) {
+
+                    // do something for 'Mail (2)'
+                    if( isset($meta_values["pdf-to-zip"]) && $meta_values["pdf-to-zip"] == 'true' ) {
+
+                        // Création du zip
+                        $zip = new ZipArchive(); 
+                        if($zip->open($createDirectory.'/'.$nameOfPdf.'-'.$_SESSION['pdf_uniqueid'].'.zip', ZipArchive::CREATE) === true) {
+
+                            // Ajout des fichiers.
+                            if( isset($meta_values["disable-pdf"]) && $meta_values['disable-pdf'] == 'false' ) {
+                                if( isset($meta_values["send-attachment"]) && ($meta_values["send-attachment"] == 'recipient' OR $meta_values["send-attachment"] == 'both') ) {
+                                    $zip->addFile($createDirectory.'/'.$nameOfPdf.'.pdf', $nameOfPdf.'.pdf');
+                                }
+                            }
+                            if( isset($meta_values["disable-csv"]) && $meta_values['disable-csv'] == 'false' ) {
+                                if( isset($meta_values["send-attachment2"]) && ($meta_values["send-attachment2"] == 'recipient' OR $meta_values["send-attachment2"] == 'both') ) {
+                                    $zip->addFile($createDirectory.'/'.$nameOfPdf.'.csv', $nameOfPdf.'.csv');
+                                }
+                            }
+                            if( isset($meta_values["send-attachment3"]) && ($meta_values["send-attachment3"] == 'recipient' OR $meta_values["send-attachment3"] == 'both') ) {
+
+                                $tabDocs = explode("\n", $meta_values["pdf-files-attachments"]);
+                                $tabDocs = array_map('trim',$tabDocs);// Enlève les espaces vides
+                                $tabDocs = array_filter($tabDocs);// Supprime les éléments vides (= lignes vides) non
+        
+                                $nbDocs = count($tabDocs);
+        
+                                if( $nbDocs >= 1) {
+                                    foreach($tabDocs as $urlDocs) {
+                                        $urlDocs = str_replace($upload_dir['baseurl'], $upload_dir['basedir'], $urlDocs);
+                                        $nameFile = basename($urlDocs);
+                                        $zip->addFile($urlDocs, $nameFile);
+                                    }
+                                }
+                            }
+
+                            $zip->close();
+                        }
+                        
+                        $components['attachments'][] = $createDirectory.'/'.$nameOfPdf.'-'.$_SESSION['pdf_uniqueid'].'.zip';
+
+                    } else {
+
+                        // Send PDF
+                        if( isset($meta_values["disable-pdf"]) && $meta_values['disable-pdf'] == 'false' ) {
+                            if( isset($meta_values["send-attachment"]) && ($meta_values["send-attachment"] == 'recipient' OR $meta_values["send-attachment"] == 'both') ) {
+                                $components['attachments'][] = $createDirectory.'/'.$nameOfPdf.'.pdf';
+                            }
+                        }
+
+                        // SEND CSV
+                        if( isset($meta_values["disable-csv"]) && $meta_values['disable-csv'] == 'false' ) {
+                            if( isset($meta_values["send-attachment2"]) && ($meta_values["send-attachment2"] == 'recipient' OR $meta_values["send-attachment2"] == 'both') ) {
+                                $components['attachments'][] = $createDirectory.'/'.$nameOfPdf.'.csv';
+                            }
+                        }
+                    
+                        //SEND OTHER
+                        if( isset($meta_values["pdf-files-attachments"]) ) {
+                            if( isset($meta_values["send-attachment3"]) && ($meta_values["send-attachment3"] == 'recipient' OR $meta_values["send-attachment3"] == 'both') ) {
+
+                                $tabDocs2 = explode("\n", $meta_values["pdf-files-attachments"]);
+                                $tabDocs2 = array_map('trim',$tabDocs2);// Enlève les espaces vides
+                                $tabDocs2 = array_filter($tabDocs2);// Supprime les éléments vides (= lignes vides) non
+
+                                $nbDocs2 = count($tabDocs2);
+                                if( $nbDocs2 >= 1) {
+                                    foreach($tabDocs2 as $urlDocs2) {
+                                        $urlDocs2 = str_replace($upload_dir['baseurl'], $upload_dir['basedir'], $urlDocs2);
+                                        $components['attachments'][] = $urlDocs2;
+                                    }
+                                }
+
+                            }
+                        }
+                    }
+
+                }
             } // Fin si la fonction envoi mail est activée
 
             // Je remplace les codes courts
@@ -959,6 +1025,9 @@ class cf7_sendpdf {
                 }
                 if( file_exists($createDirectory.'/'.$nameOfPdf.'-'.$_SESSION['pdf_uniqueid'].'.pdf') ) {
                     unlink($createDirectory.'/'.$nameOfPdf.'-'.$_SESSION['pdf_uniqueid'].'.pdf');
+                }
+                if( file_exists($createDirectory.'/'.$nameOfPdf.'-'.$_SESSION['pdf_uniqueid'].'.zip') ) {
+                    unlink($createDirectory.'/'.$nameOfPdf.'-'.$_SESSION['pdf_uniqueid'].'.zip');
                 }
                 if( !empty($cf7_file_field_name) ) {
 
