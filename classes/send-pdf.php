@@ -311,6 +311,7 @@ class cf7_sendpdf {
         }
 
     }
+
     function wpcf7pdf_name_pdf($id) {
 
         global $post;
@@ -783,7 +784,6 @@ class cf7_sendpdf {
                         // Création du zip
                         $zip = new ZipArchive(); 
                         if($zip->open($createDirectory.'/'.$nameOfPdf.'-'.$_SESSION['pdf_uniqueid'].'.zip', ZipArchive::CREATE) === true) {
-
                             // Ajout des fichiers.
                             if( isset($meta_values["disable-pdf"]) && $meta_values['disable-pdf'] == 'false' ) {
                                 if( isset($meta_values["send-attachment"]) && ($meta_values["send-attachment"] == 'sender' OR $meta_values["send-attachment"] == 'both') ) {
@@ -811,7 +811,6 @@ class cf7_sendpdf {
                                     }
                                 }
                             }
-
                             $zip->close();
                         }
                         
@@ -862,7 +861,7 @@ class cf7_sendpdf {
 
                         // Création du zip
                         $zip = new ZipArchive(); 
-                        if($zip->open($createDirectory.'/'.$nameOfPdf.'-'.$_SESSION['pdf_uniqueid'].'.zip', ZipArchive::CREATE) === true) {
+                        if($zip->open($createDirectory.'/'.$nameOfPdf.'-2'.$_SESSION['pdf_uniqueid'].'.zip', ZipArchive::CREATE) === true) {
 
                             // Ajout des fichiers.
                             if( isset($meta_values["disable-pdf"]) && $meta_values['disable-pdf'] == 'false' ) {
@@ -891,7 +890,6 @@ class cf7_sendpdf {
                                     }
                                 }
                             }
-
                             $zip->close();
                         }
                         
