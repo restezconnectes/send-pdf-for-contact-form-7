@@ -64,6 +64,19 @@ class cf7_sendpdf {
         }
     }
 
+    /**
+     * Listing last PDF
+     */
+    function wpcf7pdf_listing($id, $limit = 10 ) {
+        
+        global $wpdb;
+        $result = $wpdb->get_results( $wpdb->prepare("SELECT wpcf7pdf_id, wpcf7pdf_id_form, wpcf7pdf_reference, wpcf7pdf_data, wpcf7pdf_files, wpcf7pdf_files2 FROM ". $wpdb->prefix. "wpcf7pdf_files WHERE wpcf7pdf_id_form = %d ORDER BY wpcf7pdf_id DESC LIMIT %d", $id,  $limit), 'OBJECT' );
+        if($result) {
+            return $result;
+        } 
+        
+    }
+    
      /**
      * Process a settings export that generates a .json file of the erident settings
      */
@@ -562,7 +575,7 @@ class cf7_sendpdf {
                 $text = str_replace('[date]', $dateField, $text);
                 $text = str_replace('[time]', $timeField, $text);
 
-                $csvTab = array($_SESSION['pdf_uniqueid']);
+                $csvTab = array($_SESSION['pdf_uniqueid'], $dateField.' '.$timeField);
                 /* Prepare les valeurs dans tableau CSV */
                 foreach($meta_tags as $ntags => $vtags) {
                     $returnValue = wpcf7_mail_replace_tags($vtags);

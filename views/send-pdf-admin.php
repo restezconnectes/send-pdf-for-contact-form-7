@@ -56,7 +56,21 @@ if( isset($_POST['idform']) && isset($_POST['truncate_table']) && $_POST['trunca
         echo '<div id="message" class="updated fade"><p><strong>'.__('All the data has been deleted.', 'send-pdf-for-contact-form-7').'</strong></p></div>';
     }
 }
+if( (isset($_POST['wpcf7_action']) && isset($_POST['idform']) && $_POST['wpcf7_action'] == 'listing_settings') ) {
 
+    if( ! wp_verify_nonce( $_POST['wpcf7_listing_nonce'], 'wpcf7_listing_nonce' ) )
+        return;
+
+    if( ! current_user_can( 'manage_options' ) )
+        return;
+
+    if( empty($_POST['listing_limit']) )
+    return;
+
+    update_post_meta( intval($_POST['idform']), '_wp_cf7pdf_limit', $_POST['listing_limit'] );
+
+    echo '<div id="message" class="updated fade"><p><strong>' . __('Limit updatting successfully!', 'send-pdf-for-contact-form-7') . '</strong></p></div>';
+}
 ?>
 <script type="text/javascript">
 jQuery.fn.selectText = function () {
@@ -1013,19 +1027,6 @@ $pathFolder = serialize($createDirectory);
     </div>
     <div class="clear">&nbsp;</div>
 
-    <?php if( isset($meta_values["disable-insert"]) && $meta_values["disable-insert"]=="false") { ?>
-    <table width="100%">
-        <tbody>
-            <tr>
-                <td width="50%">
-                     <div>
-                        <span class="dashicons dashicons-download"></span> <a href="<?php echo wp_nonce_url( admin_url('admin.php?page=wpcf7-send-pdf&amp;idform='.intval($_POST['idform']).'&amp;csv=1'), 'go_generate', 'csv_security'); ?>" alt="<?php _e('Export list', 'send-pdf-for-contact-form-7'); ?>" title="<?php _e('Export list', 'send-pdf-for-contact-form-7'); ?>"><?php _e('Export list in CSV file', 'send-pdf-for-contact-form-7'); ?></a>
-                    </div>
-            </tr>
-        </tbody>
-    </table>
-    <?php } ?>
-
     <ul>
         <li>
             <p>
@@ -1034,8 +1035,68 @@ $pathFolder = serialize($createDirectory);
         </li>
     </ul>
 
+
 </form>
+<?php if( isset($meta_values["disable-insert"]) && $meta_values["disable-insert"]=="false") { ?>
 <div class="clear" style="margin-bottom:15px;">&nbsp;</div>
+<div class="postbox">
+
+    <div class="handlediv" title="<?php _e('Click to toggle', 'send-pdf-for-contact-form-7'); ?>"><br></div>
+    <h3 class="hndle"><span class="dashicons dashicons-list-view"></span>&nbsp;&nbsp;<?php _e( 'Last records', 'send-pdf-for-contact-form-7' ); ?></h3>
+    <div class="inside">
+<a name="listing"></a>
+         <div style="padding:5px;margin-bottom:10px;">
+             <div>
+                <form method="post" action="#listing">
+                    <?php 
+                        $limitList = 15;
+                        $settingsLimit = get_post_meta( intval($idForm), '_wp_cf7pdf_limit', true );
+                        if( isset($settingsLimit) && $settingsLimit > 0 ) { $limitList = $settingsLimit; }
+                     ?>
+                    <?php wp_nonce_field( 'wpcf7_listing_nonce', 'wpcf7_listing_nonce' ); ?>
+                    <input type="hidden" name="idform" value="<?php echo $idForm; ?>"/>
+                    <input type="hidden" name="wpcf7_action" value="listing_settings" />
+                    <input type="text" value="<?php echo $limitList; ?>" size="4" name="listing_limit" > <?php submit_button( __( 'Change', 'send-pdf-for-contact-form-7' ), 'secondary', 'submit', false ); ?>
+                 </form>
+             </div>
+            <?php 
+                $list = cf7_sendpdf::wpcf7pdf_listing($idForm, $limitList );
+                //var_dump($list);
+                if( $list) {
+                    
+                    echo '<table>';
+                    echo '<th>&nbsp;</th><th>&nbsp;</th>';
+
+                    foreach($list as $recorder) {
+                        echo '<tr>';
+                        $datas = unserialize($recorder->wpcf7pdf_data);
+                        echo '<td width="50%">';
+                        //var_dump($datas);
+                        echo '<a href="'.$recorder->wpcf7pdf_files.'" target="_blank">'.$datas[0] .'</a> - '. $datas[1];
+                        
+                        echo '</td>';
+                        echo '<td width="5%"><a href="'.$recorder->wpcf7pdf_files.'" target="_blank">'.__( 'Download', 'send-pdf-for-contact-form-7' ).'</a></td>';
+                        echo '<tr>';
+                    }
+
+                echo '</table>';
+                }
+            ?>
+        </div>
+        <table width="100%">
+            <tbody>
+                <tr>
+                    <td width="5%">
+                         <div>
+                            <span class="dashicons dashicons-download"></span> <a href="<?php echo wp_nonce_url( admin_url('admin.php?page=wpcf7-send-pdf&amp;idform='.intval($_POST['idform']).'&amp;csv=1'), 'go_generate', 'csv_security'); ?>" alt="<?php _e('Export list', 'send-pdf-for-contact-form-7'); ?>" title="<?php _e('Export list', 'send-pdf-for-contact-form-7'); ?>"><?php _e('Export list in CSV file', 'send-pdf-for-contact-form-7'); ?></a>
+                        </div>
+                </tr>
+            </tbody>
+        </table>
+</div>
+</div>
+<?php } ?>
+    
 <div class="postbox">
    <div class="handlediv" title="<?php _e('Click to toggle', 'send-pdf-for-contact-form-7'); ?>"><br></div>
     <h3 class="hndle" title="<?php _e('Click to toggle', 'send-pdf-for-contact-form-7'); ?>"><span class="dashicons dashicons-download"></span> <?php _e( 'Export Settings', 'send-pdf-for-contact-form-7' ); ?></h3>
@@ -1071,6 +1132,7 @@ $pathFolder = serialize($createDirectory);
       </form>
     </div>
 </div>
+    
 <script>
     var mixedMode = {
         name: "htmlmixed",
