@@ -69,7 +69,7 @@ if( (isset($_POST['wpcf7_action']) && isset($_POST['idform']) && $_POST['wpcf7_a
 
     update_post_meta( intval($_POST['idform']), '_wp_cf7pdf_limit', $_POST['listing_limit'] );
 
-    echo '<div id="message" class="updated fade"><p><strong>' . __('Limit updatting successfully!', 'send-pdf-for-contact-form-7') . '</strong></p></div>';
+    echo '<div id="message" class="updated fade"><p><strong>' . __('Limit updating successfully!', 'send-pdf-for-contact-form-7') . '</strong></p></div>';
 }
 ?>
 <script type="text/javascript">
