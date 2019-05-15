@@ -1044,26 +1044,31 @@ $pathFolder = serialize($createDirectory);
     <div class="handlediv" title="<?php _e('Click to toggle', 'send-pdf-for-contact-form-7'); ?>"><br></div>
     <h3 class="hndle"><span class="dashicons dashicons-list-view"></span>&nbsp;&nbsp;<?php _e( 'Last records', 'send-pdf-for-contact-form-7' ); ?></h3>
     <div class="inside">
-<a name="listing"></a>
-         <div style="padding:5px;margin-bottom:10px;">
-             <div>
+        <a name="listing"></a>
+            <?php
+            $limitList = 15;
+            $settingsLimit = get_post_meta( intval($idForm), '_wp_cf7pdf_limit', true );
+            if( isset($settingsLimit) && $settingsLimit > 0 ) { $limitList = $settingsLimit; }
+                                                                                             
+            $list = cf7_sendpdf::wpcf7pdf_listing($idForm, $limitList );
+            //var_dump($list);
+            if( $list) {
+            ?>
+            <div style="padding:5px;margin-bottom:10px;">
+            <div>
                 <form method="post" action="#listing">
-                    <?php 
-                        $limitList = 15;
-                        $settingsLimit = get_post_meta( intval($idForm), '_wp_cf7pdf_limit', true );
-                        if( isset($settingsLimit) && $settingsLimit > 0 ) { $limitList = $settingsLimit; }
-                     ?>
+
                     <?php wp_nonce_field( 'wpcf7_listing_nonce', 'wpcf7_listing_nonce' ); ?>
                     <input type="hidden" name="idform" value="<?php echo $idForm; ?>"/>
                     <input type="hidden" name="wpcf7_action" value="listing_settings" />
                     <input type="text" value="<?php echo $limitList; ?>" size="4" name="listing_limit" > <?php submit_button( __( 'Change', 'send-pdf-for-contact-form-7' ), 'secondary', 'submit', false ); ?>
                  </form>
-             </div>
+            </div>
             <?php 
-                $list = cf7_sendpdf::wpcf7pdf_listing($idForm, $limitList );
-                //var_dump($list);
-                if( $list) {
-                    
+                
+            ?>
+            
+            <?php    
                     echo '<table>';
                     echo '<th>&nbsp;</th><th>&nbsp;</th>';
 
@@ -1080,7 +1085,7 @@ $pathFolder = serialize($createDirectory);
                     }
 
                 echo '</table>';
-                }
+                
             ?>
         </div>
         <table width="100%">
@@ -1092,7 +1097,7 @@ $pathFolder = serialize($createDirectory);
                         </div>
                 </tr>
             </tbody>
-        </table>
+        </table><?php } else { echo 'Data not found!'; } ?>
 </div>
 </div>
 <?php } ?>
