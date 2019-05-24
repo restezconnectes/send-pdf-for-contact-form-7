@@ -504,12 +504,12 @@ class cf7_sendpdf {
                                 $caseChecked = '';
                                 $valueTag = wpcf7_mail_replace_tags('['.$sh_tag["name"].']');
                                 if( $val == $valueTag ) {
-                                    $caseChecked = 'checked';
+                                    $caseChecked = 'checked="checked"';
                                 }
                                 if( in_array('label_first', $tagOptions) ) {
                                     $inputCheckbox .= ''.$val.' <input type="checkbox" class="wpcf7-checkbox" name="'.$sh_tag["name"].$i.'" value="'.$i.'" '.$caseChecked.' /> ';
                                 } else {
-                                    $inputCheckbox .= '<input type="checkbox" class="wpcf7-checkbox" name="'.$sh_tag["name"].$i.'" value="'.$i.'" '.$caseChecked.' /> '.$val.' ';
+                                    $inputCheckbox .= '<input type="checkbox" class="wpcf7-checkbox" name="'.$sh_tag["name"].$i.'" value="'.$i.'" '.$caseChecked.' /> '.$val.'';
                                 }
                                 $i++;
                             }

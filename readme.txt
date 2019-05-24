@@ -3,8 +3,8 @@ Contributors: Florent73
 Donate link: https://www.paypal.me/RestezConnectes/
 Tags: WordPress, plugin, contact form, pdf, send, attachment, form, cf7
 Requires at least: 3.0
-Tested up to: 5.1
-Stable tag: 0.7.4
+Tested up to: 5.2
+Stable tag: 0.7.5
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -48,6 +48,9 @@ Yes. Thank you for submitting your changes to update the plugin.
 
 
 == Changelog ==
+
+= 0.7.5 =
+* Fixed bug checkbox
 
 = 0.7.4 =
 * Add list of PDF for admin download

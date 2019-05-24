@@ -204,10 +204,15 @@ jQuery(document).ready(function() {
             }
             require WPCF7PDF_DIR . 'mpdf/vendor/autoload.php';
             //$mpdf=new \Mpdf\Mpdf();
+            $marginHeader = 10;
+            $marginTop = 40;
+            if( isset($meta_values["margin_header"]) && $meta_values["margin_header"]!='' ) { $marginHeader = $meta_values["margin_header"]; }
+            if( isset($meta_values["margin_top"]) && $meta_values["margin_top"]!='' ) { $marginTop = $meta_values["margin_top"]; }
+
             if( isset($meta_values['fillable_data']) && $meta_values['fillable_data']== 'true') {
-                $mpdf = new \Mpdf\Mpdf(['mode' => 'c', 'format' => $formatPdf, 'margin_header' => 10,'margin_top' => 40,]);
+                $mpdf = new \Mpdf\Mpdf(['mode' => 'c', 'format' => $formatPdf, 'margin_header' => $marginHeader,'margin_top' => $marginTop,]);
             } else {
-                $mpdf = new \Mpdf\Mpdf(['mode' => 'utf-8', 'format' => $formatPdf, 'margin_header' => 10,'margin_top' => 40,]);
+                $mpdf = new \Mpdf\Mpdf(['mode' => 'utf-8', 'format' => $formatPdf, 'margin_header' => $marginHeader,'margin_top' => $marginTop,]);
             }
             //var_dump($meta_values);
             ///exit();
@@ -838,6 +843,8 @@ $pathFolder = serialize($createDirectory);
                                 <input class="switch_right" type="radio" id="switch_page_header_no" name="wp_cf7pdf_settings[page_header]" value="0" <?php if( empty($meta_values["page_header"]) || (isset($meta_values["page_header"]) && $meta_values["page_header"]==0) ) { echo ' checked'; } ?> />
                                 <label for="switch_page_header_no"><?php _e('No', 'send-pdf-for-contact-form-7'); ?></label>
                             </div>
+                            <?php _e('Margin Header', 'send-pdf-for-contact-form-7'); ?> <input type="text" size="4" class="wpcf7-form-field" name="wp_cf7pdf_settings[margin_header]" value="<?php if( isset($meta_values["margin_header"]) && $meta_values["margin_header"]!='' ) { echo stripslashes($meta_values["margin_header"]); } else { echo $marginHeader; } ?>" /> <?php _e('Margin Top Header', 'send-pdf-for-contact-form-7'); ?> <input type="text" class="wpcf7-form-field" size="4" name="wp_cf7pdf_settings[margin_top]" value="<?php if( isset($meta_values["margin_top"]) && $meta_values["margin_top"]!='' ) { echo stripslashes($meta_values["margin_top"]); } else { echo $marginTop; } ?>" />
+                            
                     </div>
 
                         </div>

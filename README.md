@@ -1,6 +1,6 @@
 # Send PDF for Contact Form 7
 
-VERSION 0.7.4
+VERSION 0.7.5
 
 This plugin adds conditional logic to <a href="https://wordpress.org/plugins/contact-form-7/">[Contact Form 7]</a>.
 
