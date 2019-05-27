@@ -261,7 +261,7 @@ jQuery(document).ready(function() {
                 if( empty($meta_values['image-height']) ) { $imgHeight = $height; } else { $imgHeight = $meta_values['image-height'];  }
 
                 $attribut = 'width='.$imgWidth.' height="'.$imgHeight.'"';
-                $entetePage = '<div style="text-align:'.$imgAlign.'"><img src="'.esc_url($meta_values["image"]).'" '.$attribut.' /></div>';
+                $entetePage = '<div style="text-align:'.$imgAlign.';"><img src="'.esc_url($meta_values["image"]).'" '.$attribut.' /></div>';
             }
             //$mpdf->WriteHTML($entetePage);
             $mpdf->SetHTMLHeader($entetePage);
@@ -843,21 +843,30 @@ $pathFolder = serialize($createDirectory);
                                 <input class="switch_right" type="radio" id="switch_page_header_no" name="wp_cf7pdf_settings[page_header]" value="0" <?php if( empty($meta_values["page_header"]) || (isset($meta_values["page_header"]) && $meta_values["page_header"]==0) ) { echo ' checked'; } ?> />
                                 <label for="switch_page_header_no"><?php _e('No', 'send-pdf-for-contact-form-7'); ?></label>
                             </div>
-                            <?php _e('Margin Header', 'send-pdf-for-contact-form-7'); ?> <input type="text" size="4" class="wpcf7-form-field" name="wp_cf7pdf_settings[margin_header]" value="<?php if( isset($meta_values["margin_header"]) && $meta_values["margin_header"]!='' ) { echo stripslashes($meta_values["margin_header"]); } else { echo $marginHeader; } ?>" /> <?php _e('Margin Top Header', 'send-pdf-for-contact-form-7'); ?> <input type="text" class="wpcf7-form-field" size="4" name="wp_cf7pdf_settings[margin_top]" value="<?php if( isset($meta_values["margin_top"]) && $meta_values["margin_top"]!='' ) { echo stripslashes($meta_values["margin_top"]); } else { echo $marginTop; } ?>" />
+                            <?php _e('Margin Header', 'send-pdf-for-contact-form-7'); ?> <input type="text" size="4" class="wpcf7-form-field" name="wp_cf7pdf_settings[margin_header]" value="<?php if( isset($meta_values["margin_header"]) && $meta_values["margin_header"]!='' ) { echo $meta_values["margin_header"]; } else { echo $marginHeader; } ?>" /> <?php _e('Margin Top Header', 'send-pdf-for-contact-form-7'); ?> <input type="text" class="wpcf7-form-field" size="4" name="wp_cf7pdf_settings[margin_top]" value="<?php if( isset($meta_values["margin_top"]) && $meta_values["margin_top"]!='' ) { echo $meta_values["margin_top"]; } else { echo $marginTop; } ?>" />
                             
                     </div>
 
                         </div>
                     </td>
                     <td align="center">
-                        <?php if( isset($meta_values['image']) ) { echo '<img src="'.esc_url($meta_values['image']).'" width="150">'; } ?><br />
-                        <?php
-                            if( !empty($meta_values["image"]) && ini_get('allow_url_fopen')==1 ) {
-                                $image_path = str_replace(get_bloginfo('url'), ABSPATH, $meta_values['image']);
-                                list($width, $height, $type, $attr) = getimagesize($image_path);
-                                echo '<i>('.__('Original size is', 'send-pdf-for-contact-form-7').' '.$width.'px X '.$height.'px)</i>';
-                            }
-                        ?>
+                        <div style="border:1px solid #CCCCCC;height:100%;padding:5px;">
+                            <div style="text-align:<?php if( isset($meta_values['image-alignment']) ) { echo $meta_values['image-alignment']; } ?>;margin-top:<?php if( isset($meta_values["margin_header"]) && $meta_values["margin_header"]!='' ) { echo $meta_values["margin_header"]; } else { echo $marginHeader; } ?>px;"><?php if( isset($meta_values['image']) ) { echo '<img src="'.esc_url($meta_values['image']).'" width="150">'; } ?>
+                            </div>
+                            <?php
+                                
+                                if( isset($meta_values["margin_top"]) && $meta_values["margin_top"]!='' ) { 
+                                    $previewMargin = $meta_values["margin_top"];
+                                    if($meta_values["margin_top"]<40) { $previewMargin = ($previewMargin-40); }
+                                    if($meta_values["margin_top"]==0) { $previewMargin = -60; }
+                                } else { 
+                                    echo $previewMargin = $marginTop; 
+                                }
+                            ?>
+                            <div style="color:#cccccc;text-align:justify;margin-top:<?php echo $previewMargin; ?>px;">
+                            Ideo urbs venerabilis post superbas efferatarum gentium cervices oppressas latasque leges fundamenta libertatis et retinacula sempiterna velut frugi parens et prudens et dives Caesaribus tamquam liberis suis regenda patrimonii iura permisit.<br /><br />Illud tamen clausos vehementer angebat quod captis navigiis, quae frumenta vehebant per flumen, Isauri quidem alimentorum copiis adfluebant, ipsi vero solitarum rerum cibos iam consumendo inediae propinquantis aerumnas exitialis horrebant.
+                            </div>
+                        </div>
                     </td>
                 </tr>
                 <tr>
