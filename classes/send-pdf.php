@@ -724,7 +724,7 @@ class cf7_sendpdf {
 
                     if( isset($meta_fields) ) {
 
-                        $entete = array("reference");
+                        $entete = array("reference", "date");
 
                         foreach($meta_fields as $field) {
 
