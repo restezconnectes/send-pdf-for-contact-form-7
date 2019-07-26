@@ -51,6 +51,7 @@ Yes. Thank you for submitting your changes to update the plugin.
 
 = 0.7.5 =
 * Fixed bug checkbox
+* Fixed bug CSV
 
 = 0.7.4 =
 * Add list of PDF for admin download
