@@ -860,7 +860,7 @@ $pathFolder = serialize($createDirectory);
                                     if($meta_values["margin_top"]<40) { $previewMargin = ($previewMargin-40); }
                                     if($meta_values["margin_top"]==0) { $previewMargin = -60; }
                                 } else { 
-                                    echo $previewMargin = $marginTop; 
+                                    $previewMargin = $marginTop; 
                                 }
                             ?>
                             <div style="color:#cccccc;text-align:justify;margin-top:<?php echo $previewMargin; ?>px;">
