@@ -1141,7 +1141,7 @@ class cf7_sendpdf {
         if( isset($meta_fields) ) {
 
             $csv_output = '';
-            $entete = array("download", "reference");
+            $entete = array("download", "reference", "date");
             $lignes = array();
             $pdfFormList = cf7_sendpdf::get_list( intval($idform) );
 
