@@ -202,6 +202,17 @@ jQuery(document).ready(function() {
             } else {
                 $formatPdf = 'A4-P';
             }
+            if( isset($meta_values['pdf-font'])  ) {
+                $fontPdf = $meta_values['pdf-font'];
+            } else {
+                $fontPdf = 'dejavusanscondensed';
+            }
+            if( isset($meta_values['pdf-fontsize']) && is_numeric($meta_values['pdf-fontsize']) ) {
+                $fontsizePdf = $meta_values['pdf-fontsize'];
+            } else {
+                $fontsizePdf = 9;
+            }
+            
             require WPCF7PDF_DIR . 'mpdf/vendor/autoload.php';
             //$mpdf=new \Mpdf\Mpdf();
             $marginHeader = 10;
@@ -210,9 +221,9 @@ jQuery(document).ready(function() {
             if( isset($meta_values["margin_top"]) && $meta_values["margin_top"]!='' ) { $marginTop = $meta_values["margin_top"]; }
 
             if( isset($meta_values['fillable_data']) && $meta_values['fillable_data']== 'true') {
-                $mpdf = new \Mpdf\Mpdf(['mode' => 'c', 'format' => $formatPdf, 'margin_header' => $marginHeader,'margin_top' => $marginTop,]);
+                $mpdf = new \Mpdf\Mpdf(['mode' => 'c', 'format' => $formatPdf, 'margin_header' => $marginHeader,'margin_top' => $marginTop, 'default_font' => $fontPdf, 'default_font_size' => $fontsizePdf,]);
             } else {
-                $mpdf = new \Mpdf\Mpdf(['mode' => 'utf-8', 'format' => $formatPdf, 'margin_header' => $marginHeader,'margin_top' => $marginTop,]);
+                $mpdf = new \Mpdf\Mpdf(['mode' => 'utf-8', 'format' => $formatPdf, 'margin_header' => $marginHeader,'margin_top' => $marginTop, 'default_font' => $fontPdf, 'default_font_size' => $fontsizePdf,]);
             }
             //var_dump($meta_values);
             ///exit();
@@ -943,6 +954,24 @@ $pathFolder = serialize($createDirectory);
                                 <option value="-P" <?php if( (isset($meta_values['pdf-orientation']) && ($meta_values['pdf-orientation']=='-P')) OR empty($meta_values['pdf-orientation']) ) { echo 'selected'; } ?>><?php _e('Portrait', 'send-pdf-for-contact-form-7'); ?></option>
                                 <option value="-L" <?php if( isset($meta_values['pdf-orientation']) && ($meta_values['pdf-orientation']=='-L') ) { echo 'selected'; } ?>><?php _e('Landscape', 'send-pdf-for-contact-form-7'); ?></option>
                             </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><?php _e('Font Family & Size', 'send-pdf-for-contact-form-7'); ?></td>
+                        <td>
+                            <select name="wp_cf7pdf_settings[pdf-font]" class="wpcf7-form-field">
+                                <?php 
+                                    
+                                    $listFont = cf7_sendpdf::wpcf7pdf_getFontsTab();
+        
+                                    foreach($listFont as $font => $nameFont) {
+                                        $selected ='';
+                                        if( isset($meta_values['pdf-font']) && $meta_values['pdf-font']==$nameFont ) { $selected = 'selected'; }
+                                        echo '<option value="'.$nameFont.'" '.$selected.'>'.$font.'</option>';
+                                    }
+                                ?>
+                            </select>
+                            <input name="wp_cf7pdf_settings[pdf-fontsize]" class="wpcf7-form-field" size="2" value="<?php if( isset($meta_values['pdf-fontsize']) && is_numeric($meta_values['pdf-fontsize']) ) { echo $meta_values['pdf-fontsize']; } else { echo $fontsizePdf; } ?>">
                         </td>
                     </tr>
                     <tr>

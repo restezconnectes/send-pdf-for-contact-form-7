@@ -1129,6 +1129,48 @@ class cf7_sendpdf {
         return md5(time());
     }
     
+    function wpcf7pdf_getFontsTab() {
+    
+        return array(
+            'DejaVuSans' => 'dejavusans',
+            'DejaVuSansCondensed' => 'dejavusanscondensed',
+            'DejaVuSerif' => 'dejavuserif',
+            'DejaVuSerifCondensed' => 'dejavuserifcondensed',
+            'DejaVuSansMono' => 'dejavusansmono',
+            'FreeSans' => 'freesans',
+            'FreeSerif' => 'freeserif',
+            'FreeMono' => 'freemono',
+            'Quivira' => 'quivira',
+            'Abyssinica SIL (Ethiopic)' => 'abyssinicasil',
+            'XBRiyaz' => 'xbriyaz',
+            'Taamey David CLM' => 'taameydavidclm',
+            'Estrangelo Edessa (Syriac)' => 'estrangeloedessa',
+            'Aegean' => 'aegean',
+            'Jomolhari (Tibetan)' => 'jomolhari',
+            'Kaputaunicode (Sinhala)' => 'kaputaunicode',
+            'Pothana2000' => 'pothana2000',
+            'Lateef' => 'lateef',
+            'Khmeros' => 'khmeros',
+            'Dhyana' => 'dhyana',
+            'Tharlon' => 'tharlon',
+            'Padauk Book' => 'padaukbook',
+            'Ayar fonts' => 'ayar',
+            'ZawgyiOne' => 'zawgyi-one',
+            'Garuda (Thai)' => 'garuda',
+            'Sundanese Unicode (Sundanese)' => 'sundaneseunicode',
+            'Tai Heritage Pro (Tai Viet)' => 'taiheritagepro',
+            'Sun-ExtA' => 'sun-exta',
+            'Sun-ExtB' => 'sun-extb',
+            'Unbatang' => 'unbatang',
+            'Aboriginal Sans (Cherokee and Canadian)' => 'aboriginalsans',
+            'MPH 2B Damase' => '',
+            'Aegyptus' => 'aegyptus',
+            'Eeyek Unicode (Meetei Mayek)' => 'eeyekunicode',
+            'Lannaalif (Tai Tham)' => 'lannaalif',
+            'Daibanna SIL Book (New Tai Lue)' => 'daibannasilbook'
+        );
+    }
+    
     function wpcf7_export_csv($idform) {
 
         $meta_fields = get_post_meta( intval($idform), '_wp_cf7pdf_fields', true );
