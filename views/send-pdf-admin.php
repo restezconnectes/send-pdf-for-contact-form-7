@@ -1115,18 +1115,20 @@ $pathFolder = serialize($createDirectory);
             
             <?php    
                     echo '<table>';
-                    echo '<th>&nbsp;</th><th>&nbsp;</th>';
+                    echo '<th>&nbsp;</th><th>&nbsp;</th><th>&nbsp;</th>';
 
                     foreach($list as $recorder) {
-                        echo '<tr>';
+                        echo '<tr width="100%">';
                         $datas = unserialize($recorder->wpcf7pdf_data);
-                        echo '<td width="50%">';
+                        echo '<td width="80%">';
                         //var_dump($datas);
                         echo '<a href="'.$recorder->wpcf7pdf_files.'" target="_blank">'.$datas[0] .'</a> - '. $datas[1];
                         
                         echo '</td>';
-                        echo '<td width="5%"><a href="'.$recorder->wpcf7pdf_files.'" target="_blank">'.__( 'Download', 'send-pdf-for-contact-form-7' ).'</a></td>';
-                        echo '<tr>';
+                        echo '<td width="5%"><a href="'.$recorder->wpcf7pdf_files.'" target="_blank"><img src="'.plugins_url('send-pdf-for-contact-form-7/images/icon_download.png').'" width="30" title="'.__('Download', 'send-pdf-for-contact-form-7').'" alt="'.__('Download', 'send-pdf-for-contact-form-7').'" /></a></td>';                        
+               ?><td width="5%"><a href="#" data-id="<?php echo $recorder->wpcf7pdf_id; ?>" data-message="<?php _e('Are you sure you want to delete this Record?', 'send-pdf-for-contact-form-7'); ?>" data-nonce="<?php echo wp_create_nonce('delete_record-'.$recorder->wpcf7pdf_id); ?>" class="delete-record"><img src="<?php echo plugins_url('send-pdf-for-contact-form-7/images/icon_delete.png'); ?>" width="30" title="<?php _e('Delete', 'send-pdf-for-contact-form-7'); ?>" alt="<?php _e('Delete', 'send-pdf-for-contact-form-7'); ?>" /></a>
+                <?php
+                        echo '</td><tr>';
                     }
 
                 echo '</table>';
@@ -1142,7 +1144,7 @@ $pathFolder = serialize($createDirectory);
                         </div>
                 </tr>
             </tbody>
-        </table><?php } else { echo 'Data not found!'; } ?>
+        </table><?php } else { _e('Data not found!', 'send-pdf-for-contact-form-7'); } ?>
 </div>
 </div>
 <?php } ?>

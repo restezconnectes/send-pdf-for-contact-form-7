@@ -30,6 +30,10 @@ class cf7_sendpdf {
         add_action( 'admin_init', array( $this, 'wpcf7pdf_process_settings_export') );
         add_action( 'wpcf7_before_send_mail', array( $this, 'wpcf7pdf_send_pdf' ) );
         
+        // Use ajax
+        add_action( 'wp_ajax_wpcf7pdf_js_action', array( $this, 'wpcf7pdf_js_action' ) );
+        add_action( 'wp_ajax_nopriv_wpcf7pdf_js_action', array( $this, 'wpcf7pdf_js_action' ) );
+        
         add_action('wp_footer', array( $this, 'wpcf7_add_footer'), 90 );
         
         if( isset($_GET['csv']) && intval($_GET['csv']) && $_GET['csv']==1 && (isset($_GET['csv_security']) || wp_verify_nonce($_GET['csv_security'], 'go_generate')) ) {
@@ -62,6 +66,25 @@ class cf7_sendpdf {
 
             return $links;
         }
+    }
+    
+    function wpcf7pdf_js_action() {
+
+        global $wpdb;
+
+        $id = $_POST['element_id'];
+        $nonce = $_POST['nonce'];
+        var_dump($id.' --> '.$nonce);
+
+        if( wp_verify_nonce($nonce, 'delete_record-'.$id) ) {
+            // Supprime dans la table des promesses 'PREFIX_wpspo_promesse'
+            $resultOptions =  $wpdb->query( $wpdb->prepare("DELETE FROM ". $wpdb->prefix. "wpcf7pdf_files WHERE wpcf7pdf_id = %d LIMIT 1", $id), 'OBJECT' );
+            if($resultOptions) { echo 'success'; }
+        } else {
+            echo 'error js action';
+        }
+
+        die();
     }
 
     /**
@@ -227,6 +250,10 @@ class cf7_sendpdf {
 
             wp_enqueue_script('media-upload');
             wp_enqueue_script('thickbox');
+            
+            wp_enqueue_script( 'script', WPCF7PD_URL.'js/wpcf7pdf-action.js', array('jquery'), '1.0', true );
+            // pass Ajax Url to script.js
+            wp_localize_script('script', 'ajaxurl', admin_url( 'admin-ajax.php' ) );
 
             wp_register_script('wpcf7-my-upload', WPCF7PD_URL.'js/wpcf7pdf-script.js', array('jquery','media-upload','thickbox'));
             wp_enqueue_script('wpcf7-my-upload');
