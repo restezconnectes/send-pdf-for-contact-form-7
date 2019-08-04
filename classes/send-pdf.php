@@ -226,6 +226,18 @@ class cf7_sendpdf {
     background-image:url('.WP_PLUGIN_URL.'/send-pdf-for-contact-form-7/images/bandeau-extension.gif);
     background-repeat:no-repeat;
 }
+#wpcf7-general h2 sup {
+	font-size: 14px;
+	position: relative;
+	font-weight: 400;
+	background: #0085ba;
+	color: #fff !important;
+	padding: 2px 4px !important;
+	border-radius: 3px;
+	top: 5px;
+	left: 3px;
+	border: none !important;
+}
 </style>
 ';
 

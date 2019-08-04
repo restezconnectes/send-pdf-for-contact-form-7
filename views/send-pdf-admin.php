@@ -113,10 +113,10 @@ jQuery(document).ready(function() {
         height: 550px;
     }
 </style>
-<div class="wrap">
+<div id="wpcf7-general" class="wrap">
 
     <h2 style="font-size: 23px;font-weight: 400;padding: 9px 15px 4px 0px;line-height: 29px;">
-        <?php _e('Send PDF for Contact Form 7 - Settings', 'send-pdf-for-contact-form-7'); ?>
+        <?php _e('Send PDF for Contact Form 7 - Settings', 'send-pdf-for-contact-form-7'); ?><sup><?php echo 'V.'.WPCF7PDF_VERSION; ?></sup>
     </h2>
 
     <?php if ( is_plugin_active( 'contact-form-7/wp-contact-form-7.php' ) ) { ?>
