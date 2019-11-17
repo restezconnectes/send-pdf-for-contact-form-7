@@ -338,12 +338,6 @@ class cf7_sendpdf {
         if( empty($_SESSION['pdf_uniqueid']) ) {
         $_SESSION['pdf_uniqueid'] = uniqid();
         }
-        
-        // On enregistre un ID en session
-        if ( isset( $_SESSION['pdf_password'] ) ) {
-            unset( $_SESSION['pdf_password'] );
-        }
-        $_SESSION['pdf_password'] = $this->wpcf7pdf_generateRandomPassword();
     }
 
     function save($id, $data, $file = '', $file2 = '') {
@@ -491,7 +485,17 @@ class cf7_sendpdf {
             
             // On récupère le dossier upload de WP
             $createDirectory = $this->wpcf7pdf_folder_uploads($post['_wpcf7']);
-
+            
+            // On enregistre un password en session
+            if ( isset( $_SESSION['pdf_password'] ) ) {
+                unset( $_SESSION['pdf_password'] );
+            }
+            $nbPassword = 12;
+            if( isset($meta_values["protect_password_nb"]) && $meta_values["protect_password_nb"]!='' && is_numeric($meta_values["protect_password_nb"]) ) { 
+                $nbPassword = $meta_values["protect_password_nb"]; 
+            }
+            $_SESSION['pdf_password'] = $this->wpcf7pdf_generateRandomPassword($nbPassword);
+            //error_log($_SESSION['pdf_password']);
             // On va chercher les tags FILE destinés aux images
             if( isset( $meta_values['file_tags'] ) && $meta_values['file_tags']!='' ) {
                 $cf7_file_field_name = $meta_values['file_tags']; // [file uploadyourfile]
@@ -986,8 +990,36 @@ class cf7_sendpdf {
                 }
             } // Fin si la fonction envoi mail est activée
 
-            // Je remplace les codes courts
+            // Option for Protect PDF by Password
+            $pdfPassword = '';
+            if ( isset($meta_values["protect"]) && $meta_values["protect"]=='true') {
+                $pdfPassword = '--';
+                if( isset($meta_values["protect_password"]) && $meta_values["protect_password"]!='' ) {
+                    $pdfPassword = $meta_values["protect_password"];
+                }
+                if( isset($meta_values["protect_uniquepassword"]) && $meta_values["protect_uniquepassword"]=='true' && (isset($_SESSION['pdf_password']) && $_SESSION['pdf_password']!='') ) {
+                    $pdfPassword = $_SESSION['pdf_password'];
+                }
+            }
+
+            // les format de dates
+            $dateField = date_i18n( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), current_time('timestamp') );
+            if( isset($meta_values['date_format']) && !empty($meta_values['date_format']) ) {
+                $dateField = date_i18n( $meta_values['date_format'] );
+            }
+            $timeField = date_i18n( get_option( 'time_format' ), current_time('timestamp') );
+            if( isset($meta_values['time_format']) && !empty($meta_values['time_format']) ) {
+                $timeField = date_i18n( $meta_values['time_format'] );
+            }
+
+            // Je remplace les codes courts dans le text
             if( isset($messageText) && !empty($messageText) ) {
+
+                if( isset($pdfPassword) && $pdfPassword!='' ) {
+                    $messageText = str_replace('[pdf-password]', $pdfPassword, $messageText);
+                } else {
+                    $messageText = str_replace('[pdf-password]', '', $messageText);
+                }
 
                 // On va chercher les tags FILE destinés aux images
                 if( isset( $meta_values['file_tags'] ) && $meta_values['file_tags']!='' ) {
@@ -1010,34 +1042,29 @@ class cf7_sendpdf {
                         }
                     }
                 }
-                // Option for Protect PDF by Password
-                if ( isset($meta_values["protect"]) && $meta_values["protect"]=='true') {
-                    $pdfPassword = '--';
-                    if( isset($meta_values["protect_password"]) && $meta_values["protect_password"]!='' ) {
-                        $pdfPassword = $meta_values["protect_password"];
-                    }
-                    if( isset($meta_values["protect_uniquepassword"]) && $meta_values["protect_uniquepassword"]=='true' && (isset($_SESSION['pdf_password']) && $_SESSION['pdf_password']!='') ) {
-                        $pdfPassword = $_SESSION['pdf_password'];
-                    }
-                    $messageText = str_replace('[pdf-password]', $pdfPassword, $messageText);
-                }
                 
                 $messageText = str_replace('[reference]', $_SESSION['pdf_uniqueid'], $messageText);
                 $messageText = str_replace('[url-pdf]', str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $createDirectory ).'/'.$nameOfPdf.'-'.$_SESSION['pdf_uniqueid'].'.pdf', $messageText);
-                if( isset($meta_values['date_format']) && !empty($meta_values['date_format']) ) {
-                    $dateField = date_i18n( $meta_values['date_format'] );
-                } else {
-                    $dateField = date_i18n( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), current_time('timestamp') );
-                }
-                if( isset($meta_values['time_format']) && !empty($meta_values['time_format']) ) {
-                    $timeField = date_i18n( $meta_values['time_format'] );
-                } else {
-                    $timeField = date_i18n( get_option( 'time_format' ), current_time('timestamp') );
-                }
+                
                 $messageText = str_replace('[date]', $dateField, $messageText);
                 $messageText = str_replace('[time]', $timeField, $messageText);
+
                 $components['body'] = $messageText;
             }
+            // Je remplace les codes courts dans le sujet
+            $subjectText = $components['subject'];
+            if( isset($messageText) && !empty($messageText) ) {
+                
+                $subjectText = str_replace('[reference]', $_SESSION['pdf_uniqueid'], $subjectText);
+                if( isset($pdfPassword) && $pdfPassword!='' ) {
+                    $subjectText = str_replace('[pdf-password]', $pdfPassword, $subjectText);
+                }
+                $subjectText = str_replace('[date]', $dateField, $subjectText);
+                $subjectText = str_replace('[time]', $timeField, $subjectText);
+
+                $components['subject'] = $subjectText;
+            }
+
             return $components;
 
         }
@@ -1163,9 +1190,18 @@ class cf7_sendpdf {
         $wpdb->query($sql);
     }
 
-    function wpcf7pdf_generateRandomPassword() {
+    function wpcf7pdf_generateRandomPassword($nb_car = 8, $chaine = 'azertyuiopqsdfghjklmwxcvbnAZERTYUIOPMLKJGFDNBD123456789') {
         // the finished password
-        return md5(time());
+        //return md5(time());
+        $nb_lettres = strlen($chaine) - 1;
+        $generation = '';
+        for($i=0; $i < $nb_car; $i++)
+        {
+            $pos = mt_rand(0, $nb_lettres);
+            $car = $chaine[$pos];
+            $generation .= $car;
+        }
+        return $generation;
     }
     
     function wpcf7pdf_getFontsTab() {

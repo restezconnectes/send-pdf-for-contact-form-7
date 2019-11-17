@@ -1,6 +1,6 @@
 # Send PDF for Contact Form 7
 
-VERSION 0.7.6
+VERSION 0.7.7
 
 This plugin adds conditional logic to <a href="https://wordpress.org/plugins/contact-form-7/">[Contact Form 7]</a>.
 
@@ -35,6 +35,6 @@ And others options...
 
 ### Some screenshots:
 
-![Choice of form Contact Form 7](https://restezconnectes.fr/plugins/images/send-pdf-for-contact-form-7/screenshot-1.png)
-![View general settings](https://restezconnectes.fr/plugins/images/send-pdf-for-contact-form-7/screenshot-2.png)
-![Preparation view of your PDF](https://restezconnectes.fr/plugins/images/send-pdf-for-contact-form-7/screenshot-3.png)
+![Choice of form Contact Form 7](https://madeby.restezconnectes.fr/plugins/send-pdf-for-contact-form-7/images/screenshot-1.png)
+![View general settings](https://madeby.restezconnectes.fr/plugins/send-pdf-for-contact-form-7/images/screenshot-2.png)
+![Preparation view of your PDF](https://madeby.restezconnectes.fr/plugins/send-pdf-for-contact-form-7/images/screenshot-3.png)

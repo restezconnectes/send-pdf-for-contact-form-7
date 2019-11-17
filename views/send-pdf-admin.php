@@ -49,7 +49,7 @@ if( (isset($_POST['action']) && isset($_POST['idform']) && $_POST['action'] == '
 
 }
 
-if( isset($_POST['idform']) && isset($_POST['truncate_table']) && $_POST['truncate_table'] == 'true' ) {
+if( isset($_POST['idform']) && isset($_POST['truncate_table']) && $_POST['truncate_table'] == 'true' && wp_verify_nonce($_POST['security-sendform'], 'go-sendform') ) {
 
     $DeleteList = cf7_sendpdf::truncate();
     if( $DeleteList == true ) {
@@ -71,6 +71,7 @@ if( (isset($_POST['wpcf7_action']) && isset($_POST['idform']) && $_POST['wpcf7_a
 
     echo '<div id="message" class="updated fade"><p><strong>' . __('Limit updating successfully!', 'send-pdf-for-contact-form-7') . '</strong></p></div>';
 }
+
 ?>
 <script type="text/javascript">
 jQuery.fn.selectText = function () {
@@ -132,7 +133,7 @@ jQuery(document).ready(function() {
                     ?>
                     <form method="post" action="<?php echo $_SERVER['REQUEST_URI']?>" name="displayform" id="displayform">
                         <input type="hidden" name="page" value="wpcf7-send-pdf"/>
-                        <?php //wp_nonce_field('go-chooseform', 'security-form'); ?>
+                        <?php wp_nonce_field('go-sendform', 'security-sendform'); ?>
                         <select name="idform" id="idform" class="wpcf7-form-field" onchange="this.form.submit();">
                             <option value=""><?php echo htmlspecialchars(__('* Select a form *', 'send-pdf-for-contact-form-7')); ?></option>
                             <?php
@@ -171,7 +172,7 @@ jQuery(document).ready(function() {
     </div>
 
     <?php
-    if( isset($_POST['idform']) ) {
+    if( isset($_POST['idform']) && wp_verify_nonce($_POST['security-sendform'], 'go-sendform') ) {
 
         //name,forename,bithday,sex,phone,adress,cp,city,sport,
         $idForm = intval($_POST['idform']);
@@ -187,9 +188,27 @@ jQuery(document).ready(function() {
         // On récupère le dossier upload de WP
         $upload_dir = wp_upload_dir();
         $createDirectory = cf7_sendpdf::wpcf7pdf_folder_uploads($idForm);
+
         // On récupère le format de date dans les paramètres
         $date_format = get_option( 'date_format' );
         $hour_format = get_option('time_format');
+
+        // Definition des marges par defaut
+        $marginHeader = 10;
+        $marginTop = 40;
+
+        // Definition de la taille, le format de page et la font par defaut
+        $fontsizePdf = 9;
+        $fontPdf = 'dejavusanscondensed';
+        $formatPdf = 'A4-P';
+
+        // Definition des dates par defaut
+        $dateField = date_i18n( $date_format, current_time('timestamp'));
+        $timeField = date_i18n($hour_format, current_time('timestamp'));
+
+        // Definition des dimensions du logo par defaut
+        $width = 150;
+        $height = 80;
 
         // On efface l'ancien pdf renommé si il y a (on garde l'original)
         if( file_exists($createDirectory.'/preview.pdf') ) {
@@ -199,24 +218,17 @@ jQuery(document).ready(function() {
 
             if( isset($meta_values['pdf-type']) && isset($meta_values['pdf-orientation']) ) {
                 $formatPdf = $meta_values['pdf-type'].$meta_values['pdf-orientation'];
-            } else {
-                $formatPdf = 'A4-P';
             }
             if( isset($meta_values['pdf-font'])  ) {
                 $fontPdf = $meta_values['pdf-font'];
-            } else {
-                $fontPdf = 'dejavusanscondensed';
             }
             if( isset($meta_values['pdf-fontsize']) && is_numeric($meta_values['pdf-fontsize']) ) {
                 $fontsizePdf = $meta_values['pdf-fontsize'];
-            } else {
-                $fontsizePdf = 9;
             }
             
             require WPCF7PDF_DIR . 'mpdf/vendor/autoload.php';
             //$mpdf=new \Mpdf\Mpdf();
-            $marginHeader = 10;
-            $marginTop = 40;
+            
             if( isset($meta_values["margin_header"]) && $meta_values["margin_header"]!='' ) { $marginHeader = $meta_values["margin_header"]; }
             if( isset($meta_values["margin_top"]) && $meta_values["margin_top"]!='' ) { $marginTop = $meta_values["margin_top"]; }
 
@@ -242,13 +254,9 @@ jQuery(document).ready(function() {
                 $footerText = str_replace('[url-pdf]', $upload_dir['url'].'/'.$nameOfPdf.'-'.$_SESSION['pdf_uniqueid'].'.pdf', $footerText);
                 if( isset($meta_values['date_format']) && !empty($meta_values['date_format']) ) {
                     $dateField = date_i18n($meta_values['date_format']);
-                } else {
-                    $dateField = date_i18n( $date_format, current_time('timestamp'));
                 }
                 if( isset($meta_values['time_format']) && !empty($meta_values['time_format']) ) {
                     $timeField = date_i18n($meta_values['time_format']);
-                } else {
-                    $timeField = date_i18n($hour_format, current_time('timestamp'));
                 }
                 $footerText = str_replace('[date]', $dateField, $footerText);
                 $footerText = str_replace('[time]', $timeField, $footerText);
@@ -260,9 +268,6 @@ jQuery(document).ready(function() {
                 if( ini_get('allow_url_fopen')==1) {
                     $image_path = str_replace(get_bloginfo('url'), ABSPATH, $meta_values['image']);
                     list($width, $height, $type, $attr) = getimagesize($image_path);
-                } else {
-                    $width = 150;
-                    $height = 80;
                 }
                 $imgAlign = 'left';
                 if( isset($meta_values['image-alignment']) ) {
@@ -797,8 +802,13 @@ $pathFolder = serialize($createDirectory);
             <tr>
                 <td><!-- Proteger le pdf? -->
                     <?php _e('Generate and use a random password?', 'send-pdf-for-contact-form-7'); ?>
-                    <p><i><?php _e('Example (not working in preview mode):', 'send-pdf-for-contact-form-7'); echo ' <strong>'.cf7_sendpdf::wpcf7pdf_generateRandomPassword().'</strong>'; ?></i></p>
-                    <?php _e('Or enter your unique password for all PDF files.', 'send-pdf-for-contact-form-7'); ?>
+                    <?php
+                        $nbPassword = 12;
+                        if( isset($meta_values["protect_password_nb"]) && $meta_values["protect_password_nb"]!='' && is_numeric($meta_values["protect_password_nb"]) ) { 
+                            $nbPassword = $meta_values["protect_password_nb"]; 
+                        }
+                    ?>
+                    <p><i><?php _e('Example (not working in preview mode):', 'send-pdf-for-contact-form-7'); echo ' <strong>'.cf7_sendpdf::wpcf7pdf_generateRandomPassword($nbPassword).'</strong>'; ?></i></p>
                 </td>
                 <td>
                     <div style="">
@@ -809,12 +819,23 @@ $pathFolder = serialize($createDirectory);
                         <label for="switch_protect_uniquepassword_no"><?php _e('No', 'send-pdf-for-contact-form-7'); ?></label>
                         </div>
                     </div>
-                    <input type="text" class="wpcf7-form-field" name="wp_cf7pdf_settings[protect_password]" value="<?php if( isset($meta_values["protect_password"]) && $meta_values["protect_password"]!='' ) { echo stripslashes($meta_values["protect_password"]); } ?>" />
                 </td>
             </tr>
+            
+            <tr>
+                <td><?php _e('Maximum number of characters for password?', 'send-pdf-for-contact-form-7'); ?><p><i><?php _e('By default : 12', 'send-pdf-for-contact-form-7'); ?></i></p></td>
+                <td><input type="text" size="3" class="wpcf7-form-field" name="wp_cf7pdf_settings[protect_password_nb]" value="<?php if( isset($meta_values["protect_password_nb"]) && $meta_values["protect_password_nb"]!='' && is_numeric($meta_values["protect_password_nb"]) ) { echo $meta_values["protect_password_nb"]; } else { echo $nbPassword; } ?>" /></td>
+            </tr>
+
+            <tr>
+                <td><?php _e('Or enter your unique password for all PDF files.', 'send-pdf-for-contact-form-7'); ?></td>
+                <td><input type="text" class="wpcf7-form-field" name="wp_cf7pdf_settings[protect_password]" value="<?php if( isset($meta_values["protect_password"]) && $meta_values["protect_password"]!='' ) { echo stripslashes($meta_values["protect_password"]); } ?>" /></td>
+            </tr>
+
             <tr>
                 <td colspan="2"><hr style="background-color: <?php echo $colors[2]; ?>; height: 1px; border: 0;"></td>
             </tr>
+
 
         </tbody>
     </table>
