@@ -53,6 +53,7 @@ Yes. Thank you for submitting your changes to update the plugin.
 * Fixed bugs notice PHP
 * Adding PDF password length
 * Tags [reference], [pdf-password], [date] and [time] is possible in the subject email
+* Adding URL input for your stylesheet
 
 = 0.7.6 =
 * Adding choosing font for your PDF file

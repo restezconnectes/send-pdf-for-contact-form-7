@@ -249,6 +249,12 @@ jQuery(document).ready(function() {
             $mpdf->SetCreator(get_bloginfo('name'));
             $mpdf->ignore_invalid_utf8 = true;
             
+            // LOAD a stylesheet
+            if( isset($meta_values['stylesheet']) && $meta_values['stylesheet']!='' ) {
+                $stylesheet = file_get_contents($meta_values['stylesheet']);
+                $mpdf->WriteHTML($stylesheet,1);	// The parameter 1 tells that this is css/style only and no body/html/text
+            }
+
             if( isset($meta_values['footer_generate_pdf']) && $meta_values['footer_generate_pdf']!='' ) {
                 $footerText = str_replace('[reference]', $_SESSION['pdf_uniqueid'], $meta_values['footer_generate_pdf']);
                 $footerText = str_replace('[url-pdf]', $upload_dir['url'].'/'.$nameOfPdf.'-'.$_SESSION['pdf_uniqueid'].'.pdf', $footerText);
@@ -993,6 +999,12 @@ $pathFolder = serialize($createDirectory);
                                 ?>
                             </select>
                             <input name="wp_cf7pdf_settings[pdf-fontsize]" class="wpcf7-form-field" size="2" value="<?php if( isset($meta_values['pdf-fontsize']) && is_numeric($meta_values['pdf-fontsize']) ) { echo $meta_values['pdf-fontsize']; } else { echo $fontsizePdf; } ?>">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><?php _e('Add a CSS file', 'send-pdf-for-contact-form-7'); ?></td>
+                        <td>
+                            <input size="100%" class="wpcf7-form-field" name="wp_cf7pdf_settings[stylesheet]" value="<?php if( isset($meta_values['stylesheet']) ) { echo esc_url($meta_values['stylesheet']); } ?>" type="text" /></a>
                         </td>
                     </tr>
                     <tr>

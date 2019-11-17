@@ -31,6 +31,5 @@ jQuery(document).ready(function() {
         custom_uploader.open();
  
     });
-    
 });
 

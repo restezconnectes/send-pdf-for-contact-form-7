@@ -666,6 +666,7 @@ class cf7_sendpdf {
                         $mpdf->form_radio_color = '0.0 0.0 0.4'; // radio and checkbox
                         $mpdf->form_radio_background_color = '0.9 0.9 0.9';*/
                     }
+                    
                     $entetePage = '';
                     if( isset($meta_values["image"]) && !empty($meta_values["image"]) ) {
                         if( ini_get('allow_url_fopen')==1) {
@@ -703,6 +704,12 @@ class cf7_sendpdf {
                         $footerText = str_replace('[date]', $dateField, $footerText);
                         $footerText = str_replace('[time]', $timeField, $footerText);
                         $mpdf->SetHTMLFooter($footerText);
+                    }
+
+                    // LOAD a stylesheet
+                    if( isset($meta_values['stylesheet']) && $meta_values['stylesheet']!='' ) {
+                        $stylesheet = file_get_contents($meta_values['stylesheet']);
+                        $mpdf->WriteHTML($stylesheet,1);	// The parameter 1 tells that this is css/style only and no body/html/text
                     }
 
                     // En cas de saut de page avec le tag [addpage]
