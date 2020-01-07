@@ -270,33 +270,11 @@ class cf7_sendpdf {
             wp_register_script('wpcf7-my-upload', WPCF7PD_URL.'js/wpcf7pdf-script.js', array('jquery','media-upload','thickbox'));
             wp_enqueue_script('wpcf7-my-upload');
 
-            // Create a simple CodeMirror instance
-            // Mode http://codemirror.net/mode/php/index.html
-            wp_register_style( 'codemirror_css', WPCF7PD_URL.'js/lib/codemirror.css', false, '1.0.0' );
-            wp_enqueue_style( 'codemirror_css' );
-            wp_register_style( 'codemirror_theme_css', WPCF7PD_URL.'js/lib/theme/pastel-on-dark.css', false, '1.0.0' );
-            wp_enqueue_style( 'codemirror_theme_css' );
-
-            wp_register_script('codemirror', WPCF7PD_URL.'js/lib/codemirror.js', 'jquery', '1.0');
-            wp_enqueue_script('codemirror');
-
-            wp_register_script('codemirror_css', WPCF7PD_URL.'js/lib/css.js', 'jquery', '1.0');
-            wp_enqueue_script('codemirror_css');
-
-            wp_register_script('codemirror_selection', WPCF7PD_URL.'js/lib/addon/selection/selection-pointer.js', 'jquery', '1.0');
-            wp_enqueue_script('codemirror_selection');
-
-            wp_register_script('codemirror_xml', WPCF7PD_URL.'js/lib/xml.js', 'jquery', '1.0');
-            wp_enqueue_script('codemirror_xml');
-
-            wp_register_script('codemirror_java', WPCF7PD_URL.'js/lib/javascript.js', 'jquery', '1.0');
-            wp_enqueue_script('codemirror_java');
-
-            wp_register_script('codemirror_vbscript', WPCF7PD_URL.'js/lib/vbscript.js', 'jquery', '1.0');
-            wp_enqueue_script('codemirror_vbscript');
-
-            wp_register_script('codemirror_htmlmixed', WPCF7PD_URL.'js/lib/htmlmixed.js', 'jquery', '1.0');
-            wp_enqueue_script('codemirror_htmlmixed');
+            $pcf7pdf_settings['codeEditor'] = wp_enqueue_code_editor(array('type' => 'text/html'));
+            wp_localize_script('jquery', 'pcf7pdf_settings', $pcf7pdf_settings);
+            
+            wp_enqueue_script('wp-theme-plugin-editor');
+            wp_enqueue_style('wp-codemirror');
 
             // Now we can localize the script with our data.
             wp_localize_script( 'wpcf7-my-upload', 'Data', array(
@@ -496,28 +474,6 @@ class cf7_sendpdf {
             }
             $_SESSION['pdf_password'] = $this->wpcf7pdf_generateRandomPassword($nbPassword);
             //error_log($_SESSION['pdf_password']);
-
-            // On récupère le format de date dans les paramètres
-            $date_format = get_option( 'date_format' );
-            $hour_format = get_option( 'time_format' );
-
-            // Definition des marges par defaut
-            $marginHeader = 10;
-            $marginTop = 40;
-
-            // Definition de la taille, le format de page et la font par defaut
-            $fontsizePdf = 9;
-            $fontPdf = 'dejavusanscondensed';
-            $formatPdf = 'A4-P';
-
-            // Definition des dates par defaut
-            $dateField = date_i18n( $date_format, current_time('timestamp') );
-            $timeField = date_i18n( $hour_format, current_time('timestamp') );
-
-            // Definition des dimensions du logo par defaut
-            $width = 150;
-            $height = 80;
-
             // On va chercher les tags FILE destinés aux images
             if( isset( $meta_values['file_tags'] ) && $meta_values['file_tags']!='' ) {
                 $cf7_file_field_name = $meta_values['file_tags']; // [file uploadyourfile]
@@ -629,9 +585,13 @@ class cf7_sendpdf {
                 }
                 if( isset($meta_values['date_format']) && !empty($meta_values['date_format']) ) {
                     $dateField = date_i18n( $meta_values['date_format'] );
+                } else {
+                    $dateField = date_i18n( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), current_time('timestamp') );
                 }
                 if( isset($meta_values['time_format']) && !empty($meta_values['time_format']) ) {
                     $timeField = date_i18n( $meta_values['time_format'] );
+                } else {
+                    $timeField = date_i18n( get_option( 'time_format' ), current_time('timestamp') );
                 }
                 $text = str_replace('[date]', $dateField, $text);
                 $text = str_replace('[time]', $timeField, $text);
@@ -654,17 +614,14 @@ class cf7_sendpdf {
 
                     require WPCF7PDF_DIR . 'mpdf/vendor/autoload.php';
 
-                    if( isset($meta_values["margin_header"]) && $meta_values["margin_header"]!='' ) { $marginHeader = esc_html($meta_values["margin_header"]); }
-                    if( isset($meta_values["margin_top"]) && $meta_values["margin_top"]!='' ) { $marginTop = esc_html($meta_values["margin_top"]); }
-
                     if( isset($meta_values['pdf-type']) && isset($meta_values['pdf-orientation']) ) {
                         $formatPdf = $meta_values['pdf-type'].$meta_values['pdf-orientation'];
                         //$mpdf=new mPDF('utf-8', $formatPdf);
-                        $mpdf = new \Mpdf\Mpdf(['mode' => 'utf-8', 'format' => $formatPdf, 'margin_header' => $marginHeader,'margin_top' => $marginTop, 'default_font' => $fontPdf, 'default_font_size' => $fontsizePdf,]);
+                        $mpdf = new \Mpdf\Mpdf(['mode' => 'utf-8', 'format' => $formatPdf, 'margin_header' => 10, 'margin_top' => 40,]);
                     } else if( isset($meta_values['fillable_data']) && $meta_values['fillable_data']== 'true') {
-                        $mpdf = new \Mpdf\Mpdf(['mode' => 'c', 'format' => $formatPdf, 'margin_header' => $marginHeader,'margin_top' => $marginTop, 'default_font' => $fontPdf, 'default_font_size' => $fontsizePdf,]);
+                        $mpdf = new \Mpdf\Mpdf(['mode' => 'c', 'format' => $formatPdf, 'margin_header' => 10, 'margin_top' => 40,]);
                     } else {
-                        $mpdf = new \Mpdf\Mpdf(['mode' => 'utf-8', 'format' => $formatPdf, 'margin_header' => $marginHeader,'margin_top' => $marginTop, 'default_font' => $fontPdf, 'default_font_size' => $fontsizePdf,]);
+                        $mpdf = new \Mpdf\Mpdf(['mode' => 'utf-8', 'format' => 'A4-L', 'margin_header' => 10, 'margin_top' => 40,]);
                     }
                     $mpdf->autoScriptToLang = true;
                     $mpdf->baseScript = 1;
@@ -691,14 +648,17 @@ class cf7_sendpdf {
                     $entetePage = '';
                     if( isset($meta_values["image"]) && !empty($meta_values["image"]) ) {
                         if( ini_get('allow_url_fopen')==1) {
-                            list($width, $height, $type, $attr) = getimagesize(esc_url($meta_values["image"]));
+                            list($width, $height, $type, $attr) = getimagesize($meta_values["image"]);
+                        } else {
+                            $width = 150;
+                            $height = 80;
                         }
                         $imgAlign = 'left';
                         if( isset($meta_values['image-alignment']) ) {
                             $imgAlign = $meta_values['image-alignment'];
                         }
-                        if( empty($meta_values['image-width']) ) { $imgWidth = $width; } else { $imgWidth = esc_html($meta_values['image-width']);  }
-                        if( empty($meta_values['image-height']) ) { $imgHeight = $height; } else { $imgHeight = esc_html($meta_values['image-height']);  }
+                        if( empty($meta_values['image-width']) ) { $imgWidth = $width; } else { $imgWidth = $meta_values['image-width'];  }
+                        if( empty($meta_values['image-height']) ) { $imgHeight = $height; } else { $imgHeight = $meta_values['image-height'];  }
 
                         $attribut = 'width='.$imgWidth.' height="'.$imgHeight.'"';
                         $entetePage = '<div style="text-align:'.$imgAlign.';height:'.$imgHeight.'"><img src="'.esc_url($meta_values["image"]).'" '.$attribut.' /></div>';
@@ -711,9 +671,13 @@ class cf7_sendpdf {
                         $footerText = str_replace('[url-pdf]', $upload_dir['url'].'/'.$nameOfPdf.'-'.$_SESSION['pdf_uniqueid'].'.pdf', $footerText);
                         if( isset($meta_values['date_format']) && !empty($meta_values['date_format']) ) {
                             $dateField = date_i18n($meta_values['date_format']);
+                        } else {
+                            $dateField = date_i18n( $date_format . ' ' . $hour_format, current_time('timestamp'));
                         }
                         if( isset($meta_values['time_format']) && !empty($meta_values['time_format']) ) {
                             $timeField = date_i18n($meta_values['time_format']);
+                        } else {
+                            $timeField = date_i18n($hour_format, current_time('timestamp'));
                         }
                         $footerText = str_replace('[date]', $dateField, $footerText);
                         $footerText = str_replace('[time]', $timeField, $footerText);
@@ -722,7 +686,7 @@ class cf7_sendpdf {
 
                     // LOAD a stylesheet
                     if( isset($meta_values['stylesheet']) && $meta_values['stylesheet']!='' ) {
-                        $stylesheet = file_get_contents(esc_url($meta_values['stylesheet']));
+                        $stylesheet = file_get_contents($meta_values['stylesheet']);
                         $mpdf->WriteHTML($stylesheet,1);	// The parameter 1 tells that this is css/style only and no body/html/text
                     }
 
@@ -753,7 +717,7 @@ class cf7_sendpdf {
                     if ( isset($meta_values["protect"]) && $meta_values["protect"]=='true') {
                         $pdfPassword = '';
                         if( isset($meta_values["protect_password"]) && $meta_values["protect_password"]!='' ) {
-                            $pdfPassword = esc_html($meta_values["protect_password"]);
+                            $pdfPassword = $meta_values["protect_password"];
                         }
                         if( isset($meta_values["protect_uniquepassword"]) && $meta_values["protect_uniquepassword"]=='true' && (isset($_SESSION['pdf_password']) && $_SESSION['pdf_password']!='') ) {
                             $pdfPassword = $_SESSION['pdf_password'];
@@ -923,7 +887,7 @@ class cf7_sendpdf {
                                 if( $nbDocs >= 1) {
                                     foreach($tabDocs as $urlDocs) {
                                         $urlDocs = str_replace($upload_dir['baseurl'], $upload_dir['basedir'], $urlDocs);
-                                        $components['attachments'][] = esc_url($urlDocs);
+                                        $components['attachments'][] = $urlDocs;
                                     }
                                 }
                             }
@@ -1000,7 +964,7 @@ class cf7_sendpdf {
                                 if( $nbDocs2 >= 1) {
                                     foreach($tabDocs2 as $urlDocs2) {
                                         $urlDocs2 = str_replace($upload_dir['baseurl'], $upload_dir['basedir'], $urlDocs2);
-                                        $components['attachments'][] = esc_url($urlDocs2);
+                                        $components['attachments'][] = $urlDocs2;
                                     }
                                 }
 
@@ -1016,7 +980,7 @@ class cf7_sendpdf {
             if ( isset($meta_values["protect"]) && $meta_values["protect"]=='true') {
                 $pdfPassword = '--';
                 if( isset($meta_values["protect_password"]) && $meta_values["protect_password"]!='' ) {
-                    $pdfPassword = esc_html($meta_values["protect_password"]);
+                    $pdfPassword = $meta_values["protect_password"];
                 }
                 if( isset($meta_values["protect_uniquepassword"]) && $meta_values["protect_uniquepassword"]=='true' && (isset($_SESSION['pdf_password']) && $_SESSION['pdf_password']!='') ) {
                     $pdfPassword = $_SESSION['pdf_password'];
@@ -1109,7 +1073,7 @@ class cf7_sendpdf {
             $meta_values = get_post_meta( $post['_wpcf7'], '_wp_cf7pdf', true );
             $cf7_file_field_name = '';
             if( isset( $meta_values['file_tags'] ) && $meta_values['file_tags']!='' ) {
-                $cf7_file_field_name = esc_html($meta_values['file_tags']);
+                $cf7_file_field_name = $meta_values['file_tags'];
             }
 
             // Si l'option de supprimer les fichiers est activée
@@ -1395,7 +1359,7 @@ $js .= '}
 <!-- Send PDF for CF7 -->
 <script type='text/javascript'>
     document.addEventListener( 'wpcf7mailsent', function( event ) {
-        <?php if( isset($redirectPDF) ) { echo esc_url($redirectPDF); } ?>
+        <?php if( isset($redirectPDF) ) { echo $redirectPDF; } ?>
     <?php if( (isset($meta_values['page_next']) && is_numeric($meta_values['page_next'])) ) { echo $js; } ?>
 }, false );
 </script>
