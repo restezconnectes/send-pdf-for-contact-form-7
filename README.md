@@ -37,4 +37,4 @@ And others options...
 
 ![Choice of form Contact Form 7](https://madeby.restezconnectes.fr/plugins/images/send-pdf-for-contact-form-7/screenshot-1.png)
 ![View general settings](https://madeby.restezconnectes.fr/plugins/images/send-pdf-for-contact-form-7/screenshot-2.png)
-![Preparation view of your PDF](https://madeby.restezconnectes.fr/images/plugins/send-pdf-for-contact-form-7/screenshot-3.png)
+![Preparation view of your PDF](https://madeby.restezconnectes.fr/images/plugins/images/send-pdf-for-contact-form-7/screenshot-3.png)
