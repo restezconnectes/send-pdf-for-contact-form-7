@@ -9,6 +9,7 @@ Author URI:  https://restezconnectes.fr
 License:     GPL3 or later
 Domain Path: /languages
 Text Domain: send-pdf-for-contact-form-7
+GitHub Plugin URI: https://github.com/Florent73/send-pdf-for-contact-form-7
 */
 
 /*  Copyright 2007-2015 Florent Maillefaud (email: contact at restezconnectes.fr)
