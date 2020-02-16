@@ -1153,7 +1153,7 @@ $pathFolder = serialize($createDirectory);
                         
                         echo '</td>';
                         echo '<td width="5%"><a href="'.$recorder->wpcf7pdf_files.'" target="_blank"><img src="'.plugins_url('send-pdf-for-contact-form-7/images/icon_download.png').'" width="30" title="'.__('Download', 'send-pdf-for-contact-form-7').'" alt="'.__('Download', 'send-pdf-for-contact-form-7').'" /></a></td>';                        
-               ?><td width="5%"><a href="#" data-id="<?php echo $recorder->wpcf7pdf_id; ?>" data-message="<?php _e('Are you sure you want to delete this Record?', 'send-pdf-for-contact-form-7'); ?>" data-nonce="<?php echo wp_create_nonce('delete_record-'.$recorder->wpcf7pdf_id); ?>" class="delete-record"><img src="<?php echo plugins_url('send-pdf-for-contact-form-7/images/icon_delete.png'); ?>" width="30" title="<?php _e('Delete', 'send-pdf-for-contact-form-7'); ?>" alt="<?php _e('Delete', 'send-pdf-for-contact-form-7'); ?>" /></a>
+               ?><td width="5%"><a href="#" data-idform="<?php echo $idForm; ?>" data-id="<?php echo $recorder->wpcf7pdf_id; ?>" data-message="<?php _e('Are you sure you want to delete this Record?', 'send-pdf-for-contact-form-7'); ?>" data-nonce="<?php echo wp_create_nonce('delete_record-'.$recorder->wpcf7pdf_id); ?>" class="delete-record"><img src="<?php echo plugins_url('send-pdf-for-contact-form-7/images/icon_delete.png'); ?>" width="30" title="<?php _e('Delete', 'send-pdf-for-contact-form-7'); ?>" alt="<?php _e('Delete', 'send-pdf-for-contact-form-7'); ?>" /></a>
                 <?php
                         echo '</td><tr>';
                     }

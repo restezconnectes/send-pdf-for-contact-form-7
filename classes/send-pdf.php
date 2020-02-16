@@ -73,13 +73,35 @@ class cf7_sendpdf {
         global $wpdb;
 
         $id = $_POST['element_id'];
+        $idform = $_POST['form_id'];
         $nonce = $_POST['nonce'];
-        var_dump($id.' --> '.$nonce);
 
         if( wp_verify_nonce($nonce, 'delete_record-'.$id) ) {
+
             // Supprime dans la table des promesses 'PREFIX_wpspo_promesse'
             $resultOptions =  $wpdb->query( $wpdb->prepare("DELETE FROM ". $wpdb->prefix. "wpcf7pdf_files WHERE wpcf7pdf_id = %d LIMIT 1", $id), 'OBJECT' );
-            if($resultOptions) { echo 'success'; }
+
+            if($resultOptions) {
+                
+                // On récupère le dossier upload de WP
+                $createDirectory = $this->wpcf7pdf_folder_uploads($idform);
+                $upload_dir = wp_upload_dir();
+
+                // va chercher le nom du PDF
+                $resultFile = $wpdb->get_row( $wpdb->prepare("SELECT wpcf7pdf_files FROM ". $wpdb->prefix. "wpcf7pdf_files WHERE wpcf7pdf_id = %d LIMIT %d", $id,  1), 'OBJECT' );
+
+                if( isset($resultFile) && !empty($resultFile) ) {
+                    // remplace par le PATH            
+                    $chemin_path = str_replace($upload_dir['baseurl'], $upload_dir['basedir'], $resultFile->wpcf7pdf_files);
+
+                    if( isset($chemin_path) && file_exists($chemin_path) ) {
+                        unlink($chemin_path);
+                    }
+                }
+
+                echo 'success';
+            }
+
         } else {
             echo 'error js action';
         }
