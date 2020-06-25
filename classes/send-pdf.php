@@ -414,8 +414,8 @@ class cf7_sendpdf {
                 $files = array(
                     array(
                         'base' 		=> $upload_dir['basedir'] . '/sendpdfcf7_uploads/',
-                        'file' 		=> '.htaccess',
-                        'content' 	=> 'Options -Indexes'
+                        'file' 		=> 'index.php',
+                        'content' 	=> '<?php // Silence is Golden'
                     ),
                     array(
                         'base' 		=> $upload_dir['basedir'] . '/sendpdfcf7_uploads/'.$id,
