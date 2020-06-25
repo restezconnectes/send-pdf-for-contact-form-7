@@ -82,7 +82,7 @@ class cf7_sendpdf {
             $resultOptions =  $wpdb->query( $wpdb->prepare("DELETE FROM ". $wpdb->prefix. "wpcf7pdf_files WHERE wpcf7pdf_id = %d LIMIT 1", $id), 'OBJECT' );
 
             if($resultOptions) {
-                
+
                 // On récupère le dossier upload de WP
                 $createDirectory = $this->wpcf7pdf_folder_uploads($idform);
                 $upload_dir = wp_upload_dir();
@@ -101,7 +101,7 @@ class cf7_sendpdf {
 
                 echo 'success';
             }
-
+            
         } else {
             echo 'error js action';
         }
@@ -329,7 +329,7 @@ class cf7_sendpdf {
 
     function wpcf7pdf_session_start() {
         if ( ! session_id() ) {
-          @session_start();
+          @session_start(['read_and_close' => true,]);
         }
         // On enregistre un ID en session
         if ( isset( $_SESSION['pdf_uniqueid'] ) ) {
@@ -504,13 +504,17 @@ class cf7_sendpdf {
                     preg_match_all('`\[([^\]]*)\]`', $cf7_file_field_name, $contentTags, PREG_SET_ORDER, 0);
                     foreach($contentTags as $tags) {
                         $image_name = '';
-                        if( isset($tags[1]) && $tags[1] != '' ) {
+                        if( isset($tags[1]) && $tags[1] != '' && !empty($posted_data[$tags[1]]) ) {
                             $image_name = $posted_data[$tags[1]];
-                            if( isset($image_name) && $image_name!='' ) {
-                                $image_location = $uploaded_files[$tags[1]];
-                                $chemin_final[$tags[1]] = $createDirectory.'/'.$_SESSION['pdf_uniqueid'].'-'.$image_name;
-                                // On copie l'image dans le dossier
-                                copy($image_location, $chemin_final[$tags[1]]);
+                            //error_log($tags[1].' -- '.$posted_data[$tags[1]]);
+                            if( isset($image_name) && $image_name!='' && !empty($posted_data[$tags[1]]) ) {
+                                //error_log($tags[1].' --> '.$uploaded_files[$tags[1]]);
+                                if( !empty($uploaded_files[$tags[1]]) ) {
+                                    $image_location = $uploaded_files[$tags[1]];
+                                    $chemin_final[$tags[1]] = $createDirectory.'/'.$_SESSION['pdf_uniqueid'].'-'.$image_name;
+                                    // On copie l'image dans le dossier
+                                    copy($image_location, $chemin_final[$tags[1]]);
+                                }
                             }
                         }
                     }
@@ -593,7 +597,7 @@ class cf7_sendpdf {
                     preg_match_all('`\[([^\]]*)\]`', $cf7_file_field_name, $contentTagsOnPdf, PREG_SET_ORDER, 0);
                     foreach($contentTagsOnPdf as $tagsOnPdf) {
                         $image_name2 = '';
-                        if( isset($tagsOnPdf[1]) && $tagsOnPdf[1] != '' ) {
+                        if( isset($tagsOnPdf[1]) && $tagsOnPdf[1] != '' && !empty($posted_data[$tagsOnPdf[1]]) ) {
                             $image_name2 = $posted_data[$tagsOnPdf[1]];
                             if( isset($image_name2) && $image_name2!='' ) {
                                 $chemin_final2[$tagsOnPdf[1]] = str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $createDirectory).'/'.$_SESSION['pdf_uniqueid'].'-'.$image_name2;
@@ -1036,7 +1040,7 @@ class cf7_sendpdf {
                         preg_match_all('`\[([^\]]*)\]`', $cf7_file_field_name, $contentTagsOnMail, PREG_SET_ORDER, 0);
                         foreach($contentTagsOnMail as $tagsOnMail) {
                             $image_name_mail = '';
-                            if( isset($tagsOnMail[1]) && $tagsOnMail[1] != '' ) {
+                            if( isset($tagsOnMail[1]) && $tagsOnMail[1] != '' && !empty($posted_data[$tagsOnMail[1]]) ) {
                                 $image_name_mail = $posted_data[$tagsOnMail[1]];
                                 if( isset($image_name_mail) && $image_name_mail!='' ) {
                                     $chemin_final_mail[$tagsOnMail[1]] = str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $createDirectory).'/'.$_SESSION['pdf_uniqueid'].'-'.$image_name_mail;
@@ -1314,7 +1318,7 @@ class cf7_sendpdf {
         $displayAddEventList = 0;
         
         if ( ! session_id() ) {
-          @session_start();
+            @session_start(['read_and_close' => true,]);
         }
         
         // On recupere l'ID du Formulaire

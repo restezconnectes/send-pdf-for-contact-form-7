@@ -3,8 +3,8 @@ Contributors: Florent73
 Donate link: https://www.paypal.me/RestezConnectes/
 Tags: WordPress, plugin, contact form, pdf, send, attachment, form, cf7
 Requires at least: 3.0
-Tested up to: 5.3
-Stable tag: 0.7.9
+Tested up to: 5.5
+Stable tag: 0.7.9.2
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -48,6 +48,12 @@ Yes. Thank you for submitting your changes to update the plugin.
 
 
 == Changelog ==
+
+= 0.7.9.2 =
+* Fixed bugs session
+
+= 0.7.9.1 =
+* Fixed bugs notice PHP
 
 = 0.7.9 =
 * Resolve bug delete record
