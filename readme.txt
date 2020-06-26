@@ -32,6 +32,11 @@ File send-pdf-for-contact-form-7.pot available
 2. View general settings
 3. Preparation view of your PDF
 
+== Contribute ==
+You can contribute with code, issues and ideas at the [GitHub repository](https://github.com/Florent73/send-pdf-for-contact-form-7).
+
+If you like it, a review is appreciated :)
+
 == Frequently Asked Questions ==
 
 = Is there a tutorial? =
@@ -41,10 +46,6 @@ Read here <a href="https://restezconnectes.fr/tutoriel-wordpress-lextension-send
 = This plugin is free? =
 
 Yes. If you want, you can support this project here: <a href="https://restezconnectes.fr/a-propos/">https://restezconnectes.fr/a-propos/</a>
-
-= Can I change the plugin code? =
-
-Yes. Thank you for submitting your changes to update the plugin.
 
 
 == Changelog ==
