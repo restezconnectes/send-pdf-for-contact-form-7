@@ -3,6 +3,7 @@
 class cf7_sendpdf {
 
     protected static $instance;
+    protected $groups = array();
     public $session;
     
 	public static function init() {
@@ -328,16 +329,18 @@ class cf7_sendpdf {
     }
 
     function wpcf7pdf_session_start() {
+       
         if ( ! session_id() ) {
-          session_start(['read_and_close' => true,]);
+            session_start();
         }
         // On enregistre un ID en session
         if ( isset( $_SESSION['pdf_uniqueid'] ) ) {
             //unset( $_SESSION['pdf_uniqueid'] );
         } 
         if( empty($_SESSION['pdf_uniqueid']) ) {
-        $_SESSION['pdf_uniqueid'] = uniqid();
+            $_SESSION['pdf_uniqueid'] = uniqid();
         }
+
     }
 
     function save($id, $data, $file = '', $file2 = '') {
@@ -463,6 +466,21 @@ class cf7_sendpdf {
 
     }
 
+    /**
+	 * Sanitization method of the `_wpcf7_groups_count` hidden input.
+	 *
+	 * @return array
+	 */
+	private function sanitize_groups_count() {
+		// phpcs:disable WordPress.Security.NonceVerification.Missing -- CF7 Handles this.
+		// phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		$groups_count = ( isset( $_POST['_wpcf7_groups_count'] ) ) ? wp_unslash( (array) $_POST['_wpcf7_groups_count'] ) : array();
+		$groups_count = array_map( 'sanitize_text_field', wp_unslash( (array) $groups_count ) );
+		// phpcs:enable WordPress.Security.NonceVerification.Missing
+		// phpcs:enable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		return $groups_count;
+    }
+    
     function wpcf7pdf_send_pdf($contact_form) {
 
         $submission = WPCF7_Submission::get_instance();
@@ -534,6 +552,41 @@ class cf7_sendpdf {
                 $nameOfPdf = $this->wpcf7pdf_name_pdf($post['_wpcf7']);
                 // définit le contenu du PDf
                 $text = trim($meta_values['generate_pdf']);
+
+                // Post info sanitization.
+                $groups_count = $this->sanitize_groups_count();
+                $form   = do_shortcode( $contact_form->prop( 'form' ) );
+                /*
+                * We only make our magic when user is sending the form.
+                * There is no need to change anything when showing it for the first time.
+                */
+                if ( count( $this->groups ) && ! empty( $groups_count ) ) {
+                    foreach ( $groups_count as $group_id => $group_sent_count ) {
+
+                        // Change the `form` property.
+                        $form_raw_tags            = $this->groups[ $group_id ]['raw'];
+                        $form_tags_first_replaced = $form_raw_tags;
+                        foreach ( $this->groups[ $group_id ]['tags'] as $tag ) {
+                            $tag_type = preg_quote( $tag->type, '/' );
+                            $tag_name = preg_quote( $tag->name, '/' );
+                            // Change the original `name` to `name__1`.
+                            $form_tags_first_replaced = preg_replace( "/\[{$tag_type}(.*?){$tag_name}/", "[{$tag->type}\\1{$tag->name}__1", $form_tags_first_replaced );
+
+                        }
+                        $form_tags_replaced = $form_tags_first_replaced;
+                        for ( $i = 2; $i <= $group_sent_count; $i++ ) {
+                            // Change the `name__1` to `name__$i`.
+                            $form_tags_replaced .= preg_replace( '/__1(\s|\])/', "__{$i}$1", $form_tags_first_replaced );
+                        }
+                        $form = str_replace(
+                            $form_raw_tags,
+                            $form_tags_replaced,
+                            $form
+                        );
+                        error_log('Group ID:'.$group_id);
+                        error_log(print_r($form));
+                    }
+                }
 
                 // Si option fillable, on genere les champs et remplace les données
                 if (isset($meta_values['data_input']) && $meta_values['data_input']== 'true') {
@@ -1318,7 +1371,8 @@ class cf7_sendpdf {
         $displayAddEventList = 0;
         
         if ( ! session_id() ) {
-            session_start(['read_and_close' => true,]);
+            //session_start(['read_and_close' => true,]);
+            session_start();
         }
         
         // On recupere l'ID du Formulaire
