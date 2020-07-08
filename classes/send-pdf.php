@@ -330,7 +330,7 @@ class cf7_sendpdf {
 
     function wpcf7pdf_session_start() {
        
-        if(!isset($_COOKIE['pdf_uniqueid'])) {
+        if( !isset($_COOKIE['pdf_uniqueid']) ) {
             $uniqId = setcookie( 'pdf_uniqueid', uniqid(), time() + 3600, COOKIEPATH, COOKIE_DOMAIN );
         } else {
             $uniqId = $_COOKIE['pdf_uniqueid'];
@@ -1186,7 +1186,8 @@ class cf7_sendpdf {
                 }
 
             }
-           unset( $_COOKIE['pdf_uniqueid'] );
+            setcookie( 'pdf_uniqueid', '', time() - 3600, COOKIEPATH, COOKIE_DOMAIN );
+           //unset( $_COOKIE['pdf_uniqueid'] );
        }
 
     }
