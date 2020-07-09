@@ -185,7 +185,7 @@ jQuery(document).ready(function() {
         
         // On récupère le format de date dans les paramètres
         $date_format = get_option( 'date_format' );
-        $hour_format = get_option('time_format');
+        $hour_format = get_option( 'time_format' );
 
         // Definition des marges par defaut
         $marginHeader = 10;
@@ -250,8 +250,8 @@ jQuery(document).ready(function() {
             }
 
             if( isset($meta_values['footer_generate_pdf']) && $meta_values['footer_generate_pdf']!='' ) {
-                $footerText = str_replace('[reference]', $_SESSION['pdf_uniqueid'], $meta_values['footer_generate_pdf']);
-                $footerText = str_replace('[url-pdf]', $upload_dir['url'].'/'.$nameOfPdf.'-'.$_SESSION['pdf_uniqueid'].'.pdf', $footerText);
+                $footerText = str_replace('[reference]', $_COOKIE['pdf_uniqueid'], $meta_values['footer_generate_pdf']);
+                $footerText = str_replace('[url-pdf]', $upload_dir['url'].'/'.$nameOfPdf.'-'.$_COOKIE['pdf_uniqueid'].'.pdf', $footerText);
                 if( isset($meta_values['date_format']) && !empty($meta_values['date_format']) ) {
                     $dateField = date_i18n($meta_values['date_format']);
                 }
@@ -358,8 +358,8 @@ jQuery(document).ready(function() {
                 $messageText = preg_replace("/(\r\n|\n|\r)/", "<div></div>", $messageText);
                 $messageText = str_replace("<div></div><div></div>", '<div style="height:10px;"></div>', $messageText);
             }
-            $messageText = str_replace('[reference]', $_SESSION['pdf_uniqueid'], $messageText);
-            $messageText = str_replace('[url-pdf]', $upload_dir['url'].'/'.$nameOfPdf.'-'.$_SESSION['pdf_uniqueid'].'.pdf', $messageText);
+            $messageText = str_replace('[reference]', $_COOKIE['pdf_uniqueid'], $messageText);
+            $messageText = str_replace('[url-pdf]', $upload_dir['url'].'/'.$nameOfPdf.'-'.$_COOKIE['pdf_uniqueid'].'.pdf', $messageText);
             if( isset($meta_values['date_format']) && !empty($meta_values['date_format']) ) {
                 $dateField = date_i18n($meta_values['date_format']);
             } else {
@@ -1080,7 +1080,7 @@ $pathFolder = serialize($createDirectory);
                                     <td width="50%"><br /></td>
                                     <td width="50%" align="center">
                                         <?php if( file_exists($createDirectory.'/preview-'.$idForm.'.pdf') ) { ?><br />
-                                        <a href="<?php echo str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $createDirectory ).'/preview-'.$idForm.'.pdf?ver='.$_SESSION['pdf_uniqueid']; ?>" target="_blank"><span class="preview-btn" style="padding:10px;"><?php _e('Preview your PDF', 'send-pdf-for-contact-form-7'); ?></span></a>
+                                        <a href="<?php echo str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $createDirectory ).'/preview-'.$idForm.'.pdf?ver='.$_COOKIE['pdf_uniqueid']; ?>" target="_blank"><span class="preview-btn" style="padding:10px;"><?php _e('Preview your PDF', 'send-pdf-for-contact-form-7'); ?></span></a>
                                         <?php } ?>
                                     </td>
                                 </tr>

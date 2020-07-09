@@ -404,6 +404,18 @@ class cf7_sendpdf {
 
         $upload_dir = wp_upload_dir();
 
+        $tmpDirectory = $upload_dir['basedir'].'/sendpdfcf7_uploads/tmp';
+        if( is_dir($tmpDirectory) == false ) {
+            $files = array(
+                array(
+                    'base' 		=> $upload_dir['basedir'] . '/sendpdfcf7_uploads/tmp',
+                    'file' 		=> 'index.php',
+                    'content' 	=> '<?php // Silence is Golden'
+                )
+            );
+            add_option('wpcf7pdf_path_temp', $upload_dir['basedir'] . '/sendpdfcf7_uploads/tmp');
+        }
+
         if( isset($meta_values["pdf-uploads"]) && $meta_values["pdf-uploads"]=='true' ) {
 
             $newDirectory = $upload_dir['basedir'].'/sendpdfcf7_uploads';
@@ -430,18 +442,6 @@ class cf7_sendpdf {
                         }
                     }
                 }
-            }
-
-            $tmpDirectory = $upload_dir['basedir'].'/sendpdfcf7_uploads/tmp';
-            if( is_dir($tmpDirectory) == false ) {
-                $files = array(
-                    array(
-                        'base' 		=> $upload_dir['basedir'] . '/sendpdfcf7_uploads/tmp',
-                        'file' 		=> 'index.php',
-                        'content' 	=> '<?php // Silence is Golden'
-                    )
-                );
-                add_option('wpcf7pdf_path_temp', $upload_dir['basedir'] . '/sendpdfcf7_uploads/tmp');
             }
             
             $subDirectory = $upload_dir['basedir'].'/sendpdfcf7_uploads/'.$id;
@@ -499,7 +499,7 @@ class cf7_sendpdf {
             
             // On récupère le format de date dans les paramètres
             $date_format = get_option( 'date_format' );
-            $hour_format = get_option('time_format');
+            $hour_format = get_option( 'time_format' );
 
             // Definition des marges par defaut
             $marginHeader = 10;
