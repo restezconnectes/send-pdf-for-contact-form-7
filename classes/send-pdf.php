@@ -489,6 +489,7 @@ class cf7_sendpdf {
 
             $upload_dir = wp_upload_dir();
             $uploaded_files = $submission->uploaded_files(); // this allows you access to the upload file in the temp location
+            $custom_tmp_path = get_option('wpcf7pdf_path_temp');
 
             $meta_values = get_post_meta( $post['_wpcf7'], '_wp_cf7pdf', true );
             $meta_fields = get_post_meta( $post['_wpcf7'], '_wp_cf7pdf_fields', true );
@@ -676,9 +677,9 @@ class cf7_sendpdf {
                         //$mpdf=new mPDF('utf-8', $formatPdf);
                         $mpdf = new \Mpdf\Mpdf(['mode' => 'utf-8', 'format' => $formatPdf, 'margin_header' => 10, 'margin_top' => 40,]);
                     } else if( isset($meta_values['fillable_data']) && $meta_values['fillable_data']== 'true') {
-                        $mpdf = new \Mpdf\Mpdf(['mode' => 'c', 'format' => $formatPdf, 'margin_header' => 10, 'margin_top' => 40, 'default_font' => $fontPdf, 'default_font_size' => $fontsizePdf, 'tempDir' => get_option('wpcf7pdf_path_temp')]);
+                        $mpdf = new \Mpdf\Mpdf(['mode' => 'c', 'format' => $formatPdf, 'margin_header' => 10, 'margin_top' => 40, 'default_font' => $fontPdf, 'default_font_size' => $fontsizePdf, 'tempDir' => $custom_tmp_path]);
                     } else {
-                        $mpdf = new \Mpdf\Mpdf(['mode' => 'utf-8', 'format' => 'A4-L', 'margin_header' => 10, 'margin_top' => 40, 'default_font' => $fontPdf, 'default_font_size' => $fontsizePdf, 'tempDir' => get_option('wpcf7pdf_path_temp')]);
+                        $mpdf = new \Mpdf\Mpdf(['mode' => 'utf-8', 'format' => 'A4-L', 'margin_header' => 10, 'margin_top' => 40, 'default_font' => $fontPdf, 'default_font_size' => $fontsizePdf, 'tempDir' => $custom_tmp_path]);
                     }
                     $mpdf->autoScriptToLang = true;
                     $mpdf->baseScript = 1;

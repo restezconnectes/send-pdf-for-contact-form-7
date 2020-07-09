@@ -181,7 +181,8 @@ jQuery(document).ready(function() {
         // On récupère le dossier upload de WP
         $upload_dir = wp_upload_dir();
         $createDirectory = cf7_sendpdf::wpcf7pdf_folder_uploads($idForm);
-
+        $custom_tmp_path = get_option('wpcf7pdf_path_temp');
+        
         // On récupère le format de date dans les paramètres
         $date_format = get_option( 'date_format' );
         $hour_format = get_option('time_format');
@@ -226,9 +227,9 @@ jQuery(document).ready(function() {
             if( isset($meta_values["margin_top"]) && $meta_values["margin_top"]!='' ) { $marginTop = $meta_values["margin_top"]; }
 
             if( isset($meta_values['fillable_data']) && $meta_values['fillable_data']== 'true') {
-                $mpdf = new \Mpdf\Mpdf(['mode' => 'c', 'format' => $formatPdf, 'margin_header' => $marginHeader,'margin_top' => $marginTop, 'default_font' => $fontPdf, 'default_font_size' => $fontsizePdf, 'tempDir' => get_option('wpcf7pdf_path_temp')]);
+                $mpdf = new \Mpdf\Mpdf(['mode' => 'c', 'format' => $formatPdf, 'margin_header' => $marginHeader,'margin_top' => $marginTop, 'default_font' => $fontPdf, 'default_font_size' => $fontsizePdf, 'tempDir' => $custom_tmp_path]);
             } else {
-                $mpdf = new \Mpdf\Mpdf(['mode' => 'utf-8', 'format' => $formatPdf, 'margin_header' => $marginHeader,'margin_top' => $marginTop, 'default_font' => $fontPdf, 'default_font_size' => $fontsizePdf, 'tempDir' => get_option('wpcf7pdf_path_temp')]);
+                $mpdf = new \Mpdf\Mpdf(['mode' => 'utf-8', 'format' => $formatPdf, 'margin_header' => $marginHeader,'margin_top' => $marginTop, 'default_font' => $fontPdf, 'default_font_size' => $fontsizePdf, 'tempDir' => $custom_tmp_path]);
             }
             //var_dump($meta_values);
             ///exit();
