@@ -427,7 +427,7 @@ class cf7_sendpdf {
                     }
                 }
             }
-            
+
             add_option('wpcf7pdf_path_temp', $upload_dir['basedir'] . '/sendpdfcf7_uploads/tmp');
         }
 
@@ -1406,9 +1406,11 @@ class cf7_sendpdf {
                 $redirectPDF = "/* REDICTION DIRECT */
         if ( '" . $id . "' === event.detail.contactFormId ) {";
                     if( isset($meta_values["redirect-window"]) && $meta_values["redirect-window"] == 'popup' ) {
-                        $redirectPDF .= "window.open('".$urlRredirectPDF."','".$nameOfPdf."','menubar=no, status=no, scrollbars=yes, menubar=no, width=600, height=900');";
+                        $redirectPDF .= "
+            window.open('".$urlRredirectPDF."','".$nameOfPdf."','menubar=no, status=no, scrollbars=yes, menubar=no, width=600, height=900');";
                      } else { 
-                        $redirectPDF .= "var location = '".$urlRredirectPDF."'; window.open(location, '".$targetPDF."');";
+                        $redirectPDF .= "
+            var location = '".$urlRredirectPDF."'; window.open(location, '".$targetPDF."');";
                     }
                 $redirectPDF .= "}
 ";
