@@ -408,11 +408,26 @@ class cf7_sendpdf {
         if( is_dir($tmpDirectory) == false ) {
             $files = array(
                 array(
+                    'base' 		=> $upload_dir['basedir'] . '/sendpdfcf7_uploads/',
+                    'file' 		=> 'index.php',
+                    'content' 	=> '<?php // Silence is Golden'
+                ),
+                array(
                     'base' 		=> $upload_dir['basedir'] . '/sendpdfcf7_uploads/tmp',
                     'file' 		=> 'index.php',
                     'content' 	=> '<?php // Silence is Golden'
                 )
             );
+
+            foreach ( $files as $file ) {
+                if ( wp_mkdir_p( $file['base'] ) && ! file_exists( trailingslashit( $file['base'] ) . $file['file'] ) ) {
+                    if ( $file_handle = @fopen( trailingslashit( $file['base'] ) . $file['file'], 'w' ) ) {
+                        fwrite( $file_handle, $file['content'] );
+                        fclose( $file_handle );
+                    }
+                }
+            }
+            
             add_option('wpcf7pdf_path_temp', $upload_dir['basedir'] . '/sendpdfcf7_uploads/tmp');
         }
 
@@ -422,11 +437,6 @@ class cf7_sendpdf {
             if( is_dir($newDirectory) == false ) {
                 //mkdir($newDirectory, 0755);
                 $files = array(
-                    array(
-                        'base' 		=> $upload_dir['basedir'] . '/sendpdfcf7_uploads/',
-                        'file' 		=> 'index.php',
-                        'content' 	=> '<?php // Silence is Golden'
-                    ),
                     array(
                         'base' 		=> $upload_dir['basedir'] . '/sendpdfcf7_uploads/'.$id,
                         'file' 		=> 'index.php',
@@ -672,14 +682,17 @@ class cf7_sendpdf {
                         $fontsizePdf = $meta_values['pdf-fontsize'];
                     }
                     
+                    if( isset($meta_values["margin_header"]) && $meta_values["margin_header"]!='' ) { $marginHeader = $meta_values["margin_header"]; }
+                    if( isset($meta_values["margin_top"]) && $meta_values["margin_top"]!='' ) { $marginTop = $meta_values["margin_top"]; }
+
                     if( isset($meta_values['pdf-type']) && isset($meta_values['pdf-orientation']) ) {
                         $formatPdf = $meta_values['pdf-type'].$meta_values['pdf-orientation'];
                         //$mpdf=new mPDF('utf-8', $formatPdf);
-                        $mpdf = new \Mpdf\Mpdf(['mode' => 'utf-8', 'format' => $formatPdf, 'margin_header' => 10, 'margin_top' => 40,]);
+                        $mpdf = new \Mpdf\Mpdf(['mode' => 'utf-8', 'format' => $formatPdf, 'margin_header' => $marginHeader, 'margin_top' => 40,]);
                     } else if( isset($meta_values['fillable_data']) && $meta_values['fillable_data']== 'true') {
-                        $mpdf = new \Mpdf\Mpdf(['mode' => 'c', 'format' => $formatPdf, 'margin_header' => 10, 'margin_top' => 40, 'default_font' => $fontPdf, 'default_font_size' => $fontsizePdf, 'tempDir' => $custom_tmp_path]);
+                        $mpdf = new \Mpdf\Mpdf(['mode' => 'c', 'format' => $formatPdf, 'margin_header' => $marginHeader, 'margin_top' => $marginTop, 'default_font' => $fontPdf, 'default_font_size' => $fontsizePdf, 'tempDir' => $custom_tmp_path]);
                     } else {
-                        $mpdf = new \Mpdf\Mpdf(['mode' => 'utf-8', 'format' => 'A4-L', 'margin_header' => 10, 'margin_top' => 40, 'default_font' => $fontPdf, 'default_font_size' => $fontsizePdf, 'tempDir' => $custom_tmp_path]);
+                        $mpdf = new \Mpdf\Mpdf(['mode' => 'utf-8', 'format' => 'A4-L', 'margin_header' => $marginHeader, 'margin_top' => $marginTop, 'default_font' => $fontPdf, 'default_font_size' => $fontsizePdf, 'tempDir' => $custom_tmp_path]);
                     }
                     $mpdf->autoScriptToLang = true;
                     $mpdf->baseScript = 1;
