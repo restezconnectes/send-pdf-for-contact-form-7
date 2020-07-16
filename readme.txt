@@ -3,8 +3,8 @@ Contributors: Florent73
 Donate link: https://www.paypal.me/RestezConnectes/
 Tags: WordPress, plugin, contact form, pdf, send, attachment, form, cf7
 Requires at least: 3.0
-Tested up to: 5.5
-Stable tag: 0.7.9.4
+Tested up to: 5.4
+Stable tag: 0.7.9.3
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -50,11 +50,9 @@ Yes. If you want, you can support this project here: <a href="https://restezconn
 
 == Changelog ==
 
-= 0.7.9.4 =
-* Fixed bug TMP directory
-
 = 0.7.9.3 =
 * Remove SESSION and use COOKIE
+* Adding a TMP folder
 
 = 0.7.9.2 =
 * Fixed bugs session
