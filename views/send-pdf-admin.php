@@ -181,6 +181,7 @@ jQuery(document).ready(function() {
         // On récupère le dossier upload de WP
         $upload_dir = wp_upload_dir();
         $createDirectory = cf7_sendpdf::wpcf7pdf_folder_uploads($idForm);
+        
         $custom_tmp_path = get_option('wpcf7pdf_path_temp');
         
         // On récupère le format de date dans les paramètres

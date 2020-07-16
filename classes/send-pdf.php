@@ -429,6 +429,8 @@ class cf7_sendpdf {
             }
 
             add_option('wpcf7pdf_path_temp', $upload_dir['basedir'] . '/sendpdfcf7_uploads/tmp');
+        } else if( empty(get_option('wpcf7pdf_path_temp')) ) {
+            add_option('wpcf7pdf_path_temp', $upload_dir['basedir'] . '/sendpdfcf7_uploads/tmp');
         }
 
         if( isset($meta_values["pdf-uploads"]) && $meta_values["pdf-uploads"]=='true' ) {
