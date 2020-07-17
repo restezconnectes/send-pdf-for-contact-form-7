@@ -1377,10 +1377,6 @@ class cf7_sendpdf {
         global $cf7msm_redirect_urls;
         $displayAddEventList = 0;
         
-        if ( ! session_id() ) {
-            session_start(['read_and_close' => true,]);
-        }
-        
         // On recupere l'ID du Formulaire
         $wpcf7 = WPCF7_ContactForm::get_current();
         if( $wpcf7 ) {
