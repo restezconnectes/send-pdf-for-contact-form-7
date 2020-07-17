@@ -390,7 +390,7 @@ class cf7_sendpdf {
             }
             $namePDF = $namePDF.$addName;
             
-            $contact_form = WPCF7_ContactForm::get_instance($post['_wpcf7']);
+            $contact_form = WPCF7_ContactForm::get_instance($id);
             if( $contact_form ) {
                 $contact_tag = $contact_form->scan_form_tags();
                 foreach ( $contact_tag as $sh_tag ) {
