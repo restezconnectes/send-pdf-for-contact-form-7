@@ -363,6 +363,8 @@ class cf7_sendpdf {
         if( empty($id) ) { die('No ID Form'); }
         $meta_values = get_post_meta( $id, '_wp_cf7pdf', true );
 
+        if( empty($_COOKIE['pdf_uniqueid']) ) { wp_redirect( admin_url('admin.php?page=wpcf7-send-pdf') ); exit; }
+
         if( isset($meta_values["pdf-name"]) && !empty($meta_values["pdf-name"]) ) {
             $namePDF = trim($meta_values["pdf-name"]);
             $namePDF = str_replace(' ', '-', $namePDF);
@@ -393,11 +395,13 @@ class cf7_sendpdf {
             $contact_form = WPCF7_ContactForm::get_instance($id);
             if( $contact_form ) {
                 $contact_tag = $contact_form->scan_form_tags();
-                foreach ( $contact_tag as $sh_tag ) {
+                if( !empty($contact_tag) ) {
+                    foreach ( $contact_tag as $sh_tag ) {
 
-                        $valueTag = wpcf7_mail_replace_tags('['.$sh_tag["name"].']');                            
-                        $namePDF = str_replace('['.$sh_tag["name"].']', sanitize_title($valueTag), $namePDF);                            
+                            $valueTag = wpcf7_mail_replace_tags('['.$sh_tag["name"].']');                            
+                            $namePDF = str_replace('['.$sh_tag["name"].']', sanitize_title($valueTag), $namePDF);                            
 
+                    }
                 }
             }
 
@@ -769,10 +773,28 @@ class cf7_sendpdf {
                         $mpdf->SetHTMLFooter($footerText);
                     }
 
+                    if( isset($meta_values['image_background']) && $meta_values['image_background']!='' ) {
+                 
+                        $mpdf->SetDefaultBodyCSS('background', "url('".esc_url($meta_values['image_background'])."')");
+                        $mpdf->SetDefaultBodyCSS('background-image-resize', 6);
+                    }
+                    
                     // LOAD a stylesheet
                     if( isset($meta_values['stylesheet']) && $meta_values['stylesheet']!='' ) {
                         $stylesheet = file_get_contents($meta_values['stylesheet']);
                         $mpdf->WriteHTML($stylesheet,1);	// The parameter 1 tells that this is css/style only and no body/html/text
+                    }
+                    // Adding Custom CSS            
+                    if( isset($meta_values['custom_css']) && $meta_values['custom_css']!='' ) {
+                        $tagStyleOpen = strpos($meta_values['custom_css'], '<style>');
+                        if ($tagStyleOpen === false) {
+                            $mpdf->WriteHTML('<style>');
+                        }
+                        $mpdf->WriteHTML($meta_values['custom_css']);
+                        $tagStyleClose = strpos($meta_values['custom_css'], '</style>');
+                        if ($tagStyleClose === false) {
+                            $mpdf->WriteHTML('</style>');
+                        }
                     }
 
                     // En cas de saut de page avec le tag [addpage]
@@ -784,6 +806,9 @@ class cf7_sendpdf {
                             $mpdf->WriteHTML($newPage[$i]);
                             if( isset($meta_values["page_header"]) && $meta_values["page_header"]==0) { $mpdf->SetHTMLHeader(); }
                             if( $i < (count($newPage)-1) ) {
+                                if( isset($meta_values['page_background']) && $meta_values['page_background']==0 ) {
+                                    $mpdf->SetDefaultBodyCSS('background', "");
+                                }
                                 if( isset($meta_values["page_header"]) && $meta_values["page_header"]==1) {
                                     $mpdf->AddPage();
                                 } else {
@@ -1376,7 +1401,7 @@ class cf7_sendpdf {
         // Multi STEP plugin?
         global $cf7msm_redirect_urls;
         $displayAddEventList = 0;
-        
+
         // On recupere l'ID du Formulaire
         $wpcf7 = WPCF7_ContactForm::get_current();
         if( $wpcf7 ) {

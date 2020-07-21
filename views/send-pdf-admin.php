@@ -22,13 +22,12 @@ if( (isset($_POST['action']) && isset($_POST['idform']) && $_POST['action'] == '
  
             while (false !== ($fichier = readdir($repertoire))) // On lit chaque fichier du répertoire dans la boucle.
             {
-            $chemin = $dossier_traite."/".$fichier; // On définit le chemin du fichier à effacer.
+                $chemin = $dossier_traite."/".$fichier; // On définit le chemin du fichier à effacer.
 
-            // Si le fichier n'est pas un répertoire…
-            if ($fichier != ".." AND $fichier != "." AND !is_dir($fichier))
-                   {
+                // Si le fichier n'est pas un répertoire…
+                if ($fichier != ".." AND $fichier != "." AND !is_dir($fichier)) {
                    unlink($chemin); // On efface.
-                   }
+                }
             }
             closedir($repertoire);
             
@@ -243,11 +242,28 @@ jQuery(document).ready(function() {
             $mpdf->SetTitle(get_the_title($idForm));
             $mpdf->SetCreator(get_bloginfo('name'));
             $mpdf->ignore_invalid_utf8 = true;
+            if( isset($meta_values['image_background']) && $meta_values['image_background']!='' ) {
+                 
+                $mpdf->SetDefaultBodyCSS('background', "url('".esc_url($meta_values['image_background'])."')");
+                $mpdf->SetDefaultBodyCSS('background-image-resize', 6);
+            }
             
             // LOAD a stylesheet
             if( isset($meta_values['stylesheet']) && $meta_values['stylesheet']!='' ) {
                 $stylesheet = file_get_contents($meta_values['stylesheet']);
                 $mpdf->WriteHTML($stylesheet,1);	// The parameter 1 tells that this is css/style only and no body/html/text
+            }
+            // Adding Custom CSS            
+            if( isset($meta_values['custom_css']) && $meta_values['custom_css']!='' ) {
+                $tagStyleOpen = strpos($meta_values['custom_css'], '<style>');
+                if ($tagStyleOpen === false) {
+                    $mpdf->WriteHTML('<style>');
+                }
+                $mpdf->WriteHTML($meta_values['custom_css']);
+                $tagStyleClose = strpos($meta_values['custom_css'], '</style>');
+                if ($tagStyleClose === false) {
+                    $mpdf->WriteHTML('</style>');
+                }
             }
 
             if( isset($meta_values['footer_generate_pdf']) && $meta_values['footer_generate_pdf']!='' ) {
@@ -388,6 +404,9 @@ jQuery(document).ready(function() {
                     $mpdf->WriteHTML($newPage[$i]);
                     if( isset($meta_values["page_header"]) && $meta_values["page_header"]==0) { $mpdf->SetHTMLHeader(); }
                     if( $i < (count($newPage)-1) ) {
+                        if( isset($meta_values['page_background']) && $meta_values['page_background']==0 ) {
+                            $mpdf->SetDefaultBodyCSS('background', "");
+                        }
                         if( isset($meta_values["page_header"]) && $meta_values["page_header"]==1) {
                             $mpdf->AddPage();
                         } else {
@@ -854,11 +873,7 @@ $pathFolder = serialize($createDirectory);
                 <tr>
                     <td>
                         <h3 class="hndle"><span class="dashicons dashicons-format-image"></span>&nbsp;&nbsp;<?php _e('Image header', 'send-pdf-for-contact-form-7'); ?></h3>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <?php _e('Enter a URL or upload an image.', 'send-pdf-for-contact-form-7'); ?><br /><br />
+                        <?php _e('Enter a URL or upload an image:', 'send-pdf-for-contact-form-7'); ?><br />
                         <input id="upload_image" size="80%" class="wpcf7-form-field" name="wp_cf7pdf_settings[image]" value="<?php if( isset($meta_values['image']) ) { echo esc_url($meta_values['image']); } ?>" type="text" /> <a href="#" id="upload_image_button" class="button" OnClick="this.blur();"><span> <?php _e('Select or Upload your picture', 'send-pdf-for-contact-form-7'); ?> </span></a> <br />
                         <div style="margin-top:0.8em;">
                             <select name="wp_cf7pdf_settings[image-alignment]" class="wpcf7-form-field">
@@ -880,9 +895,23 @@ $pathFolder = serialize($createDirectory);
                     </div>
 
                         </div>
+
+                        <h3 class="hndle"><span class="dashicons dashicons-images-alt2"></span>&nbsp;&nbsp;<?php _e('Image Background', 'send-pdf-for-contact-form-7'); ?></h3>
+                        <?php _e('Enter a URL or upload an image:', 'send-pdf-for-contact-form-7'); ?><br />
+                        <input id="upload_background" size="80%" class="wpcf7-form-field" name="wp_cf7pdf_settings[image_background]" value="<?php if( isset($meta_values['image_background']) ) { echo esc_url($meta_values['image_background']); } ?>" type="text" /> <a href="#" id="upload_image_background" class="button" OnClick="this.blur();"><span> <?php _e('Select or Upload your picture', 'send-pdf-for-contact-form-7'); ?> </span></a><br />
+                        <div style="margin-top:0.8em;">                           
+                            <div style=""><?php _e('Display background on each page?', 'send-pdf-for-contact-form-7'); ?>
+                                <div class="switch-field-mini">
+                                    <input class="switch_left" type="radio" id="switch_page_background" name="wp_cf7pdf_settings[page_background]" value="1" <?php if( isset($meta_values["page_background"]) && $meta_values["page_background"]==1) { echo ' checked'; } ?>>
+                                    <label for="switch_page_background"><?php _e('Yes', 'send-pdf-for-contact-form-7'); ?></label>
+                                    <input class="switch_right" type="radio" id="switch_page_background_no" name="wp_cf7pdf_settings[page_background]" value="0" <?php if( empty($meta_values["page_background"]) || (isset($meta_values["page_background"]) && $meta_values["page_background"]==0) ) { echo ' checked'; } ?>>
+                                    <label for="switch_page_background_no"><?php _e('No', 'send-pdf-for-contact-form-7'); ?></label>
+                                </div>
+                            </div>
+                        </div>
                     </td>
                     <td align="center">
-                        <div style="border:1px solid #CCCCCC;height:100%;padding:5px;">
+                        <div style="border:1px solid #CCCCCC;height:460px;padding:5px;<?php if( isset($meta_values['image_background']) ) { echo 'background: no-repeat url('.esc_url($meta_values['image_background']); } ?>);background-size: cover;">
                             <div style="text-align:<?php if( isset($meta_values['image-alignment']) ) { echo $meta_values['image-alignment']; } ?>;margin-top:<?php if( isset($meta_values["margin_header"]) && $meta_values["margin_header"]!='' ) { echo $meta_values["margin_header"]; } else { echo $marginHeader; } ?>px;"><?php if( isset($meta_values['image']) ) { echo '<img src="'.esc_url($meta_values['image']).'" width="150">'; } ?>
                             </div>
                             <?php
@@ -896,15 +925,41 @@ $pathFolder = serialize($createDirectory);
                                 }
                             ?>
                             <div style="color:#cccccc;text-align:justify;margin-top:<?php echo $previewMargin; ?>px;">
-                            Ideo urbs venerabilis post superbas efferatarum gentium cervices oppressas latasque leges fundamenta libertatis et retinacula sempiterna velut frugi parens et prudens et dives Caesaribus tamquam liberis suis regenda patrimonii iura permisit.<br /><br />Illud tamen clausos vehementer angebat quod captis navigiis, quae frumenta vehebant per flumen, Isauri quidem alimentorum copiis adfluebant, ipsi vero solitarum rerum cibos iam consumendo inediae propinquantis aerumnas exitialis horrebant.
+                                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean commodo, neque nec vehicula molestie, lacus nunc ornare mi, nec aliquam libero dolor sed dolor. Quisque in lacinia lacus, ut tincidunt mauris. Integer vitae scelerisque dui. Curabitur pharetra et velit vitae interdum. Donec sollicitudin massa ante, nec malesuada quam scelerisque sit amet. Donec tristique semper diam vehicula auctor. Suspendisse venenatis porta odio eget consequat. Nullam nec lacus dapibus nulla auctor feugiat sit amet vel tortor.<br /><br />
+
+                                Nulla facilisi. Nam ullamcorper interdum efficitur. Etiam sollicitudin orci sit amet congue aliquam. Integer eu leo tempus, pellentesque eros at, cursus odio. Aliquam venenatis lectus tempus lacus pretium, sed tincidunt eros tempus. Pellentesque aliquet mollis risus, a auctor justo. Aliquam suscipit quis nisi et consectetur. Fusce tempus ex ac arcu dapibus scelerisque. In hendrerit convallis est non placerat. Fusce turpis sem, facilisis a mauris at, interdum imperdiet metus. Nullam lacus eros, tempor vel lectus id, tristique accumsan risus. Nunc ullamcorper ipsum ut accumsan fermentum. Nunc tempor est mauris. Vivamus eu tellus dictum felis pretium volutpat. Maecenas vitae tincidunt purus.<br /><br />
+
+                                Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Proin nec dolor eget diam ullamcorper pharetra. Aenean pulvinar interdum lacus, eu suscipit enim vehicula vitae. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Aenean hendrerit urna id malesuada porttitor. Vestibulum laoreet hendrerit iaculis. Vestibulum id quam non lectus euismod vulputate porta eu purus. Etiam ultricies dolor ut turpis pellentesque faucibus.
                             </div>
                         </div>
                     </td>
                 </tr>
                 <tr>
-                    <td colspan="2"><hr style="background-color: <?php echo $colors[2]; ?>; height: 1px; border: 0;"></td>
+                    <td>
+                        
+                    </td>
                 </tr>
-                
+                <tr>
+                    <td >
+                        
+                    </td>
+                </tr>
+                </tbody>
+        </table>
+        <table class="wp-list-table widefat fixed" cellspacing="0">
+            <tbody id="the-list">
+                <tr>
+                    <td>
+                        <h3 class="hndle"><span class="dashicons dashicons-media-code"></span> <?php _e('Custom CSS', 'send-pdf-for-contact-form-7'); ?></h3>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        
+                        <textarea name="wp_cf7pdf_settings[custom_css]" id="wp_cf7pdf_pdf_css" cols=70 rows=24 class="widefat textarea"style="height:250px;"><?php if( isset($meta_values['custom_css']) && !empty($meta_values['custom_css']) ) {  echo esc_textarea($meta_values['custom_css']); } ?></textarea>
+                    </td>
+                </tr>
+
                 <tr>
                     <td>
                         <h3 class="hndle"><span class="dashicons dashicons-arrow-down-alt"></span> <?php _e('Footer', 'send-pdf-for-contact-form-7'); ?></h3>
@@ -921,10 +976,10 @@ $pathFolder = serialize($createDirectory);
                         <textarea id="cf7pdf_html_footer" name="wp_cf7pdf_settings[footer_generate_pdf]" rows="15" cols="80%"><?php if( isset( $meta_values['footer_generate_pdf']) ) { echo esc_textarea($meta_values['footer_generate_pdf']); } ?></textarea>
                     </td>
                 </tr>
-                <tr>
-                    <td colspan="2"><hr style="background-color: <?php echo $colors[2]; ?>; height: 1px; border: 0;"></td>
-                </tr>
-
+            </tbody>
+        </table>
+        <table class="wp-list-table widefat fixed" cellspacing="0">
+            <tbody id="the-list">
                 <tr>
                     <td>
                         <h3 class="hndle"><span class="dashicons dashicons-media-document"></span> <?php _e('Personalize your PDF', 'send-pdf-for-contact-form-7'); ?></h3>
@@ -998,7 +1053,7 @@ $pathFolder = serialize($createDirectory);
                     <tr>
                         <td><?php _e('Add a CSS file', 'send-pdf-for-contact-form-7'); ?><br /><p><a href="<?php echo WPCF7PD_URL.'css/mpdf-style-A4.css'; ?>" target="_blank"><small><i><?php _e('Donwload a example A4 page here', 'send-pdf-for-contact-form-7'); ?></i></small></a></p></td>
                         <td>
-                            <input size="100%" class="wpcf7-form-field" name="wp_cf7pdf_settings[stylesheet]" value="<?php if( isset($meta_values['stylesheet']) ) { echo esc_url($meta_values['stylesheet']); } ?>" type="text" />
+                            <input size="60%" class="wpcf7-form-field" name="wp_cf7pdf_settings[stylesheet]" value="<?php if( isset($meta_values['stylesheet']) ) { echo esc_url($meta_values['stylesheet']); } ?>" type="text" /><br /><small><?php _e('Exemple for demo:', 'send-pdf-for-contact-form-7'); ?> <?php echo WPCF7PD_URL;?>css/mpdf-style-A4.css</small>
                         </td>
                     </tr>
                     <tr>
@@ -1094,6 +1149,7 @@ $pathFolder = serialize($createDirectory);
                         <textarea name="wp_cf7pdf_settings[generate_pdf]" id="wp_cf7pdf_pdf" cols=70 rows=24 class="widefat textarea"style="height:250px;"><?php if( empty($meta_values['generate_pdf']) ) { echo $messagePdf; } else { echo esc_textarea($meta_values['generate_pdf']); } ?></textarea>
                     </td>
                 </tr>
+
             </tbody>
         </table>
     </div>
@@ -1216,6 +1272,7 @@ $pathFolder = serialize($createDirectory);
 <script>
     jQuery(document).ready(function($) {
     wp.codeEditor.initialize($('#wp_cf7pdf_pdf'), pcf7pdf_settings);
+    wp.codeEditor.initialize($('#wp_cf7pdf_pdf_css'), pcf7pdf_settings);
     wp.codeEditor.initialize($('#cf7pdf_html_footer'), pcf7pdf_settings);
     });
 </script>
