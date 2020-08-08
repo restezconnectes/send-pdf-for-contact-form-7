@@ -148,10 +148,9 @@ color:#ffffff;
 }
 #wpcf7-bandeau {
     margin-left: 0px;
-    margin-top: 5px;
     background-color: #ffffff;
     border: 1px solid #cccccc;
-    padding: 10px;
+    height: 180px;
 }
 .postbox .hndle {
 	padding: 5px 5px 15px 5px;

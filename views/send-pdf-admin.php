@@ -116,7 +116,7 @@ jQuery(document).ready(function() {
     <div id="wpcf7-bandeau" style="">
         <table width="100%" cellspacing="20">
             <tr>
-                <td align="center" valign="middle">
+                <td align="center" valign="middle" width="33%">
                     <?php
                         $formsList = cf7_sendpdf::getForms();
                         if ( count($formsList) == 0 ) {
@@ -142,17 +142,17 @@ jQuery(document).ready(function() {
                     </form>
                     <?php } ?>
                 </td>
-                <td align="center" width="20%">
+                <td align="center" width="33%">
                         <div id="wpmimgcreated">
-                            <a href="https://restezconnectes.fr" title="Created by RestezConnectes.fr" class="wpcf7-link" alt="Created by RestezConnectes.fr" target="_blank"><img class="wpmresponsive" src="<?php echo plugins_url('send-pdf-for-contact-form-7/images/logo-Extensions.png'); ?>" style="" valign="bottom"  /></a>
+                            <a href="https://MadeBy.RestezConnectes.fr" title="Created by MadeByRestezConnectes.fr" class="wpcf7-link" alt="Created by MadeByRestezConnectes.fr" target="_blank" onfocus="this.blur();"><img class="wpmresponsive" src="<?php echo plugins_url('send-pdf-for-contact-form-7/images/logo-madeby-restezconnectes.png'); ?>" width="250" valign="bottom"  /></a>
                         </div>
-                    <h3><?php printf( __('Read %s here !', 'send-pdf-for-contact-form-7'), '<a href="https://restezconnectes.fr/tutoriel-wordpress-lextension-send-pdf-for-contact-form-7/" class="wpcf7-link" target="_blank">'.__('Tutorial', 'send-pdf-for-contact-form-7').'</a>' ); ?></h3>
+                    <p><?php printf( __('Read %s here !', 'send-pdf-for-contact-form-7'), '<a href="https://restezconnectes.fr/tutoriel-wordpress-lextension-send-pdf-for-contact-form-7/" class="wpcf7-link" target="_blank" onfocus="this.blur();">'.__('Tutorial', 'send-pdf-for-contact-form-7').'</a>' ); ?></p>
                 </td>
-                <td align="right" width="25%">
+                <td align="right" width="33%">
                     <!-- FAIRE UN DON SUR PAYPAL -->
-                    <div style="font-size:0.8em;"><?php _e('If you want Donate (French Paypal) for my current and future developments:', 'send-pdf-for-contact-form-7'); ?><br />
+                    <div style="font-size:0.8em;">
                         <div style="width:350px;margin-left:auto;margin-right:auto;padding:5px;">
-                            <a href="https://paypal.me/RestezConnectes/10" target="_blank" class="wpcf7pdfclassname">
+                            <a href="https://paypal.me/RestezConnectes/10" onfocus="this.blur();" target="_blank" class="wpcf7pdfclassname">
                                 <img src="<?php echo plugins_url('send-pdf-for-contact-form-7/images/donate.png'); ?>" valign="bottom" width="64" /> <?php _e('Donate now!', 'send-pdf-for-contact-form-7'); ?>
                             </a>
                         </div>
