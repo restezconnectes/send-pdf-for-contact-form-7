@@ -23,7 +23,7 @@
                 {
                     indentUnit: 2,
                     tabSize: 2,
-                    mode: 'css',
+                    mode: 'text/css',
                 }
             );
             var editor = wp.codeEditor.initialize( $('#wp_cf7pdf_pdf_css'), editorSettings );

@@ -796,15 +796,7 @@ class cf7_sendpdf {
                     }
                     // Adding Custom CSS            
                     if( isset($meta_values['custom_css']) && $meta_values['custom_css']!='' ) {
-                        $tagStyleOpen = strpos($meta_values['custom_css'], '<style>');
-                        if ($tagStyleOpen === false) {
-                            $mpdf->WriteHTML('<style>');
-                        }
-                        $mpdf->WriteHTML($meta_values['custom_css']);
-                        $tagStyleClose = strpos($meta_values['custom_css'], '</style>');
-                        if ($tagStyleClose === false) {
-                            $mpdf->WriteHTML('</style>');
-                        }
+                        $mpdf->WriteHTML('<style>'.$meta_values['custom_css'].'</style>');
                     }
 
                     // En cas de saut de page avec le tag [addpage]

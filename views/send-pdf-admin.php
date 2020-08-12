@@ -37,12 +37,13 @@ if( (isset($_POST['action']) && isset($_POST['idform']) && $_POST['action'] == '
     }
 
     update_post_meta( intval($_POST['idform']), '_wp_cf7pdf', $_POST["wp_cf7pdf_settings"] );
-    if (isset($_POST["wp_cf7pdf_tags"]) ) {
+    if ( isset($_POST["wp_cf7pdf_tags"]) ) {
         update_post_meta( intval($_POST['idform']), '_wp_cf7pdf_fields', $_POST["wp_cf7pdf_tags"] );
     }
     if ( isset($_POST["wp_cf7pdf_tags_scan"]) ) {
         update_post_meta( intval($_POST['idform']), '_wp_cf7pdf_fields_scan', $_POST["wp_cf7pdf_tags_scan"] );
     }
+    
     $options_saved = true;
     echo '<div id="message" class="updated fade"><p><strong>'.__('Options saved.', 'send-pdf-for-contact-form-7').'</strong></p></div>';
 
@@ -255,15 +256,7 @@ jQuery(document).ready(function() {
             }
             // Adding Custom CSS            
             if( isset($meta_values['custom_css']) && $meta_values['custom_css']!='' ) {
-                $tagStyleOpen = strpos($meta_values['custom_css'], '<style>');
-                if ($tagStyleOpen === false) {
-                    $mpdf->WriteHTML('<style>');
-                }
-                $mpdf->WriteHTML($meta_values['custom_css']);
-                $tagStyleClose = strpos($meta_values['custom_css'], '</style>');
-                if ($tagStyleClose === false) {
-                    $mpdf->WriteHTML('</style>');
-                }
+                $mpdf->WriteHTML('<style>'.$meta_values['custom_css'].'</style>');
             }
 
             if( isset($meta_values['footer_generate_pdf']) && $meta_values['footer_generate_pdf']!='' ) {
@@ -865,7 +858,7 @@ $pathFolder = serialize($createDirectory);
     <!-- MISE EN PAGE -->
    <div class="postbox">
      <div class="handlediv" title="<?php _e('Click to toggle', 'send-pdf-for-contact-form-7'); ?>"><br></div>
-      <h3 class="hndle" title="<?php _e('Click to toggle', 'send-pdf-for-contact-form-7'); ?>"><span class="dashicons dashicons-media-document"></span> <?php _e('Layout of your PDF', 'send-pdf-for-contact-form-7'); ?></h3>
+      <h3 class="hndle" title="<?php _e('Click to toggle', 'send-pdf-for-contact-form-7'); ?>"><span class="dashicons dashicons-pdf"></span> <?php _e('Layout of your PDF', 'send-pdf-for-contact-form-7'); ?></h3>
       <div class="inside openinside">
 
         <table class="wp-list-table widefat fixed" cellspacing="0">
@@ -955,16 +948,7 @@ $pathFolder = serialize($createDirectory);
                 </tr>
                 <tr>
                     <td colspan="2">
-                        <?php 
-                            $customCss = '';
-                            if( isset($meta_values['custom_css']) && !empty($meta_values['custom_css']) ) {  
-                                $customCss = $meta_values['custom_css'];
-                                // for old version before changed codemirror editor
-                                $customCss = str_replace('<style>', '', $customCss);
-                                $customCss = str_replace('</style>', '', $customCss);
-                            }
-                        ?>
-                        <textarea name="wp_cf7pdf_settings[custom_css]" id="wp_cf7pdf_pdf_css" cols=70 rows=24 class="widefat textarea"style="height:250px;"><?php echo esc_textarea($customCss); ?></textarea>
+                        <textarea name="wp_cf7pdf_settings[custom_css]" id="wp_cf7pdf_pdf_css" cols=70 rows=24 class="widefat textarea"style="height:250px;"><?php echo esc_textarea($meta_values['custom_css']); ?></textarea>
                     </td>
                 </tr>
 
@@ -990,7 +974,7 @@ $pathFolder = serialize($createDirectory);
             <tbody id="the-list">
                 <tr>
                     <td>
-                        <h3 class="hndle"><span class="dashicons dashicons-media-document"></span> <?php _e('Personalize your PDF', 'send-pdf-for-contact-form-7'); ?></h3>
+                        <h3 class="hndle"><span class="dashicons dashicons-tagcloud"></span> <?php _e('Personalize your PDF', 'send-pdf-for-contact-form-7'); ?></h3>
                     </td>
                 </tr>
                 <tr>
@@ -1143,7 +1127,7 @@ $pathFolder = serialize($createDirectory);
                                     <td width="50%"><br /></td>
                                     <td width="50%" align="center">
                                         <?php if( file_exists($createDirectory.'/preview-'.$idForm.'.pdf') ) { ?><br />
-                                        <a href="<?php echo str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $createDirectory ).'/preview-'.$idForm.'.pdf?ver='.$_COOKIE['pdf_uniqueid']; ?>" target="_blank"><span class="preview-btn" style="padding:10px;"><?php _e('Preview your PDF', 'send-pdf-for-contact-form-7'); ?></span></a>
+                                        <a href="<?php echo str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $createDirectory ).'/preview-'.$idForm.'.pdf?ver='.$_COOKIE['pdf_uniqueid']; ?>" target="_blank"><span class="preview-btn" style="padding:10px;"><span class="dashicons dashicons-search"></span> <?php _e('Preview your PDF', 'send-pdf-for-contact-form-7'); ?></span></a>
                                         <?php } ?>
                                     </td>
                                 </tr>
