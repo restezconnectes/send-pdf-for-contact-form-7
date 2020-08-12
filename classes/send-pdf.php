@@ -23,6 +23,7 @@ class cf7_sendpdf {
         add_filter( 'wpcf7_mail_components', array( $this, 'wpcf7pdf_mail_components' ), 10, 3 );
         add_action( 'wpcf7_mail_sent', array( $this, 'wpcf7pdf_after_mail_actions' ), 10, 1 );
         add_action( 'admin_menu', array( $this, 'wpcf7pdf_add_admin') );
+        add_action( 'admin_enqueue_scripts', array( $this, 'wpcf7pdf_codemirror_enqueue_scripts') );
         add_filter( 'plugin_action_links', array( $this, 'wpcf7pdf_plugin_actions'), 10, 2 );
         add_action( 'init', array( $this, 'wpcf7pdf_session_start'), 1 );
         add_action('admin_head', array( $this, 'wpcf7pdf_admin_head') );
@@ -266,6 +267,15 @@ class cf7_sendpdf {
         }
     }
 
+    function wpcf7pdf_codemirror_enqueue_scripts($hook) {
+
+        if (isset($_GET['page']) && $_GET['page'] == 'wpcf7-send-pdf') {    
+            wp_enqueue_code_editor( array( 'type' => 'text/html' ) );
+            wp_enqueue_script( 'js-code-editor',  WPCF7PD_URL.'js/wpcf7pdf-code-editor.js', array( 'jquery' ), '', true );
+        }
+
+    }
+    
     function wpcf7pdf_add_admin() {
 
         $capability = apply_filters( 'wpcf7pdf_modify_capability', 'administrator' );

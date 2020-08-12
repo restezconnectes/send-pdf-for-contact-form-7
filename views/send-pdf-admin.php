@@ -955,8 +955,16 @@ $pathFolder = serialize($createDirectory);
                 </tr>
                 <tr>
                     <td colspan="2">
-                        
-                        <textarea name="wp_cf7pdf_settings[custom_css]" id="wp_cf7pdf_pdf_css" cols=70 rows=24 class="widefat textarea"style="height:250px;"><?php if( isset($meta_values['custom_css']) && !empty($meta_values['custom_css']) ) {  echo esc_textarea($meta_values['custom_css']); } ?></textarea>
+                        <?php 
+                            $customCss = '';
+                            if( isset($meta_values['custom_css']) && !empty($meta_values['custom_css']) ) {  
+                                $customCss = $meta_values['custom_css'];
+                                // for old version before changed codemirror editor
+                                $customCss = str_replace('<style>', '', $customCss);
+                                $customCss = str_replace('</style>', '', $customCss);
+                            }
+                        ?>
+                        <textarea name="wp_cf7pdf_settings[custom_css]" id="wp_cf7pdf_pdf_css" cols=70 rows=24 class="widefat textarea"style="height:250px;"><?php echo esc_textarea($customCss); ?></textarea>
                     </td>
                 </tr>
 
@@ -1268,14 +1276,6 @@ $pathFolder = serialize($createDirectory);
       </form>
     </div>
 </div>
-    
-<script>
-    jQuery(document).ready(function($) {
-    wp.codeEditor.initialize($('#wp_cf7pdf_pdf'), pcf7pdf_settings);
-    wp.codeEditor.initialize($('#wp_cf7pdf_pdf_css'), pcf7pdf_settings);
-    wp.codeEditor.initialize($('#cf7pdf_html_footer'), pcf7pdf_settings);
-    });
-</script>
 <?php } ?>
 <?php } else { ?>
     <div style="margin-left: 0px;margin-top: 5px;background-color: #ffffff;border: 1px solid #cccccc;padding: 10px;">
