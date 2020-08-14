@@ -1221,8 +1221,8 @@ class cf7_sendpdf {
 
             }
             //setcookie( 'pdf_uniqueid', '', time() - 3600, COOKIEPATH, COOKIE_DOMAIN );
-            setcookie('pdf_uniqueid', NULL, -1);
-            //unset( $_COOKIE['pdf_uniqueid'] );
+            setcookie( 'pdf_uniqueid', NULL, -1);
+            unset( $_COOKIE['pdf_uniqueid'] );
        }
 
     }
