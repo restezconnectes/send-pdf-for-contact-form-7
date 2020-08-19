@@ -243,6 +243,7 @@ jQuery(document).ready(function() {
             $mpdf->SetTitle(get_the_title($idForm));
             $mpdf->SetCreator(get_bloginfo('name'));
             $mpdf->ignore_invalid_utf8 = true;
+
             if( isset($meta_values['image_background']) && $meta_values['image_background']!='' ) {
                  
                 $mpdf->SetDefaultBodyCSS('background', "url('".esc_url($meta_values['image_background'])."')");
@@ -257,20 +258,6 @@ jQuery(document).ready(function() {
             // Adding Custom CSS            
             if( isset($meta_values['custom_css']) && $meta_values['custom_css']!='' ) {
                 $mpdf->WriteHTML('<style>'.$meta_values['custom_css'].'</style>');
-            }
-
-            if( isset($meta_values['footer_generate_pdf']) && $meta_values['footer_generate_pdf']!='' ) {
-                $footerText = str_replace('[reference]', $_COOKIE['pdf_uniqueid'], $meta_values['footer_generate_pdf']);
-                $footerText = str_replace('[url-pdf]', $upload_dir['url'].'/'.$nameOfPdf.'-'.$_COOKIE['pdf_uniqueid'].'.pdf', $footerText);
-                if( isset($meta_values['date_format']) && !empty($meta_values['date_format']) ) {
-                    $dateField = date_i18n($meta_values['date_format']);
-                }
-                if( isset($meta_values['time_format']) && !empty($meta_values['time_format']) ) {
-                    $timeField = date_i18n($meta_values['time_format']);
-                }
-                $footerText = str_replace('[date]', $dateField, $footerText);
-                $footerText = str_replace('[time]', $timeField, $footerText);
-                $mpdf->SetHTMLFooter($footerText);
             }
             
             $entetePage = '';
@@ -289,8 +276,7 @@ jQuery(document).ready(function() {
                 $attribut = 'width='.$imgWidth.' height="'.$imgHeight.'"';
                 $entetePage = '<div style="text-align:'.$imgAlign.';"><img src="'.esc_url($meta_values["image"]).'" '.$attribut.' /></div>';
             }
-            //$mpdf->WriteHTML($entetePage);
-            $mpdf->SetHTMLHeader($entetePage);
+            $mpdf->SetHTMLHeader($entetePage, '', true);
 
             $messageText = $meta_values['generate_pdf'];
             
@@ -388,6 +374,20 @@ jQuery(document).ready(function() {
                 $mpdf->SetProtection(array('copy', 'print', 'fill-forms', 'modify', 'annot-forms' ), '', '', 128);
             }
             
+            if( isset($meta_values['footer_generate_pdf']) && $meta_values['footer_generate_pdf']!='' ) {
+                $footerText = str_replace('[reference]', $_COOKIE['pdf_uniqueid'], $meta_values['footer_generate_pdf']);
+                $footerText = str_replace('[url-pdf]', $upload_dir['url'].'/'.$nameOfPdf.'-'.$_COOKIE['pdf_uniqueid'].'.pdf', $footerText);
+                if( isset($meta_values['date_format']) && !empty($meta_values['date_format']) ) {
+                    $dateField = date_i18n($meta_values['date_format']);
+                }
+                if( isset($meta_values['time_format']) && !empty($meta_values['time_format']) ) {
+                    $timeField = date_i18n($meta_values['time_format']);
+                }
+                $footerText = str_replace('[date]', $dateField, $footerText);
+                $footerText = str_replace('[time]', $timeField, $footerText);
+                $mpdf->SetHTMLFooter($footerText);
+            }
+
             // En cas de saut de page avec le tag [addpage]
             if( stripos($messageText, '[addpage]') !== false ) {
 
@@ -1127,7 +1127,7 @@ $pathFolder = serialize($createDirectory);
                                     <td width="50%"><br /></td>
                                     <td width="50%" align="center">
                                         <?php if( file_exists($createDirectory.'/preview-'.$idForm.'.pdf') ) { ?><br />
-                                        <a href="<?php echo str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $createDirectory ).'/preview-'.$idForm.'.pdf?ver='.$_COOKIE['pdf_uniqueid']; ?>" target="_blank"><span class="preview-btn" style="padding:10px;"><span class="dashicons dashicons-search"></span> <?php _e('Preview your PDF', 'send-pdf-for-contact-form-7'); ?></span></a>
+                                        <a href="<?php echo str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $createDirectory ).'/preview-'.$idForm.'.pdf?ver='.rand(); ?>" target="_blank"><span class="preview-btn" style="padding:10px;"><span class="dashicons dashicons-search"></span> <?php _e('Preview your PDF', 'send-pdf-for-contact-form-7'); ?></span></a>
                                         <?php } ?>
                                     </td>
                                 </tr>

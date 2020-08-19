@@ -733,17 +733,23 @@ class cf7_sendpdf {
                     
                     if( isset($meta_values['fillable_data']) && $meta_values['fillable_data']== 'true') {
                         $mpdf->useActiveForms = true;
-                        /*$mpdf->formUseZapD = false;
-                        $mpdf->formSubmitNoValueFields = true;
-                        $mpdf->formExportType = 'xfdf'; // 'html' or 'xfdf'
-                        $mpdf->formSelectDefaultOption = true;
-                        $mpdf->form_border_color = '0.6 0.6 0.72';
-                        $mpdf->form_button_border_width = '2';
-                        $mpdf->form_button_border_style = 'S';
-                        $mpdf->form_radio_color = '0.0 0.0 0.4'; // radio and checkbox
-                        $mpdf->form_radio_background_color = '0.9 0.9 0.9';*/
                     }
                     
+                    if( isset($meta_values['image_background']) && $meta_values['image_background']!='' ) {
+                        $mpdf->SetDefaultBodyCSS('background', "url('".esc_url($meta_values['image_background'])."')");
+                        $mpdf->SetDefaultBodyCSS('background-image-resize', 6);
+                    }
+                    
+                    // LOAD a stylesheet
+                    if( isset($meta_values['stylesheet']) && $meta_values['stylesheet']!='' ) {
+                        $stylesheet = file_get_contents($meta_values['stylesheet']);
+                        $mpdf->WriteHTML($stylesheet,1);	// The parameter 1 tells that this is css/style only and no body/html/text
+                    }
+                    // Adding Custom CSS            
+                    if( isset($meta_values['custom_css']) && $meta_values['custom_css']!='' ) {
+                        $mpdf->WriteHTML('<style>'.$meta_values['custom_css'].'</style>');
+                    }
+
                     $entetePage = '';
                     if( isset($meta_values["image"]) && !empty($meta_values["image"]) ) {
                         if( ini_get('allow_url_fopen')==1) {
@@ -762,7 +768,7 @@ class cf7_sendpdf {
                         $attribut = 'width='.$imgWidth.' height="'.$imgHeight.'"';
                         $entetePage = '<div style="text-align:'.$imgAlign.';height:'.$imgHeight.'"><img src="'.esc_url($meta_values["image"]).'" '.$attribut.' /></div>';
                     }
-                    $mpdf->SetHTMLHeader($entetePage);
+                    $mpdf->SetHTMLHeader($entetePage, '', true);
                     
 
                     if( isset($meta_values['footer_generate_pdf']) && $meta_values['footer_generate_pdf']!='' ) {
@@ -781,22 +787,6 @@ class cf7_sendpdf {
                         $footerText = str_replace('[date]', $dateField, $footerText);
                         $footerText = str_replace('[time]', $timeField, $footerText);
                         $mpdf->SetHTMLFooter($footerText);
-                    }
-
-                    if( isset($meta_values['image_background']) && $meta_values['image_background']!='' ) {
-                 
-                        $mpdf->SetDefaultBodyCSS('background', "url('".esc_url($meta_values['image_background'])."')");
-                        $mpdf->SetDefaultBodyCSS('background-image-resize', 6);
-                    }
-                    
-                    // LOAD a stylesheet
-                    if( isset($meta_values['stylesheet']) && $meta_values['stylesheet']!='' ) {
-                        $stylesheet = file_get_contents($meta_values['stylesheet']);
-                        $mpdf->WriteHTML($stylesheet,1);	// The parameter 1 tells that this is css/style only and no body/html/text
-                    }
-                    // Adding Custom CSS            
-                    if( isset($meta_values['custom_css']) && $meta_values['custom_css']!='' ) {
-                        $mpdf->WriteHTML('<style>'.$meta_values['custom_css'].'</style>');
                     }
 
                     // En cas de saut de page avec le tag [addpage]
@@ -821,6 +811,7 @@ class cf7_sendpdf {
 
                     } else {
 
+                        $text = apply_filters('wpcf7pdf_text', $text, $contact_form);
                         $mpdf->WriteHTML($text);
 
                     }
@@ -1221,7 +1212,7 @@ class cf7_sendpdf {
 
             }
             //setcookie( 'pdf_uniqueid', '', time() - 3600, COOKIEPATH, COOKIE_DOMAIN );
-            setcookie( 'pdf_uniqueid');
+            setcookie( 'pdf_uniqueid' );
             unset( $_COOKIE['pdf_uniqueid'] );
        }
 
