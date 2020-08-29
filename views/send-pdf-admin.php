@@ -948,7 +948,7 @@ $pathFolder = serialize($createDirectory);
                 </tr>
                 <tr>
                     <td colspan="2">
-                        <textarea name="wp_cf7pdf_settings[custom_css]" id="wp_cf7pdf_pdf_css" cols=70 rows=24 class="widefat textarea"style="height:250px;"><?php echo esc_textarea($meta_values['custom_css']); ?></textarea>
+                        <textarea name="wp_cf7pdf_settings[custom_css]" id="wp_cf7pdf_pdf_css" cols=70 rows=24 class="widefat textarea"style="height:250px;"><?php if( isset( $meta_values['custom_css']) ) { echo esc_textarea($meta_values['custom_css']); } ?></textarea>
                     </td>
                 </tr>
 
