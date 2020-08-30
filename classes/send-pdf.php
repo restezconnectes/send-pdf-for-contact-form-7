@@ -373,7 +373,7 @@ class cf7_sendpdf {
         if( empty($id) ) { die('No ID Form'); }
         $meta_values = get_post_meta( $id, '_wp_cf7pdf', true );
 
-        if( empty($_COOKIE['pdf_uniqueid']) ) { wp_redirect( admin_url('admin.php?page=wpcf7-send-pdf') ); exit; }
+        //if( empty($_COOKIE['pdf_uniqueid']) ) { wp_redirect( admin_url('admin.php?page=wpcf7-send-pdf') ); exit; }
 
         if( isset($meta_values["pdf-name"]) && !empty($meta_values["pdf-name"]) ) {
             $namePDF = trim($meta_values["pdf-name"]);
