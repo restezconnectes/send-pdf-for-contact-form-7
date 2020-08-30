@@ -6,22 +6,8 @@ $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
 return array(
-    'TrueBV\\' => array($vendorDir . '/true/punycode/src'),
-    'Symfony\\Polyfill\\Mbstring\\' => array($vendorDir . '/symfony/polyfill-mbstring'),
-    'Spatie\\UrlSigner\\' => array($vendorDir . '/spatie/url-signer/src'),
+    'setasign\\Fpdi\\' => array($vendorDir . '/setasign/fpdi/src'),
     'Psr\\Log\\' => array($vendorDir . '/psr/log/Psr/Log'),
     'Mpdf\\' => array($vendorDir . '/mpdf/mpdf/src'),
-    'Monolog\\' => array($vendorDir . '/monolog/monolog/src/Monolog'),
-    'Masterminds\\' => array($vendorDir . '/masterminds/html5/src'),
-    'League\\Url\\' => array($vendorDir . '/league/url/src'),
-    'GFPDF\\View\\' => array($baseDir . '/src/view'),
-    'GFPDF\\Test\\' => array($baseDir . '/tests/unit-tests'),
-    'GFPDF\\Statics\\' => array($baseDir . '/src/statics'),
-    'GFPDF\\Model\\' => array($baseDir . '/src/model'),
-    'GFPDF\\Helper\\Licensing\\' => array($baseDir . '/src/helper/licensing'),
-    'GFPDF\\Helper\\Fields\\' => array($baseDir . '/src/helper/fields'),
-    'GFPDF\\Helper\\' => array($baseDir . '/src/helper', $baseDir . '/src/helper/abstract', $baseDir . '/src/helper/interface', $baseDir . '/src/helper/trait'),
-    'GFPDF\\Controller\\' => array($baseDir . '/src/controller'),
-    'GFPDF\\' => array($baseDir . '/src'),
     'DeepCopy\\' => array($vendorDir . '/myclabs/deep-copy/src/DeepCopy'),
 );
