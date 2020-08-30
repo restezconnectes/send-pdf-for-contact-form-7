@@ -891,7 +891,7 @@ $pathFolder = serialize($createDirectory);
 
                         <h3 class="hndle"><span class="dashicons dashicons-images-alt2"></span>&nbsp;&nbsp;<?php _e('Image Background', 'send-pdf-for-contact-form-7'); ?></h3>
                         <?php _e('Enter a URL or upload an image:', 'send-pdf-for-contact-form-7'); ?><br />
-                        <input id="upload_background" size="80%" class="wpcf7-form-field" name="wp_cf7pdf_settings[image_background]" value="<?php if( isset($meta_values['image_background']) ) { echo esc_url($meta_values['image_background']); } ?>" type="text" /> <a href="#" id="upload_image_background" class="button" OnClick="this.blur();"><span> <?php _e('Select or Upload your picture', 'send-pdf-for-contact-form-7'); ?> </span></a><br />
+                        <input id="upload_background" size="80%" class="wpcf7-form-field" name="wp_cf7pdf_settings[image_background]" value="<?php if( isset($meta_values['image_background']) ) { echo esc_url($meta_values['image_background']); } ?>" type="text" /> <a href="#" id="upload_image_background" class="button" OnClick="this.blur();"><span> <?php _e('Select or Upload your picture', 'send-pdf-for-contact-form-7'); ?> </span></a><br /><small><?php _e('Example for demo:', 'send-pdf-for-contact-form-7'); ?> <?php echo WPCF7PD_URL;?>images/background.jpg</small><br />
                         <div style="margin-top:0.8em;">                           
                             <div style=""><?php _e('Display background on each page?', 'send-pdf-for-contact-form-7'); ?>
                                 <div class="switch-field-mini">
@@ -1045,7 +1045,7 @@ $pathFolder = serialize($createDirectory);
                     <tr>
                         <td><?php _e('Add a CSS file', 'send-pdf-for-contact-form-7'); ?><br /><p><a href="<?php echo WPCF7PD_URL.'css/mpdf-style-A4.css'; ?>" target="_blank"><small><i><?php _e('Donwload a example A4 page here', 'send-pdf-for-contact-form-7'); ?></i></small></a></p></td>
                         <td>
-                            <input size="60%" class="wpcf7-form-field" name="wp_cf7pdf_settings[stylesheet]" value="<?php if( isset($meta_values['stylesheet']) ) { echo esc_url($meta_values['stylesheet']); } ?>" type="text" /><br /><small><?php _e('Exemple for demo:', 'send-pdf-for-contact-form-7'); ?> <?php echo WPCF7PD_URL;?>css/mpdf-style-A4.css</small>
+                            <input size="60%" class="wpcf7-form-field" name="wp_cf7pdf_settings[stylesheet]" value="<?php if( isset($meta_values['stylesheet']) ) { echo esc_url($meta_values['stylesheet']); } ?>" type="text" /><br /><small><?php _e('Example for demo:', 'send-pdf-for-contact-form-7'); ?> <?php echo WPCF7PD_URL;?>css/mpdf-style-A4.css</small>
                         </td>
                     </tr>
                     <tr>
