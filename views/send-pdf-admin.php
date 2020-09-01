@@ -1043,7 +1043,7 @@ $pathFolder = serialize($createDirectory);
                         </td>
                     </tr>
                     <tr>
-                        <td><?php _e('Add a CSS file', 'send-pdf-for-contact-form-7'); ?><br /><p><a href="<?php echo WPCF7PD_URL.'css/mpdf-style-A4.css'; ?>" target="_blank"><small><i><?php _e('Donwload a example A4 page here', 'send-pdf-for-contact-form-7'); ?></i></small></a></p></td>
+                        <td><?php _e('Add a CSS file', 'send-pdf-for-contact-form-7'); ?><br /><p><a href="<?php echo WPCF7PD_URL.'css/mpdf-style-A4.css'; ?>" target="_blank"><small><i><?php _e('Download a example A4 page here', 'send-pdf-for-contact-form-7'); ?></i></small></a></p></td>
                         <td>
                             <input size="60%" class="wpcf7-form-field" name="wp_cf7pdf_settings[stylesheet]" value="<?php if( isset($meta_values['stylesheet']) ) { echo esc_url($meta_values['stylesheet']); } ?>" type="text" /><br /><small><?php _e('Example for demo:', 'send-pdf-for-contact-form-7'); ?> <?php echo WPCF7PD_URL;?>css/mpdf-style-A4.css</small>
                         </td>
