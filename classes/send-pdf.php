@@ -278,13 +278,15 @@ class cf7_sendpdf {
     
     function wpcf7pdf_add_admin() {
 
-        $capability = apply_filters( 'wpcf7pdf_modify_capability', 'administrator' );
-		
-        $addPDF = add_submenu_page( 'wpcf7',
-		__('Options for CF7 Send PDF', 'send-pdf-for-contact-form-7'),
-		__('Send PDF with CF7', 'send-pdf-for-contact-form-7'),
-		$capability, 'wpcf7-send-pdf',
-		array( $this, 'wpcf7pdf_dashboard_html_page') );
+        $capability = apply_filters( 'wpcf7pdf_modify_capability', 'publish_posts' );
+        
+        if ( !empty( $capability ) ) { 
+            add_submenu_page( 'wpcf7',
+            __('Options for CF7 Send PDF', 'send-pdf-for-contact-form-7'),
+            __('Send PDF with CF7', 'send-pdf-for-contact-form-7'),
+            $capability, 'wpcf7-send-pdf',
+            array( $this, 'wpcf7pdf_dashboard_html_page') );
+        }
 
         // If you're not including an image upload then you can leave this function call out
 
