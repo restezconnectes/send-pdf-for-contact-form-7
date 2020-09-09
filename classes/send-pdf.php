@@ -278,7 +278,7 @@ class cf7_sendpdf {
     
     function wpcf7pdf_add_admin() {
 
-        $capability = apply_filters( 'wpcf7pdf_modify_capability', 'publish_posts' );
+        $capability = apply_filters( 'wpcf7pdf_modify_capability', WPCF7_ADMIN_READ_CAPABILITY );
         
         if ( !empty( $capability ) ) { 
             add_submenu_page( 'wpcf7',
