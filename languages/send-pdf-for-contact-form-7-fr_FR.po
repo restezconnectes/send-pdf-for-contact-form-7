@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Contact Form 7 Send PDF\n"
-"POT-Creation-Date: 2020-08-30 15:34+0200\n"
-"PO-Revision-Date: 2020-08-30 15:34+0200\n"
+"POT-Creation-Date: 2020-09-10 08:43+0200\n"
+"PO-Revision-Date: 2020-09-10 08:43+0200\n"
 "Last-Translator: Florent Maillefaud <contact@restezconnectes.fr>\n"
 "Language-Team: Florent Maillefaud <contact@restezconnectes.fr>\n"
 "Language: fr_FR\n"
@@ -32,19 +32,19 @@ msgstr "Veuillez téléverser un fichier à importer"
 msgid "New settings imported successfully!"
 msgstr "Nouveaux paramètres importés avec succès !"
 
-#: classes/send-pdf.php:284
+#: classes/send-pdf.php:285
 msgid "Options for CF7 Send PDF"
 msgstr "Réglages pour Send PDF for Contact Form 7"
 
-#: classes/send-pdf.php:285
+#: classes/send-pdf.php:286
 msgid "Send PDF with CF7"
 msgstr "Génération de PDF"
 
-#: classes/send-pdf.php:313
+#: classes/send-pdf.php:315
 msgid "Choose This Image"
 msgstr "Choisir cette image"
 
-#: classes/send-pdf.php:314
+#: classes/send-pdf.php:316
 msgid "Choose Image"
 msgstr "Choisir une image"
 
@@ -500,7 +500,7 @@ msgid "Add a CSS file"
 msgstr "Ajouter un fichier CSS"
 
 #: views/send-pdf-admin.php:1046
-msgid "Donwload a example A4 page here"
+msgid "Download a example A4 page here"
 msgstr "Télécharger un exemple de page A4 ici"
 
 #: views/send-pdf-admin.php:1054
