@@ -52,7 +52,7 @@ Yes. If you want, you can support this project here: <a href="https://restezconn
 
 = 0.8.2 =
 * Error Message if COOKIE are blocked
-
+* Bug fixed margin top
 
 = 0.8.1 =
 * Use capability of CF7
