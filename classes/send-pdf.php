@@ -718,7 +718,7 @@ class cf7_sendpdf {
                     if( isset($meta_values['pdf-type']) && isset($meta_values['pdf-orientation']) ) {
                         $formatPdf = $meta_values['pdf-type'].$meta_values['pdf-orientation'];
                         //$mpdf=new mPDF('utf-8', $formatPdf);
-                        $mpdf = new \Mpdf\Mpdf(['mode' => 'utf-8', 'format' => $formatPdf, 'margin_header' => $marginHeader, 'margin_top' => 40,]);
+                        $mpdf = new \Mpdf\Mpdf(['mode' => 'utf-8', 'format' => $formatPdf, 'margin_header' => $marginHeader, 'margin_top' => $marginTop,]);
                     } else if( isset($meta_values['fillable_data']) && $meta_values['fillable_data']== 'true') {
                         $mpdf = new \Mpdf\Mpdf(['mode' => 'c', 'format' => $formatPdf, 'margin_header' => $marginHeader, 'margin_top' => $marginTop, 'default_font' => $fontPdf, 'default_font_size' => $fontsizePdf, 'tempDir' => $custom_tmp_path]);
                     } else {
