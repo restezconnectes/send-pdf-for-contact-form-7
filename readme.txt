@@ -50,6 +50,10 @@ Yes. If you want, you can support this project here: <a href="https://restezconn
 
 == Changelog ==
 
+= 0.8.2 =
+* Error Message if COOKIE are blocked
+
+
 = 0.8.1 =
 * Use capability of CF7
 * Fixed typing error Donwload

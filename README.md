@@ -10,7 +10,7 @@ This plugin requires the installation and activation of the plugin Contact Form 
 
 File send-pdf-for-contact-form-7.pot available
 
-Current Version:  0.8.1
+Current Version:  0.8.2
 
 ## Installation
 1. Upload the full directory into your '/wp-content/plugins' directory

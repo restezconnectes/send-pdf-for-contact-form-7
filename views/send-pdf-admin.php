@@ -122,6 +122,8 @@ jQuery(document).ready(function() {
                         $formsList = cf7_sendpdf::getForms();
                         if ( count($formsList) == 0 ) {
                             printf( __('No forms have not been found. %s', 'send-pdf-for-contact-form-7'), '<a href="'.admin_url('admin.php?page=wpcf7').'">'.__('Create your first form here.', 'send-pdf-for-contact-form-7').'</a>');
+                        } else if ( empty($_COOKIE['pdf_uniqueid']) ) {
+                            _e('COOKIE are not generated. COOKIE are required for this plugin.', 'send-pdf-for-contact-form-7');
                         } else {
                     ?>
                     <form method="post" action="<?php echo $_SERVER['REQUEST_URI']?>" name="displayform" id="displayform">
@@ -1063,7 +1065,7 @@ $pathFolder = serialize($createDirectory);
                                 </tr>
                                 <tr>
                                     <td width="50%">
-                                        <span class="mailtag code used" onclick="jQuery(this).selectText()" style="cursor: pointer;"><strong>[reference]</strong></span><br /><i><?php _e("[reference] is a simple mail-tag who is used for create unique PDF. It's also recorded in the database. Every PDF is named like this : name-pdf-uniqid() and it's uploaded in the upload folder of WordPress. For example : document-pdf-56BC4A3EF0752.pdf", 'send-pdf-for-contact-form-7'); ?></i>
+                                        <span class="mailtag code used" onclick="jQuery(this).selectText()" style="cursor: pointer;"><strong>[reference]</strong></span><br /><i><?php _e("[reference] is a simple mail-tag who is used for create unique PDF. It's also recorded in the database. Every PDF is named like this : name-pdf-uniqid() and it's uploaded in the upload folder of WordPress.", 'send-pdf-for-contact-form-7'); printf( __(' For example : document-pdf-%s.pdf', 'send-pdf-for-contact-form-7'), $_COOKIE['pdf_uniqueid']); ?></i>
                                     </td>
                                     <td width="50%">
                                         <?php if( empty($fileTags) || ( isset($fileTags) && $fileTags == '') ) { $fileTags = '[file-1][file-2]'; } ?>
@@ -1267,6 +1269,6 @@ $pathFolder = serialize($createDirectory);
     </div>
 <?php } ?>
     <div style="margin-top:40px;">
-        <?php _e('Send PDF for Contact Form 7 is brought to you by', 'send-pdf-for-contact-form-7'); ?> <a href="https://restezconnectes.fr/" target="_blank">Restez Connectés</a> - <?php _e('If you found this plugin useful', 'send-pdf-for-contact-form-7'); ?> <a href="https://wordpress.org/support/view/plugin-reviews/send-pdf-for-contact-form-7/" target="_blank"><?php _e('give it 5 &#9733; on WordPress.org', 'send-pdf-for-contact-form-7'); ?></a>
+        <?php _e('Send PDF for Contact Form 7 is brought to you by', 'send-pdf-for-contact-form-7'); ?> <a href="https://madeby.restezconnectes.fr/" target="_blank">MadeByRestezConnectes</a> - <?php _e('If you found this plugin useful', 'send-pdf-for-contact-form-7'); ?> <a href="https://wordpress.org/support/view/plugin-reviews/send-pdf-for-contact-form-7/" target="_blank"><?php _e('give it 5 &#9733; on WordPress.org', 'send-pdf-for-contact-form-7'); ?></a>
     </div>
 </div>
