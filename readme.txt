@@ -51,8 +51,9 @@ Yes. If you want, you can support this project here: <a href="https://restezconn
 == Changelog ==
 
 = 0.8.2 =
-* Error Message if COOKIE are blocked
+* Display Error Message if COOKIES are blocked
 * Bug fixed margin top
+* Bug fixed Multiple Checkbox
 
 = 0.8.1 =
 * Use capability of CF7

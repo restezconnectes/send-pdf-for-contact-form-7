@@ -615,7 +615,7 @@ class cf7_sendpdf {
                             foreach($sh_tag["values"] as $id=>$val) {
                                 $caseChecked = '';
                                 $valueTag = wpcf7_mail_replace_tags('['.$sh_tag["name"].']');
-                                if( $val == $valueTag ) {
+                                if( strpos($valueTag, trim($val) )!== false) {
                                     $caseChecked = 'checked="checked"';
                                 }
                                 if( in_array('label_first', $tagOptions) ) {
@@ -633,7 +633,7 @@ class cf7_sendpdf {
                             foreach($sh_tag["values"] as $id=>$val) {
                                 $radioChecked = '';
                                 $valueTag = wpcf7_mail_replace_tags('['.$sh_tag["name"].']');
-                                if( $val == $valueTag ) {
+                                if( strpos($valueTag, trim($val) )!== false) {
                                     $radioChecked = 'checked';
                                 }                            
                                 if( in_array('label_first', $tagOptions) ) {
