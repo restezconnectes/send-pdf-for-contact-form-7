@@ -56,6 +56,7 @@ Yes. If you want, you can support this project here: <a href="https://restezconn
     - Adding "Margin Bottom Header" setting for header picture
     - Adding "Global Margin PDF" setting for PDF
 * Bug fixed Multiple Checkbox
+* Bug Fixed Radio checked
 
 = 0.8.1 =
 * Use capability of CF7

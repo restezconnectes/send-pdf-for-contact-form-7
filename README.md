@@ -18,6 +18,8 @@ Current Version:  0.8.2
     - Adding "Margin Bottom Header" setting for header picture
     - Adding "Global Margin PDF" setting for PDF
 * Bug fixed Multiple Checkbox
+* Bug Fixed Radio checked
+
 
 ## Installation
 1. Upload the full directory into your '/wp-content/plugins' directory
