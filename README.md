@@ -12,6 +12,13 @@ File send-pdf-for-contact-form-7.pot available
 
 Current Version:  0.8.2
 
+== Changelog ==
+* Display Error Message if COOKIES are blocked
+* Bug fixed margin top & Header :
+    - Adding "Margin Bottom Header" setting for header picture
+    - Adding "Global Margin PDF" setting for PDF
+* Bug fixed Multiple Checkbox
+
 ## Installation
 1. Upload the full directory into your '/wp-content/plugins' directory
 2. Activate the plugin at the plugin administration page
