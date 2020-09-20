@@ -52,7 +52,9 @@ Yes. If you want, you can support this project here: <a href="https://restezconn
 
 = 0.8.2 =
 * Display Error Message if COOKIES are blocked
-* Bug fixed margin top
+* Bug fixed margin top & Header :
+    - Adding "Margin Bottom Header" setting for header picture
+    - Adding "Global Margin PDF" setting for PDF
 * Bug fixed Multiple Checkbox
 
 = 0.8.1 =

@@ -193,6 +193,7 @@ jQuery(document).ready(function() {
         // Definition des marges par defaut
         $marginHeader = 10;
         $marginTop = 40;
+        $marginBottomHeader = 10;
 
         // Definition de la taille, le format de page et la font par defaut
         $fontsizePdf = 9;
@@ -277,6 +278,9 @@ jQuery(document).ready(function() {
 
                 $attribut = 'width='.$imgWidth.' height="'.$imgHeight.'"';
                 $entetePage = '<div style="text-align:'.$imgAlign.';"><img src="'.esc_url($meta_values["image"]).'" '.$attribut.' /></div>';
+
+                if( isset($meta_values["margin_bottom_header"]) && $meta_values["margin_bottom_header"]!='' ) { $marginBottomHeader = $meta_values["margin_bottom_header"]; }
+                $mpdf->WriteHTML('<p style="margin-bottom:'.$marginBottomHeader.'px;">&nbsp;</p>');
             }
             $mpdf->SetHTMLHeader($entetePage, '', true);
 
@@ -297,7 +301,7 @@ jQuery(document).ready(function() {
                             foreach($sh_tag["values"] as $id=>$val) {
                                 $caseChecked = '';
                                 $valueTag = wpcf7_mail_replace_tags('['.$sh_tag["name"].']');
-                                if( $val == $valueTag ) {
+                                if( strpos($valueTag, trim($val) )!== false) {
                                     $caseChecked = 'checked';
                                 }
                                 if( in_array('label_first', $tagOptions) ) {
@@ -317,7 +321,7 @@ jQuery(document).ready(function() {
                             foreach($sh_tag["values"] as $id=>$val) {
                                 $radioChecked = '';
                                 $valueTag = wpcf7_mail_replace_tags('['.$sh_tag["name"].']');
-                                if( $val == $valueTag ) {
+                                if( strpos($valueTag, trim($val) )!== false) {
                                     $radioChecked = 'checked';
                                 }                            
                                 if( in_array('label_first', $tagOptions) ) {
@@ -394,20 +398,31 @@ jQuery(document).ready(function() {
             if( stripos($messageText, '[addpage]') !== false ) {
 
                 $newPage = explode('[addpage]', $messageText);
-                for($i = 0, $size = count($newPage); $i < $size; ++$i) {
+                $countPage = count($newPage);
+
+                for($i = 0; $i < ($countPage);  $i++) {
                     
-                    $mpdf->WriteHTML($newPage[$i]);
-                    if( isset($meta_values["page_header"]) && $meta_values["page_header"]==0) { $mpdf->SetHTMLHeader(); }
-                    if( $i < (count($newPage)-1) ) {
-                        if( isset($meta_values['page_background']) && $meta_values['page_background']==0 ) {
-                            $mpdf->SetDefaultBodyCSS('background', "");
-                        }
+                    if( $i == 0 ) {
+                        // On print la première page
+                        $mpdf->WriteHTML($newPage[$i]);
+                    } else {
+                        // On print ensuite les autres pages trouvées
                         if( isset($meta_values["page_header"]) && $meta_values["page_header"]==1) {
+                            $mpdf->SetHTMLHeader($entetePage, '', true);
                             $mpdf->AddPage();
                         } else {
+                            $mpdf->SetHTMLHeader(); 
                             $mpdf->AddPage('','','','','',15,15,15,15,5,5);
-                        }  
+                        } 
+                        $mpdf->SetHTMLFooter($footerText);
+                        $mpdf->WriteHTML($newPage[$i]);
+                        if( isset($meta_values["page_header"]) && $meta_values["page_header"]==1) {
+                            $mpdf->SetHTMLHeader($entetePage, '', true);
+                        } else {
+                            $mpdf->SetHTMLHeader();                                 
+                        }
                     }
+                    
                 }
 
             } else {
@@ -884,9 +899,8 @@ $pathFolder = serialize($createDirectory);
                                 <label for="switch_page_header"><?php _e('Yes', 'send-pdf-for-contact-form-7'); ?></label>
                                 <input class="switch_right" type="radio" id="switch_page_header_no" name="wp_cf7pdf_settings[page_header]" value="0" <?php if( empty($meta_values["page_header"]) || (isset($meta_values["page_header"]) && $meta_values["page_header"]==0) ) { echo ' checked'; } ?> />
                                 <label for="switch_page_header_no"><?php _e('No', 'send-pdf-for-contact-form-7'); ?></label>
-                            </div>
-                            <?php _e('Margin Header', 'send-pdf-for-contact-form-7'); ?> <input type="text" size="4" class="wpcf7-form-field" name="wp_cf7pdf_settings[margin_header]" value="<?php if( isset($meta_values["margin_header"]) && $meta_values["margin_header"]!='' ) { echo $meta_values["margin_header"]; } else { echo $marginHeader; } ?>" /> <?php _e('Margin Top Header', 'send-pdf-for-contact-form-7'); ?> <input type="text" class="wpcf7-form-field" size="4" name="wp_cf7pdf_settings[margin_top]" value="<?php if( isset($meta_values["margin_top"]) && $meta_values["margin_top"]!='' ) { echo $meta_values["margin_top"]; } else { echo $marginTop; } ?>" />
-                            
+                            </div><br />
+                            <?php _e('Margin Bottom Header', 'send-pdf-for-contact-form-7'); ?> <input type="text" size="4" class="wpcf7-form-field" name="wp_cf7pdf_settings[margin_bottom_header]" value="<?php if( isset($meta_values["margin_bottom_header"]) && $meta_values["margin_bottom_header"]!='' ) { echo $meta_values["margin_bottom_header"]; } else { echo $marginBottomHeader; } ?>" />                            
                     </div>
 
                         </div>
@@ -1050,6 +1064,16 @@ $pathFolder = serialize($createDirectory);
                             <input size="60%" class="wpcf7-form-field" name="wp_cf7pdf_settings[stylesheet]" value="<?php if( isset($meta_values['stylesheet']) ) { echo esc_url($meta_values['stylesheet']); } ?>" type="text" /><br /><small><?php _e('Example for demo:', 'send-pdf-for-contact-form-7'); ?> <?php echo WPCF7PD_URL;?>css/mpdf-style-A4.css</small>
                         </td>
                     </tr>
+
+                    <tr>
+                        <td>
+                            <?php _e('Global Margin PDF', 'send-pdf-for-contact-form-7'); ?><br /><p></p>
+                        </td>
+                        <td>
+                            <?php _e('Margin Header', 'send-pdf-for-contact-form-7'); ?> <input type="text" size="4" class="wpcf7-form-field" name="wp_cf7pdf_settings[margin_header]" value="<?php if( isset($meta_values["margin_header"]) && $meta_values["margin_header"]!='' ) { echo $meta_values["margin_header"]; } else { echo $marginHeader; } ?>" /> <?php _e('Margin Top Header', 'send-pdf-for-contact-form-7'); ?> <input type="text" class="wpcf7-form-field" size="4" name="wp_cf7pdf_settings[margin_top]" value="<?php if( isset($meta_values["margin_top"]) && $meta_values["margin_top"]!='' ) { echo $meta_values["margin_top"]; } else { echo $marginTop; } ?>" />
+                        </td>
+                    </tr>
+
                     <tr>
                         <td colspan="2">
                         <legend>

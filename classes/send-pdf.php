@@ -544,6 +544,7 @@ class cf7_sendpdf {
             // Definition des marges par defaut
             $marginHeader = 10;
             $marginTop = 40;
+            $marginBottomHeader = 10;
 
             // Definition de la taille, le format de page et la font par defaut
             $fontsizePdf = 9;
@@ -769,6 +770,9 @@ class cf7_sendpdf {
 
                         $attribut = 'width='.$imgWidth.' height="'.$imgHeight.'"';
                         $entetePage = '<div style="text-align:'.$imgAlign.';height:'.$imgHeight.'"><img src="'.esc_url($meta_values["image"]).'" '.$attribut.' /></div>';
+
+                        if( isset($meta_values["margin_bottom_header"]) && $meta_values["margin_bottom_header"]!='' ) { $marginBottomHeader = $meta_values["margin_bottom_header"]; }
+                        $mpdf->WriteHTML('<p style="margin-bottom:'.$marginBottomHeader.'px;">&nbsp;</p>');
                     }
                     $mpdf->SetHTMLHeader($entetePage, '', true);
                     
@@ -795,20 +799,31 @@ class cf7_sendpdf {
                     if( stripos($text, '[addpage]') !== false ) {
 
                         $newPage = explode('[addpage]', $text);
-                        for($i = 0, $size = count($newPage); $i < $size; ++$i) {
+                        $countPage = count($newPage);
 
-                            $mpdf->WriteHTML($newPage[$i]);
-                            if( isset($meta_values["page_header"]) && $meta_values["page_header"]==0) { $mpdf->SetHTMLHeader(); }
-                            if( $i < (count($newPage)-1) ) {
-                                if( isset($meta_values['page_background']) && $meta_values['page_background']==0 ) {
-                                    $mpdf->SetDefaultBodyCSS('background', "");
-                                }
+                        for($i = 0; $i < ($countPage);  $i++) {
+                            
+                            if( $i == 0 ) {
+                                // On print la première page
+                                $mpdf->WriteHTML($newPage[$i]);
+                            } else {
+                                // On print ensuite les autres pages trouvées
                                 if( isset($meta_values["page_header"]) && $meta_values["page_header"]==1) {
+                                    $mpdf->SetHTMLHeader($entetePage, '', true);
                                     $mpdf->AddPage();
                                 } else {
+                                    $mpdf->SetHTMLHeader(); 
                                     $mpdf->AddPage('','','','','',15,15,15,15,5,5);
-                                }                                  
+                                } 
+                                $mpdf->SetHTMLFooter($footerText);
+                                $mpdf->WriteHTML($newPage[$i]);
+                                if( isset($meta_values["page_header"]) && $meta_values["page_header"]==1) {
+                                    $mpdf->SetHTMLHeader($entetePage, '', true);
+                                } else {
+                                    $mpdf->SetHTMLHeader();                                 
+                                }
                             }
+                            
                         }
 
                     } else {
@@ -1216,6 +1231,9 @@ class cf7_sendpdf {
             //setcookie( 'pdf_uniqueid', '', time() - 3600, COOKIEPATH, COOKIE_DOMAIN );
             setcookie( 'pdf_uniqueid' );
             unset( $_COOKIE['pdf_uniqueid'] );
+
+            setcookie( 'pdf_password' );
+            unset( $_COOKIE['pdf_password'] );
        }
 
     }
