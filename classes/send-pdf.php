@@ -635,7 +635,7 @@ class cf7_sendpdf {
                                 $radioChecked = '';
                                 $valueTag = wpcf7_mail_replace_tags('['.$sh_tag["name"].']');
                                 if( strpos($valueTag, trim($val) )!== false) {
-                                    $radioChecked = 'checked';
+                                    $radioChecked = 'checked="checked"';
                                 }                            
                                 if( in_array('label_first', $tagOptions) ) {
                                     $inputRadio .= ''.$val.' <input type="radio" class="wpcf7-radio" name="'.$sh_tag["name"].'" value="'.$i.'" '.$radioChecked.' > ';
