@@ -10,9 +10,14 @@ This plugin requires the installation and activation of the plugin Contact Form 
 
 File send-pdf-for-contact-form-7.pot available
 
-Current Version:  0.8.2
+Current Version:  0.8.3
 
 == Changelog ==
+
+-- 0.8.3 --
+* Bug fixed COOKIE 
+
+-- 0.8.2 --
 * Display Error Message if COOKIES are blocked
 * Bug fixed margin top & Header :
     - Adding "Margin Bottom Header" setting for header picture
