@@ -1282,12 +1282,21 @@ class cf7_sendpdf {
         }
     }
 
+    static function wpcf7pdf_deactivation() {
+
+        global $wpdb;
+        
+        if(get_option('wpcf7pdf_version')) { delete_option('wpcf7pdf_version'); }
+        if(get_option('wpcf7pdf_path_temp')) { delete_option('wpcf7pdf_path_temp'); }
+    }
+
     static function wpcf7pdf_uninstall() {
 
         global $wpdb;
 
         if(get_option('wpcf7pdf_version')) { delete_option('wpcf7pdf_version'); }
-
+        if(get_option('wpcf7pdf_path_temp')) { delete_option('wpcf7pdf_path_temp'); }
+        
         $allposts = get_posts( 'numberposts=-1&post_type=wpcf7_contact_form&post_status=any' );
         foreach( $allposts as $postinfo ) {
             delete_post_meta( $postinfo->ID, '_wp_cf7pdf' );
