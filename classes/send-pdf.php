@@ -1237,6 +1237,8 @@ class cf7_sendpdf {
        setcookie( 'pdf_password' );
        unset( $_COOKIE['pdf_password'] );
 
+       setcookie( 'pdf_uniqueid', uniqid(), time() - 3600, COOKIEPATH, COOKIE_DOMAIN );
+
     }
 
     /* Récupère la liste des formulaires enregistrés */
@@ -1426,9 +1428,9 @@ class cf7_sendpdf {
         global $cf7msm_redirect_urls;
         $displayAddEventList = 0;
 
-        if( !isset($_COOKIE['pdf_uniqueid']) || empty($_COOKIE['pdf_uniqueid']) ) {
+        /*if( !isset($_COOKIE['pdf_uniqueid']) || empty($_COOKIE['pdf_uniqueid']) ) {
             setcookie( 'pdf_uniqueid', uniqid(), time() + 3600, COOKIEPATH, COOKIE_DOMAIN );
-        }
+        }*/
 
         // On recupere l'ID du Formulaire
         $wpcf7 = WPCF7_ContactForm::get_current();
