@@ -1227,14 +1227,15 @@ class cf7_sendpdf {
                     }
                 }
 
-            }
-            //setcookie( 'pdf_uniqueid', '', time() - 3600, COOKIEPATH, COOKIE_DOMAIN );
-            setcookie( 'pdf_uniqueid' );
-            unset( $_COOKIE['pdf_uniqueid'] );
-
-            setcookie( 'pdf_password' );
-            unset( $_COOKIE['pdf_password'] );
+            } 
        }
+
+       //setcookie( 'pdf_uniqueid', '', time() - 3600, COOKIEPATH, COOKIE_DOMAIN );
+       setcookie( 'pdf_uniqueid' );
+       unset( $_COOKIE['pdf_uniqueid'] );
+
+       setcookie( 'pdf_password' );
+       unset( $_COOKIE['pdf_password'] );
 
     }
 
@@ -1285,7 +1286,7 @@ class cf7_sendpdf {
     static function wpcf7pdf_deactivation() {
 
         global $wpdb;
-        
+
         if(get_option('wpcf7pdf_version')) { delete_option('wpcf7pdf_version'); }
         if(get_option('wpcf7pdf_path_temp')) { delete_option('wpcf7pdf_path_temp'); }
     }
@@ -1301,8 +1302,7 @@ class cf7_sendpdf {
         foreach( $allposts as $postinfo ) {
             delete_post_meta( $postinfo->ID, '_wp_cf7pdf' );
             delete_post_meta( $postinfo->ID, '_wp_cf7pdf_fields' );
-        }
-
+        
         
         $wpcf7pdf_files_table = $wpdb->prefix.'wpcf7pdf_files';
         $sql = "DROP TABLE IF EXISTS `$wpcf7pdf_files_table`";
