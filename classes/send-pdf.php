@@ -1227,9 +1227,9 @@ class cf7_sendpdf {
                     }
                 }
 
-            } 
+            }
+            
        }
-
        //setcookie( 'pdf_uniqueid', '', time() - 3600, COOKIEPATH, COOKIE_DOMAIN );
        setcookie( 'pdf_uniqueid' );
        unset( $_COOKIE['pdf_uniqueid'] );
@@ -1302,7 +1302,8 @@ class cf7_sendpdf {
         foreach( $allposts as $postinfo ) {
             delete_post_meta( $postinfo->ID, '_wp_cf7pdf' );
             delete_post_meta( $postinfo->ID, '_wp_cf7pdf_fields' );
-        
+        }
+
         
         $wpcf7pdf_files_table = $wpdb->prefix.'wpcf7pdf_files';
         $sql = "DROP TABLE IF EXISTS `$wpcf7pdf_files_table`";
