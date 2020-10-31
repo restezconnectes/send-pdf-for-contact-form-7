@@ -776,6 +776,21 @@ $pathFolder = serialize($createDirectory);
                 </td>
             </tr>
             <tr>
+                <td><!-- Propose de désactiver le remplissage auto du formulaire -->
+                    <?php _e('Desactivate autocomplete form?', 'send-pdf-for-contact-form-7'); ?>
+                </td>
+                <td>
+                    <div style="">
+                        <div class="switch-field">
+                        <input class="switch_left" type="radio" id="switch_autocomplete" name="wp_cf7pdf_settings[disabled-autocomplete-form]" value="true" <?php if( isset($meta_values["disabled-autocomplete-form"]) && $meta_values["disabled-autocomplete-form"]=='true') { echo ' checked'; } ?>/>
+                        <label for="switch_autocomplete"><?php _e('Yes', 'send-pdf-for-contact-form-7'); ?></label>
+                        <input class="switch_right" type="radio" id="switch_autocomplete_no" name="wp_cf7pdf_settings[disabled-autocomplete-form]" value="false" <?php if( empty($meta_values["disabled-autocomplete-form"]) || (isset($meta_values["disabled-autocomplete-form"]) && $meta_values["disabled-autocomplete-form"]=='false') ) { echo ' checked'; } ?> />
+                        <label for="switch_autocomplete_no"><?php _e('No', 'send-pdf-for-contact-form-7'); ?></label>
+                        </div>
+                    </div>
+                </td>
+            <tr>
+            <tr>
                 <td colspan="2"><hr style="background-color: <?php echo $colors[2]; ?>; height: 1px; border: 0;"></td>
             </tr>
             <tr>

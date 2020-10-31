@@ -1503,8 +1503,20 @@ $js .= '}
 }, false );
 </script>
 <!-- END :: Send PDF for CF7 -->
-    <?php
+<?php
             }
         }
+?>
+<?php  
+    // Désactivation remplissage du formulaire
+    if( isset($meta_values["disabled-autocomplete-form"]) && $meta_values["disabled-autocomplete-form"]=="true" ) { 
+?>
+<script type='text/javascript'>
+    jQuery(document).ready(function( $ ){
+        $('form').attr('autocomplete', 'off');
+    });
+</script>
+<?php } ?>
+<?php
     }
 }
