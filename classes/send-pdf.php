@@ -1450,7 +1450,8 @@ class cf7_sendpdf {
             if( isset($meta_values['page_next']) && is_numeric($meta_values['page_next']) ) {
 
                 if( isset($meta_values['download-pdf']) && $meta_values['download-pdf']=="true" ) {
-                    $redirect = get_permalink($meta_values['page_next']).'?pdf-reference='.$_SESSION['pdf_uniqueid'];
+                    //$redirect = get_permalink($meta_values['page_next']).'?pdf-reference='.$_SESSION['pdf_uniqueid'];
+                    $redirect = get_permalink($meta_values['page_next']);
                 } else {
                     $redirect = get_permalink($meta_values['page_next']);
                 }

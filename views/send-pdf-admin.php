@@ -673,31 +673,6 @@ $pathFolder = serialize($createDirectory);
                 </td>
             </tr>
             <tr>
-                <td><!-- Propose de télécharger le pdf? -->
-                    <?php _e('Use a link in the redirect page for download PDF?', 'send-pdf-for-contact-form-7'); ?>
-                    <p><i><?php _e('* Requires enable option "insert into a database"', 'send-pdf-for-contact-form-7'); ?></i></p>
-                </td>
-                <td>
-                    <div style="">
-                        <div class="switch-field">
-                        <input class="switch_left" type="radio" id="switch_download" name="wp_cf7pdf_settings[download-pdf]" value="true" <?php if( isset($meta_values["download-pdf"]) && $meta_values["download-pdf"]=='true') { echo ' checked'; } ?>/>
-                        <label for="switch_download"><?php _e('Yes', 'send-pdf-for-contact-form-7'); ?></label>
-                        <input class="switch_right" type="radio" id="switch_download_no" name="wp_cf7pdf_settings[download-pdf]" value="false" <?php if( empty($meta_values["download-pdf"]) || (isset($meta_values["download-pdf"]) && $meta_values["download-pdf"]=='false') ) { echo ' checked'; } ?> />
-                        <label for="switch_download_no"><?php _e('No', 'send-pdf-for-contact-form-7'); ?></label>
-                        </div>
-                    </div>
-                </td>
-            </tr>
-            <tr>
-                <td><!-- Rediriger sur cette page sans envoyer un e-mail? -->
-                    <?php _e('Enter the name for the link', 'send-pdf-for-contact-form-7'); ?>
-                    <p><i><?php _e( 'Use this shortcode : [wpcf7pdf_download]', 'send-pdf-for-contact-form-7'); ?></i></p>
-                </td>
-                <td>
-                    <input type="text" class="wpcf7-form-field" name="wp_cf7pdf_settings[text-link]" value="<?php if( empty($meta_values["text-link"]) or $meta_values["text-link"]=="" ) { _e('Download your PDF', 'send-pdf-for-contact-form-7'); } else { echo $meta_values["text-link"]; } ?>">
-                </td>
-            </tr>
-            <tr>
                 <td><!-- Propose la redirection vers le pdf direct -->
                     <?php _e('Redirects directly to the PDF after sending the form?', 'send-pdf-for-contact-form-7'); ?>
                     <p><i><?php _e( 'This option disable the Page Redirection selected', 'send-pdf-for-contact-form-7'); ?> (<?php _e( 'Except the popup window option', 'send-pdf-for-contact-form-7'); ?>)</i></p>
