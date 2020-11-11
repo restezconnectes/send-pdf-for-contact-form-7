@@ -122,7 +122,7 @@ jQuery(document).ready(function() {
                         $formsList = cf7_sendpdf::getForms();
                         if ( count($formsList) == 0 ) {
                             printf( __('No forms have not been found. %s', 'send-pdf-for-contact-form-7'), '<a href="'.admin_url('admin.php?page=wpcf7').'">'.__('Create your first form here.', 'send-pdf-for-contact-form-7').'</a>');
-                        } else if ( empty($_COOKIE['pdf_uniqueid']) ) {
+                        } else if ( empty($_SESSION['pdf_uniqueid']) ) {
                             _e('COOKIE are not generated. COOKIE are required for this plugin.', 'send-pdf-for-contact-form-7');
                         } else {
                     ?>
@@ -359,8 +359,8 @@ jQuery(document).ready(function() {
                 $messageText = preg_replace("/(\r\n|\n|\r)/", "<div></div>", $messageText);
                 $messageText = str_replace("<div></div><div></div>", '<div style="height:10px;"></div>', $messageText);
             }
-            $messageText = str_replace('[reference]', $_COOKIE['pdf_uniqueid'], $messageText);
-            $messageText = str_replace('[url-pdf]', $upload_dir['url'].'/'.$nameOfPdf.'-'.$_COOKIE['pdf_uniqueid'].'.pdf', $messageText);
+            $messageText = str_replace('[reference]', $_SESSION['pdf_uniqueid'], $messageText);
+            $messageText = str_replace('[url-pdf]', $upload_dir['url'].'/'.$nameOfPdf.'-'.$_SESSION['pdf_uniqueid'].'.pdf', $messageText);
             if( isset($meta_values['date_format']) && !empty($meta_values['date_format']) ) {
                 $dateField = date_i18n($meta_values['date_format']);
             } else {
@@ -381,8 +381,8 @@ jQuery(document).ready(function() {
             }
             
             if( isset($meta_values['footer_generate_pdf']) && $meta_values['footer_generate_pdf']!='' ) {
-                $footerText = str_replace('[reference]', $_COOKIE['pdf_uniqueid'], $meta_values['footer_generate_pdf']);
-                $footerText = str_replace('[url-pdf]', $upload_dir['url'].'/'.$nameOfPdf.'-'.$_COOKIE['pdf_uniqueid'].'.pdf', $footerText);
+                $footerText = str_replace('[reference]', $_SESSION['pdf_uniqueid'], $meta_values['footer_generate_pdf']);
+                $footerText = str_replace('[url-pdf]', $upload_dir['url'].'/'.$nameOfPdf.'-'.$_SESSION['pdf_uniqueid'].'.pdf', $footerText);
                 if( isset($meta_values['date_format']) && !empty($meta_values['date_format']) ) {
                     $dateField = date_i18n($meta_values['date_format']);
                 }
@@ -1104,7 +1104,7 @@ $pathFolder = serialize($createDirectory);
                                 </tr>
                                 <tr>
                                     <td width="50%">
-                                        <span class="mailtag code used" onclick="jQuery(this).selectText()" style="cursor: pointer;"><strong>[reference]</strong></span><br /><i><?php _e("[reference] is a simple mail-tag who is used for create unique PDF. It's also recorded in the database. Every PDF is named like this : name-pdf-uniqid() and it's uploaded in the upload folder of WordPress.", 'send-pdf-for-contact-form-7'); printf( __(' For example : document-pdf-%s.pdf', 'send-pdf-for-contact-form-7'), $_COOKIE['pdf_uniqueid']); ?></i>
+                                        <span class="mailtag code used" onclick="jQuery(this).selectText()" style="cursor: pointer;"><strong>[reference]</strong></span><br /><i><?php _e("[reference] is a simple mail-tag who is used for create unique PDF. It's also recorded in the database. Every PDF is named like this : name-pdf-uniqid() and it's uploaded in the upload folder of WordPress.", 'send-pdf-for-contact-form-7'); printf( __(' For example : document-pdf-%s.pdf', 'send-pdf-for-contact-form-7'), $_SESSION['pdf_uniqueid']); ?></i>
                                     </td>
                                     <td width="50%">
                                         <?php if( empty($fileTags) || ( isset($fileTags) && $fileTags == '') ) { $fileTags = '[file-1][file-2]'; } ?>

@@ -53,6 +53,7 @@ Yes. If you want, you can support this project here: <a href="https://restezconn
 = 0.8.4 =
 * Bug fixed with the 'wpcf7pdf_path_temp' option, you can remove this option by disabling plugin
 * Adding disabling function for plugin : removed all options (not parameters)
+* Remove COOKIE and use SESSION
 
 = 0.8.3 =
 * Bug fixed COOKIES
