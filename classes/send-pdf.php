@@ -613,6 +613,7 @@ class cf7_sendpdf {
 
                         $tagOptions = $sh_tag["options"];
                         
+
                         if( $sh_tag["basetype"] == 'checkbox') {
                             $inputCheckbox = '';
                             $i = 1;
@@ -654,6 +655,7 @@ class cf7_sendpdf {
                             $valueTag = wpcf7_mail_replace_tags('['.$sh_tag["name"].']');                            
                             $text = str_replace('['.$sh_tag["name"].']', $valueTag, $text);                            
                         }
+
                     }
                 }
                             
@@ -931,11 +933,23 @@ class cf7_sendpdf {
             $meta_values = get_post_meta( $post['_wpcf7'], '_wp_cf7pdf', true );
             $nameOfPdf = $this->wpcf7pdf_name_pdf($post['_wpcf7']);
 
+            // PDF generé et envoyé
+            /*$disablePDF = 0;
+            $contact_tag = $submission->scan_form_tags();
+            foreach ( $contact_tag as $sh_tag ) {
+                
+                /* Si il existe un caase pour desactiver le PDF */
+                /*if( isset($post['disable_sendpdf'][0]) ) { 
+                    $disablePDF = 1;
+                }
+
+            }*/
+
             // Je déclare le contenu de l'email
             $messageText = $components['body'];
 
             // Si la fonction envoi mail est activée
-            if( empty($meta_values['disable-attachments']) OR (isset($meta_values['disable-attachments']) && $meta_values['disable-attachments'] == 'false') ) {
+            if( empty($meta_values['disable-attachments']) OR (isset($meta_values['disable-attachments']) && $meta_values['disable-attachments'] == 'false') && $disablePDF==0 ) {
 
                 // On envoi les mails
                 if ( 'mail' == $mail->name() ) {
@@ -1330,6 +1344,7 @@ class cf7_sendpdf {
             'DejaVuSerif' => 'dejavuserif',
             'DejaVuSerifCondensed' => 'dejavuserifcondensed',
             'DejaVuSansMono' => 'dejavusansmono',
+            'Ubuntu' => 'ubuntu',
             'FreeSans' => 'freesans',
             'FreeSerif' => 'freeserif',
             'FreeMono' => 'freemono',
