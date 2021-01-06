@@ -935,8 +935,8 @@ class cf7_sendpdf {
             $nameOfPdf = $this->wpcf7pdf_name_pdf($post['_wpcf7']);
 
             // PDF generé et envoyé
-            /*$disablePDF = 0;
-            $contact_tag = $submission->scan_form_tags();
+            $disablePDF = 0;
+            /*$contact_tag = $submission->scan_form_tags();
             foreach ( $contact_tag as $sh_tag ) {
                 
                 /* Si il existe un caase pour desactiver le PDF */
