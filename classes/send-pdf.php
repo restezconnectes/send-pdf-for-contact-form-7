@@ -343,14 +343,15 @@ class cf7_sendpdf {
         
         if ( ! session_id() ) {
             @session_start();
-          }
-          // On enregistre un ID en session
-          if ( isset( $_SESSION['pdf_uniqueid'] ) ) {
-              //unset( $_SESSION['pdf_uniqueid'] );
-          } 
-          if( empty($_SESSION['pdf_uniqueid']) ) {
-            $_SESSION['pdf_uniqueid'] = uniqid();
-          }
+        }
+        // On enregistre un ID en session
+        if ( isset( $_SESSION['pdf_uniqueid'] ) ) {
+            //unset( $_SESSION['pdf_uniqueid'] );
+        } 
+        if( empty($_SESSION['pdf_uniqueid']) ) {
+        $_SESSION['pdf_uniqueid'] = uniqid();
+        }
+        session_write_close();
 
     }
 
