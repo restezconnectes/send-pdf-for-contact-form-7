@@ -10,9 +10,12 @@ This plugin requires the installation and activation of the plugin Contact Form 
 
 File send-pdf-for-contact-form-7.pot available
 
-Current Version:  0.8.5
+Current Version:  0.8.6
 
 == Changelog ==
+
+-- 0.8.6 --
+* Adding change separator for CSV option
 
 -- 0.8.5 --
 * Bug fixed for upload files

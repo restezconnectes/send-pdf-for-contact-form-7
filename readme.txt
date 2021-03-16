@@ -4,7 +4,7 @@ Donate link: https://www.paypal.me/RestezConnectes/
 Tags: WordPress, plugin, contact form, pdf, send, attachment, form, cf7
 Requires at least: 3.0
 Tested up to: 5.7
-Stable tag: 0.8.5
+Stable tag: 0.8.6
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -50,8 +50,11 @@ Yes. If you want, you can support this project here: <a href="https://restezconn
 
 == Changelog ==
 
+= 0.8.6 =
+* Adding change separator for CSV option
+
 = 0.8.5 =
-* Bug fixed with upload files field
+* Bug fixed with uploading files field
 
 = 0.8.4 =
 * Bug fixed with the 'wpcf7pdf_path_temp' option, you can remove this option by disabling plugin

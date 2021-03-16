@@ -298,8 +298,13 @@ class cf7_sendpdf {
             wp_enqueue_script('thickbox');
             
             wp_enqueue_script( 'script', WPCF7PDF_URL.'js/wpcf7pdf-action.js', array('jquery'), '1.0', true );
-            // pass Ajax Url to script.js
-            wp_localize_script('script', 'ajaxurl', admin_url( 'admin-ajax.php' ) );
+            /*// pass Ajax Url to script.js
+            wp_localize_script('script', 'ajaxurl', admin_url( 'admin-ajax.php' ) );*/
+            wp_enqueue_script('main');
+            $localize = array(
+                'ajaxurl' => admin_url('admin-ajax.php')
+            );
+            wp_localize_script( 'main', 'ajax_params', $localize);
 
             wp_register_script('wpcf7-my-upload', WPCF7PDF_URL.'js/wpcf7pdf-script.js', array('jquery','media-upload','thickbox'));
             wp_enqueue_script('wpcf7-my-upload');
@@ -939,9 +944,9 @@ class cf7_sendpdf {
                     );
 
                     $fpCsv = fopen($createDirectory.'/'.$nameOfPdf.'-'.$_SESSION['pdf_uniqueid'].'.csv', 'w+');
-
+                    if( isset($meta_values["csv-separate"]) && !empty($meta_values["csv-separate"]) ) { $csvSeparate = esc_html($meta_values["csv-separate"]); } else { $csvSeparate = ','; }
                     foreach ($csvlist as $csvfields) {
-                        fputcsv($fpCsv, $csvfields);
+                        fputcsv($fpCsv, $csvfields, $csvSeparate);
                     }
                     fclose($fpCsv);
 
