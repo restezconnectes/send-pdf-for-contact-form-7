@@ -271,7 +271,7 @@ class cf7_sendpdf {
 
         if (isset($_GET['page']) && $_GET['page'] == 'wpcf7-send-pdf') {    
             wp_enqueue_code_editor( array( 'type' => 'text/html' ) );
-            wp_enqueue_script( 'js-code-editor',  WPCF7PD_URL.'js/wpcf7pdf-code-editor.js', array( 'jquery' ), '', true );
+            wp_enqueue_script( 'js-code-editor',  WPCF7PDF_URL.'js/wpcf7pdf-code-editor.js', array( 'jquery' ), '', true );
         }
 
     }
@@ -297,11 +297,11 @@ class cf7_sendpdf {
             wp_enqueue_script('media-upload');
             wp_enqueue_script('thickbox');
             
-            wp_enqueue_script( 'script', WPCF7PD_URL.'js/wpcf7pdf-action.js', array('jquery'), '1.0', true );
+            wp_enqueue_script( 'script', WPCF7PDF_URL.'js/wpcf7pdf-action.js', array('jquery'), '1.0', true );
             // pass Ajax Url to script.js
             wp_localize_script('script', 'ajaxurl', admin_url( 'admin-ajax.php' ) );
 
-            wp_register_script('wpcf7-my-upload', WPCF7PD_URL.'js/wpcf7pdf-script.js', array('jquery','media-upload','thickbox'));
+            wp_register_script('wpcf7-my-upload', WPCF7PDF_URL.'js/wpcf7pdf-script.js', array('jquery','media-upload','thickbox'));
             wp_enqueue_script('wpcf7-my-upload');
 
             $pcf7pdf_settings['codeEditor'] = wp_enqueue_code_editor(array('type' => 'text/html'));
@@ -518,6 +518,46 @@ class cf7_sendpdf {
 
     }
 
+    function wpcf7pdf_attachments( $tag = null ) {
+        if ( ! $tag ) {
+            $tag = $this->get( 'attachments' );
+        }
+
+        $attachments = array();
+
+        if ( $submission = WPCF7_Submission::get_instance() ) {
+            $uploaded_files = $submission->uploaded_files();
+
+            foreach ( (array) $uploaded_files as $name => $paths ) {
+                if ( false !== strpos( $tag, "[${name}]" ) ) {
+                    $attachments = array_merge( $attachments, (array) $paths );
+                }
+            }
+        }
+
+        foreach ( explode( "\n", $tag ) as $line ) {
+            $line = trim( $line );
+
+            if ( '[' == substr( $line, 0, 1 ) ) {
+                continue;
+            }
+
+            $path = path_join( WP_CONTENT_DIR, $line );
+
+            if ( ! wpcf7_is_file_path_in_content_dir( $path ) ) {
+                // $path is out of WP_CONTENT_DIR
+                continue;
+            }
+
+            if ( is_readable( $path )
+            and is_file( $path ) ) {
+                $attachments[] = $path;
+            }
+        }
+
+        return $attachments[0];
+    }
+
     function wpcf7pdf_send_pdf($contact_form) {
 
         $submission = WPCF7_Submission::get_instance();
@@ -580,8 +620,8 @@ class cf7_sendpdf {
                             if( isset($image_name) && $image_name!='' && !empty($posted_data[$tags[1]]) ) {
                                 //error_log($tags[1].' --> '.$uploaded_files[$tags[1]]);
                                 if( !empty($uploaded_files[$tags[1]]) ) {
-                                    $image_location = $uploaded_files[$tags[1]];
-                                    $chemin_final[$tags[1]] = $createDirectory.'/'.$_SESSION['pdf_uniqueid'].'-'.$image_name;
+                                    $image_location = $this->wpcf7pdf_attachments($tags[0]);
+                                    $chemin_final[$tags[1]] = $createDirectory.'/'.$_SESSION['pdf_uniqueid'].'-'.wpcf7_mail_replace_tags($tags[0]);
                                     // On copie l'image dans le dossier
                                     copy($image_location, $chemin_final[$tags[1]]);
                                 }
@@ -672,11 +712,12 @@ class cf7_sendpdf {
                         if( isset($tagsOnPdf[1]) && $tagsOnPdf[1] != '' && !empty($posted_data[$tagsOnPdf[1]]) ) {
                             $image_name2 = $posted_data[$tagsOnPdf[1]];
                             if( isset($image_name2) && $image_name2!='' ) {
-                                $chemin_final2[$tagsOnPdf[1]] = str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $createDirectory).'/'.$_SESSION['pdf_uniqueid'].'-'.$image_name2;
+
+                                $chemin_final2[$tagsOnPdf[1]] = str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $createDirectory).'/'.$_SESSION['pdf_uniqueid'].'-'.wpcf7_mail_replace_tags($tagsOnPdf[0]);
                                 $text = str_replace('['.$tagsOnPdf[1].']', $image_name2, $text);
                                 $text = str_replace('[url-'.$tagsOnPdf[1].']', $chemin_final2[$tagsOnPdf[1]], $text);
                             } else {
-                                $text = str_replace('[url-'.$tagsOnPdf[1].']', WPCF7PD_URL.'images/onepixel.png', $text);
+                                $text = str_replace('[url-'.$tagsOnPdf[1].']', WPCF7PDF_URL.'images/onepixel.png', $text);
                             }
                         }
                     }
@@ -1159,7 +1200,7 @@ class cf7_sendpdf {
                                     $messageText = str_replace('['.$tagsOnMail[1].']', $image_name_mail, $messageText);
                                     $messageText = str_replace('[url-'.$tagsOnMail[1].']', $chemin_final_mail[$tagsOnMail[1]], $messageText);
                                 } else {
-                                    $messageText = str_replace('[url-'.$tagsOnMail[1].']', WPCF7PD_URL.'images/onepixel.png', $messageText);
+                                    $messageText = str_replace('[url-'.$tagsOnMail[1].']', WPCF7PDF_URL.'images/onepixel.png', $messageText);
                                 }
                             }
                         }

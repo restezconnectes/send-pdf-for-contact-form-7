@@ -10,9 +10,12 @@ This plugin requires the installation and activation of the plugin Contact Form 
 
 File send-pdf-for-contact-form-7.pot available
 
-Current Version:  0.8.4
+Current Version:  0.8.5
 
 == Changelog ==
+
+-- 0.8.5 --
+* Bug fixed for upload files
 
 -- 0.8.4 --
 * Bug fixed with the 'wpcf7pdf_path_temp' option, you can remove this option by disabling plugin
