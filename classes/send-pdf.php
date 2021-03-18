@@ -1533,16 +1533,15 @@ class cf7_sendpdf {
                     $targetPDF = '_tab';
                 }
                 $urlRredirectPDF = str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $createDirectory).'/'.$nameOfPdf.'.pdf';
-                $redirectPDF = "/* REDICTION DIRECT */
-        if ( '" . $id . "' === event.detail.contactFormId ) {";
+                $redirectPDF = "/* REDICTION DIRECT */ ";
                     if( isset($meta_values["redirect-window"]) && $meta_values["redirect-window"] == 'popup' ) {
                         $redirectPDF .= "
             window.open('".$urlRredirectPDF."','".$nameOfPdf."','menubar=no, status=no, scrollbars=yes, menubar=no, width=600, height=900');";
                      } else { 
                         $redirectPDF .= "
-            var location = '".$urlRredirectPDF."'; window.open(location, '".$targetPDF."');";
+        var location = '".$urlRredirectPDF."'; window.open(location, '".$targetPDF."');";
                     }
-                $redirectPDF .= "}
+                $redirectPDF .= "
 ";
                 $displayAddEventList = 1;
 
@@ -1552,17 +1551,16 @@ class cf7_sendpdf {
                 $displayAddEventList = 0;
             }
             
-$js .= '/* REDIRECTION  */
-        if ( "' . $id . '" === event.detail.contactFormId) { ';
+$js .= '/* REDIRECTION  */ ';
 $js .= sprintf('location.replace("%1$s");', htmlspecialchars_decode( esc_url( $redirect ) ) );
-$js .= '}
+$js .= '
 ';  
             if( $displayAddEventList == 1 ) {
                 
     ?>
 <!-- Send PDF for CF7 -->
 <script type='text/javascript'>
-    document.addEventListener( 'wpcf7mailsent', function( event ) {
+    document.addEventListener( 'wpcf7submit', function( event ) {
         <?php if( isset($redirectPDF) ) { echo $redirectPDF; } ?>
     <?php if( (isset($meta_values['page_next']) && is_numeric($meta_values['page_next'])) ) { echo $js; } ?>
 }, false );
