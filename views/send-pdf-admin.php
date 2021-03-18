@@ -9,6 +9,9 @@ global $post;
 $admin_color = get_user_option( 'admin_color', get_current_user_id() );
 $colors      = $_wp_admin_css_colors[$admin_color]->colors;
 
+$upload_dir = wp_upload_dir();
+$tmpDirectory = $upload_dir['basedir'].'/sendpdfcf7_uploads/tmp';
+
 /* Update des paramètres */
 if( (isset($_POST['action']) && isset($_POST['idform']) && $_POST['action'] == 'update') && isset( $_POST['security-sendform'] ) && wp_verify_nonce($_POST['security-sendform'], 'go-sendform') ) {
 
@@ -70,6 +73,14 @@ if( (isset($_POST['wpcf7_action']) && isset($_POST['idform']) && $_POST['wpcf7_a
     update_post_meta( intval($_POST['idform']), '_wp_cf7pdf_limit', $_POST['listing_limit'] );
 
     echo '<div id="message" class="updated fade"><p><strong>' . __('Limit updating successfully!', 'send-pdf-for-contact-form-7') . '</strong></p></div>';
+}
+
+if( isset($_POST['action']) && $_POST['action'] == 'reset' ) {
+
+    if( ! wp_verify_nonce($_POST['security-resettmp'], 'go-resettmp') )
+        return;
+    update_option('wpcf7pdf_path_temp', $upload_dir['basedir'] . '/sendpdfcf7_uploads/tmp');
+
 }
 
 ?>
@@ -143,6 +154,18 @@ jQuery(document).ready(function() {
                             ?>
                         </select>
                     </form>
+                    <?php 
+                        if( $tmpDirectory != get_option('wpcf7pdf_path_temp') ) {
+                            _e('Your TMP folder is bad.', 'send-pdf-for-contact-form-7');
+                            ?>
+                            <form method="post" action="<?php echo $_SERVER['REQUEST_URI']?>" name="resettmp" id="resettmp">
+                                <?php wp_nonce_field('go-resettmp', 'security-resettmp'); ?>
+                                <input type="hidden" name="action" value="reset"/>
+                                <input type="submit" value="<?php _e('Fix it!', 'send-pdf-for-contact-form-7'); ?>" style="background-color:#656830;color:#fff;border:1px solid #656830;" />
+                            </form>
+                            <?php
+                        }
+                    ?>
                     <?php } ?>
                 </td>
                 <td align="center" width="33%">
