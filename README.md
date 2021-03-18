@@ -18,6 +18,7 @@ Current Version:  0.8.6
 * Adding change separator for CSV option
 * Adding fields for margin auto top & bottom
 * Adding reset TMP folder
+* Upgrade mPDF v8.0.10
 
 -- 0.8.5 --
 * Bug fixed for upload files
