@@ -129,12 +129,6 @@ class FontVariables
 					'useOTL' => 0xFF,
 					'useKashida' => 75,
 				],
-				"ubuntu" => [
-					'R' => "Ubuntu.ttf",
-					'B' => "Ubuntu-Bold.ttf",
-					'I' => "Ubuntu-Italic.ttf",
-					'BI' => "Ubuntu-BoldItalic.ttf",
-				],
 				"freesans" => [
 					'R' => "FreeSans.ttf",
 					'B' => "FreeSansBold.ttf",
