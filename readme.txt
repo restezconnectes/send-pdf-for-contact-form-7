@@ -52,6 +52,7 @@ Yes. If you want, you can support this project here: <a href="https://restezconn
 
 = 0.8.6 =
 * Adding change separator for CSV option
+* Adding fields for margin auto top & bottom
 
 = 0.8.5 =
 * Bug fixed with uploading files field

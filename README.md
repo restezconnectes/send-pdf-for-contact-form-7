@@ -16,6 +16,7 @@ Current Version:  0.8.6
 
 -- 0.8.6 --
 * Adding change separator for CSV option
+* Adding fields for margin auto top & bottom
 
 -- 0.8.5 --
 * Bug fixed for upload files

@@ -786,6 +786,12 @@ class cf7_sendpdf {
                     $mpdf->SetCreator(get_bloginfo('name'));
                     $mpdf->ignore_invalid_utf8 = true;
                     
+                    if( empty($meta_values["margin_auto_header"]) || ( isset($meta_values["margin_auto_header"]) && $meta_values["margin_auto_header"]=='' ) ) { $meta_values["margin_auto_header"] = 'stretch'; }
+                    if( empty($meta_values["margin_auto_header"]) || ( isset($meta_values["margin_auto_bottom"]) && $meta_values["margin_auto_bottom"]=='' ) ) { $meta_values["margin_auto_bottom"] = 'stretch'; }
+
+                    $mpdf->setAutoTopMargin = $meta_values["margin_auto_header"];
+                    $mpdf->setAutoBottomMargin = $meta_values["margin_auto_bottom"];
+
                     if( isset($meta_values['fillable_data']) && $meta_values['fillable_data']== 'true') {
                         $mpdf->useActiveForms = true;
                     }

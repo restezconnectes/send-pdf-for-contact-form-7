@@ -231,9 +231,9 @@ jQuery(document).ready(function() {
             if( isset($meta_values["margin_top"]) && $meta_values["margin_top"]!='' ) { $marginTop = $meta_values["margin_top"]; }
 
             if( isset($meta_values['fillable_data']) && $meta_values['fillable_data']== 'true') {
-                $mpdf = new \Mpdf\Mpdf(['mode' => 'c', 'format' => $formatPdf, 'margin_header' => $marginHeader,'margin_top' => $marginTop, 'default_font' => $fontPdf, 'default_font_size' => $fontsizePdf, 'tempDir' => $custom_tmp_path]);
+                $mpdf = new \Mpdf\Mpdf(['mode' => 'c', 'format' => $formatPdf, 'margin_header' => $marginHeader, 'margin_top' => $marginTop, 'default_font' => $fontPdf, 'default_font_size' => $fontsizePdf, 'tempDir' => $custom_tmp_path]);
             } else {
-                $mpdf = new \Mpdf\Mpdf(['mode' => 'utf-8', 'format' => $formatPdf, 'margin_header' => $marginHeader,'margin_top' => $marginTop, 'default_font' => $fontPdf, 'default_font_size' => $fontsizePdf, 'tempDir' => $custom_tmp_path]);
+                $mpdf = new \Mpdf\Mpdf(['mode' => 'utf-8', 'format' => $formatPdf, 'margin_header' => $marginHeader, 'margin_top' => $marginTop, 'default_font' => $fontPdf, 'default_font_size' => $fontsizePdf, 'tempDir' => $custom_tmp_path]);
             }
             //var_dump($meta_values);
             ///exit();
@@ -246,6 +246,12 @@ jQuery(document).ready(function() {
             $mpdf->SetTitle(get_the_title($idForm));
             $mpdf->SetCreator(get_bloginfo('name'));
             $mpdf->ignore_invalid_utf8 = true;
+
+            if( empty($meta_values["margin_auto_header"]) || ( isset($meta_values["margin_auto_header"]) && $meta_values["margin_auto_header"]=='' ) ) { $meta_values["margin_auto_header"] = 'stretch'; }
+            if( empty($meta_values["margin_auto_header"]) || ( isset($meta_values["margin_auto_bottom"]) && $meta_values["margin_auto_bottom"]=='' ) ) { $meta_values["margin_auto_bottom"] = 'stretch'; }
+
+            $mpdf->setAutoTopMargin = $meta_values["margin_auto_header"];
+            $mpdf->setAutoBottomMargin = $meta_values["margin_auto_bottom"];
 
             if( isset($meta_values['image_background']) && $meta_values['image_background']!='' ) {
                  
@@ -282,7 +288,7 @@ jQuery(document).ready(function() {
                 if( isset($meta_values["margin_bottom_header"]) && $meta_values["margin_bottom_header"]!='' ) { $marginBottomHeader = $meta_values["margin_bottom_header"]; }
                 $mpdf->WriteHTML('<p style="margin-bottom:'.$marginBottomHeader.'px;">&nbsp;</p>');
             }
-            $mpdf->SetHTMLHeader($entetePage, '', true);
+            $mpdf->SetHTMLHeader($entetePage, 'O', true);
 
             $messageText = $meta_values['generate_pdf'];
             
@@ -1065,7 +1071,18 @@ $pathFolder = serialize($createDirectory);
                             <?php _e('Global Margin PDF', 'send-pdf-for-contact-form-7'); ?><br /><p></p>
                         </td>
                         <td>
-                            <?php _e('Margin Header', 'send-pdf-for-contact-form-7'); ?> <input type="text" size="4" class="wpcf7-form-field" name="wp_cf7pdf_settings[margin_header]" value="<?php if( isset($meta_values["margin_header"]) && $meta_values["margin_header"]!='' ) { echo $meta_values["margin_header"]; } else { echo $marginHeader; } ?>" /> <?php _e('Margin Top Header', 'send-pdf-for-contact-form-7'); ?> <input type="text" class="wpcf7-form-field" size="4" name="wp_cf7pdf_settings[margin_top]" value="<?php if( isset($meta_values["margin_top"]) && $meta_values["margin_top"]!='' ) { echo $meta_values["margin_top"]; } else { echo $marginTop; } ?>" />
+                            <?php _e('Margin Header', 'send-pdf-for-contact-form-7'); ?> <input type="text" size="4" class="wpcf7-form-field" name="wp_cf7pdf_settings[margin_header]" value="<?php if( isset($meta_values["margin_header"]) && $meta_values["margin_header"]!='' ) { echo $meta_values["margin_header"]; } else { echo $marginHeader; } ?>" /> <?php _e('Margin Top Header', 'send-pdf-for-contact-form-7'); ?> <input type="text" class="wpcf7-form-field" size="4" name="wp_cf7pdf_settings[margin_top]" value="<?php if( isset($meta_values["margin_top"]) && $meta_values["margin_top"]!='' ) { echo $meta_values["margin_top"]; } else { echo $marginTop; } ?>" /><br /><br />
+                            <?php _e('Margin Header Auto', 'send-pdf-for-contact-form-7'); ?> <select name="wp_cf7pdf_settings[margin_auto_header]" class="wpcf7-form-field">
+                                <option value="pad" <?php if( isset($meta_values["margin_auto_header"]) && $meta_values["margin_auto_header"] == 'pad' ) { echo 'selected'; } ?>>pad</option>
+                                <option value="stretch" <?php if( empty($meta_values["margin_auto_header"]) || (isset($meta_values["margin_auto_header"]) && $meta_values["margin_auto_header"] == 'stretch') ) { echo 'selected'; } ?>>stretch</option>
+                                <option value="false" <?php if( isset($meta_values["margin_auto_header"]) && $meta_values["margin_auto_header"] == 'false' ) { echo 'selected'; } ?>>false</option>
+                            </select><br />
+                            <?php _e('Margin Bottom Auto', 'send-pdf-for-contact-form-7'); ?>
+                            <select name="wp_cf7pdf_settings[margin_auto_bottom]" class="wpcf7-form-field">
+                                <option value="pad" <?php if( isset($meta_values["margin_auto_bottom"]) && $meta_values["margin_auto_bottom"] == 'pad' ) { echo 'selected'; } ?>>pad</option>
+                                <option value="stretch" <?php if( empty($meta_values["margin_auto_bottom"]) || (isset($meta_values["margin_auto_bottom"]) && $meta_values["margin_auto_bottom"] == 'stretch') ) { echo 'selected'; } ?>>stretch</option>
+                                <option value="false" <?php if( isset($meta_values["margin_auto_bottom"]) && $meta_values["margin_auto_bottom"] == 'false' ) { echo 'selected'; } ?>>false</option>
+                            </select>
                         </td>
                     </tr>
 
