@@ -2,7 +2,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Contact Form 7 Send PDF\n"
-"POT-Creation-Date: 2021-03-19 11:15+0100\n"
+"POT-Creation-Date: 2021-03-19 11:27+0100\n"
 "PO-Revision-Date: 2015-03-19 11:19+0100\n"
 "Last-Translator: Florent Maillefaud <contact@restezconnectes.fr>\n"
 "Language-Team: Florent Maillefaud <contact@restezconnectes.fr>\n"
@@ -91,7 +91,7 @@ msgid "Create your first form here."
 msgstr ""
 
 #: views/send-pdf-admin.php:137
-msgid "COOKIE are not generated. COOKIE are required for this plugin."
+msgid "SESSION are not generated. SESSION are required for this plugin."
 msgstr ""
 
 #: views/send-pdf-admin.php:144

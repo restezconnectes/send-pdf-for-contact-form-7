@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Contact Form 7 Send PDF\n"
-"POT-Creation-Date: 2021-03-19 11:15+0100\n"
-"PO-Revision-Date: 2021-03-19 11:17+0100\n"
+"POT-Creation-Date: 2021-03-19 11:27+0100\n"
+"PO-Revision-Date: 2021-03-19 11:27+0100\n"
 "Last-Translator: Florent Maillefaud <contact@restezconnectes.fr>\n"
 "Language-Team: Florent Maillefaud <contact@restezconnectes.fr>\n"
 "Language: fr_FR\n"
@@ -95,10 +95,9 @@ msgid "Create your first form here."
 msgstr "Créer votre premier formulaire ici."
 
 #: views/send-pdf-admin.php:137
-msgid "COOKIE are not generated. COOKIE are required for this plugin."
+msgid "SESSION are not generated. SESSION are required for this plugin."
 msgstr ""
-"Le COOKIE n’est pas généré. Les COOKIES sont nécessaires pour cette "
-"extension."
+"SESSION n’est pas généré. Les SESSIONS sont nécessaires pour cette extension."
 
 #: views/send-pdf-admin.php:144
 msgid "* Select a form *"
@@ -110,7 +109,7 @@ msgstr "Votre dossier TMP est mauvais."
 
 #: views/send-pdf-admin.php:164
 msgid "Fix it!"
-msgstr "Réparer"
+msgstr "Réparer!"
 
 #: views/send-pdf-admin.php:175
 #, php-format
