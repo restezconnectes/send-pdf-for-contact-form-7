@@ -19,6 +19,8 @@ Current Version:  0.8.6
 * Adding fields for margin auto top & bottom
 * Adding reset TMP folder
 * Upgrade mPDF v8.0.10
+* Adding filed for password with a TAG
+* Bug with SESSION password
 
 -- 0.8.5 --
 * Bug fixed for upload files

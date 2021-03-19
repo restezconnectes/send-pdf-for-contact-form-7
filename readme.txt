@@ -55,6 +55,8 @@ Yes. If you want, you can support this project here: <a href="https://restezconn
 * Adding fields for margin auto top & bottom
 * Adding reset TMP folder
 * Upgrade mPDF v8.0.10
+* Adding filed for password with a TAG
+* Bug with SESSION password
 
 = 0.8.5 =
 * Bug fixed with uploading files field

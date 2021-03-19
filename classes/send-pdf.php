@@ -897,9 +897,13 @@ class cf7_sendpdf {
                         if( isset($meta_values["protect_password"]) && $meta_values["protect_password"]!='' ) {
                             $pdfPassword = $meta_values["protect_password"];
                         }
-                        if( isset($meta_values["protect_uniquepassword"]) && $meta_values["protect_uniquepassword"]=='true' && (isset($_COOKIE['pdf_password']) && $_COOKIE['pdf_password']!='') ) {
-                            $pdfPassword = $_COOKIE['pdf_password'];
+                        if( isset($meta_values["protect_uniquepassword"]) && $meta_values["protect_uniquepassword"]=='true' && (isset($_SESSION['pdf_password']) && $_SESSION['pdf_password']!='') ) {
+                            $pdfPassword = $_SESSION['pdf_password'];
                         }
+                        if( isset($meta_values["protect_password_tag"]) && $meta_values["protect_password_tag"]!='' ) {
+                            $pdfPassword = wpcf7_mail_replace_tags($meta_values["protect_password_tag"]);;
+                        }
+                        //error_log('pdf:'.$pdfPassword);
                         $mpdf->SetProtection(array(), $pdfPassword, $pdfPassword, 128);                        
                     } 
                     
@@ -1172,8 +1176,12 @@ class cf7_sendpdf {
                 if( isset($meta_values["protect_password"]) && $meta_values["protect_password"]!='' ) {
                     $pdfPassword = $meta_values["protect_password"];
                 }
-                if( isset($meta_values["protect_uniquepassword"]) && $meta_values["protect_uniquepassword"]=='true' && (isset($_COOKIE['pdf_password']) && $_COOKIE['pdf_password']!='') ) {
-                    $pdfPassword = $_COOKIE['pdf_password'];
+                if( isset($meta_values["protect_uniquepassword"]) && $meta_values["protect_uniquepassword"]=='true' && (isset($_SESSION['pdf_password']) && $_SESSION['pdf_password']!='') ) {
+                    $pdfPassword = $_SESSION['pdf_password'];
+                }
+                if( isset($meta_values["protect_password_tag"]) && $meta_values["protect_password_tag"]!='' ) {
+                    $pdfPassword = wpcf7_mail_replace_tags($meta_values["protect_password_tag"]);
+                    //error_log( 'mail:'. $pdfPassword );
                 }
             }
 
@@ -1532,7 +1540,7 @@ class cf7_sendpdf {
                 if( isset($meta_values["redirect-window"]) && $meta_values["redirect-window"] == 'off' ) {
                     $targetPDF = '_tab';
                 }
-                $urlRredirectPDF = str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $createDirectory).'/'.$nameOfPdf.'.pdf';
+                $urlRredirectPDF = str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $createDirectory).'/'.$nameOfPdf.'.pdf?ver='.rand();
                 $redirectPDF = "/* REDICTION DIRECT */ ";
                     if( isset($meta_values["redirect-window"]) && $meta_values["redirect-window"] == 'popup' ) {
                         $redirectPDF .= "
@@ -1560,7 +1568,7 @@ $js .= '
     ?>
 <!-- Send PDF for CF7 -->
 <script type='text/javascript'>
-    document.addEventListener( 'wpcf7submit', function( event ) {
+    document.addEventListener( 'wpcf7mailsent', function( event ) {
         <?php if( isset($redirectPDF) ) { echo $redirectPDF; } ?>
     <?php if( (isset($meta_values['page_next']) && is_numeric($meta_values['page_next'])) ) { echo $js; } ?>
 }, false );
