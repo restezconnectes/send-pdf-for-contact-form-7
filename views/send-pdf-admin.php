@@ -134,7 +134,7 @@ jQuery(document).ready(function() {
                         if ( count($formsList) == 0 ) {
                             printf( __('No forms have not been found. %s', 'send-pdf-for-contact-form-7'), '<a href="'.admin_url('admin.php?page=wpcf7').'">'.__('Create your first form here.', 'send-pdf-for-contact-form-7').'</a>');
                         } else if ( empty($_SESSION['pdf_uniqueid']) ) {
-                            _e('COOKIE are not generated. COOKIE are required for this plugin.', 'send-pdf-for-contact-form-7');
+                            _e('SESSION are not generated. SESSION are required for this plugin.', 'send-pdf-for-contact-form-7');
                         } else {
                     ?>
                     <form method="post" action="<?php echo $_SERVER['REQUEST_URI']?>" name="displayform" id="displayform">
@@ -217,6 +217,8 @@ jQuery(document).ready(function() {
         $marginHeader = 10;
         $marginTop = 40;
         $marginBottomHeader = 10;
+        $setAutoTopMargin = 'stretch';
+        $setAutoBottomMargin = 'stretch';
 
         // Definition de la taille, le format de page et la font par defaut
         $fontsizePdf = 9;
@@ -273,8 +275,11 @@ jQuery(document).ready(function() {
             if( empty($meta_values["margin_auto_header"]) || ( isset($meta_values["margin_auto_header"]) && $meta_values["margin_auto_header"]=='' ) ) { $meta_values["margin_auto_header"] = 'stretch'; }
             if( empty($meta_values["margin_auto_header"]) || ( isset($meta_values["margin_auto_bottom"]) && $meta_values["margin_auto_bottom"]=='' ) ) { $meta_values["margin_auto_bottom"] = 'stretch'; }
 
-            $mpdf->setAutoTopMargin = $meta_values["margin_auto_header"];
-            $mpdf->setAutoBottomMargin = $meta_values["margin_auto_bottom"];
+            if( isset($meta_values["margin_auto_header"]) && $meta_values["margin_auto_header"]!='' ) { $setAutoBottomMargin = $meta_values["margin_auto_header"]; }
+            if( isset($meta_values["margin_auto_bottom"]) && $meta_values["margin_auto_bottom"]!='' ) { $setAutoBottomMargin = $meta_values["margin_auto_bottom"]; }
+
+            $mpdf->setAutoTopMargin = $setAutoBottomMargin;
+            $mpdf->setAutoBottomMargin = $setAutoBottomMargin;
 
             if( isset($meta_values['image_background']) && $meta_values['image_background']!='' ) {
                  
