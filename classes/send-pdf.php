@@ -853,6 +853,18 @@ class cf7_sendpdf {
                         $mpdf->SetHTMLFooter($footerText);
                     }
 
+
+                    // Shortcodes?
+                    if( isset($meta_values['shotcodes_tags']) && $meta_values['shotcodes_tags']!='') {
+                        $tagShortcodes = explode(',', $meta_values['shotcodes_tags']);
+                        $countShortcodes = count($tagShortcodes);
+                        for($i = 0; $i < ($countShortcodes);  $i++) {
+                            if( stripos($text, $tagShortcodes[$i]) !== false ) {
+                                $text = str_replace($tagShortcodes[$i], do_shortcode($tagShortcodes[$i]), $text);
+                            }
+                        }
+                    }
+
                     // En cas de saut de page avec le tag [addpage]
                     if( stripos($text, '[addpage]') !== false ) {
 
@@ -1226,6 +1238,17 @@ class cf7_sendpdf {
                     }
                 }
                 
+                // Shortcodes?
+               if( isset($meta_values['shotcodes_tags']) && $meta_values['shotcodes_tags']!='') {
+                    $tagShortcodes = explode(',', $meta_values['shotcodes_tags']);
+                    $countShortcodes = count($tagShortcodes);
+                    for($i = 0; $i < ($countShortcodes);  $i++) {
+                        if( stripos($messageText, $tagShortcodes[$i]) !== false ) {
+                            $messageText = str_replace($tagShortcodes[$i], do_shortcode($tagShortcodes[$i]), $messageText);
+                        }
+                    }
+                }
+
                 $messageText = str_replace('[reference]', $_SESSION['pdf_uniqueid'], $messageText);
                 $messageText = str_replace('[url-pdf]', str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $createDirectory ).'/'.$nameOfPdf.'-'.$_SESSION['pdf_uniqueid'].'.pdf', $messageText);
                 

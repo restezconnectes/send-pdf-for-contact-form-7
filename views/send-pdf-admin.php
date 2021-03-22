@@ -429,6 +429,17 @@ jQuery(document).ready(function() {
                 $mpdf->SetHTMLFooter($footerText);
             }
 
+            // Shortcodes?
+            if( isset($meta_values['shotcodes_tags']) && $meta_values['shotcodes_tags']!='') {
+                $tagShortcodes = explode(',', $meta_values['shotcodes_tags']);
+                $countShortcodes = count($tagShortcodes);
+                for($i = 0; $i < ($countShortcodes);  $i++) {
+                    if( stripos($messageText, $tagShortcodes[$i]) !== false ) {
+                        $messageText = str_replace($tagShortcodes[$i], do_shortcode($tagShortcodes[$i]), $messageText);
+                    }
+                }
+            }
+
             // En cas de saut de page avec le tag [addpage]
             if( stripos($messageText, '[addpage]') !== false ) {
 
@@ -1006,7 +1017,17 @@ $pathFolder = serialize($createDirectory);
                         <textarea name="wp_cf7pdf_settings[custom_css]" id="wp_cf7pdf_pdf_css" cols=70 rows=24 class="widefat textarea"style="height:250px;"><?php if( isset( $meta_values['custom_css']) ) { echo esc_textarea($meta_values['custom_css']); } ?></textarea>
                     </td>
                 </tr>
-
+                <tr>
+                    <td >
+                        
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table class="wp-list-table widefat fixed" cellspacing="0">
+            <tbody id="the-list">
+                <tr>
+                    <td>
                 <tr>
                     <td>
                         <h3 class="hndle"><span class="dashicons dashicons-arrow-down-alt"></span> <?php _e('Footer', 'send-pdf-for-contact-form-7'); ?></h3>
@@ -1114,8 +1135,7 @@ $pathFolder = serialize($createDirectory);
                                 <option value="pad" <?php if( isset($meta_values["margin_auto_header"]) && $meta_values["margin_auto_header"] == 'pad' ) { echo 'selected'; } ?>>pad</option>
                                 <option value="stretch" <?php if( empty($meta_values["margin_auto_header"]) || (isset($meta_values["margin_auto_header"]) && $meta_values["margin_auto_header"] == 'stretch') ) { echo 'selected'; } ?>>stretch</option>
                                 <option value="false" <?php if( isset($meta_values["margin_auto_header"]) && $meta_values["margin_auto_header"] == 'false' ) { echo 'selected'; } ?>>false</option>
-                            </select><br />
-                            <?php _e('Margin Bottom Auto', 'send-pdf-for-contact-form-7'); ?>
+                            </select> <?php _e('Margin Bottom Auto', 'send-pdf-for-contact-form-7'); ?>
                             <select name="wp_cf7pdf_settings[margin_auto_bottom]" class="wpcf7-form-field">
                                 <option value="pad" <?php if( isset($meta_values["margin_auto_bottom"]) && $meta_values["margin_auto_bottom"] == 'pad' ) { echo 'selected'; } ?>>pad</option>
                                 <option value="stretch" <?php if( empty($meta_values["margin_auto_bottom"]) || (isset($meta_values["margin_auto_bottom"]) && $meta_values["margin_auto_bottom"] == 'stretch') ) { echo 'selected'; } ?>>stretch</option>
@@ -1143,12 +1163,12 @@ $pathFolder = serialize($createDirectory);
                                     </td>
                                     <td width="50%">
                                         <?php if( empty($fileTags) || ( isset($fileTags) && $fileTags == '') ) { $fileTags = '[file-1][file-2]'; } ?>
-                                        <i><?php echo sprintf( __('The <strong>[file]</strong> tags are for images? Enter them here to display them in images on your PDF and like this: %s', 'send-pdf-for-contact-form-7'), $fileTags ); ?></i><br /><small><?php _e('It will then be necessary to put them in the image HTML tag for the PDF layout.', 'send-pdf-for-contact-form-7'); ?></small><br /><input type="text" class="wpcf7-form-field" name="wp_cf7pdf_settings[file_tags]" size="80%" value="<?php if( isset($meta_values['file_tags'])) { echo $meta_values['file_tags']; } ?>" />
+                                        <i><?php echo sprintf( __('The <strong>[file]</strong> tags are for images? Enter them here to display them in images on your PDF and like this: %s', 'send-pdf-for-contact-form-7'), $fileTags ); ?></i><br /><small><?php _e('It will then be necessary to put them in the image HTML tag for the PDF layout.', 'send-pdf-for-contact-form-7'); ?><br /><?php _e('Use url- prefix for display URL like this:', 'send-pdf-for-contact-form-7'); ?> <?php echo str_replace('[', '[url-', $fileTags); ?></small><br /><input type="text" class="wpcf7-form-field" name="wp_cf7pdf_settings[file_tags]" size="80%" value="<?php if( isset($meta_values['file_tags'])) { echo $meta_values['file_tags']; } ?>" />
                                     </td>
+                                   
                                 </tr>
-
                                 <tr>
-                                    <td colspan="2">
+                                <td width="50%">
                                     <?php
                                             /*
                                              * ECRIT DANS UN POST-META LES TAGS DU FORMULAIRE 
@@ -1198,6 +1218,7 @@ $pathFolder = serialize($createDirectory);
                                             }
                                         ?>
                                     </td>
+                                    <td width="50%"><i><?php echo __('Enter here your Shortcodes', 'send-pdf-for-contact-form-7'); ?></i><br /><small><?php _e('It will then be necessary to put them in the PDF layout. Test with this shortcode: [wpcf7pdf_test]', 'send-pdf-for-contact-form-7'); ?></small><br /><input type="text" class="wpcf7-form-field" name="wp_cf7pdf_settings[shotcodes_tags]" size="80%" value="<?php if( isset($meta_values['shotcodes_tags'])) { echo $meta_values['shotcodes_tags']; } ?>" /></td>
                                 </tr>
                                 <tr>
                                     <td width="50%"><br /></td>

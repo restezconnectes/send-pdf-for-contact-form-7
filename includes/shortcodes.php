@@ -3,8 +3,7 @@
 defined( 'ABSPATH' )
 	or die( 'No direct load ! ' );
 
-function wpcf7pdf_analytics_shortcode( $atts ) {
-
+function wpcf7pdf_btn_shortcode( $atts ) {
 
 	// Attributes
 	extract( shortcode_atts(
@@ -61,4 +60,19 @@ function wpcf7pdf_analytics_shortcode( $atts ) {
         return '';
     }
 }
-add_shortcode( 'wpcf7pdf_download', 'wpcf7pdf_analytics_shortcode' );
+add_shortcode( 'wpcf7pdf_download', 'wpcf7pdf_btn_shortcode' );
+
+function wpcf7pdf_test_shortcode( $atts ) {
+
+	// Attributes
+	extract( shortcode_atts(
+		array(
+			'class' => 'btn btn-large btn-primary',
+            'size' => '18',
+            'text' => 'This is a test',
+		), $atts )
+	);
+
+    return '<div class="'.$class.'" style="text-align:center;width:80%;margin-left:auto;margin-right:auto;background-color:#333;color:#ffffff;font-size:'.$size.'px;"><strong>'.$text.'</strong></div>';
+}
+add_shortcode( 'wpcf7pdf_test', 'wpcf7pdf_test_shortcode' );
