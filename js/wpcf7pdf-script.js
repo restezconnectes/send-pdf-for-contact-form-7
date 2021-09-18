@@ -32,6 +32,12 @@ jQuery(document).ready(function() {
  
     });
 
+});
+
+jQuery(document).ready(function() {
+
+    var custom_uploader;
+    
     jQuery('#upload_image_background').click(function(e) {
  
         e.preventDefault();

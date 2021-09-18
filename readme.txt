@@ -52,6 +52,8 @@ Yes. If you want, you can support this project here: <a href="https://restezconn
 
 = 0.8.7 =
 * Adding fields for customs shortcodes
+* Adding ID tag from database
+* Bug fixed upload logo and background
 
 = 0.8.6 =
 * Adding change separator for CSV option
