@@ -620,8 +620,8 @@ class cf7_sendpdf {
             if( isset($meta_values["protect_password_nb"]) && $meta_values["protect_password_nb"]!='' && is_numeric($meta_values["protect_password_nb"]) ) { 
                 $nbPassword = $meta_values["protect_password_nb"]; 
             }
-            $_SESSION['pdf_password'] = $this->wpcf7pdf_generateRandomPassword($nbPassword);
-
+            $_SESSION['pdf_password'] = $this->wpcf7pdf_generateRandomPassword($nbPassword);          
+    
             // On va chercher les tags FILE destinés aux images
             if( isset( $meta_values['file_tags'] ) && $meta_values['file_tags']!='' ) {
                 $cf7_file_field_name = $meta_values['file_tags']; // [file uploadyourfile]
@@ -632,16 +632,18 @@ class cf7_sendpdf {
                         $image_name = '';
                         if( isset($tags[1]) && $tags[1] != '' && !empty($posted_data[$tags[1]]) ) {
                             $image_name = $posted_data[$tags[1]];
-                            //error_log($tags[1].' -- '.$posted_data[$tags[1]]);
+                            
                             if( isset($image_name) && $image_name!='' && !empty($posted_data[$tags[1]]) ) {
-                                //error_log($tags[1].' --> '.$uploaded_files[$tags[1]]);
+                                
                                 if( !empty($uploaded_files[$tags[1]]) ) {
                                     $image_location = $this->wpcf7pdf_attachments($tags[0]);
                                     $chemin_final[$tags[1]] = $createDirectory.'/'.$_SESSION['pdf_uniqueid'].'-'.wpcf7_mail_replace_tags($tags[0]);
                                     // On copie l'image dans le dossier
                                     copy($image_location, $chemin_final[$tags[1]]);
                                 }
+
                             }
+
                         }
                     }
                 }
@@ -649,7 +651,7 @@ class cf7_sendpdf {
 
             // On va cherche les champs du formulaire
             $meta_tags = get_post_meta( $post['_wpcf7'], '_wp_cf7pdf_fields', true );
-
+            
             // On va cherche les champs détaillés du formulaire
             $meta_tags_scan = get_post_meta( $post['_wpcf7'], '_wp_cf7pdf_fields_scan', true );
             
@@ -718,6 +720,16 @@ class cf7_sendpdf {
                             
                 $text = str_replace('[reference]', $_SESSION['pdf_uniqueid'], $text);
                 $text = str_replace('[url-pdf]', str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $createDirectory).'/'.$nameOfPdf.'-'.$_SESSION['pdf_uniqueid'].'.pdf', $text);
+
+                
+
+                /*$form_parts = preg_split('/(\[\/?repeater(?:\]|\s.*?\]))/',$text, -1,PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
+                foreach ($form_parts as $form_part) {
+                    if (substr($form_part,0,10) == '[repeater ') {
+
+
+                    }
+                }*/
 
                 $cf7_file_field_name = $meta_values['file_tags']; // [file uploadyourfile]
                 if( !empty($cf7_file_field_name) ) {
@@ -932,8 +944,7 @@ class cf7_sendpdf {
                         if( isset($meta_values["protect_password_tag"]) && $meta_values["protect_password_tag"]!='' ) {
                             $pdfPassword = wpcf7_mail_replace_tags($meta_values["protect_password_tag"]);
                         }
-                        //error_log('pdf:'.$pdfPassword);
-                        $mpdf->SetProtection(array(), $pdfPassword, $pdfPassword, 128);                        
+                        $mpdf->SetProtection(array('print','fill-forms'), '', $pdfPassword, 128);                    
                     } 
                     
                     $mpdf->Output($createDirectory.'/'.$nameOfPdf.'-'.$_SESSION['pdf_uniqueid'].'.pdf', 'F');
@@ -1016,15 +1027,6 @@ class cf7_sendpdf {
 
             // PDF generé et envoyé
             $disablePDF = 0;
-            /*$contact_tag = $submission->scan_form_tags();
-            foreach ( $contact_tag as $sh_tag ) {
-                
-                /* Si il existe un caase pour desactiver le PDF */
-                /*if( isset($post['disable_sendpdf'][0]) ) { 
-                    $disablePDF = 1;
-                }
-
-            }*/
 
             // Je déclare le contenu de l'email
             $messageText = $components['body'];
@@ -1074,7 +1076,6 @@ class cf7_sendpdf {
                         }
                         
                         $components['attachments'][] = $createDirectory.'/'.$nameOfPdf.'-'.$_SESSION['pdf_uniqueid'].'.zip';
-                        //error_log('ZIP : '.$createDirectory.'/'.$nameOfPdf.'-'.$_SESSION['pdf_uniqueid'].'.zip');
 
                     } else {
 
@@ -1205,7 +1206,6 @@ class cf7_sendpdf {
                 }
                 if( isset($meta_values["protect_password_tag"]) && $meta_values["protect_password_tag"]!='' ) {
                     $pdfPassword = wpcf7_mail_replace_tags($meta_values["protect_password_tag"]);
-                    //error_log( 'mail:'. $pdfPassword );
                 }
             }
 
@@ -1302,7 +1302,7 @@ class cf7_sendpdf {
             $post = $_POST;
             $nameOfPdf = $this->wpcf7pdf_name_pdf($post['_wpcf7']);
             $createDirectory = $this->wpcf7pdf_folder_uploads($post['_wpcf7']);
-            //error_log( $posted_data['your-message'] );
+
             $meta_values = get_post_meta( $post['_wpcf7'], '_wp_cf7pdf', true );
             $cf7_file_field_name = '';
             if( isset( $meta_values['file_tags'] ) && $meta_values['file_tags']!='' ) {
@@ -1507,7 +1507,6 @@ class cf7_sendpdf {
                 foreach( $pdfFormList as $pdfList) {
                     $list = array();
                     $pdfData = unserialize($pdfList->wpcf7pdf_data);
-                    //error_log( var_dump($pdfData) );
                     
                     array_push($list, $createDirectory.'/'.$nameOfPdf.'-'.$pdfData[0].'.pdf');
                     foreach($pdfData as $data) {
