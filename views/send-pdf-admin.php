@@ -219,6 +219,8 @@ jQuery(document).ready(function() {
         $marginHeader = 10;
         $marginTop = 40;
         $marginBottomHeader = 10;
+        $marginLeft = 15;
+        $marginRight = 15;
         $setAutoTopMargin = 'stretch';
         $setAutoBottomMargin = 'stretch';
 
@@ -255,16 +257,55 @@ jQuery(document).ready(function() {
             //$mpdf=new \Mpdf\Mpdf();
             
             if( isset($meta_values["margin_header"]) && $meta_values["margin_header"]!='' ) { $marginHeader = $meta_values["margin_header"]; }
-            if( isset($meta_values["margin_top"]) && $meta_values["margin_top"]!='' ) { $marginTop = $meta_values["margin_top"]; }
+            if( isset($meta_values["margin_top"]) && $meta_values["margin_top"]!='' ) { $marginTop = $meta_values["margin_top"]; }            
+            if( isset($meta_values["margin_left"]) && $meta_values["margin_left"]!='' ) { $marginLeft = $meta_values["margin_left"]; }
+            if( isset($meta_values["margin_right"]) && $meta_values["margin_right"]!='' ) { $marginRight = $meta_values["margin_right"]; }
 
-            if( isset($meta_values['fillable_data']) && $meta_values['fillable_data']== 'true') {
-                $mpdf = new \Mpdf\Mpdf(['mode' => 'c', 'format' => $formatPdf, 'margin_header' => $marginHeader, 'margin_top' => $marginTop, 'default_font' => $fontPdf, 'default_font_size' => $fontsizePdf, 'tempDir' => $custom_tmp_path]);
+            if( isset($meta_values['pdf-type']) && isset($meta_values['pdf-orientation']) ) {
+
+                $formatPdf = $meta_values['pdf-type'].$meta_values['pdf-orientation'];
+                $mpdfConfig = array(
+                    'mode' =>
+                    'utf-8',
+                    'format' => $formatPdf,
+                    'margin_header' => $marginHeader,
+                    'margin_top' => $marginTop,
+                    'margin_left' => $marginLeft,    	// 15 margin_left
+                    'margin_right' => $marginRight,    	// 15 margin right
+                );
+
+            } else if( isset($meta_values['fillable_data']) && $meta_values['fillable_data']== 'true') {
+
+                $mpdfConfig = array(
+                    'mode' => 'c',
+                    'format' => $formatPdf,
+                    'margin_header' => $marginHeader,
+                    'margin_top' => $marginTop,
+                    'default_font' => $fontPdf,
+                    'default_font_size' => $fontsizePdf,
+                    'tempDir' => $custom_tmp_path,
+                    'margin_left' => $marginLeft,    	// 15 margin_left
+                    'margin_right' => $marginRight,    	// 15 margin right
+                );
+
             } else {
-                $mpdf = new \Mpdf\Mpdf(['mode' => 'utf-8', 'format' => $formatPdf, 'margin_header' => $marginHeader, 'margin_top' => $marginTop, 'default_font' => $fontPdf, 'default_font_size' => $fontsizePdf, 'tempDir' => $custom_tmp_path]);
+
+                $mpdfConfig = array(
+                    'mode' => 'utf-8',
+                    'format' => 'A4-L',
+                    'margin_header' => $marginHeader,
+                    'margin_top' => $marginTop,
+                    'default_font' => $fontPdf,
+                    'default_font_size' => $fontsizePdf,
+                    'tempDir' => $custom_tmp_path,
+                    'margin_left' => $marginLeft,    	// 15 margin_left
+                    'margin_right' => $marginRight,    	// 15 margin right
+                );
+                
             }
-            //var_dump($meta_values);
-            ///exit();
-            //$mpdf=new mPDF('utf-8', $formatPdf);
+            
+            $mpdf = new \Mpdf\Mpdf($mpdfConfig);
+
             $mpdf->autoScriptToLang = true;
             $mpdf->baseScript = 1;
             $mpdf->autoVietnamese = true;
@@ -1134,6 +1175,7 @@ $pathFolder = serialize($createDirectory);
                             </td>
                             <td>
                                 <?php _e('Margin Header', 'send-pdf-for-contact-form-7'); ?> <input type="text" size="4" class="wpcf7-form-field" name="wp_cf7pdf_settings[margin_header]" value="<?php if( isset($meta_values["margin_header"]) && $meta_values["margin_header"]!='' ) { echo $meta_values["margin_header"]; } else { echo $marginHeader; } ?>" /> <?php _e('Margin Top Header', 'send-pdf-for-contact-form-7'); ?> <input type="text" class="wpcf7-form-field" size="4" name="wp_cf7pdf_settings[margin_top]" value="<?php if( isset($meta_values["margin_top"]) && $meta_values["margin_top"]!='' ) { echo $meta_values["margin_top"]; } else { echo $marginTop; } ?>" /><br /><br />
+                                <?php _e('Margin Left', 'send-pdf-for-contact-form-7'); ?> <input type="text" size="4" class="wpcf7-form-field" name="wp_cf7pdf_settings[margin_left]" value="<?php if( isset($meta_values["margin_left"]) && $meta_values["margin_left"]!='' ) { echo $meta_values["margin_left"]; } else { echo $marginLeft; } ?>" /> <?php _e('Margin Right', 'send-pdf-for-contact-form-7'); ?> <input type="text" class="wpcf7-form-field" size="4" name="wp_cf7pdf_settings[margin_right]" value="<?php if( isset($meta_values["margin_right"]) && $meta_values["margin_right"]!='' ) { echo $meta_values["margin_right"]; } else { echo $marginRight; } ?>" /><br /><br />
                                 <?php _e('Margin Header Auto', 'send-pdf-for-contact-form-7'); ?> <select name="wp_cf7pdf_settings[margin_auto_header]" class="wpcf7-form-field">
                                     <option value="pad" <?php if( isset($meta_values["margin_auto_header"]) && $meta_values["margin_auto_header"] == 'pad' ) { echo 'selected'; } ?>>pad</option>
                                     <option value="stretch" <?php if( empty($meta_values["margin_auto_header"]) || (isset($meta_values["margin_auto_header"]) && $meta_values["margin_auto_header"] == 'stretch') ) { echo 'selected'; } ?>>stretch</option>

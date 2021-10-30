@@ -581,7 +581,7 @@ class cf7_sendpdf {
             // nothing's here... do nothing...
             if (empty($posted_data))
                 return;
-
+                
             global $wpdb;
             global $current_user;
             global $post;
@@ -606,6 +606,8 @@ class cf7_sendpdf {
             $marginHeader = 10;
             $marginTop = 40;
             $marginBottomHeader = 10;
+            $marginLeft = 15;
+            $marginRight = 15;
 
             // Definition de la taille, le format de page et la font par defaut
             $fontsizePdf = 9;
@@ -796,16 +798,55 @@ class cf7_sendpdf {
                     
                     if( isset($meta_values["margin_header"]) && $meta_values["margin_header"]!='' ) { $marginHeader = $meta_values["margin_header"]; }
                     if( isset($meta_values["margin_top"]) && $meta_values["margin_top"]!='' ) { $marginTop = $meta_values["margin_top"]; }
+                    if( isset($meta_values["margin_left"]) && $meta_values["margin_left"]!='' ) { $marginLeft = $meta_values["margin_left"]; }
+                    if( isset($meta_values["margin_right"]) && $meta_values["margin_right"]!='' ) { $marginRight = $meta_values["margin_right"]; }
+
 
                     if( isset($meta_values['pdf-type']) && isset($meta_values['pdf-orientation']) ) {
+
                         $formatPdf = $meta_values['pdf-type'].$meta_values['pdf-orientation'];
-                        //$mpdf=new mPDF('utf-8', $formatPdf);
-                        $mpdf = new \Mpdf\Mpdf(['mode' => 'utf-8', 'format' => $formatPdf, 'margin_header' => $marginHeader, 'margin_top' => $marginTop,]);
+                        $mpdfConfig = array(
+                            'mode' =>
+                            'utf-8',
+                            'format' => $formatPdf,
+                            'margin_header' => $marginHeader,
+                            'margin_top' => $marginTop,
+                            'margin_left' => $marginLeft,    	// 15 margin_left
+                            'margin_right' => $marginRight,    	// 15 margin right
+                        );
+
                     } else if( isset($meta_values['fillable_data']) && $meta_values['fillable_data']== 'true') {
-                        $mpdf = new \Mpdf\Mpdf(['mode' => 'c', 'format' => $formatPdf, 'margin_header' => $marginHeader, 'margin_top' => $marginTop, 'default_font' => $fontPdf, 'default_font_size' => $fontsizePdf, 'tempDir' => $custom_tmp_path]);
+
+                        $mpdfConfig = array(
+                            'mode' => 'c',
+                            'format' => $formatPdf,
+                            'margin_header' => $marginHeader,
+                            'margin_top' => $marginTop,
+                            'default_font' => $fontPdf,
+                            'default_font_size' => $fontsizePdf,
+                            'tempDir' => $custom_tmp_path,
+                            'margin_left' => $marginLeft,    	// 15 margin_left
+                            'margin_right' => $marginRight,    	// 15 margin right
+                        );
+
                     } else {
-                        $mpdf = new \Mpdf\Mpdf(['mode' => 'utf-8', 'format' => 'A4-L', 'margin_header' => $marginHeader, 'margin_top' => $marginTop, 'default_font' => $fontPdf, 'default_font_size' => $fontsizePdf, 'tempDir' => $custom_tmp_path]);
+
+                        $mpdfConfig = array(
+                            'mode' => 'utf-8',
+                            'format' => 'A4-L',
+                            'margin_header' => $marginHeader,
+                            'margin_top' => $marginTop,
+                            'default_font' => $fontPdf,
+                            'default_font_size' => $fontsizePdf,
+                            'tempDir' => $custom_tmp_path,
+                            'margin_left' => $marginLeft,    	// 15 margin_left
+                            'margin_right' => $marginRight,    	// 15 margin right
+                        );
+
                     }
+
+                    $mpdf = new \Mpdf\Mpdf($mpdfConfig);	
+
                     $mpdf->autoScriptToLang = true;
                     $mpdf->baseScript = 1;
                     $mpdf->autoVietnamese = true;
@@ -1266,7 +1307,10 @@ class cf7_sendpdf {
                 
                 $messageText = str_replace('[date]', $dateField, $messageText);
                 $messageText = str_replace('[time]', $timeField, $messageText);
-
+                $messageText = $messageText.'
+                
+                
+                '.$posted_data;
                 $components['body'] = $messageText;
             }
             // Je remplace les codes courts dans le sujet
