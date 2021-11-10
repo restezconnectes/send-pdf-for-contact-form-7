@@ -985,7 +985,7 @@ class cf7_sendpdf {
                         if( isset($meta_values["protect_password_tag"]) && $meta_values["protect_password_tag"]!='' ) {
                             $pdfPassword = wpcf7_mail_replace_tags($meta_values["protect_password_tag"]);
                         }
-                        $mpdf->SetProtection(array('print','fill-forms'), '', $pdfPassword, 128);                    
+                        $mpdf->SetProtection(array('print','fill-forms'), $pdfPassword, $pdfPassword, 128);             
                     } 
                     
                     $mpdf->Output($createDirectory.'/'.$nameOfPdf.'-'.$_SESSION['pdf_uniqueid'].'.pdf', 'F');
@@ -1307,10 +1307,7 @@ class cf7_sendpdf {
                 
                 $messageText = str_replace('[date]', $dateField, $messageText);
                 $messageText = str_replace('[time]', $timeField, $messageText);
-                $messageText = $messageText.'
-                
-                
-                '.$posted_data;
+               
                 $components['body'] = $messageText;
             }
             // Je remplace les codes courts dans le sujet

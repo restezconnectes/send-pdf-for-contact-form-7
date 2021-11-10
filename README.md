@@ -10,9 +10,12 @@ This plugin requires the installation and activation of the plugin Contact Form 
 
 File send-pdf-for-contact-form-7.pot available
 
-Current Version:  0.8.8
+Current Version:  0.8.9
 
 == Changelog ==
+
+-- 0.8.9 --
+* Bug fixed PDF password
 
 -- 0.8.8 --
 * Adding Margin Left & Right
