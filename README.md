@@ -10,9 +10,13 @@ This plugin requires the installation and activation of the plugin Contact Form 
 
 File send-pdf-for-contact-form-7.pot available
 
-Current Version:  0.8.9
+Current Version:  0..9
 
 == Changelog ==
+
+-- 0.9 --
+* Bug fixed upload image
+* Bug fixed footer if is empty
 
 -- 0.8.9 --
 * Bug fixed PDF password

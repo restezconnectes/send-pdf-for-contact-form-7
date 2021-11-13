@@ -742,7 +742,6 @@ class cf7_sendpdf {
                         if( isset($tagsOnPdf[1]) && $tagsOnPdf[1] != '' && !empty($posted_data[$tagsOnPdf[1]]) ) {
                             $image_name2 = $posted_data[$tagsOnPdf[1]];
                             if( isset($image_name2) && $image_name2!='' ) {
-
                                 $chemin_final2[$tagsOnPdf[1]] = str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $createDirectory).'/'.$_SESSION['pdf_uniqueid'].'-'.wpcf7_mail_replace_tags($tagsOnPdf[0]);
                                 $text = str_replace('['.$tagsOnPdf[1].']', $image_name2, $text);
                                 $text = str_replace('[url-'.$tagsOnPdf[1].']', $chemin_final2[$tagsOnPdf[1]], $text);
@@ -954,8 +953,10 @@ class cf7_sendpdf {
                                 } else {
                                     $mpdf->SetHTMLHeader(); 
                                     $mpdf->AddPage('','','','','',15,15,15,15,5,5);
-                                } 
-                                $mpdf->SetHTMLFooter($footerText);
+                                }
+                                if( isset($meta_values['footer_generate_pdf']) && $meta_values['footer_generate_pdf']!='' ) {
+                                    $mpdf->SetHTMLFooter($footerText);
+                                }
                                 $mpdf->WriteHTML($newPage[$i]);
                                 if( isset($meta_values["page_header"]) && $meta_values["page_header"]==1) {
                                     $mpdf->SetHTMLHeader($entetePage, '', true);
@@ -1269,23 +1270,20 @@ class cf7_sendpdf {
                     $messageText = str_replace('[pdf-password]', '', $messageText);
                 }
 
-                // On va chercher les tags FILE destinés aux images
+                // On va chercher les tags FILE destinés aux images               
                 if( isset( $meta_values['file_tags'] ) && $meta_values['file_tags']!='' ) {
-                    $cf7_file_field_name = $meta_values['file_tags']; // [file uploadyourfile]
-                    if( !empty($cf7_file_field_name) ) {
 
-                        preg_match_all('`\[([^\]]*)\]`', $cf7_file_field_name, $contentTagsOnMail, PREG_SET_ORDER, 0);
-                        foreach($contentTagsOnMail as $tagsOnMail) {
-                            $image_name_mail = '';
-                            if( isset($tagsOnMail[1]) && $tagsOnMail[1] != '' && !empty($posted_data[$tagsOnMail[1]]) ) {
-                                $image_name_mail = $posted_data[$tagsOnMail[1]];
-                                if( isset($image_name_mail) && $image_name_mail!='' ) {
-                                    $chemin_final_mail[$tagsOnMail[1]] = str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $createDirectory).'/'.$_SESSION['pdf_uniqueid'].'-'.$image_name_mail;
-                                    $messageText = str_replace('['.$tagsOnMail[1].']', $image_name_mail, $messageText);
-                                    $messageText = str_replace('[url-'.$tagsOnMail[1].']', $chemin_final_mail[$tagsOnMail[1]], $messageText);
-                                } else {
-                                    $messageText = str_replace('[url-'.$tagsOnMail[1].']', WPCF7PDF_URL.'images/onepixel.png', $messageText);
-                                }
+                    preg_match_all('`\[([^\]]*)\]`', $meta_values['file_tags'], $contentTagsOnMail, PREG_SET_ORDER, 0);
+                    foreach($contentTagsOnMail as $tagsOnMail) {
+                        $image_name_mail = '';
+                        if( isset($tagsOnMail[1]) && $tagsOnMail[1] != '' && !empty($posted_data[$tagsOnMail[1]]) ) {
+                            $image_name_mail = $posted_data[$tagsOnMail[1]];
+                            if( isset($image_name_mail) && $image_name_mail!='' ) {
+                                $chemin_final2[$tagsOnMail[1]] = str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $createDirectory).'/'.$_SESSION['pdf_uniqueid'].'-'.wpcf7_mail_replace_tags($tagsOnMail[0]);
+                                $messageText = str_replace('['.$tagsOnMail[1].']', $image_name_mail, $messageText);
+                                $messageText = str_replace('[url-'.$tagsOnMail[1].']', $chemin_final2[$tagsOnMail[1]], $messageText);
+                            } else {
+                                $messageText = str_replace('[url-'.$tagsOnMail[1].']', WPCF7PDF_URL.'images/onepixel.png', $messageText);
                             }
                         }
                     }
