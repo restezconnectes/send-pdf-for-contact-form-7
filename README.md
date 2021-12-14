@@ -14,6 +14,9 @@ Current Version:  0..9
 
 == Changelog ==
 
+-- 0.9.1 --
+* Adding Choice of separator for checkboxes or radio buttons
+
 -- 0.9 --
 * Bug fixed upload image
 * Bug fixed footer if is empty

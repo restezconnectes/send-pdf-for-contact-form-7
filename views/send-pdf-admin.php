@@ -363,59 +363,86 @@ jQuery(document).ready(function() {
 
             $messageText = $meta_values['generate_pdf'];
             
-            if (isset($meta_values['data_input']) && $meta_values['data_input']=='true') {
+            $tagSeparate = '';
+            if( isset($meta_values["separate"]) ) {
+                if( $meta_values["separate"] == 'none' ) { $tagSeparate = ''; }
+                if( $meta_values["separate"] == 'comma' ) { $tagSeparate = ', '; }
+                if( $meta_values["separate"] == 'space') { $tagSeparate = ' '; }
+                if( $meta_values["separate"] == 'dash') { $tagSeparate = '- '; }
+            }
+            $tagSeparateAfter = ' ';
+            if( isset($meta_values["separate_after"]) ) {
+                if( $meta_values["separate_after"] == 'none' ) { $tagSeparateAfter = ''; }
+                if( $meta_values["separate_after"] == 'comma' ) { $tagSeparateAfter = ', '; }
+                if( $meta_values["separate_after"] == 'space') { $tagSeparateAfter = ' '; }
+                if( $meta_values["separate_after"] == 'linebreak') { $tagSeparateAfter = '<br />'; }
+            }
+            
+
+            $contact_form = WPCF7_ContactForm::get_instance($idForm);
+            $contact_tag = $contact_form->scan_form_tags();
+            foreach ( $contact_tag as $sh_tag ) {
+
+                $tagOptions = $sh_tag["options"];
+
+                if( $sh_tag["basetype"] == 'checkbox') {
                     
-                $contact_form = WPCF7_ContactForm::get_instance($idForm);
-                $contact_tag = $contact_form->scan_form_tags();
-                foreach ( $contact_tag as $sh_tag ) {
+                    $inputCheckbox = '';
+                    $i = 1;
+                    foreach($sh_tag["values"] as $id=>$val) {
+                        $caseChecked = '';
+                        $valueTag = wpcf7_mail_replace_tags('['.$sh_tag["name"].']');
 
-                    $tagOptions = $sh_tag["options"];
+                        if (isset($meta_values['data_input']) && $meta_values['data_input']== 'true') {
 
-                    if( $sh_tag["basetype"] == 'checkbox') {
-                        
-                        $inputCheckbox = '';
-                        $i = 1;
-                        foreach($sh_tag["values"] as $id=>$val) {
-                            $caseChecked = '';
-                            $valueTag = wpcf7_mail_replace_tags('['.$sh_tag["name"].']');
                             if( strpos($valueTag, trim($val) )!== false) {
-                                $caseChecked = 'checked';
+                                $caseChecked = 'checked="checked"';
                             }
                             if( in_array('label_first', $tagOptions) ) {
-                                $inputCheckbox .= ''.$val.' <input type="checkbox" class="wpcf7-checkbox" name="'.$sh_tag["name"].$i.'" value="'.$i.'" '.$caseChecked.'> ';
+                                $inputCheckbox .= ''.$tagSeparate.''.$val.' <input type="checkbox" class="wpcf7-checkbox" name="'.$sh_tag["name"].$i.'" value="'.$i.'" '.$caseChecked.' />'.$tagSeparateAfter.'';
                             } else {
-                                $inputCheckbox .= '<input type="checkbox" class="wpcf7-checkbox" name="'.$sh_tag["name"].$i.'" value="'.$i.'" '.$caseChecked.'> '.$val.' ';
+                                $inputCheckbox .= ''.$tagSeparate.'<input type="checkbox" class="wpcf7-checkbox" name="'.$sh_tag["name"].$i.'" value="'.$i.'" '.$caseChecked.' /> '.$val.''.$tagSeparateAfter.'';
                             }
-                            $i++;
 
+                        } else {
+                            $inputCheckbox .= ''.$tagSeparate.''.$val.''.$tagSeparateAfter.'';
                         }
-                        $messageText = str_replace('['.$sh_tag["name"].']', $inputCheckbox, $messageText);
+                        $i++;
+                    }
+                    $messageText = str_replace('['.$sh_tag["name"].']', $inputCheckbox, $messageText);
 
-                    } else if ( $sh_tag["basetype"] == 'radio') {
-                        
-                        $inputRadio = '';
-                        $i = 1;
-                        foreach($sh_tag["values"] as $id=>$val) {
-                            $radioChecked = '';
-                            $valueTag = wpcf7_mail_replace_tags('['.$sh_tag["name"].']');
+                } else if ( $sh_tag["basetype"] == 'radio') {
+                    
+                    $inputRadio = '';
+                    $i = 1;
+                    foreach($sh_tag["values"] as $id=>$val) {
+                        $radioChecked = '';
+                        $valueTag = wpcf7_mail_replace_tags('['.$sh_tag["name"].']');
+                        if (isset($meta_values['data_input']) && $meta_values['data_input']== 'true') {
+
                             if( strpos($valueTag, trim($val) )!== false) {
-                                $radioChecked = 'checked';
+                                $radioChecked = 'checked="checked"';
                             }                            
                             if( in_array('label_first', $tagOptions) ) {
-                                $inputRadio .= ''.$val.' <input type="radio" class="wpcf7-radio" name="'.$sh_tag["name"].'" value="'.$i.'" '.$radioChecked.' > ';
+                                $inputRadio .= ''.$tagSeparate.''.$val.' <input type="radio" class="wpcf7-radio" name="'.$sh_tag["name"].'" value="'.$i.'" '.$radioChecked.' >'.$tagSeparateAfter.'';
                             } else {
-                                $inputRadio .= '<input type="radio" class="wpcf7-radio" name="'.$sh_tag["name"].'" value="'.$i.'" '.$radioChecked.' > '.$val.' ';
+                                $inputRadio .= ''.$tagSeparate.'<input type="radio" class="wpcf7-radio" name="'.$sh_tag["name"].'" value="'.$i.'" '.$radioChecked.' > '.$val.''.$tagSeparateAfter.'';
                             }
-                            $i++;
-                        }
-                        $messageText = str_replace('['.$sh_tag["name"].']', $inputRadio, $messageText);
 
-                    } else {
-                        
-                        $valueTag = wpcf7_mail_replace_tags('['.$sh_tag["name"].']');                            
-                        $messageText = str_replace('['.$sh_tag["name"].']', $valueTag, $messageText);
+                        } else {
+                            
+                            $inputRadio .= ''.$tagSeparate.''.$val.''.$tagSeparateAfter.'';
+                        }
+                        $i++;
                     }
+                    $messageText = str_replace('['.$sh_tag["name"].']', $inputRadio, $messageText);
+
+                } else {
+                    
+                    $valueTag = wpcf7_mail_replace_tags('['.$sh_tag["name"].']');                            
+                    $messageText = str_replace('['.$sh_tag["name"].']', $valueTag, $messageText);
                 }
+                
             }
 
             // read all image tags into an array
@@ -504,7 +531,9 @@ jQuery(document).ready(function() {
                             $mpdf->SetHTMLHeader(); 
                             $mpdf->AddPage('','','','','',15,15,15,15,5,5);
                         } 
-                        $mpdf->SetHTMLFooter($footerText);
+                        if( isset($meta_values['footer_generate_pdf']) && $meta_values['footer_generate_pdf']!='' ) {
+                            $mpdf->SetHTMLFooter($footerText);
+                        }
                         $mpdf->WriteHTML($newPage[$i]);
                         if( isset($meta_values["page_header"]) && $meta_values["page_header"]==1) {
                             $mpdf->SetHTMLHeader($entetePage, '', true);
@@ -1186,6 +1215,25 @@ $pathFolder = serialize($createDirectory);
                                     <option value="stretch" <?php if( empty($meta_values["margin_auto_bottom"]) || (isset($meta_values["margin_auto_bottom"]) && $meta_values["margin_auto_bottom"] == 'stretch') ) { echo 'selected'; } ?>>stretch</option>
                                     <option value="false" <?php if( isset($meta_values["margin_auto_bottom"]) && $meta_values["margin_auto_bottom"] == 'false' ) { echo 'selected'; } ?>>false</option>
                                 </select>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>
+                                <?php _e('Choice of separator for checkboxes or radio buttons', 'send-pdf-for-contact-form-7'); ?><br /><p></p>
+                            </td>
+                            <td><?php _e("Before:", 'send-pdf-for-contact-form-7'); ?><br />
+                               <select name="wp_cf7pdf_settings[separate]" class="wpcf7-form-field">
+                                    <option value="none" <?php if( empty($meta_values["separate"]) || (isset($meta_values["separate"]) && $meta_values["separate"] == 'none') ) { echo 'selected'; } ?>><?php _e("None", 'send-pdf-for-contact-form-7'); ?></option>
+                                    <option value="dash" <?php if( isset($meta_values["separate"]) && $meta_values["separate"] == 'dash') { echo 'selected'; } ?>><?php _e("Dash", 'send-pdf-for-contact-form-7'); ?></option>                                    
+                                </select><br />
+                                <?php _e("After:", 'send-pdf-for-contact-form-7'); ?><br />
+                                <select name="wp_cf7pdf_settings[separate_after]" class="wpcf7-form-field">
+                                    <option value="comma" <?php if( isset($meta_values["separate_after"]) && $meta_values["separate_after"] == 'comma' ) { echo 'selected'; } ?>><?php _e("Comma", 'send-pdf-for-contact-form-7'); ?></option>
+                                    <option value="space" <?php if( empty($meta_values["separate_after"]) || (isset($meta_values["separate_after"]) && $meta_values["separate_after"] == 'space') ) { echo 'selected'; } ?>><?php _e("Space", 'send-pdf-for-contact-form-7'); ?></option>
+                                    <option value="linebreak" <?php if( isset($meta_values["separate_after"]) && $meta_values["separate_after"] == 'linebreak') { echo 'selected'; } ?>><?php _e("Line break", 'send-pdf-for-contact-form-7'); ?></option>                                    
+                                </select><br />
+                                <!--<?php _e('Other:', 'send-pdf-for-contact-form-7'); ?> <input type="text" size="4" class="wpcf7-form-field" name="wp_cf7pdf_settings[separate_other]" value="<?php if( isset($meta_values["separate_other"]) && $meta_values["separate_other"]!='' ) { echo $meta_values["separate_other"]; } else { echo ''; } ?>" />-->
                             </td>
                         </tr>
 
