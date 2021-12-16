@@ -671,6 +671,7 @@ class cf7_sendpdf {
                     if( $meta_values["separate"] == 'comma' ) { $tagSeparate = ', '; }
                     if( $meta_values["separate"] == 'space') { $tagSeparate = ' '; }
                     if( $meta_values["separate"] == 'dash') { $tagSeparate = '- '; }
+                    if( $meta_values["separate"] == 'star') { $tagSeparate = '* '; }
                 }
                 $tagSeparateAfter = ' ';
                 if( isset($meta_values["separate_after"]) ) {

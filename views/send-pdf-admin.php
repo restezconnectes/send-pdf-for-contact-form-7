@@ -1225,7 +1225,8 @@ $pathFolder = serialize($createDirectory);
                             <td><?php _e("Before:", 'send-pdf-for-contact-form-7'); ?><br />
                                <select name="wp_cf7pdf_settings[separate]" class="wpcf7-form-field">
                                     <option value="none" <?php if( empty($meta_values["separate"]) || (isset($meta_values["separate"]) && $meta_values["separate"] == 'none') ) { echo 'selected'; } ?>><?php _e("None", 'send-pdf-for-contact-form-7'); ?></option>
-                                    <option value="dash" <?php if( isset($meta_values["separate"]) && $meta_values["separate"] == 'dash') { echo 'selected'; } ?>><?php _e("Dash", 'send-pdf-for-contact-form-7'); ?></option>                                    
+                                    <option value="dash" <?php if( isset($meta_values["separate"]) && $meta_values["separate"] == 'dash') { echo 'selected'; } ?>><?php _e("Dash", 'send-pdf-for-contact-form-7'); ?></option>
+                                    <option value="star" <?php if( isset($meta_values["separate"]) && $meta_values["separate"] == 'star') { echo 'selected'; } ?>><?php _e("Star", 'send-pdf-for-contact-form-7'); ?></option>                                
                                 </select><br />
                                 <?php _e("After:", 'send-pdf-for-contact-form-7'); ?><br />
                                 <select name="wp_cf7pdf_settings[separate_after]" class="wpcf7-form-field">

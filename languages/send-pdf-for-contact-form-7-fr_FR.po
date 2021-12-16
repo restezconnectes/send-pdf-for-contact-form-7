@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Contact Form 7 Send PDF\n"
-"POT-Creation-Date: 2021-12-14 10:09+0100\n"
-"PO-Revision-Date: 2021-12-14 10:10+0100\n"
+"POT-Creation-Date: 2021-12-16 10:59+0100\n"
+"PO-Revision-Date: 2021-12-16 10:59+0100\n"
 "Last-Translator: Florent Maillefaud <contact@restezconnectes.fr>\n"
 "Language-Team: Florent Maillefaud <contact@restezconnectes.fr>\n"
 "Language: fr_FR\n"
@@ -124,15 +124,15 @@ msgstr "Tutoriel"
 msgid "Donate now!"
 msgstr "Donner maintenant !"
 
-#: views/send-pdf-admin.php:589 views/send-pdf-admin.php:1345
+#: views/send-pdf-admin.php:589 views/send-pdf-admin.php:1346
 msgid "Save settings"
 msgstr "Sauvegarder les réglages"
 
 #: views/send-pdf-admin.php:595 views/send-pdf-admin.php:596
 #: views/send-pdf-admin.php:1000 views/send-pdf-admin.php:1001
-#: views/send-pdf-admin.php:1355 views/send-pdf-admin.php:1416
-#: views/send-pdf-admin.php:1417 views/send-pdf-admin.php:1433
-#: views/send-pdf-admin.php:1434
+#: views/send-pdf-admin.php:1356 views/send-pdf-admin.php:1417
+#: views/send-pdf-admin.php:1418 views/send-pdf-admin.php:1434
+#: views/send-pdf-admin.php:1435
 msgid "Click to toggle"
 msgstr "Cliquez pour déplier"
 
@@ -559,27 +559,31 @@ msgstr "Aucun"
 msgid "Dash"
 msgstr "Tiret"
 
-#: views/send-pdf-admin.php:1230
+#: views/send-pdf-admin.php:1229
+msgid "Star"
+msgstr "Étoile"
+
+#: views/send-pdf-admin.php:1231
 msgid "After:"
 msgstr "Après :"
 
-#: views/send-pdf-admin.php:1232
+#: views/send-pdf-admin.php:1233
 msgid "Comma"
 msgstr "Virgule"
 
-#: views/send-pdf-admin.php:1233
+#: views/send-pdf-admin.php:1234
 msgid "Space"
 msgstr "Espace"
 
-#: views/send-pdf-admin.php:1234
+#: views/send-pdf-admin.php:1235
 msgid "Line break"
 msgstr "Retour à la ligne"
 
-#: views/send-pdf-admin.php:1236
+#: views/send-pdf-admin.php:1237
 msgid "Other:"
 msgstr "Autre :"
 
-#: views/send-pdf-admin.php:1243
+#: views/send-pdf-admin.php:1244
 msgid ""
 "For personalize your PDF you can in the following text field, use these mail-"
 "tags:"
@@ -587,19 +591,19 @@ msgstr ""
 "Pour personnaliser votre PDF, vous pouvez dans le champ de texte ci-dessous, "
 "utiliser ces balises :"
 
-#: views/send-pdf-admin.php:1247
+#: views/send-pdf-admin.php:1248
 msgid "[addpage] is a simple tag to force a page break anywhere in your PDF."
 msgstr ""
 "[addpage] est une simple balise pour forcer un saut de page n'importe où "
 "dans votre PDF."
 
-#: views/send-pdf-admin.php:1250
+#: views/send-pdf-admin.php:1251
 msgid "Use [date] and [time] to print the date and time anywhere in your PDF."
 msgstr ""
 "Utilisez la balise [date] et [time] pour écrire la date et l'heure où vous "
 "voulez dans votre PDF."
 
-#: views/send-pdf-admin.php:1255
+#: views/send-pdf-admin.php:1256
 msgid ""
 "[reference] is a simple mail-tag who is used for create unique PDF. It's "
 "also recorded in the database. Every PDF is named like this : name-pdf-"
@@ -610,12 +614,12 @@ msgstr ""
 "est nommé comme suit : nom-pdf-[reference]  et uploadé dans le dossier de "
 "téléchargement de WordPress."
 
-#: views/send-pdf-admin.php:1255
+#: views/send-pdf-admin.php:1256
 #, php-format
 msgid " For example : document-pdf-%s.pdf"
 msgstr " Par exemple : document-pdf-%s.pdf"
 
-#: views/send-pdf-admin.php:1256
+#: views/send-pdf-admin.php:1257
 msgid ""
 "[ID] is a simple tag that comes from the database ID if you have allowed "
 "registration in the options."
@@ -623,7 +627,7 @@ msgstr ""
 "[ID] est une simple balise qui provient de l'ID de la base de données si "
 "vous avez autorisé l'enregistrement dans les options."
 
-#: views/send-pdf-admin.php:1260
+#: views/send-pdf-admin.php:1261
 #, php-format
 msgid ""
 "The <strong>[file]</strong> tags are for images? Enter them here to display "
@@ -632,7 +636,7 @@ msgstr ""
 "Les balises <strong>[file]</strong> sont pour des images ? Entrez-les ici "
 "pour les afficher en images sur votre PDF et comme ceci : %s"
 
-#: views/send-pdf-admin.php:1260
+#: views/send-pdf-admin.php:1261
 msgid ""
 "It will then be necessary to put them in the image HTML tag for the PDF "
 "layout."
@@ -640,15 +644,15 @@ msgstr ""
 "Il sera nécessaire ensuite de les mettre dans la balise HTML image pour la "
 "mise en page du PDF."
 
-#: views/send-pdf-admin.php:1260
+#: views/send-pdf-admin.php:1261
 msgid "Use url- prefix for display URL like this:"
 msgstr "Utilisez le préfix url- pour l'affichage de l'URL, comme ceci :"
 
-#: views/send-pdf-admin.php:1315
+#: views/send-pdf-admin.php:1316
 msgid "Enter here your Shortcodes"
 msgstr "Entrez ici vos shortcodes"
 
-#: views/send-pdf-admin.php:1315
+#: views/send-pdf-admin.php:1316
 msgid ""
 "It will then be necessary to put them in the PDF layout. Test with this "
 "shortcode: [wpcf7pdf_test]"
@@ -656,55 +660,55 @@ msgstr ""
 "Il sera alors nécessaire de les mettre dans la mise en page PDF. Testez avec "
 "ce shortcode : [wpcf7pdf_test]"
 
-#: views/send-pdf-admin.php:1321
+#: views/send-pdf-admin.php:1322
 msgid "Preview your PDF"
 msgstr "Prévisualiser votre PDF"
 
-#: views/send-pdf-admin.php:1356
+#: views/send-pdf-admin.php:1357
 msgid "Last records"
 msgstr "Derniers enregistrements"
 
-#: views/send-pdf-admin.php:1374
+#: views/send-pdf-admin.php:1375
 msgid "Change"
 msgstr "Modifier"
 
-#: views/send-pdf-admin.php:1390
+#: views/send-pdf-admin.php:1391
 msgid "Download"
 msgstr "Télécharger"
 
-#: views/send-pdf-admin.php:1391
+#: views/send-pdf-admin.php:1392
 msgid "Are you sure you want to delete this Record?"
 msgstr "Etes-vous sur de vouloir supprimer cet enregistrement ?"
 
-#: views/send-pdf-admin.php:1391
+#: views/send-pdf-admin.php:1392
 msgid "Delete"
 msgstr "Supprimer"
 
-#: views/send-pdf-admin.php:1405
+#: views/send-pdf-admin.php:1406
 msgid "Export list"
 msgstr "Exporter la liste"
 
-#: views/send-pdf-admin.php:1405
+#: views/send-pdf-admin.php:1406
 msgid "Export list in CSV file"
 msgstr "Exporter la liste dans un fichier CSV"
 
-#: views/send-pdf-admin.php:1410
+#: views/send-pdf-admin.php:1411
 msgid "Data not found!"
 msgstr "Données introuvables !"
 
-#: views/send-pdf-admin.php:1417
+#: views/send-pdf-admin.php:1418
 msgid "Export Settings"
 msgstr "Exporter les réglages"
 
-#: views/send-pdf-admin.php:1426
+#: views/send-pdf-admin.php:1427
 msgid "Export"
 msgstr "Exporter"
 
-#: views/send-pdf-admin.php:1434
+#: views/send-pdf-admin.php:1435
 msgid "Import Settings"
 msgstr "Importer les réglages"
 
-#: views/send-pdf-admin.php:1436
+#: views/send-pdf-admin.php:1437
 msgid ""
 "Import the plugin settings from a .json file. This file can be obtained by "
 "exporting the settings on another site using the form above."
@@ -713,11 +717,11 @@ msgstr ""
 "être obtenu en exportant les paramètres sur un autre site en utilisant le "
 "formulaire ci-dessus."
 
-#: views/send-pdf-admin.php:1446
+#: views/send-pdf-admin.php:1447
 msgid "Import"
 msgstr "Importer"
 
-#: views/send-pdf-admin.php:1454
+#: views/send-pdf-admin.php:1455
 #, php-format
 msgid ""
 "To work I need %s plugin, but it is apparently not installed or not enabled!"
@@ -725,15 +729,15 @@ msgstr ""
 "Pour fonctionner j'ai besoin de l'extension %s, mais elle n'est apparemment "
 "pas installée ou pas activée !"
 
-#: views/send-pdf-admin.php:1458
+#: views/send-pdf-admin.php:1459
 msgid "Send PDF for Contact Form 7 is brought to you by"
 msgstr "Send PDF for Contact Form 7 vous est proposé par"
 
-#: views/send-pdf-admin.php:1458
+#: views/send-pdf-admin.php:1459
 msgid "If you found this plugin useful"
 msgstr "Si vous avez trouvé cette extention utile"
 
-#: views/send-pdf-admin.php:1458
+#: views/send-pdf-admin.php:1459
 msgid "give it 5 &#9733; on WordPress.org"
 msgstr "donnez-lui 5 &#9733; sur WordPress.org"
 
