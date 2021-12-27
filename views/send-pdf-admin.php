@@ -369,7 +369,10 @@ jQuery(document).ready(function() {
                 if( $meta_values["separate"] == 'comma' ) { $tagSeparate = ', '; }
                 if( $meta_values["separate"] == 'space') { $tagSeparate = ' '; }
                 if( $meta_values["separate"] == 'dash') { $tagSeparate = '- '; }
-                if( $meta_values["separate"] == 'star') { $tagSeparate = '* '; }
+                if( $meta_values["separate"] == 'star') { $tagSeparate = '* '; }                
+                if( $meta_values["separate"] == 'rightarrow') { $tagSeparate = '&rarr; '; }
+                if( $meta_values["separate"] == 'double-right-arrow') { $tagSeparate = '&rArr; '; }
+                if( $meta_values["separate"] == 'cornerarrow') { $tagSeparate = '&#8627; '; }
             }
             $tagSeparateAfter = ' ';
             if( isset($meta_values["separate_after"]) ) {
@@ -1227,7 +1230,10 @@ $pathFolder = serialize($createDirectory);
                                <select name="wp_cf7pdf_settings[separate]" class="wpcf7-form-field">
                                     <option value="none" <?php if( empty($meta_values["separate"]) || (isset($meta_values["separate"]) && $meta_values["separate"] == 'none') ) { echo 'selected'; } ?>><?php _e("None", 'send-pdf-for-contact-form-7'); ?></option>
                                     <option value="dash" <?php if( isset($meta_values["separate"]) && $meta_values["separate"] == 'dash') { echo 'selected'; } ?>><?php _e("Dash", 'send-pdf-for-contact-form-7'); ?></option>
-                                    <option value="star" <?php if( isset($meta_values["separate"]) && $meta_values["separate"] == 'star') { echo 'selected'; } ?>><?php _e("Star", 'send-pdf-for-contact-form-7'); ?></option>                                
+                                    <option value="star" <?php if( isset($meta_values["separate"]) && $meta_values["separate"] == 'star') { echo 'selected'; } ?>><?php _e("Star", 'send-pdf-for-contact-form-7'); ?></option>
+                                    <option value="rightarrow" <?php if( isset($meta_values["separate"]) && $meta_values["separate"] == 'rightarrow') { echo 'selected'; } ?>><?php _e("Right Arrow", 'send-pdf-for-contact-form-7'); ?></option>
+                                    <option value="double-right-arrow" <?php if( isset($meta_values["separate"]) && $meta_values["separate"] == 'double-right-arrow') { echo 'selected'; } ?>><?php _e("Double Right Arrow", 'send-pdf-for-contact-form-7'); ?></option>
+                                    <option value="cornerarrow" <?php if( isset($meta_values["separate"]) && $meta_values["separate"] == 'cornerarrow') { echo 'selected'; } ?>><?php _e("Corner Arrow", 'send-pdf-for-contact-form-7'); ?></option>                             
                                 </select><br />
                                 <?php _e("After:", 'send-pdf-for-contact-form-7'); ?><br />
                                 <select name="wp_cf7pdf_settings[separate_after]" class="wpcf7-form-field">
