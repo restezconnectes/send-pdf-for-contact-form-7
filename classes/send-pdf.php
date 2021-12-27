@@ -696,7 +696,7 @@ class cf7_sendpdf {
                 }
 
                 // Si option fillable, on genere les champs et remplace les données                   
-                $contact_form = WPCF7_ContactForm::get_instance($post['_wpcf7']);
+                $contact_form = WPCF7_ContactForm::get_instance($post['_wpcf7']);           
                 $contact_tag = $contact_form->scan_form_tags();
                 foreach ( $contact_tag as $sh_tag ) {
 
@@ -721,7 +721,10 @@ class cf7_sendpdf {
                                 }
     
                             } else {
-                                $inputCheckbox .= ''.$tagSeparate.''.$val.''.$tagSeparateAfter.'';
+
+                                if( strpos($valueTag, trim($val) )!== false) {
+                                    $inputCheckbox .= ''.$tagSeparate.''.$val.''.$tagSeparateAfter.'';
+                                }
                             }
                             $i++;
                         }
@@ -746,8 +749,10 @@ class cf7_sendpdf {
                                 }
     
                             } else {
-                                
-                                $inputRadio .= ''.$tagSeparate.''.$val.''.$tagSeparateAfter.'';
+
+                                if( strpos($valueTag, trim($val) )!== false) {
+                                    $inputRadio .= ''.$tagSeparate.''.$val.''.$tagSeparateAfter.'';
+                                }
                             }
                             $i++;
                         }
@@ -760,20 +765,9 @@ class cf7_sendpdf {
                     }
 
                 }
-                
                             
                 $text = str_replace('[reference]', $_SESSION['pdf_uniqueid'], $text);
                 $text = str_replace('[url-pdf]', str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $createDirectory).'/'.$nameOfPdf.'-'.$_SESSION['pdf_uniqueid'].'.pdf', $text);
-
-                
-
-                /*$form_parts = preg_split('/(\[\/?repeater(?:\]|\s.*?\]))/',$text, -1,PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
-                foreach ($form_parts as $form_part) {
-                    if (substr($form_part,0,10) == '[repeater ') {
-
-
-                    }
-                }*/
 
                 $cf7_file_field_name = $meta_values['file_tags']; // [file uploadyourfile]
                 if( !empty($cf7_file_field_name) ) {
