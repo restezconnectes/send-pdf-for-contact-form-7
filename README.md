@@ -10,15 +10,13 @@ This plugin requires the installation and activation of the plugin Contact Form 
 
 File send-pdf-for-contact-form-7.pot available
 
-Current Version:  0.9.2
+Current Version:  0.9.1
 
 == Changelog ==
 
--- 0.9.2 --
-* Compatibility with Conditional Fields PRO
-
 -- 0.9.1 --
 * Adding Choice of separator for checkboxes or radio buttons
+* Compatibility with Conditional Fields PRO
 
 -- 0.9 --
 * Bug fixed upload image
