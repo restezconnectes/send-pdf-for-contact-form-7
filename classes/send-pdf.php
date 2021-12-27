@@ -665,6 +665,17 @@ class cf7_sendpdf {
                 // définit le contenu du PDf
                 $text = trim($meta_values['generate_pdf']);
 
+                if( class_exists('Wpcf7cfMailParser') ){
+
+                    $hidden_groups = json_decode(stripslashes($_POST['_wpcf7cf_hidden_groups']));
+                    $visible_groups = json_decode(stripslashes($_POST['_wpcf7cf_visible_groups']));
+                    $repeaters = json_decode(stripslashes($_POST['_wpcf7cf_repeaters']));
+                    $steps = json_decode(stripslashes($_POST['_wpcf7cf_steps']));                   
+
+                    $parser = new Wpcf7cfMailParser($text, $visible_groups, $hidden_groups, $repeaters, $_POST);
+                    $text = $parser->getParsedMail();
+                }
+
                 $tagSeparate = '';
                 if( isset($meta_values["separate"]) ) {
                     if( $meta_values["separate"] == 'none' ) { $tagSeparate = ''; }
