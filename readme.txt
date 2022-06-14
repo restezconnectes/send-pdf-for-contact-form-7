@@ -3,8 +3,8 @@ Contributors: Florent73
 Donate link: https://www.paypal.me/RestezConnectes/
 Tags: WordPress, plugin, contact form, pdf, send, attachment, form, cf7
 Requires at least: 3.0
-Tested up to: 5.9
-Stable tag: 0.9.1
+Tested up to: 5.8
+Stable tag: 0.9.2
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -19,8 +19,6 @@ Send the PDF for Contact Form plugin will allow you to recover the data yourself
 This plugin requires the installation and activation of the plugin Contact Form 7.
 
 File send-pdf-for-contact-form-7.pot available
-
-<a href="https://demo.restezconnectes.fr/send-pdf-for-contact-form-7/">[Demo Here]</a>
 
 == Installation ==
 
@@ -51,6 +49,9 @@ Yes. If you want, you can support this project here: <a href="https://restezconn
 
 
 == Changelog ==
+
+= 0.9.2 =
+* Several security patches have been brought
 
 = 0.9.1 =
 * Adding Choice of separator for checkboxes or radio buttons

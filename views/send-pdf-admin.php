@@ -13,11 +13,11 @@ $upload_dir = wp_upload_dir();
 $tmpDirectory = $upload_dir['basedir'].'/sendpdfcf7_uploads/tmp';
 
 /* Update des paramètres */
-if( (isset($_POST['action']) && isset($_POST['idform']) && $_POST['action'] == 'update') && isset( $_POST['security-sendform'] ) && wp_verify_nonce($_POST['security-sendform'], 'go-sendform') ) {
+if( (isset($_POST['action']) && isset($_POST['idform']) && $_POST['action'] == 'update') && isset($_POST['security-sendform']) && wp_verify_nonce($_POST['security-sendform'], 'go-sendform') ) {
 
     if( isset($_POST['wp_cf7pdf_settings']['pdf-uploads-delete']) && $_POST['wp_cf7pdf_settings']['pdf-uploads-delete']=="true" ) {
         
-        $dossier_traite = cf7_sendpdf::wpcf7pdf_folder_uploads($_POST['idform']);
+        $dossier_traite = cf7_sendpdf::wpcf7pdf_folder_uploads(esc_html($_POST['idform']));
         
         if( isset($dossier_traite) && is_dir($dossier_traite) ) {
             
@@ -29,7 +29,8 @@ if( (isset($_POST['action']) && isset($_POST['idform']) && $_POST['action'] == '
 
                 // Si le fichier n'est pas un répertoire…
                 if ($fichier != ".." AND $fichier != "." AND !is_dir($fichier)) {
-                   unlink($chemin); // On efface.
+                   wp_delete_file($chemin);
+                   //unlink($chemin); // On efface.
                 }
             }
             closedir($repertoire);
@@ -39,16 +40,19 @@ if( (isset($_POST['action']) && isset($_POST['idform']) && $_POST['action'] == '
 
     }
 
-    update_post_meta( intval($_POST['idform']), '_wp_cf7pdf', $_POST["wp_cf7pdf_settings"] );
+    $updateSetting = cf7_sendpdf::wpcf7pdf_update_settings(esc_html($_POST['idform']), $_POST["wp_cf7pdf_settings"], '_wp_cf7pdf');
+
     if ( isset($_POST["wp_cf7pdf_tags"]) ) {
-        update_post_meta( intval($_POST['idform']), '_wp_cf7pdf_fields', $_POST["wp_cf7pdf_tags"] );
+        $updateSettingTags = cf7_sendpdf::wpcf7pdf_update_settings(esc_html($_POST['idform']), $_POST["wp_cf7pdf_tags"], '_wp_cf7pdf_fields');
     }
     if ( isset($_POST["wp_cf7pdf_tags_scan"]) ) {
-        update_post_meta( intval($_POST['idform']), '_wp_cf7pdf_fields_scan', $_POST["wp_cf7pdf_tags_scan"] );
+        $updateSettingTagsScan = cf7_sendpdf::wpcf7pdf_update_settings(esc_html($_POST['idform']), $_POST["wp_cf7pdf_tags_scan"], '_wp_cf7pdf_fields_scan');
     }
     
-    $options_saved = true;
-    echo '<div id="message" class="updated fade"><p><strong>'.__('Options saved.', 'send-pdf-for-contact-form-7').'</strong></p></div>';
+    if( isset($updateSetting) && $updateSetting == true) {
+        $options_saved = true;
+        echo '<div id="message" class="updated fade"><p><strong>'.__('Options saved.', 'send-pdf-for-contact-form-7').'</strong></p></div>';
+    }
 
 }
 
@@ -61,16 +65,16 @@ if( isset($_POST['idform']) && isset($_POST['truncate_table']) && $_POST['trunca
 }
 if( (isset($_POST['wpcf7_action']) && isset($_POST['idform']) && $_POST['wpcf7_action'] == 'listing_settings') ) {
 
-    if( ! wp_verify_nonce( $_POST['wpcf7_listing_nonce'], 'wpcf7_listing_nonce' ) )
+    if(!wp_verify_nonce($_POST['wpcf7_listing_nonce'], 'wpcf7_listing_nonce'))
         return;
 
-    if( ! current_user_can( 'manage_options' ) )
+    if(!current_user_can('manage_options'))
         return;
 
-    if( empty($_POST['listing_limit']) )
+    if(empty($_POST['listing_limit']))
     return;
 
-    update_post_meta( intval($_POST['idform']), '_wp_cf7pdf_limit', $_POST['listing_limit'] );
+    update_post_meta(sanitize_text_field($_POST['idform']), '_wp_cf7pdf_limit', sanitize_text_field($_POST['listing_limit']));
 
     echo '<div id="message" class="updated fade"><p><strong>' . __('Limit updating successfully!', 'send-pdf-for-contact-form-7') . '</strong></p></div>';
 }
@@ -82,6 +86,7 @@ if( isset($_POST['action']) && $_POST['action'] == 'reset' ) {
     update_option('wpcf7pdf_path_temp', $upload_dir['basedir'] . '/sendpdfcf7_uploads/tmp');
 
 }
+
 
 ?>
 <script type="text/javascript">
@@ -128,7 +133,7 @@ jQuery(document).ready(function() {
     <div id="wpcf7-bandeau" style="">
         <table width="100%" cellspacing="20">
             <tr>
-                <td align="center" valign="middle" width="33%">
+                <td style="text-align:center;" valign="middle" width="33%">
                     <?php
                         $forms = WPCF7_ContactForm::find();
                         if ( count($forms) == 0 ) {
@@ -160,7 +165,7 @@ jQuery(document).ready(function() {
                         if( $tmpDirectory != get_option('wpcf7pdf_path_temp') ) {
                             _e('Your TMP folder is bad.', 'send-pdf-for-contact-form-7');
                             ?>
-                            <form method="post" action="<?php echo $_SERVER['REQUEST_URI']?>" name="resettmp" id="resettmp">
+                            <form method="post" action="<?php echo esc_url($_SERVER['REQUEST_URI']); ?>" name="resettmp" id="resettmp">
                                 <?php wp_nonce_field('go-resettmp', 'security-resettmp'); ?>
                                 <input type="hidden" name="action" value="reset"/>
                                 <input type="submit" value="<?php _e('Fix it!', 'send-pdf-for-contact-form-7'); ?>" style="background-color:#656830;color:#fff;border:1px solid #656830;" />
@@ -170,7 +175,7 @@ jQuery(document).ready(function() {
                     ?>
                     <?php } ?>
                 </td>
-                <td align="center" width="33%">
+                <td style="text-align:center;" width="33%">
                         <div id="wpmimgcreated">
                             <a href="https://MadeBy.RestezConnectes.fr" title="Created by MadeByRestezConnectes.fr" class="wpcf7-link" alt="Created by MadeByRestezConnectes.fr" target="_blank" onfocus="this.blur();"><img class="wpmresponsive" src="<?php echo plugins_url('send-pdf-for-contact-form-7/images/logo-madeby-restezconnectes.png'); ?>" width="250" valign="bottom"  /></a>
                         </div>
@@ -195,7 +200,7 @@ jQuery(document).ready(function() {
     if( isset($_POST['idform']) && wp_verify_nonce($_POST['security-sendform'], 'go-sendform') ) {
 
         //name,forename,bithday,sex,phone,adress,cp,city,sport,
-        $idForm = intval($_POST['idform']);
+        $idForm = esc_html($_POST['idform']);
         $meta_values = get_post_meta( $idForm, '_wp_cf7pdf', true );
         $meta_form = get_post_meta( $idForm, '_form', true);
 
@@ -230,8 +235,8 @@ jQuery(document).ready(function() {
         $formatPdf = 'A4-P';
 
         // Definition des dates par defaut
-        $dateField = date_i18n( $date_format, current_time('timestamp'));
-        $timeField = date_i18n($hour_format, current_time('timestamp'));
+        $dateField = date_i18n(esc_html($date_format), current_time('timestamp'));
+        $timeField = date_i18n(esc_html($hour_format), current_time('timestamp'));
 
         // Definition des dimensions du logo par defaut
         $width = 150;
@@ -239,31 +244,33 @@ jQuery(document).ready(function() {
 
         // On efface l'ancien pdf renommé si il y a (on garde l'original)
         if( file_exists($createDirectory.'/preview.pdf') ) {
-            unlink($createDirectory.'/preview.pdf');
+            wp_delete_file($createDirectory.'/preview.pdf');
+            //unlink($createDirectory.'/preview.pdf');
         }
+
         if( isset($meta_values['generate_pdf']) && !empty($meta_values['generate_pdf']) ) {
 
             if( isset($meta_values['pdf-type']) && isset($meta_values['pdf-orientation']) ) {
-                $formatPdf = $meta_values['pdf-type'].$meta_values['pdf-orientation'];
+                $formatPdf = esc_html($meta_values['pdf-type'].$meta_values['pdf-orientation']);
             }
             if( isset($meta_values['pdf-font'])  ) {
-                $fontPdf = $meta_values['pdf-font'];
+                $fontPdf = esc_html($meta_values['pdf-font']);
             }
             if( isset($meta_values['pdf-fontsize']) && is_numeric($meta_values['pdf-fontsize']) ) {
-                $fontsizePdf = $meta_values['pdf-fontsize'];
+                $fontsizePdf = esc_html($meta_values['pdf-fontsize']);
             }
             
             require WPCF7PDF_DIR . 'mpdf/vendor/autoload.php';
             //$mpdf=new \Mpdf\Mpdf();
             
-            if( isset($meta_values["margin_header"]) && $meta_values["margin_header"]!='' ) { $marginHeader = $meta_values["margin_header"]; }
-            if( isset($meta_values["margin_top"]) && $meta_values["margin_top"]!='' ) { $marginTop = $meta_values["margin_top"]; }            
-            if( isset($meta_values["margin_left"]) && $meta_values["margin_left"]!='' ) { $marginLeft = $meta_values["margin_left"]; }
-            if( isset($meta_values["margin_right"]) && $meta_values["margin_right"]!='' ) { $marginRight = $meta_values["margin_right"]; }
+            if( isset($meta_values["margin_header"]) && $meta_values["margin_header"]!='' ) { $marginHeader = esc_html($meta_values["margin_header"]); }
+            if( isset($meta_values["margin_top"]) && $meta_values["margin_top"]!='' ) { $marginTop = esc_html($meta_values["margin_top"]); }            
+            if( isset($meta_values["margin_left"]) && $meta_values["margin_left"]!='' ) { $marginLeft = esc_html($meta_values["margin_left"]); }
+            if( isset($meta_values["margin_right"]) && $meta_values["margin_right"]!='' ) { $marginRight = esc_html($meta_values["margin_right"]); }
 
             if( isset($meta_values['pdf-type']) && isset($meta_values['pdf-orientation']) ) {
 
-                $formatPdf = $meta_values['pdf-type'].$meta_values['pdf-orientation'];
+                $formatPdf = esc_html($meta_values['pdf-type'].$meta_values['pdf-orientation']);
                 $mpdfConfig = array(
                     'mode' =>
                     'utf-8',
@@ -314,12 +321,13 @@ jQuery(document).ready(function() {
             $mpdf->SetTitle(get_the_title($idForm));
             $mpdf->SetCreator(get_bloginfo('name'));
             $mpdf->ignore_invalid_utf8 = true;
+            $mpdf->simpleTables = false;
 
             if( empty($meta_values["margin_auto_header"]) || ( isset($meta_values["margin_auto_header"]) && $meta_values["margin_auto_header"]=='' ) ) { $meta_values["margin_auto_header"] = 'stretch'; }
             if( empty($meta_values["margin_auto_header"]) || ( isset($meta_values["margin_auto_bottom"]) && $meta_values["margin_auto_bottom"]=='' ) ) { $meta_values["margin_auto_bottom"] = 'stretch'; }
 
-            if( isset($meta_values["margin_auto_header"]) && $meta_values["margin_auto_header"]!='' ) { $setAutoBottomMargin = $meta_values["margin_auto_header"]; }
-            if( isset($meta_values["margin_auto_bottom"]) && $meta_values["margin_auto_bottom"]!='' ) { $setAutoBottomMargin = $meta_values["margin_auto_bottom"]; }
+            if( isset($meta_values["margin_auto_header"]) && $meta_values["margin_auto_header"]!='' ) { $setAutoBottomMargin = esc_html($meta_values["margin_auto_header"]); }
+            if( isset($meta_values["margin_auto_bottom"]) && $meta_values["margin_auto_bottom"]!='' ) { $setAutoBottomMargin = esc_html($meta_values["margin_auto_bottom"]); }
 
             $mpdf->setAutoTopMargin = $setAutoBottomMargin;
             $mpdf->setAutoBottomMargin = $setAutoBottomMargin;
@@ -332,12 +340,12 @@ jQuery(document).ready(function() {
             
             // LOAD a stylesheet
             if( isset($meta_values['stylesheet']) && $meta_values['stylesheet']!='' ) {
-                $stylesheet = file_get_contents($meta_values['stylesheet']);
+                $stylesheet = file_get_contents(esc_url($meta_values['stylesheet']));
                 $mpdf->WriteHTML($stylesheet,1);	// The parameter 1 tells that this is css/style only and no body/html/text
             }
             // Adding Custom CSS            
             if( isset($meta_values['custom_css']) && $meta_values['custom_css']!='' ) {
-                $mpdf->WriteHTML('<style>'.$meta_values['custom_css'].'</style>');
+                $mpdf->WriteHTML('<style>'.esc_html($meta_values['custom_css']).'</style>');
             }
             
             $entetePage = '';
@@ -348,31 +356,32 @@ jQuery(document).ready(function() {
                 }
                 $imgAlign = 'left';
                 if( isset($meta_values['image-alignment']) ) {
-                    $imgAlign = $meta_values['image-alignment'];
+                    $imgAlign = esc_html($meta_values['image-alignment']);
                 }
-                if( empty($meta_values['image-width']) ) { $imgWidth = $width; } else { $imgWidth = $meta_values['image-width'];  }
-                if( empty($meta_values['image-height']) ) { $imgHeight = $height; } else { $imgHeight = $meta_values['image-height'];  }
+                if( empty($meta_values['image-width']) ) { $imgWidth = esc_html($width); } else { $imgWidth = esc_html($meta_values['image-width']);  }
+                if( empty($meta_values['image-height']) ) { $imgHeight = esc_html($height); } else { $imgHeight = esc_html($meta_values['image-height']);  }
 
-                $attribut = 'width='.$imgWidth.' height="'.$imgHeight.'"';
-                $entetePage = '<div style="text-align:'.$imgAlign.';"><img src="'.esc_url($meta_values["image"]).'" '.$attribut.' /></div>';
+                $attribut = 'width='.esc_html($imgWidth).' height="'.esc_html($imgHeight).'"';
+                $entetePage = '<div style="text-align:'.esc_html($imgAlign).';"><img src="'.esc_url($meta_values["image"]).'" '.esc_html($attribut).' /></div>';
 
-                if( isset($meta_values["margin_bottom_header"]) && $meta_values["margin_bottom_header"]!='' ) { $marginBottomHeader = $meta_values["margin_bottom_header"]; }
-                $mpdf->WriteHTML('<p style="margin-bottom:'.$marginBottomHeader.'px;">&nbsp;</p>');
+                if( isset($meta_values["margin_bottom_header"]) && $meta_values["margin_bottom_header"]!='' ) { $marginBottomHeader = esc_html($meta_values["margin_bottom_header"]); }
+                $mpdf->WriteHTML('<p style="margin-bottom:'.esc_html($marginBottomHeader).'px;">&nbsp;</p>');
             }
             $mpdf->SetHTMLHeader($entetePage, 'O', true);
 
             $messageText = $meta_values['generate_pdf'];
-            
+
             $tagSeparate = '';
             if( isset($meta_values["separate"]) ) {
                 if( $meta_values["separate"] == 'none' ) { $tagSeparate = ''; }
                 if( $meta_values["separate"] == 'comma' ) { $tagSeparate = ', '; }
                 if( $meta_values["separate"] == 'space') { $tagSeparate = ' '; }
                 if( $meta_values["separate"] == 'dash') { $tagSeparate = '- '; }
-                if( $meta_values["separate"] == 'star') { $tagSeparate = '* '; }                
+                if( $meta_values["separate"] == 'star') { $tagSeparate = '* '; }
                 if( $meta_values["separate"] == 'rightarrow') { $tagSeparate = '&rarr; '; }
                 if( $meta_values["separate"] == 'double-right-arrow') { $tagSeparate = '&rArr; '; }
                 if( $meta_values["separate"] == 'cornerarrow') { $tagSeparate = '&#8627; '; }
+                
             }
             $tagSeparateAfter = ' ';
             if( isset($meta_values["separate_after"]) ) {
@@ -403,17 +412,18 @@ jQuery(document).ready(function() {
                                 $caseChecked = 'checked="checked"';
                             }
                             if( in_array('label_first', $tagOptions) ) {
-                                $inputCheckbox .= ''.$tagSeparate.''.$val.' <input type="checkbox" class="wpcf7-checkbox" name="'.$sh_tag["name"].$i.'" value="'.$i.'" '.$caseChecked.' />'.$tagSeparateAfter.'';
+                                $inputCheckbox .= ''.$tagSeparate.''.esc_html($val).' <input type="checkbox" class="wpcf7-checkbox" name="'.esc_html($sh_tag["name"].$i).'" value="'.$i.'" '.$caseChecked.' />'.$tagSeparateAfter.'';
                             } else {
-                                $inputCheckbox .= ''.$tagSeparate.'<input type="checkbox" class="wpcf7-checkbox" name="'.$sh_tag["name"].$i.'" value="'.$i.'" '.$caseChecked.' /> '.$val.''.$tagSeparateAfter.'';
+                                $inputCheckbox .= ''.$tagSeparate.'<input type="checkbox" class="wpcf7-checkbox" name="'.esc_html($sh_tag["name"].$i).'" value="'.$i.'" '.$caseChecked.' /> '.esc_html($val).''.$tagSeparateAfter.'';
                             }
 
                         } else {
-                            $inputCheckbox .= ''.$tagSeparate.''.$val.''.$tagSeparateAfter.'';
+                            $inputCheckbox .= ''.$tagSeparate.''.esc_html($val).''.$tagSeparateAfter.'';
                         }
                         $i++;
                     }
-                    $messageText = str_replace('['.$sh_tag["name"].']', $inputCheckbox, $messageText);
+                    $messageText = str_replace('['.esc_html($sh_tag["name"]).']', $inputCheckbox, $messageText);
+                    $messageText = rtrim($messageText, $tagSeparateAfter);
 
                 } else if ( $sh_tag["basetype"] == 'radio') {
                     
@@ -428,23 +438,23 @@ jQuery(document).ready(function() {
                                 $radioChecked = 'checked="checked"';
                             }                            
                             if( in_array('label_first', $tagOptions) ) {
-                                $inputRadio .= ''.$tagSeparate.''.$val.' <input type="radio" class="wpcf7-radio" name="'.$sh_tag["name"].'" value="'.$i.'" '.$radioChecked.' >'.$tagSeparateAfter.'';
+                                $inputRadio .= ''.$tagSeparate.''.esc_html($val).' <input type="radio" class="wpcf7-radio" name="'.esc_html($sh_tag["name"]).'" value="'.$i.'" '.$radioChecked.' >'.$tagSeparateAfter.'';
                             } else {
-                                $inputRadio .= ''.$tagSeparate.'<input type="radio" class="wpcf7-radio" name="'.$sh_tag["name"].'" value="'.$i.'" '.$radioChecked.' > '.$val.''.$tagSeparateAfter.'';
+                                $inputRadio .= ''.$tagSeparate.'<input type="radio" class="wpcf7-radio" name="'.esc_html($sh_tag["name"]).'" value="'.$i.'" '.$radioChecked.' > '.esc_html($val).''.$tagSeparateAfter.'';
                             }
 
                         } else {
                             
-                            $inputRadio .= ''.$tagSeparate.''.$val.''.$tagSeparateAfter.'';
+                            $inputRadio .= ''.$tagSeparate.''.esc_html($val).''.$tagSeparateAfter.'';
                         }
                         $i++;
                     }
-                    $messageText = str_replace('['.$sh_tag["name"].']', $inputRadio, $messageText);
-
+                    $messageText = str_replace('['.esc_html($sh_tag["name"]).']', $inputRadio, $messageText);
+                    $messageText = rtrim($messageText, $tagSeparateAfter);
                 } else {
                     
-                    $valueTag = wpcf7_mail_replace_tags('['.$sh_tag["name"].']');                            
-                    $messageText = str_replace('['.$sh_tag["name"].']', $valueTag, $messageText);
+                    $valueTag = wpcf7_mail_replace_tags('['.esc_html($sh_tag["name"]).']');                            
+                    $messageText = str_replace('['.esc_html($sh_tag["name"]).']', esc_html($valueTag), $messageText);
                 }
                 
             }
@@ -460,7 +470,7 @@ jQuery(document).ready(function() {
                 $origImageSrc = str_ireplace( 'src="', '',  $imgage[0]);
                 if( strpos( $origImageSrc, 'http' ) === false ) {
                 
-                    $messageText = str_replace( $origImageSrc, WPCF7PDF_DIR.'images/temporary-image.jpg', $messageText);
+                    $messageText = str_replace( $origImageSrc, plugins_url( '../images/temporary-image.jpg', __FILE__ ), $messageText);
                 }
             }
             
@@ -469,7 +479,7 @@ jQuery(document).ready(function() {
                 $messageText = str_replace("<div></div><div></div>", '<div style="height:10px;"></div>', $messageText);
             }
             $messageText = str_replace('[reference]', $_SESSION['pdf_uniqueid'], $messageText);
-            $messageText = str_replace('[url-pdf]', $upload_dir['url'].'/'.$nameOfPdf.'-'.$_SESSION['pdf_uniqueid'].'.pdf', $messageText);
+            $messageText = str_replace('[url-pdf]', esc_url($upload_dir['url'].'/'.$nameOfPdf.'-'.$_SESSION['pdf_uniqueid'].'.pdf'), $messageText);
             $messageText = str_replace('[ID]', '000'.date('md'), $messageText);
             if( isset($meta_values['date_format']) && !empty($meta_values['date_format']) ) {
                 $dateField = date_i18n($meta_values['date_format']);
@@ -492,7 +502,7 @@ jQuery(document).ready(function() {
             
             if( isset($meta_values['footer_generate_pdf']) && $meta_values['footer_generate_pdf']!='' ) {
                 $footerText = str_replace('[reference]', $_SESSION['pdf_uniqueid'], $meta_values['footer_generate_pdf']);
-                $footerText = str_replace('[url-pdf]', $upload_dir['url'].'/'.$nameOfPdf.'-'.$_SESSION['pdf_uniqueid'].'.pdf', $footerText);
+                $footerText = str_replace('[url-pdf]', esc_url($upload_dir['url'].'/'.$nameOfPdf.'-'.$_SESSION['pdf_uniqueid'].'.pdf'), $footerText);
                 if( isset($meta_values['date_format']) && !empty($meta_values['date_format']) ) {
                     $dateField = date_i18n($meta_values['date_format']);
                 }
@@ -558,11 +568,11 @@ jQuery(document).ready(function() {
             if ( isset($meta_values["protect"]) && $meta_values["protect"]=='true') {
                 
                 if( isset($meta_values["protect_password"]) && $meta_values["protect_password"]!='' ) {
-                    $pdfPassword = $meta_values["protect_password"];
+                    $pdfPassword = esc_html($meta_values["protect_password"]);
                 }
                 $mpdf->SetProtection(array('print', 'fill-forms', 'modify', 'copy'), $pdfPassword, $pdfPassword, 128);
             }            
-            $mpdf->Output($createDirectory.'/preview-'.$idForm.'.pdf', 'F');
+            $mpdf->Output($createDirectory.'/preview-'.esc_html($idForm).'.pdf', 'F');
 
         }
 
@@ -584,8 +594,8 @@ $pathFolder = serialize($createDirectory);
 <form method="post" action="" name="valide_settings">
 
     <input type="hidden" name="action" value="update" />
-    <input type="hidden" name="idform" value="<?php echo $idForm; ?>"/>
-    <input type="hidden" name="path_uploads" value="<?php echo $pathFolder; ?>" />
+    <input type="hidden" name="idform" value="<?php echo esc_html($idForm); ?>"/>
+    <input type="hidden" name="path_uploads" value="<?php echo esc_url($pathFolder); ?>" />
     <?php wp_nonce_field('go-sendform', 'security-sendform'); ?>
 
     <div style="text-align:right;">
@@ -606,7 +616,7 @@ $pathFolder = serialize($createDirectory);
 
                     <tr>
                         <td style="vertical-align: middle;margin-top:15px;"><?php _e('Disable generate PDF?', 'send-pdf-for-contact-form-7'); ?></td>
-                        <td align="left">
+                        <td style="text-align:left;">
                             <div style="">
                             <div class="switch-field">
                                 <input class="switch_left" type="radio" id="switch_left" name="wp_cf7pdf_settings[disable-pdf]" value="true" <?php if( isset($meta_values["disable-pdf"]) && $meta_values["disable-pdf"]=='true') { echo ' checked'; } ?>/>
@@ -621,7 +631,7 @@ $pathFolder = serialize($createDirectory);
                         <td><?php _e('Who send the PDF file?', 'send-pdf-for-contact-form-7'); ?></td>
                         <td>
                             <select name="wp_cf7pdf_settings[send-attachment]" class="wpcf7-form-field">
-                                <option value="sender"<?php if( isset($meta_values["send-attachment"]) && isset($meta_values["send-pdf"]) && $meta_values["send-pdf"] == "sender" ) { echo ' selected'; } ?>><?php _e('Sender', 'send-pdf-for-contact-form-7'); ?></option>
+                                <option value="sender"<?php if( isset($meta_values["send-attachment"]) && $meta_values["send-attachment"] == "sender" ) { echo ' selected'; } ?>><?php _e('Sender', 'send-pdf-for-contact-form-7'); ?></option>
                                 <option value="recipient"<?php if( isset($meta_values["send-attachment"]) && $meta_values["send-attachment"] == "recipient" ) { echo ' selected'; } ?>><?php _e('Recipient', 'send-pdf-for-contact-form-7'); ?></option>
                                 <option value="both"<?php if( (isset($meta_values["send-attachment"]) && $meta_values["send-attachment"] == "both") || empty($meta_values["send-attachment"]) ) { echo ' selected'; } ?>><?php _e('Both', 'send-pdf-for-contact-form-7'); ?></option>
                             </select>
@@ -630,7 +640,7 @@ $pathFolder = serialize($createDirectory);
                     <tr><td colspan="2"><hr style="background-color: <?php echo $colors[2]; ?>; height: 1px; border: 0;"></td></tr>
                     <tr style="vertical-align: middle;margin-top:15px;">
                         <td><?php _e("Disable data submit in a database?", 'send-pdf-for-contact-form-7'); ?></td>
-                        <td align="left">
+                        <td style="text-align:left;">
                             <div style="">
                             <div class="switch-field">
                                 <input class="switch_left" type="radio" id="switch_insert" name="wp_cf7pdf_settings[disable-insert]" value="true" <?php if( isset($meta_values["disable-insert"]) && $meta_values["disable-insert"]=='true') { echo ' checked'; } ?>/>
@@ -654,7 +664,7 @@ $pathFolder = serialize($createDirectory);
                             </div>
                         </td>
                     </tr>
-                    <tr><td colspan="2"><hr style="background-color: <?php echo $colors[2]; ?>; height: 1px; border: 0;"></td></tr>
+                    <tr><td colspan="2"><hr style="background-color: <?php echo esc_html($colors[2]); ?>; height: 1px; border: 0;"></td></tr>
                     <tr>
                         <td><?php _e('Disable generate CSV file?', 'send-pdf-for-contact-form-7'); ?></td>
                         <td>
@@ -683,7 +693,7 @@ $pathFolder = serialize($createDirectory);
                             <p><i><?php _e("By defaut it's separated by commas", 'send-pdf-for-contact-form-7'); ?></i></p></td>
                         <td><input size="3" type= "text" name="wp_cf7pdf_settings[csv-separate]" class="wpcf7-form-field" value="<?php if( isset($meta_values["csv-separate"]) && !empty($meta_values["csv-separate"]) ) { echo esc_html($meta_values["csv-separate"]); } else { echo ','; } ?>" /></td>
                     </tr>
-                    <tr><td colspan="2"><hr style="background-color: <?php echo $colors[2]; ?>; height: 1px; border: 0;"></td></tr>
+                    <tr><td colspan="2"><hr style="background-color: <?php echo esc_html($colors[2]); ?>; height: 1px; border: 0;"></td></tr>
                     <tr>
                         <td>
                             <?php _e('Enter a name for your PDF', 'send-pdf-for-contact-form-7'); ?><p>(<i><?php _e("By default, the file's name will be 'document-pdf'", 'send-pdf-for-contact-form-7'); ?></i>)</p>
@@ -702,13 +712,13 @@ $pathFolder = serialize($createDirectory);
                                     $dateForName = str_replace(' ', '', $dateForName);
                                     $dateForName = str_replace('/', '', $dateForName);
                                 ?>
-                                &nbsp;&nbsp;<small><?php _e('Enter date format without space, -, /, _, etc..', 'send-pdf-for-contact-form-7'); ?></small><input size="5" type= "text" name="wp_cf7pdf_settings[date-for-name]" value="<?php echo $dateForName; ?>" /> <?php echo date_i18n($dateForName, current_time('timestamp')); ?>
+                                &nbsp;&nbsp;<small><?php _e('Enter date format without space, -, /, _, etc..', 'send-pdf-for-contact-form-7'); ?></small><input size="5" type= "text" name="wp_cf7pdf_settings[date-for-name]" value="<?php echo esc_html($dateForName); ?>" /> <?php echo date_i18n(esc_html($dateForName), current_time('timestamp')); ?>
                             </p>
 
                         </td>
                         <td>
-                            <input type= "text" class="wpcf7-form-field" name="wp_cf7pdf_settings[pdf-name]" value="<?php if( isset($meta_values["pdf-name"]) && !empty($meta_values["pdf-name"]) ) { echo $meta_values["pdf-name"]; } ?>">.pdf<br /><br /><br />
-                            <input type="text" class="wpcf7-form-field" size="30" name="wp_cf7pdf_settings[pdf-add-name]" value="<?php if( isset($meta_values["pdf-add-name"]) && !empty($meta_values["pdf-add-name"]) ) { echo $meta_values["pdf-add-name"]; } ?>" />
+                            <input type= "text" class="wpcf7-form-field" name="wp_cf7pdf_settings[pdf-name]" value="<?php if( isset($meta_values["pdf-name"]) && !empty($meta_values["pdf-name"]) ) { echo esc_html($meta_values["pdf-name"]); } ?>">.pdf<br /><br /><br />
+                            <input type="text" class="wpcf7-form-field" size="30" name="wp_cf7pdf_settings[pdf-add-name]" value="<?php if( isset($meta_values["pdf-add-name"]) && !empty($meta_values["pdf-add-name"]) ) { echo esc_html($meta_values["pdf-add-name"]); } ?>" />
                         </td>
 
                     </tr>
@@ -757,7 +767,7 @@ $pathFolder = serialize($createDirectory);
                             </div>
                         </td>
                     </tr>
-                    <tr><td colspan="2"><hr style="background-color: <?php echo $colors[2]; ?>; height: 1px; border: 0;"></td></tr>
+                    <tr><td colspan="2"><hr style="background-color: <?php echo esc_html($colors[2]); ?>; height: 1px; border: 0;"></td></tr>
                     <tr>
                         <td><?php _e('Other files attachments?', 'send-pdf-for-contact-form-7'); ?><p>(<i><?php _e("Enter one URL file by line", 'send-pdf-for-contact-form-7'); ?></i>)</p><textarea class="wpcf7-form-field" cols="100%" rows="5" name="wp_cf7pdf_settings[pdf-files-attachments]"><?php if( isset($meta_values["pdf-files-attachments"]) ) { echo esc_textarea($meta_values["pdf-files-attachments"]); } ?></textarea>
                         </td>
@@ -772,7 +782,7 @@ $pathFolder = serialize($createDirectory);
                             </select>
                         </td>
                     </tr>
-                    <tr><td colspan="2"><hr style="background-color: <?php echo $colors[2]; ?>; height: 1px; border: 0;"></td></tr>
+                    <tr><td colspan="2"><hr style="background-color: <?php echo esc_html($colors[2]); ?>; height: 1px; border: 0;"></td></tr>
                     <tr>
                         <td>
                             <?php _e('Select a page to display after sending the form (optional)', 'send-pdf-for-contact-form-7'); ?>
@@ -784,7 +794,7 @@ $pathFolder = serialize($createDirectory);
                                 } else {
                                     $idSelectPage = 0;
                                 }
-                                $args = array('name' => 'wp_cf7pdf_settings[page_next]', 'class' => 'wpcf7-form-field', 'selected' => $idSelectPage, 'show_option_none' => __('Please select a page', 'send-pdf-for-contact-form-7') );
+                                $args = array('name' => 'wp_cf7pdf_settings[page_next]', 'class' => 'wpcf7-form-field', 'selected' => esc_html($idSelectPage), 'show_option_none' => __('Please select a page', 'send-pdf-for-contact-form-7') );
                                 wp_dropdown_pages($args);
                             ?>
                         </td>
@@ -859,12 +869,12 @@ $pathFolder = serialize($createDirectory);
                                 $formatTime = $meta_values['time_format'];
                             }
                             ?>
-                            <input id="date_format" class="wpcf7-form-field" size="16" name="wp_cf7pdf_settings[date_format]" value="<?php echo $formatDate; ?>" type="text" /> <?php _e('Date:', 'send-pdf-for-contact-form-7'); ?> <?php echo date_i18n($formatDate); ?><br />
-                            <input id="time_format" size="16" class="wpcf7-form-field" name="wp_cf7pdf_settings[time_format]" value="<?php echo $formatTime; ?>" type="text" /> <?php _e('Time:', 'send-pdf-for-contact-form-7'); ?> <?php echo date_i18n($formatTime); ?>
+                            <input id="date_format" class="wpcf7-form-field" size="16" name="wp_cf7pdf_settings[date_format]" value="<?php echo esc_html($formatDate); ?>" type="text" /> <?php _e('Date:', 'send-pdf-for-contact-form-7'); ?> <?php echo date_i18n($formatDate); ?><br />
+                            <input id="time_format" size="16" class="wpcf7-form-field" name="wp_cf7pdf_settings[time_format]" value="<?php echo esc_html($formatTime); ?>" type="text" /> <?php _e('Time:', 'send-pdf-for-contact-form-7'); ?> <?php echo date_i18n($formatTime); ?>
                         </td>
                     </tr>
                     <tr>
-                        <td colspan="2"><hr style="background-color: <?php echo $colors[2]; ?>; height: 1px; border: 0;"></td>
+                        <td colspan="2"><hr style="background-color: <?php echo esc_html($colors[2]); ?>; height: 1px; border: 0;"></td>
                     </tr>
                     <tr>
                         <td><!-- Propose de télécharger le pdf? -->
@@ -898,7 +908,7 @@ $pathFolder = serialize($createDirectory);
                         </td>
                     <tr>
                     <tr>
-                        <td colspan="2"><hr style="background-color: <?php echo $colors[2]; ?>; height: 1px; border: 0;"></td>
+                        <td colspan="2"><hr style="background-color: <?php echo esc_html($colors[2]); ?>; height: 1px; border: 0;"></td>
                     </tr>
                     <tr>
                         <td><!-- Propose de mettre la cases réelles des Checkbox et Radio -->
@@ -932,7 +942,7 @@ $pathFolder = serialize($createDirectory);
                         </td>
                     </tr>
                     <tr>
-                        <td colspan="2"><hr style="background-color: <?php echo $colors[2]; ?>; height: 1px; border: 0;"></td>
+                        <td colspan="2"><hr style="background-color: <?php echo esc_html($colors[2]); ?>; height: 1px; border: 0;"></td>
                     </tr>
                     <tr>
                         <td><!-- Proteger le pdf? -->
@@ -956,7 +966,7 @@ $pathFolder = serialize($createDirectory);
                             <?php
                                 $nbPassword = 12;
                                 if( isset($meta_values["protect_password_nb"]) && $meta_values["protect_password_nb"]!='' && is_numeric($meta_values["protect_password_nb"]) ) { 
-                                    $nbPassword = $meta_values["protect_password_nb"]; 
+                                    $nbPassword = esc_html($meta_values["protect_password_nb"]); 
                                 }
                             ?>
                             <p><i><?php _e('Example (not working in preview mode):', 'send-pdf-for-contact-form-7'); echo ' <strong>'.cf7_sendpdf::wpcf7pdf_generateRandomPassword($nbPassword).'</strong>'; ?></i></p>
@@ -975,12 +985,12 @@ $pathFolder = serialize($createDirectory);
                     
                     <tr>
                         <td><?php _e('Maximum number of characters for password?', 'send-pdf-for-contact-form-7'); ?><p><i><?php _e('By default : 12', 'send-pdf-for-contact-form-7'); ?></i></p></td>
-                        <td><input type="text" size="3" class="wpcf7-form-field" name="wp_cf7pdf_settings[protect_password_nb]" value="<?php if( isset($meta_values["protect_password_nb"]) && $meta_values["protect_password_nb"]!='' && is_numeric($meta_values["protect_password_nb"]) ) { echo $meta_values["protect_password_nb"]; } else { echo $nbPassword; } ?>" /></td>
+                        <td><input type="text" size="3" class="wpcf7-form-field" name="wp_cf7pdf_settings[protect_password_nb]" value="<?php if( isset($meta_values["protect_password_nb"]) && $meta_values["protect_password_nb"]!='' && is_numeric($meta_values["protect_password_nb"]) ) { echo esc_html($meta_values["protect_password_nb"]); } else { echo esc_html($nbPassword); } ?>" /></td>
                     </tr>
 
                     <tr>
                         <td><?php _e('Or enter your unique password for all PDF files.', 'send-pdf-for-contact-form-7'); ?></td>
-                        <td><input type="text" class="wpcf7-form-field" name="wp_cf7pdf_settings[protect_password]" value="<?php if( isset($meta_values["protect_password"]) && $meta_values["protect_password"]!='' ) { echo stripslashes($meta_values["protect_password"]); } ?>" /></td>
+                        <td><input type="text" class="wpcf7-form-field" name="wp_cf7pdf_settings[protect_password]" value="<?php if( isset($meta_values["protect_password"]) && $meta_values["protect_password"]!='' ) { echo esc_html(stripslashes($meta_values["protect_password"])); } ?>" /></td>
                     </tr>
 
                     <tr>
@@ -989,7 +999,7 @@ $pathFolder = serialize($createDirectory);
                     </tr>
 
                     <tr>
-                        <td colspan="2"><hr style="background-color: <?php echo $colors[2]; ?>; height: 1px; border: 0;"></td>
+                        <td colspan="2"><hr style="background-color: <?php echo esc_html($colors[2]); ?>; height: 1px; border: 0;"></td>
                     </tr>
 
 
@@ -1018,7 +1028,7 @@ $pathFolder = serialize($createDirectory);
                                     <option value="center" <?php if( isset($meta_values['image-alignment']) && ($meta_values['image-alignment']=='center') ) { echo 'selected'; } ?>><?php _e('Center', 'send-pdf-for-contact-form-7'); ?></option>
                                     <option value="right" <?php if( isset($meta_values['image-alignment']) && ($meta_values['image-alignment']=='right') ) { echo 'selected'; } ?>><?php _e('Right', 'send-pdf-for-contact-form-7'); ?></option>
                                 </select>
-                                <?php _e('Size', 'send-pdf-for-contact-form-7'); ?> <input type="text" class="wpcf7-form-field" size="3" name="wp_cf7pdf_settings[image-width]" value="<?php if( isset($meta_values['image-width']) ) { echo $meta_values['image-width']; } else { echo '150'; } ?>" />&nbsp;X&nbsp;<input type="text" class="wpcf7-form-field" name="wp_cf7pdf_settings[image-height]" size="3" value="<?php if( isset($meta_values['image-height']) ) { echo $meta_values['image-height']; } ?>" />px<br /><br />
+                                <?php _e('Size', 'send-pdf-for-contact-form-7'); ?> <input type="text" class="wpcf7-form-field" size="3" name="wp_cf7pdf_settings[image-width]" value="<?php if( isset($meta_values['image-width']) ) { echo $meta_values['image-width']; } else { echo '150'; } ?>" />&nbsp;X&nbsp;<input type="text" class="wpcf7-form-field" name="wp_cf7pdf_settings[image-height]" size="3" value="<?php if( isset($meta_values['image-height']) ) { echo esc_html($meta_values['image-height']); } ?>" />px<br /><br />
                                 
                                 <div style=""><?php _e('Display header on each page?', 'send-pdf-for-contact-form-7'); ?>
                                     <div class="switch-field-mini">
@@ -1027,14 +1037,14 @@ $pathFolder = serialize($createDirectory);
                                     <input class="switch_right" type="radio" id="switch_page_header_no" name="wp_cf7pdf_settings[page_header]" value="0" <?php if( empty($meta_values["page_header"]) || (isset($meta_values["page_header"]) && $meta_values["page_header"]==0) ) { echo ' checked'; } ?> />
                                     <label for="switch_page_header_no"><?php _e('No', 'send-pdf-for-contact-form-7'); ?></label>
                                 </div><br />
-                                <?php _e('Margin Bottom Header', 'send-pdf-for-contact-form-7'); ?> <input type="text" size="4" class="wpcf7-form-field" name="wp_cf7pdf_settings[margin_bottom_header]" value="<?php if( isset($meta_values["margin_bottom_header"]) && $meta_values["margin_bottom_header"]!='' ) { echo $meta_values["margin_bottom_header"]; } else { echo $marginBottomHeader; } ?>" />                            
+                                <?php _e('Margin Bottom Header', 'send-pdf-for-contact-form-7'); ?> <input type="text" size="4" class="wpcf7-form-field" name="wp_cf7pdf_settings[margin_bottom_header]" value="<?php if( isset($meta_values["margin_bottom_header"]) && $meta_values["margin_bottom_header"]!='' ) { echo esc_html($meta_values["margin_bottom_header"]); } else { echo esc_html($marginBottomHeader); } ?>" />                            
                         </div>
 
                             </div>
 
                             <h3 class="hndle"><span class="dashicons dashicons-images-alt2"></span>&nbsp;&nbsp;<?php _e('Image Background', 'send-pdf-for-contact-form-7'); ?></h3>
                             <?php _e('Enter a URL or upload an image:', 'send-pdf-for-contact-form-7'); ?><br />
-                            <input id="upload_background" size="80%" class="wpcf7-form-field" name="wp_cf7pdf_settings[image_background]" value="<?php if( isset($meta_values['image_background']) ) { echo esc_url($meta_values['image_background']); } ?>" type="text" /> <a href="#" id="upload_image_background" class="button" OnClick="this.blur();"><span> <?php _e('Select or Upload your picture', 'send-pdf-for-contact-form-7'); ?> </span></a><br /><small><?php _e('Example for demo:', 'send-pdf-for-contact-form-7'); ?> <?php echo WPCF7PDF_URL;?>images/background.jpg</small><br />
+                            <input id="upload_background" size="80%" class="wpcf7-form-field" name="wp_cf7pdf_settings[image_background]" value="<?php if( isset($meta_values['image_background']) ) { echo esc_url($meta_values['image_background']); } ?>" type="text" /> <a href="#" id="upload_image_background" class="button" OnClick="this.blur();"><span> <?php _e('Select or Upload your picture', 'send-pdf-for-contact-form-7'); ?> </span></a><br /><small><?php _e('Example for demo:', 'send-pdf-for-contact-form-7'); ?> <a href="<?php echo esc_url(plugins_url( '../images/background.jpg', __FILE__ )); ?>" target="_blank"><?php _e('here', 'send-pdf-for-contact-form-7'); ?></a></small><br />
                             <div style="margin-top:0.8em;">                           
                                 <div style=""><?php _e('Display background on each page?', 'send-pdf-for-contact-form-7'); ?>
                                     <div class="switch-field-mini">
@@ -1046,18 +1056,18 @@ $pathFolder = serialize($createDirectory);
                                 </div>
                             </div>
                         </td>
-                        <td align="center">
+                        <td style="text-align:center;">
                             <div style="border:1px solid #CCCCCC;height:460px;padding:5px;<?php if( isset($meta_values['image_background']) ) { echo 'background: no-repeat url('.esc_url($meta_values['image_background']); } ?>);background-size: cover;">
-                                <div style="text-align:<?php if( isset($meta_values['image-alignment']) ) { echo $meta_values['image-alignment']; } ?>;margin-top:<?php if( isset($meta_values["margin_header"]) && $meta_values["margin_header"]!='' ) { echo $meta_values["margin_header"]; } else { echo $marginHeader; } ?>px;"><?php if( isset($meta_values['image']) ) { echo '<img src="'.esc_url($meta_values['image']).'" width="150">'; } ?>
+                                <div style="text-align:<?php if( isset($meta_values['image-alignment']) ) { echo esc_html($meta_values['image-alignment']); } ?>;margin-top:<?php if( isset($meta_values["margin_header"]) && $meta_values["margin_header"]!='' ) { echo esc_html($meta_values["margin_header"]); } else { echo esc_html($marginHeader); } ?>px;"><?php if( isset($meta_values['image']) ) { echo '<img src="'.esc_url($meta_values['image']).'" width="150">'; } ?>
                                 </div>
                                 <?php
                                     
                                     if( isset($meta_values["margin_top"]) && $meta_values["margin_top"]!='' ) { 
-                                        $previewMargin = $meta_values["margin_top"];
+                                        $previewMargin = esc_html($meta_values["margin_top"]);
                                         if($meta_values["margin_top"]<40) { $previewMargin = ($previewMargin-40); }
                                         if($meta_values["margin_top"]==0) { $previewMargin = -60; }
                                     } else { 
-                                        $previewMargin = $marginTop; 
+                                        $previewMargin = esc_html($marginTop); 
                                     }
                                 ?>
                                 <div style="color:#cccccc;text-align:justify;margin-top:<?php echo $previewMargin; ?>px;">
@@ -1145,29 +1155,29 @@ $pathFolder = serialize($createDirectory);
                                     <option value="2A0" <?php if( isset($meta_values['pdf-type']) && ($meta_values['pdf-type']=='2A0') ) { echo 'selected'; } ?>>2A0</option>
                                     <?php
                                     for ($typeA = 0; $typeA <= 10; $typeA++) {
-                                        echo '<option value="A'.$typeA.'"';
+                                        echo '<option value="A'.esc_html($typeA).'"';
                                         if( (isset($meta_values['pdf-type']) && ($meta_values['pdf-type']=='A'.$typeA)) OR (empty($meta_values['pdf-type']) && $typeA==4) ) { echo 'selected'; }
-                                        echo '>A'.$typeA.'</option>';
+                                        echo '>A'.esc_html($typeA).'</option>';
                                     }
                                     for ($typeB = 0; $typeB <= 10; $typeB++) {
-                                        echo '<option value="B'.$typeB.'"';
+                                        echo '<option value="B'.esc_html($typeB).'"';
                                             if( isset($meta_values['pdf-type']) && ($meta_values['pdf-type']=='B'.$typeB) ) { echo 'selected'; }
-                                        echo '>B'.$typeB.'</option>';
+                                        echo '>B'.esc_html($typeB).'</option>';
                                     }
                                     for ($typeC = 0; $typeC <= 10; $typeC++) {
-                                        echo '<option value="C'.$typeC.'"';
+                                        echo '<option value="C'.esc_html($typeC).'"';
                                             if( isset($meta_values['pdf-type']) && ($meta_values['pdf-type']=='C'.$typeC) ) { echo 'selected'; }
-                                        echo '>C'.$typeC.'</option>';
+                                        echo '>C'.esc_html($typeC).'</option>';
                                     }
                                     for ($typeRA = 0; $typeRA <= 4; $typeRA++) {
-                                        echo '<option value="RA'.$typeRA.'"';
+                                        echo '<option value="RA'.esc_html($typeRA).'"';
                                             if( isset($meta_values['pdf-type']) && ($meta_values['pdf-type']=='RA'.$typeRA) ) { echo 'selected'; }
-                                        echo '>RA'.$typeRA.'</option>';
+                                        echo '>RA'.esc_html($typeRA).'</option>';
                                     }
                                     for ($typeSRA = 0; $typeSRA <= 4; $typeSRA++) {
-                                        echo '<option value="SRA'.$typeSRA.'"';
+                                        echo '<option value="SRA'.esc_html($typeSRA).'"';
                                             if( isset($meta_values['pdf-type']) && ($meta_values['pdf-type']=='SRA'.$typeSRA) ) { echo 'selected'; }
-                                        echo '>SRA'.$typeSRA.'</option>';
+                                        echo '>SRA'.esc_html($typeSRA).'</option>';
                                     }
                                     ?>
                                 </select>
@@ -1188,17 +1198,17 @@ $pathFolder = serialize($createDirectory);
                                         foreach($listFont as $font => $nameFont) {
                                             $selected ='';
                                             if( isset($meta_values['pdf-font']) && $meta_values['pdf-font']==$nameFont ) { $selected = 'selected'; }
-                                            echo '<option value="'.$nameFont.'" '.$selected.'>'.$font.'</option>';
+                                            echo '<option value="'.esc_html($nameFont).'" '.esc_html($selected).'>'.esc_html($font).'</option>';
                                         }
                                     ?>
                                 </select>
-                                <input name="wp_cf7pdf_settings[pdf-fontsize]" class="wpcf7-form-field" size="2" value="<?php if( isset($meta_values['pdf-fontsize']) && is_numeric($meta_values['pdf-fontsize']) ) { echo $meta_values['pdf-fontsize']; } else { echo $fontsizePdf; } ?>">
+                                <input name="wp_cf7pdf_settings[pdf-fontsize]" class="wpcf7-form-field" size="2" value="<?php if( isset($meta_values['pdf-fontsize']) && is_numeric($meta_values['pdf-fontsize']) ) { echo esc_html($meta_values['pdf-fontsize']); } else { echo esc_html($fontsizePdf); } ?>">
                             </td>
                         </tr>
                         <tr>
-                            <td><?php _e('Add a CSS file', 'send-pdf-for-contact-form-7'); ?><br /><p><a href="<?php echo WPCF7PDF_URL.'css/mpdf-style-A4.css'; ?>" target="_blank"><small><i><?php _e('Download a example A4 page here', 'send-pdf-for-contact-form-7'); ?></i></small></a></p></td>
+                            <td><?php _e('Add a CSS file', 'send-pdf-for-contact-form-7'); ?><br /><p><a href="<?php echo esc_url(plugins_url( '../css/mpdf-style-A4.css', __FILE__ )); ?>" target="_blank"><small><i><?php _e('Download a example A4 page here', 'send-pdf-for-contact-form-7'); ?></i></small></a></p></td>
                             <td>
-                                <input size="60%" class="wpcf7-form-field" name="wp_cf7pdf_settings[stylesheet]" value="<?php if( isset($meta_values['stylesheet']) ) { echo esc_url($meta_values['stylesheet']); } ?>" type="text" /><br /><small><?php _e('Example for demo:', 'send-pdf-for-contact-form-7'); ?> <?php echo WPCF7PDF_URL;?>css/mpdf-style-A4.css</small>
+                                <input size="60%" class="wpcf7-form-field" name="wp_cf7pdf_settings[stylesheet]" value="<?php if( isset($meta_values['stylesheet']) ) { echo esc_url($meta_values['stylesheet']); } ?>" type="text" /><br />
                             </td>
                         </tr>
 
@@ -1207,8 +1217,8 @@ $pathFolder = serialize($createDirectory);
                                 <?php _e('Global Margin PDF', 'send-pdf-for-contact-form-7'); ?><br /><p></p>
                             </td>
                             <td>
-                                <?php _e('Margin Header', 'send-pdf-for-contact-form-7'); ?> <input type="text" size="4" class="wpcf7-form-field" name="wp_cf7pdf_settings[margin_header]" value="<?php if( isset($meta_values["margin_header"]) && $meta_values["margin_header"]!='' ) { echo $meta_values["margin_header"]; } else { echo $marginHeader; } ?>" /> <?php _e('Margin Top Header', 'send-pdf-for-contact-form-7'); ?> <input type="text" class="wpcf7-form-field" size="4" name="wp_cf7pdf_settings[margin_top]" value="<?php if( isset($meta_values["margin_top"]) && $meta_values["margin_top"]!='' ) { echo $meta_values["margin_top"]; } else { echo $marginTop; } ?>" /><br /><br />
-                                <?php _e('Margin Left', 'send-pdf-for-contact-form-7'); ?> <input type="text" size="4" class="wpcf7-form-field" name="wp_cf7pdf_settings[margin_left]" value="<?php if( isset($meta_values["margin_left"]) && $meta_values["margin_left"]!='' ) { echo $meta_values["margin_left"]; } else { echo $marginLeft; } ?>" /> <?php _e('Margin Right', 'send-pdf-for-contact-form-7'); ?> <input type="text" class="wpcf7-form-field" size="4" name="wp_cf7pdf_settings[margin_right]" value="<?php if( isset($meta_values["margin_right"]) && $meta_values["margin_right"]!='' ) { echo $meta_values["margin_right"]; } else { echo $marginRight; } ?>" /><br /><br />
+                                <?php _e('Margin Header', 'send-pdf-for-contact-form-7'); ?> <input type="text" size="4" class="wpcf7-form-field" name="wp_cf7pdf_settings[margin_header]" value="<?php if( isset($meta_values["margin_header"]) && $meta_values["margin_header"]!='' ) { echo esc_html($meta_values["margin_header"]); } else { echo esc_html($marginHeader); } ?>" /> <?php _e('Margin Top Header', 'send-pdf-for-contact-form-7'); ?> <input type="text" class="wpcf7-form-field" size="4" name="wp_cf7pdf_settings[margin_top]" value="<?php if( isset($meta_values["margin_top"]) && $meta_values["margin_top"]!='' ) { echo esc_html($meta_values["margin_top"]); } else { echo esc_html($marginTop); } ?>" /><br /><br />
+                                <?php _e('Margin Left', 'send-pdf-for-contact-form-7'); ?> <input type="text" size="4" class="wpcf7-form-field" name="wp_cf7pdf_settings[margin_left]" value="<?php if( isset($meta_values["margin_left"]) && $meta_values["margin_left"]!='' ) { echo esc_html($meta_values["margin_left"]); } else { echo esc_html($marginLeft); } ?>" /> <?php _e('Margin Right', 'send-pdf-for-contact-form-7'); ?> <input type="text" class="wpcf7-form-field" size="4" name="wp_cf7pdf_settings[margin_right]" value="<?php if( isset($meta_values["margin_right"]) && $meta_values["margin_right"]!='' ) { echo esc_html($meta_values["margin_right"]); } else { echo esc_html($marginRight); } ?>" /><br /><br />
                                 <?php _e('Margin Header Auto', 'send-pdf-for-contact-form-7'); ?> <select name="wp_cf7pdf_settings[margin_auto_header]" class="wpcf7-form-field">
                                     <option value="pad" <?php if( isset($meta_values["margin_auto_header"]) && $meta_values["margin_auto_header"] == 'pad' ) { echo 'selected'; } ?>>pad</option>
                                     <option value="stretch" <?php if( empty($meta_values["margin_auto_header"]) || (isset($meta_values["margin_auto_header"]) && $meta_values["margin_auto_header"] == 'stretch') ) { echo 'selected'; } ?>>stretch</option>
@@ -1230,10 +1240,10 @@ $pathFolder = serialize($createDirectory);
                                <select name="wp_cf7pdf_settings[separate]" class="wpcf7-form-field">
                                     <option value="none" <?php if( empty($meta_values["separate"]) || (isset($meta_values["separate"]) && $meta_values["separate"] == 'none') ) { echo 'selected'; } ?>><?php _e("None", 'send-pdf-for-contact-form-7'); ?></option>
                                     <option value="dash" <?php if( isset($meta_values["separate"]) && $meta_values["separate"] == 'dash') { echo 'selected'; } ?>><?php _e("Dash", 'send-pdf-for-contact-form-7'); ?></option>
-                                    <option value="star" <?php if( isset($meta_values["separate"]) && $meta_values["separate"] == 'star') { echo 'selected'; } ?>><?php _e("Star", 'send-pdf-for-contact-form-7'); ?></option>
+                                    <option value="star" <?php if( isset($meta_values["separate"]) && $meta_values["separate"] == 'star') { echo 'selected'; } ?>><?php _e("Star", 'send-pdf-for-contact-form-7'); ?></option>                                    
                                     <option value="rightarrow" <?php if( isset($meta_values["separate"]) && $meta_values["separate"] == 'rightarrow') { echo 'selected'; } ?>><?php _e("Right Arrow", 'send-pdf-for-contact-form-7'); ?></option>
                                     <option value="double-right-arrow" <?php if( isset($meta_values["separate"]) && $meta_values["separate"] == 'double-right-arrow') { echo 'selected'; } ?>><?php _e("Double Right Arrow", 'send-pdf-for-contact-form-7'); ?></option>
-                                    <option value="cornerarrow" <?php if( isset($meta_values["separate"]) && $meta_values["separate"] == 'cornerarrow') { echo 'selected'; } ?>><?php _e("Corner Arrow", 'send-pdf-for-contact-form-7'); ?></option>                             
+                                    <option value="cornerarrow" <?php if( isset($meta_values["separate"]) && $meta_values["separate"] == 'cornerarrow') { echo 'selected'; } ?>><?php _e("Corner Arrow", 'send-pdf-for-contact-form-7'); ?></option>                   
                                 </select><br />
                                 <?php _e("After:", 'send-pdf-for-contact-form-7'); ?><br />
                                 <select name="wp_cf7pdf_settings[separate_after]" class="wpcf7-form-field">
@@ -1241,7 +1251,7 @@ $pathFolder = serialize($createDirectory);
                                     <option value="space" <?php if( empty($meta_values["separate_after"]) || (isset($meta_values["separate_after"]) && $meta_values["separate_after"] == 'space') ) { echo 'selected'; } ?>><?php _e("Space", 'send-pdf-for-contact-form-7'); ?></option>
                                     <option value="linebreak" <?php if( isset($meta_values["separate_after"]) && $meta_values["separate_after"] == 'linebreak') { echo 'selected'; } ?>><?php _e("Line break", 'send-pdf-for-contact-form-7'); ?></option>                                    
                                 </select><br />
-                                <!--<?php _e('Other:', 'send-pdf-for-contact-form-7'); ?> <input type="text" size="4" class="wpcf7-form-field" name="wp_cf7pdf_settings[separate_other]" value="<?php if( isset($meta_values["separate_other"]) && $meta_values["separate_other"]!='' ) { echo $meta_values["separate_other"]; } else { echo ''; } ?>" />-->
+                                <!--<?php _e('Other:', 'send-pdf-for-contact-form-7'); ?> <input type="text" size="4" class="wpcf7-form-field" name="wp_cf7pdf_settings[separate_other]" value="<?php if( isset($meta_values["separate_other"]) && $meta_values["separate_other"]!='' ) { echo esc_html($meta_values["separate_other"]); } else { echo ''; } ?>" />-->
                             </td>
                         </tr>
 
@@ -1260,73 +1270,73 @@ $pathFolder = serialize($createDirectory);
                                     </tr>
                                     <tr>
                                         <td width="50%">
-                                            <span class="mailtag code used" onclick="jQuery(this).selectText()" style="cursor: pointer;"><strong>[reference]</strong></span><br /><i><?php _e("[reference] is a simple mail-tag who is used for create unique PDF. It's also recorded in the database. Every PDF is named like this : name-pdf-uniqid() and it's uploaded in the upload folder of WordPress.", 'send-pdf-for-contact-form-7'); printf( __(' For example : document-pdf-%s.pdf', 'send-pdf-for-contact-form-7'), $_SESSION['pdf_uniqueid']); ?></i><br /><br />
+                                            <span class="mailtag code used" onclick="jQuery(this).selectText()" style="cursor: pointer;"><strong>[reference]</strong></span><br /><i><?php _e("[reference] is a simple mail-tag who is used for create unique PDF. It's also recorded in the database. Every PDF is named like this : name-pdf-uniqid() and it's uploaded in the upload folder of WordPress.", 'send-pdf-for-contact-form-7'); /*printf( __(' For example : document-pdf-%s.pdf', 'send-pdf-for-contact-form-7'), $_SESSION['pdf_uniqueid']);*/ ?></i><br /><br />
                                             <span class="mailtag code used" onclick="jQuery(this).selectText()" style="cursor: pointer;"><strong>[ID]</strong></span><br /><i><?php _e("[ID] is a simple tag that comes from the database ID if you have allowed registration in the options.", 'send-pdf-for-contact-form-7'); ?></i>
                                         </td>
                                         <td width="50%">
                                             <?php if( empty($fileTags) || ( isset($fileTags) && $fileTags == '') ) { $fileTags = '[file-1][file-2]'; } ?>
-                                            <i><?php echo sprintf( __('The <strong>[file]</strong> tags are for images? Enter them here to display them in images on your PDF and like this: %s', 'send-pdf-for-contact-form-7'), $fileTags ); ?></i><br /><small><?php _e('It will then be necessary to put them in the image HTML tag for the PDF layout.', 'send-pdf-for-contact-form-7'); ?><br /><?php _e('Use url- prefix for display URL like this:', 'send-pdf-for-contact-form-7'); ?> <?php echo str_replace('[', '[url-', $fileTags); ?></small><br /><input type="text" class="wpcf7-form-field" name="wp_cf7pdf_settings[file_tags]" size="80%" value="<?php if( isset($meta_values['file_tags'])) { echo $meta_values['file_tags']; } ?>" />
+                                            <i><?php echo sprintf( __('The <strong>[file]</strong> tags are for images? Enter them here to display them in images on your PDF and like this: %s', 'send-pdf-for-contact-form-7'), esc_html($fileTags) ); ?></i><br /><small><?php _e('It will then be necessary to put them in the image HTML tag for the PDF layout.', 'send-pdf-for-contact-form-7'); ?><br /><?php _e('Use url- prefix for display URL like this:', 'send-pdf-for-contact-form-7'); ?> <?php echo str_replace('[', '[url-', esc_html($fileTags)); ?></small><br /><input type="text" class="wpcf7-form-field" name="wp_cf7pdf_settings[file_tags]" size="80%" value="<?php if( isset($meta_values['file_tags'])) { echo esc_html($meta_values['file_tags']); } ?>" />
                                         </td>
                                     
                                     </tr>
                                     <tr>
                                     <td width="50%">
                                         <?php
-                                                /*
-                                                * ECRIT DANS UN POST-META LES TAGS DU FORMULAIRE 
-                                                *
-                                                */
-                                                $contact_form = WPCF7_ContactForm::get_instance($idForm);
-                                                $fileTags = '';
-            
-                                                foreach ( (array) $contact_form->collect_mail_tags() as $mail_tag ) {
-                                                    $pattern = sprintf( '/\[(_[a-z]+_)?%s([ \t]+[^]]+)?\]/',
-                                                        preg_quote( $mail_tag, '/' ) );
-                                                    if( substr($mail_tag, 0, 4) == 'file' ) {
-                                                        $fileTags .= '<span class="%1$s" onclick="jQuery(this).selectText()" style="cursor: pointer;"><strong>['.$mail_tag.']</strong></span> ';
-                                                    }
-                                                    echo sprintf(
-                                                        '<span class="%1$s" onclick="jQuery(this).selectText()" style="cursor: pointer;"><strong>[%2$s]</strong></span> ',
-                                                        'mailtag code used',
-                                                        esc_html( $mail_tag ) );
-                                                    echo '<input type="hidden" name="wp_cf7pdf_tags[]" value="['.esc_html( $mail_tag ).']" />';
+                                            /*
+                                            * ECRIT DANS UN POST-META LES TAGS DU FORMULAIRE 
+                                            *
+                                            */
+                                            $contact_form = WPCF7_ContactForm::get_instance(esc_html($idForm));
+                                            $fileTags = '';
+        
+                                            foreach ( (array) $contact_form->collect_mail_tags() as $mail_tag ) {
+                                                $pattern = sprintf( '/\[(_[a-z]+_)?%s([ \t]+[^]]+)?\]/',
+                                                    preg_quote( esc_html($mail_tag), '/' ) );
+                                                if( substr(esc_html($mail_tag), 0, 4) == 'file' ) {
+                                                    $fileTags .= '<span class="%1$s" onclick="jQuery(this).selectText()" style="cursor: pointer;"><strong>['.esc_html($mail_tag).']</strong></span> ';
                                                 }
-                                                /*
-                                                * ECRIT DANS UN POST-META LES PROPRIETES DES TAGS DU FORMULAIRE 
-                                                *
-                                                */
-                                                $contact_tag = $contact_form->scan_form_tags();
-                                                $valOpt = '';
-                                                $valTag = '';
-                                                foreach ( $contact_tag as $sh_tag ) {
-                                                    //echo '<br /><br />';
-                                                    //print_r($sh_tag);
-                                                    if( !empty($sh_tag["options"]) ) {
-                                                        $valOpt = 'array(';
-                                                        foreach($sh_tag["options"] as $idOpt=>$opt) {
-                                                            $valOpt .= '['.$idOpt.']=>'.$opt;
-                                                        }
-                                                        $valOpt .= ')';
+                                                echo sprintf(
+                                                    '<span class="%1$s" onclick="jQuery(this).selectText()" style="cursor: pointer;"><strong>[%2$s]</strong></span> ',
+                                                    'mailtag code used',
+                                                    esc_html( $mail_tag ) );
+                                                echo '<input type="hidden" name="wp_cf7pdf_tags[]" value="['.esc_html( $mail_tag ).']" />';
+                                            }
+                                            /*
+                                            * ECRIT DANS UN POST-META LES PROPRIETES DES TAGS DU FORMULAIRE 
+                                            *
+                                            */
+                                            $contact_tag = $contact_form->scan_form_tags();
+                                            $valOpt = '';
+                                            $valTag = '';
+                                            foreach ( $contact_tag as $sh_tag ) {
+                                                //echo '<br /><br />';
+                                                //print_r($sh_tag);
+                                                if( !empty($sh_tag["options"]) ) {
+                                                    $valOpt = 'array(';
+                                                    foreach($sh_tag["options"] as $idOpt=>$opt) {
+                                                        $valOpt .= '['.$idOpt.']=>'.$opt;
                                                     }
-                                                    if( !empty($sh_tag["values"]) ) {
-                                                        $valTag = 'array(';
-                                                        foreach($sh_tag["values"] as $id=>$val) {
-                                                            $valTag .= '['.$id.']=>'.$val;
-                                                        }
-                                                        $valTag .= ')'; 
-                                                    }
-                                                    $mail_tag_scan = '['.$sh_tag["name"].'],'.$sh_tag["basetype"].','.$valTag.','.$valOpt;
-                                                    echo '<input type="hidden" name="wp_cf7pdf_tags_scan[]" value="'.$mail_tag_scan.'" />';
+                                                    $valOpt .= ')';
                                                 }
-                                            ?>
+                                                if( !empty($sh_tag["values"]) ) {
+                                                    $valTag = 'array(';
+                                                    foreach($sh_tag["values"] as $id=>$val) {
+                                                        $valTag .= '['.$id.']=>'.$val;
+                                                    }
+                                                    $valTag .= ')'; 
+                                                }
+                                                $mail_tag_scan = '['.$sh_tag["name"].'],'.$sh_tag["basetype"].','.$valTag.','.$valOpt;
+                                                echo '<input type="hidden" name="wp_cf7pdf_tags_scan[]" value="'.esc_html($mail_tag_scan).'" />';
+                                            }
+                                        ?>
                                         </td>
-                                        <td width="50%"><i><?php echo __('Enter here your Shortcodes', 'send-pdf-for-contact-form-7'); ?></i><br /><small><?php _e('It will then be necessary to put them in the PDF layout. Test with this shortcode: [wpcf7pdf_test]', 'send-pdf-for-contact-form-7'); ?></small><br /><input type="text" class="wpcf7-form-field" name="wp_cf7pdf_settings[shotcodes_tags]" size="80%" value="<?php if( isset($meta_values['shotcodes_tags'])) { echo $meta_values['shotcodes_tags']; } ?>" /></td>
+                                        <td width="50%"><i><?php echo __('Enter here your Shortcodes', 'send-pdf-for-contact-form-7'); ?></i><br /><small><?php _e('It will then be necessary to put them in the PDF layout. Test with this shortcode: [wpcf7pdf_test]', 'send-pdf-for-contact-form-7'); ?></small><br /><input type="text" class="wpcf7-form-field" name="wp_cf7pdf_settings[shotcodes_tags]" size="80%" value="<?php if( isset($meta_values['shotcodes_tags'])) { echo esc_html($meta_values['shotcodes_tags']); } ?>" /></td>
                                     </tr>
                                     <tr>
                                         <td width="50%"><br /></td>
-                                        <td width="50%" align="center">
-                                            <?php if( file_exists($createDirectory.'/preview-'.$idForm.'.pdf') ) { ?><br />
-                                            <a href="<?php echo str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $createDirectory ).'/preview-'.$idForm.'.pdf?ver='.rand(); ?>" target="_blank"><span class="preview-btn" style="padding:10px;"><span class="dashicons dashicons-search"></span> <?php _e('Preview your PDF', 'send-pdf-for-contact-form-7'); ?></span></a>
+                                        <td width="50%" style="text-align:center;">
+                                            <?php if( file_exists($createDirectory.'/preview-'.esc_html($idForm).'.pdf') ) { ?><br />
+                                            <a href="<?php echo esc_url(str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $createDirectory)).'/preview-'.esc_html($idForm).'.pdf?ver='.rand(); ?>" target="_blank"><span class="preview-btn" style="padding:10px;"><span class="dashicons dashicons-search"></span> <?php _e('Preview your PDF', 'send-pdf-for-contact-form-7'); ?></span></a>
                                             <?php } ?>
                                         </td>
                                     </tr>
@@ -1335,9 +1345,8 @@ $pathFolder = serialize($createDirectory);
                         </td>
                     </tr>
                     <tr>
-                        <td colspan="2">
-                            
-                            <textarea name="wp_cf7pdf_settings[generate_pdf]" id="wp_cf7pdf_pdf" cols=70 rows=24 class="widefat textarea"style="height:250px;"><?php if( empty($meta_values['generate_pdf']) ) { echo $messagePdf; } else { echo esc_textarea($meta_values['generate_pdf']); } ?></textarea>
+                        <td colspan="2">                            
+                            <textarea name="wp_cf7pdf_settings[generate_pdf]" id="wp_cf7pdf_pdf" cols=70 rows=24 class="widefat textarea"style="height:250px;"><?php if( empty($meta_values['generate_pdf']) ) { echo esc_textarea($messagePdf); } else { echo esc_textarea($meta_values['generate_pdf']); } ?></textarea>
                         </td>
                     </tr>
 
@@ -1366,10 +1375,10 @@ $pathFolder = serialize($createDirectory);
             <a name="listing"></a>
             <?php
             $limitList = 15;
-            $settingsLimit = get_post_meta( intval($idForm), '_wp_cf7pdf_limit', true );
+            $settingsLimit = get_post_meta( esc_html($idForm), '_wp_cf7pdf_limit', true );
             if( isset($settingsLimit) && $settingsLimit > 0 ) { $limitList = $settingsLimit; }
                                                                                             
-            $list = cf7_sendpdf::wpcf7pdf_listing($idForm, $limitList );
+            $list = cf7_sendpdf::wpcf7pdf_listing(esc_html($idForm), esc_html($limitList));
             //var_dump($list);
             if( $list) { ?>
                 <div style="padding:5px;margin-bottom:10px;">
@@ -1377,9 +1386,9 @@ $pathFolder = serialize($createDirectory);
                         <form method="post" action="#listing">
 
                             <?php wp_nonce_field( 'wpcf7_listing_nonce', 'wpcf7_listing_nonce' ); ?>
-                            <input type="hidden" name="idform" value="<?php echo $idForm; ?>"/>
+                            <input type="hidden" name="idform" value="<?php echo esc_html($idForm); ?>"/>
                             <input type="hidden" name="wpcf7_action" value="listing_settings" />
-                            <input type="text" value="<?php echo $limitList; ?>" size="4" name="listing_limit" > <?php submit_button( __( 'Change', 'send-pdf-for-contact-form-7' ), 'secondary', 'submit', false ); ?>
+                            <input type="text" value="<?php echo esc_html($limitList); ?>" size="4" name="listing_limit" > <?php submit_button( __( 'Change', 'send-pdf-for-contact-form-7' ), 'secondary', 'submit', false ); ?>
                         </form>
                     </div>
                 
@@ -1392,11 +1401,11 @@ $pathFolder = serialize($createDirectory);
                             $datas = unserialize($recorder->wpcf7pdf_data);
                             echo '<td width="80%">';
                             //var_dump($datas);
-                            echo '<a href="'.$recorder->wpcf7pdf_files.'" target="_blank">'.$datas[0] .'</a> - '. $datas[1];
+                            echo '<a href="'.esc_url($recorder->wpcf7pdf_files).'" target="_blank">'.esc_html($datas[0]) .'</a> - '. esc_html($datas[1]);
                             
                             echo '</td>';
-                            echo '<td width="5%"><a href="'.$recorder->wpcf7pdf_files.'" target="_blank"><img src="'.plugins_url('send-pdf-for-contact-form-7/images/icon_download.png').'" width="30" title="'.__('Download', 'send-pdf-for-contact-form-7').'" alt="'.__('Download', 'send-pdf-for-contact-form-7').'" /></a></td>';                        
-                    ?><td width="5%"><a href="#" data-idform="<?php echo $idForm; ?>" data-id="<?php echo $recorder->wpcf7pdf_id; ?>" data-message="<?php _e('Are you sure you want to delete this Record?', 'send-pdf-for-contact-form-7'); ?>" data-nonce="<?php echo wp_create_nonce('delete_record-'.$recorder->wpcf7pdf_id); ?>" class="delete-record"><img src="<?php echo plugins_url('send-pdf-for-contact-form-7/images/icon_delete.png'); ?>" width="30" title="<?php _e('Delete', 'send-pdf-for-contact-form-7'); ?>" alt="<?php _e('Delete', 'send-pdf-for-contact-form-7'); ?>" /></a>
+                            echo '<td width="5%"><a href="'.$recorder->wpcf7pdf_files.'" target="_blank"><img src="'.esc_url(plugins_url( '../images/icon_download.png', __FILE__ )).'" width="30" title="'.__('Download', 'send-pdf-for-contact-form-7').'" alt="'.__('Download', 'send-pdf-for-contact-form-7').'" /></a></td>';                        
+                    ?><td width="5%"><a href="#" data-idform="<?php echo $idForm; ?>" data-id="<?php echo esc_html($recorder->wpcf7pdf_id); ?>" data-message="<?php _e('Are you sure you want to delete this Record?', 'send-pdf-for-contact-form-7'); ?>" data-nonce="<?php echo wp_create_nonce('delete_record-'.esc_html($recorder->wpcf7pdf_id)); ?>" class="delete-record"><img src="<?php echo esc_url(plugins_url( '../images/icon_delete.png', __FILE__ )); ?>" width="30" title="<?php _e('Delete', 'send-pdf-for-contact-form-7'); ?>" alt="<?php _e('Delete', 'send-pdf-for-contact-form-7'); ?>" /></a>
                         <?php
                                 echo '</td><tr>';
                             }
@@ -1410,7 +1419,7 @@ $pathFolder = serialize($createDirectory);
                         <tr>
                             <td width="5%">
                                 <div>
-                                    <span class="dashicons dashicons-download"></span> <a href="<?php echo wp_nonce_url( admin_url('admin.php?page=wpcf7-send-pdf&amp;idform='.intval($_POST['idform']).'&amp;csv=1'), 'go_generate', 'csv_security'); ?>" alt="<?php _e('Export list', 'send-pdf-for-contact-form-7'); ?>" title="<?php _e('Export list', 'send-pdf-for-contact-form-7'); ?>"><?php _e('Export list in CSV file', 'send-pdf-for-contact-form-7'); ?></a>
+                                    <span class="dashicons dashicons-download"></span> <a href="<?php echo wp_nonce_url( admin_url('admin.php?page=wpcf7-send-pdf&amp;idform='.esc_html($_POST['idform']).'&amp;csv=1'), 'go_generate', 'csv_security'); ?>" alt="<?php _e('Export list', 'send-pdf-for-contact-form-7'); ?>" title="<?php _e('Export list', 'send-pdf-for-contact-form-7'); ?>"><?php _e('Export list in CSV file', 'send-pdf-for-contact-form-7'); ?></a>
                                 </div>
                         </tr>
                     </tbody>
@@ -1427,7 +1436,7 @@ $pathFolder = serialize($createDirectory);
         <form method="post">
             <p>
               <input type="hidden" name="wpcf7_action" value="export_settings" />
-              <input type="hidden" name="wpcf7pdf_export_id" value="<?php echo $idForm; ?>" />
+              <input type="hidden" name="wpcf7pdf_export_id" value="<?php echo esc_html($idForm); ?>" />
             </p>
             <p>
                 <?php wp_nonce_field( 'wpcf7_export_nonce', 'wpcf7_export_nonce' ); ?>
@@ -1448,8 +1457,8 @@ $pathFolder = serialize($createDirectory);
           </p>
           <p>
               <input type="hidden" name="wpcf7_action" value="import_settings" />
-              <input type="hidden" name="idform" value="<?php echo $idForm; ?>"/>
-              <input type="hidden" name="wpcf7pdf_import_id" value="<?php echo $idForm; ?>" />
+              <input type="hidden" name="idform" value="<?php echo esc_html($idForm); ?>"/>
+              <input type="hidden" name="wpcf7pdf_import_id" value="<?php echo esc_html($idForm); ?>" />
               <?php wp_nonce_field( 'wpcf7_import_nonce', 'wpcf7_import_nonce' ); ?>
               <?php submit_button( __( 'Import', 'send-pdf-for-contact-form-7' ), 'secondary', 'submit', false ); ?>
           </p>
