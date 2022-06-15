@@ -33,7 +33,7 @@ defined( 'ABSPATH' )
 	or die( 'No direct load ! ' );
 
 define( 'WPCF7PDF_DIR', plugin_dir_path( __FILE__ ) );
-define( 'WPCF7PDF_URL', plugin_dir_url( __FILE__ ) );
+define( 'WPCF7PDF_URL', plugins_url('/', __FILE__) );
 define( 'WPCF7PDF_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );
 
 if( !defined( 'WPCF7PDF_VERSION' )) { define( 'WPCF7PDF_VERSION', '0.9.2' ); }

@@ -142,7 +142,7 @@ jQuery(document).ready(function() {
                             _e('SESSION are not generated. SESSION are required for this plugin.', 'send-pdf-for-contact-form-7');
                         } else {
                     ?>
-                    <form method="post" action="<?php echo $_SERVER['REQUEST_URI']?>" name="displayform" id="displayform">
+                    <form method="post" action="<?php echo esc_url($_SERVER['REQUEST_URI']); ?>" name="displayform" id="displayform">
                         <input type="hidden" name="page" value="wpcf7-send-pdf"/>
                         <?php wp_nonce_field('go-sendform', 'security-sendform'); ?>
                         <select name="idform" id="idform" class="wpcf7-form-field" onchange="this.form.submit();">
@@ -150,13 +150,13 @@ jQuery(document).ready(function() {
                             <?php
                                 $selected = '';
                                
-                                foreach ($forms as $form) {
-                                    if( isset($_POST['idform']) ) {
-                                        $selected = ($form->id() == $_POST['idform']) ? "selected" : "";
+                                foreach($forms as $form) {
+                                    if(isset($_POST['idform']) ) {
+                                        $selected = ($form->id() == sanitize_text_field($_POST['idform'])) ? "selected" : "";
                                     }
                                     $formPriority = '';
                                     $formNameEscaped = htmlentities($form->title(), null, 'UTF-8');
-                                    echo '<option value="'.$form->id().'" '.$selected.'>'.$formNameEscaped.'</option>';
+                                    echo '<option value="'.sanitize_text_field($form->id()).'" '.$selected.'>'.$formNameEscaped.'</option>';
                                 }
                             ?>
                         </select>
@@ -478,8 +478,8 @@ jQuery(document).ready(function() {
                 $messageText = preg_replace("/(\r\n|\n|\r)/", "<div></div>", $messageText);
                 $messageText = str_replace("<div></div><div></div>", '<div style="height:10px;"></div>', $messageText);
             }
-            $messageText = str_replace('[reference]', $_SESSION['pdf_uniqueid'], $messageText);
-            $messageText = str_replace('[url-pdf]', esc_url($upload_dir['url'].'/'.$nameOfPdf.'-'.$_SESSION['pdf_uniqueid'].'.pdf'), $messageText);
+            $messageText = str_replace('[reference]', wp_kses_post($_SESSION['pdf_uniqueid']), $messageText);
+            $messageText = str_replace('[url-pdf]', esc_url($upload_dir['url'].'/'.$nameOfPdf.'-'.wp_kses_post($_SESSION['pdf_uniqueid']).'.pdf'), $messageText);
             $messageText = str_replace('[ID]', '000'.date('md'), $messageText);
             if( isset($meta_values['date_format']) && !empty($meta_values['date_format']) ) {
                 $dateField = date_i18n($meta_values['date_format']);
@@ -501,8 +501,8 @@ jQuery(document).ready(function() {
             }
             
             if( isset($meta_values['footer_generate_pdf']) && $meta_values['footer_generate_pdf']!='' ) {
-                $footerText = str_replace('[reference]', $_SESSION['pdf_uniqueid'], $meta_values['footer_generate_pdf']);
-                $footerText = str_replace('[url-pdf]', esc_url($upload_dir['url'].'/'.$nameOfPdf.'-'.$_SESSION['pdf_uniqueid'].'.pdf'), $footerText);
+                $footerText = str_replace('[reference]', wp_kses_post($_SESSION['pdf_uniqueid']), $meta_values['footer_generate_pdf']);
+                $footerText = str_replace('[url-pdf]', esc_url($upload_dir['url'].'/'.$nameOfPdf.'-'.wp_kses_post($_SESSION['pdf_uniqueid']).'.pdf'), $footerText);
                 if( isset($meta_values['date_format']) && !empty($meta_values['date_format']) ) {
                     $dateField = date_i18n($meta_values['date_format']);
                 }
@@ -637,7 +637,7 @@ $pathFolder = serialize($createDirectory);
                             </select>
                         </td>
                     </tr>
-                    <tr><td colspan="2"><hr style="background-color: <?php echo $colors[2]; ?>; height: 1px; border: 0;"></td></tr>
+                    <tr><td colspan="2"><hr style="background-color: <?php echo esc_html($colors[2]); ?>; height: 1px; border: 0;"></td></tr>
                     <tr style="vertical-align: middle;margin-top:15px;">
                         <td><?php _e("Disable data submit in a database?", 'send-pdf-for-contact-form-7'); ?></td>
                         <td style="text-align:left;">
@@ -1405,7 +1405,7 @@ $pathFolder = serialize($createDirectory);
                             
                             echo '</td>';
                             echo '<td width="5%"><a href="'.$recorder->wpcf7pdf_files.'" target="_blank"><img src="'.esc_url(plugins_url( '../images/icon_download.png', __FILE__ )).'" width="30" title="'.__('Download', 'send-pdf-for-contact-form-7').'" alt="'.__('Download', 'send-pdf-for-contact-form-7').'" /></a></td>';                        
-                    ?><td width="5%"><a href="#" data-idform="<?php echo $idForm; ?>" data-id="<?php echo esc_html($recorder->wpcf7pdf_id); ?>" data-message="<?php _e('Are you sure you want to delete this Record?', 'send-pdf-for-contact-form-7'); ?>" data-nonce="<?php echo wp_create_nonce('delete_record-'.esc_html($recorder->wpcf7pdf_id)); ?>" class="delete-record"><img src="<?php echo esc_url(plugins_url( '../images/icon_delete.png', __FILE__ )); ?>" width="30" title="<?php _e('Delete', 'send-pdf-for-contact-form-7'); ?>" alt="<?php _e('Delete', 'send-pdf-for-contact-form-7'); ?>" /></a>
+                    ?><td width="5%"><a href="#" data-idform="<?php echo esc_html($idForm); ?>" data-id="<?php echo esc_html($recorder->wpcf7pdf_id); ?>" data-message="<?php _e('Are you sure you want to delete this Record?', 'send-pdf-for-contact-form-7'); ?>" data-nonce="<?php echo wp_create_nonce('delete_record-'.esc_html($recorder->wpcf7pdf_id)); ?>" class="delete-record"><img src="<?php echo esc_url(plugins_url( '../images/icon_delete.png', __FILE__ )); ?>" width="30" title="<?php _e('Delete', 'send-pdf-for-contact-form-7'); ?>" alt="<?php _e('Delete', 'send-pdf-for-contact-form-7'); ?>" /></a>
                         <?php
                                 echo '</td><tr>';
                             }
