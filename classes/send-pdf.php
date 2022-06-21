@@ -479,7 +479,6 @@ class cf7_sendpdf {
         if( isset($meta_values["pdf-uploads"]) && $meta_values["pdf-uploads"]=='true' ) {
 
             $newDirectory = $upload_dir['basedir'].'/sendpdfcf7_uploads';
-            error_log('UPLODA: '.$newDirectory );
             if( is_dir($newDirectory) == false ) {
                 //mkdir($newDirectory, 0755);
                 $files = array(
@@ -1027,15 +1026,16 @@ class cf7_sendpdf {
                         }
                         $mpdf->SetProtection(array('print','fill-forms'), $pdfPassword, $pdfPassword, 128);             
                     } 
-                    
-                    $mpdf->Output(esc_url($createDirectory.'/'.$nameOfPdf.'-'.sanitize_text_field($_SESSION['pdf_uniqueid']).'.pdf'), 'F');
+                    error_log('Compare'.$createDirectory.'/'.$nameOfPdf.'-'.sanitize_text_field($_SESSION['pdf_uniqueid']).'.pdf -- TO -- '.esc_url($createDirectory.'/'.$nameOfPdf.'-'.sanitize_text_field($_SESSION['pdf_uniqueid']).'.pdf'));
+
+                    $mpdf->Output($createDirectory.'/'.$nameOfPdf.'-'.sanitize_text_field($_SESSION['pdf_uniqueid']).'.pdf', 'F');
 
                     // On efface l'ancien pdf renommé si il y a (on garde l'original)
-                    if( file_exists(esc_url($createDirectory.'/'.$nameOfPdf.'.pdf')) ) {
-                        unlink(esc_url($createDirectory.'/'.$nameOfPdf.'.pdf'));
+                    if( file_exists($createDirectory.'/'.$nameOfPdf.'.pdf') ) {
+                        unlink($createDirectory.'/'.$nameOfPdf.'.pdf');
                     }
                     // Je copy le PDF genere
-                    copy(esc_url($createDirectory.'/'.$nameOfPdf.'-'.sanitize_text_field($_SESSION['pdf_uniqueid']).'.pdf', $createDirectory.'/'.$nameOfPdf.'.pdf'));
+                    copy($createDirectory.'/'.$nameOfPdf.'-'.sanitize_text_field($_SESSION['pdf_uniqueid']).'.pdf', $createDirectory.'/'.$nameOfPdf.'.pdf');
 
                 }
                 // END GENERATE PDF
@@ -1044,8 +1044,8 @@ class cf7_sendpdf {
                 if( isset($meta_values["disable-csv"]) && $meta_values['disable-csv'] == 'false') {
 
                     // On efface l'ancien csv renommé si il y a (on garde l'original)
-                    if( file_exists(esc_url($createDirectory.'/'.$nameOfPdf.'.csv')) ) {
-                        unlink(esc_url($createDirectory.'/'.$nameOfPdf.'.csv'));
+                    if( file_exists($createDirectory.'/'.$nameOfPdf.'.csv') ) {
+                        unlink($createDirectory.'/'.$nameOfPdf.'.csv');
                     }
 
                     if( isset($meta_fields) ) {
