@@ -4,7 +4,7 @@ Donate link: https://www.paypal.me/RestezConnectes/
 Tags: WordPress, plugin, contact form, pdf, send, attachment, form, cf7
 Requires at least: 3.0
 Tested up to: 6.0
-Stable tag: 0.9.2
+Stable tag: 0.9.3
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -49,6 +49,9 @@ Yes. If you want, you can support this project here: <a href="https://restezconn
 
 
 == Changelog ==
+
+= 0.9.3 =
+* Bug Safari open PDF fixed
 
 = 0.9.2 =
 * Several security patches have been brought

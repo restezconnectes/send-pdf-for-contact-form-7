@@ -1489,8 +1489,7 @@ class cf7_sendpdf {
             delete_post_meta( $postinfo->ID, '_wp_cf7pdf' );
             delete_post_meta( $postinfo->ID, '_wp_cf7pdf_fields' );
         }
-
-        
+       
         $wpcf7pdf_files_table = $wpdb->prefix.'wpcf7pdf_files';
         $sql = "DROP TABLE IF EXISTS `$wpcf7pdf_files_table`";
         $wpdb->query($sql);
@@ -1740,10 +1739,10 @@ class cf7_sendpdf {
                 $redirectPDF = "/* REDICTION DIRECT */ ";
                     if( isset($meta_values["redirect-window"]) && $meta_values["redirect-window"] == 'popup' ) {
                         $redirectPDF .= "
-            window.open('".$urlRredirectPDF."','".$nameOfPdf."','menubar=no, status=no, scrollbars=yes, menubar=no, width=600, height=900');";
+        window.open('".$urlRredirectPDF."','".$nameOfPdf."','menubar=no, status=no, scrollbars=yes, menubar=no, width=600, height=900');";
                         } else { 
                         $redirectPDF .= "
-        var location = '".$urlRredirectPDF."'; window.open(location, '".$targetPDF."');";
+        var location = '".$urlRredirectPDF."'; window.open(location, '.$nameOfPdf.', '".$targetPDF."');";
                     }
                 $redirectPDF .= "
 ";
