@@ -501,7 +501,8 @@ jQuery(document).ready(function() {
             }
             
             if( isset($meta_values['footer_generate_pdf']) && $meta_values['footer_generate_pdf']!='' ) {
-                $footerText = str_replace('[reference]', wp_kses_post($_SESSION['pdf_uniqueid']), $meta_values['footer_generate_pdf']);
+                $footerText = wp_kses(trim($meta_values['footer_generate_pdf']), $this->wpcf7pdf_autorizeHtml());
+                $footerText = str_replace('[reference]', sanitize_text_field($_SESSION['pdf_uniqueid']), $footerText);
                 $footerText = str_replace('[url-pdf]', esc_url($upload_dir['url'].'/'.$nameOfPdf.'-'.wp_kses_post($_SESSION['pdf_uniqueid']).'.pdf'), $footerText);
                 if( isset($meta_values['date_format']) && !empty($meta_values['date_format']) ) {
                     $dateField = date_i18n($meta_values['date_format']);
