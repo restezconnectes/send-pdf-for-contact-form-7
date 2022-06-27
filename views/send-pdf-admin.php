@@ -470,7 +470,7 @@ jQuery(document).ready(function() {
                 $origImageSrc = str_ireplace( 'src="', '',  $imgage[0]);
                 if( strpos( $origImageSrc, 'http' ) === false ) {
                 
-                    $messageText = str_replace( $origImageSrc, plugins_url( '../images/temporary-image.jpg', __FILE__ ), $messageText);
+                    $messageText = str_replace( $origImageSrc, WPCF7PDF_URL.'images/temporary-image.jpg', $messageText);
                 }
             }
             
@@ -1404,8 +1404,8 @@ $pathFolder = serialize($createDirectory);
                             echo '<a href="'.esc_url($recorder->wpcf7pdf_files).'" target="_blank">'.esc_html($datas[0]) .'</a> - '. esc_html($datas[1]);
                             
                             echo '</td>';
-                            echo '<td width="5%"><a href="'.esc_url($recorder->wpcf7pdf_files).'" target="_blank"><img src="'.esc_url(plugins_url( '../images/icon_download.png', __FILE__ )).'" width="30" title="'.__('Download', 'send-pdf-for-contact-form-7').'" alt="'.__('Download', 'send-pdf-for-contact-form-7').'" /></a></td>';                        
-                    ?><td width="5%"><a href="#" data-idform="<?php echo esc_html($idForm); ?>" data-id="<?php echo esc_html($recorder->wpcf7pdf_id); ?>" data-message="<?php _e('Are you sure you want to delete this Record?', 'send-pdf-for-contact-form-7'); ?>" data-nonce="<?php echo wp_create_nonce('delete_record-'.esc_html($recorder->wpcf7pdf_id)); ?>" class="delete-record"><img src="<?php echo esc_url(plugins_url( '../images/icon_delete.png', __FILE__ )); ?>" width="30" title="<?php _e('Delete', 'send-pdf-for-contact-form-7'); ?>" alt="<?php _e('Delete', 'send-pdf-for-contact-form-7'); ?>" /></a>
+                            echo '<td width="5%"><a href="'.esc_url($recorder->wpcf7pdf_files).'" target="_blank"><img src="'.esc_url(WPCF7PDF_URL.'images/icon_download.png').'" width="30" title="'.__('Download', 'send-pdf-for-contact-form-7').'" alt="'.__('Download', 'send-pdf-for-contact-form-7').'" /></a></td>';                        
+                    ?><td width="5%"><a href="#" data-idform="<?php echo esc_html($idForm); ?>" data-id="<?php echo esc_html($recorder->wpcf7pdf_id); ?>" data-message="<?php _e('Are you sure you want to delete this Record?', 'send-pdf-for-contact-form-7'); ?>" data-nonce="<?php echo wp_create_nonce('delete_record-'.esc_html($recorder->wpcf7pdf_id)); ?>" class="delete-record"><img src="<?php echo esc_url(WPCF7PDF_URL.'images/icon_delete.png'); ?>" width="30" title="<?php _e('Delete', 'send-pdf-for-contact-form-7'); ?>" alt="<?php _e('Delete', 'send-pdf-for-contact-form-7'); ?>" /></a>
                         <?php
                                 echo '</td><tr>';
                             }

@@ -637,7 +637,7 @@ class cf7_sendpdf {
                                 
                                 if( !empty($uploaded_files[$tags[1]]) ) {
                                     $image_location = $this->wpcf7pdf_attachments($tags[0]);
-                                    $chemin_final[$tags[1]] = esc_url($createDirectory.'/'.sanitize_text_field($_SESSION['pdf_uniqueid']).'-'.wpcf7_mail_replace_tags($tags[0]));
+                                    $chemin_final[$tags[1]] = $createDirectory.'/'.sanitize_text_field($_SESSION['pdf_uniqueid']).'-'.wpcf7_mail_replace_tags($tags[0]);
                                     // On copie l'image dans le dossier
                                     copy($image_location, $chemin_final[$tags[1]]);
                                 }
@@ -780,8 +780,10 @@ class cf7_sendpdf {
                         if( isset($tagsOnPdf[1]) && $tagsOnPdf[1] != '' && !empty($posted_data[$tagsOnPdf[1]]) ) {
                             $image_name2 = $posted_data[$tagsOnPdf[1]];
                             if( isset($image_name2) && $image_name2!='' ) {
-                                $chemin_final2[$tagsOnPdf[1]] = esc_url(str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $createDirectory).'/'.sanitize_text_field($_SESSION['pdf_uniqueid']).'-'.wpcf7_mail_replace_tags($tagsOnPdf[0]));
+                                // remplace le tag
                                 $text = str_replace('['.$tagsOnPdf[1].']', $image_name2, $text);
+                                // retourne l'URL complete du tag 
+                                $chemin_final2[$tagsOnPdf[1]] = esc_url(str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $createDirectory).'/'.sanitize_text_field($_SESSION['pdf_uniqueid']).'-'.wpcf7_mail_replace_tags($tagsOnPdf[0]));
                                 $text = str_replace('[url-'.$tagsOnPdf[1].']', $chemin_final2[$tagsOnPdf[1]], $text);
                             } else {
                                 $text = str_replace('[url-'.$tagsOnPdf[1].']', WPCF7PDF_URL.'images/onepixel.png', $text);
@@ -1026,7 +1028,6 @@ class cf7_sendpdf {
                         }
                         $mpdf->SetProtection(array('print','fill-forms'), $pdfPassword, $pdfPassword, 128);             
                     } 
-                    error_log('Compare'.$createDirectory.'/'.$nameOfPdf.'-'.sanitize_text_field($_SESSION['pdf_uniqueid']).'.pdf -- TO -- '.esc_url($createDirectory.'/'.$nameOfPdf.'-'.sanitize_text_field($_SESSION['pdf_uniqueid']).'.pdf'));
 
                     $mpdf->Output($createDirectory.'/'.$nameOfPdf.'-'.sanitize_text_field($_SESSION['pdf_uniqueid']).'.pdf', 'F');
 
