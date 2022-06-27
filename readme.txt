@@ -53,7 +53,8 @@ Yes. If you want, you can support this project here: <a href="https://restezconn
 == Changelog ==
 
 = 0.9.3 =
-* Cleaner code
+* Bug Safari open PDF fixed
+* Cleaner code, adding <thead>, <th>, <tbody> tags
 
 = 0.9.2 =
 * Several security patches have been brought

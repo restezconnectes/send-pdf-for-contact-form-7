@@ -1590,7 +1590,20 @@ class cf7_sendpdf {
             'tr' => array(
                 'style' => array(),
                 'class' => array()
+                ),
+            'th' => array(
+                'style' => array(),
+                'class' => array()
+                ),
+            'tbody' => array(
+                'style' => array(),
+                'class' => array()
+                ),
+            'thead' => array(
+                'style' => array(),
+                'class' => array()
                 )
+
             );
 
     }
