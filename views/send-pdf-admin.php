@@ -459,6 +459,12 @@ jQuery(document).ready(function() {
                 
             }
 
+            // replace tag by avatar picture
+            $user = wp_get_current_user();
+            if ( $user ) :
+                $messageText = str_replace('[avatar]', esc_url( get_avatar_url( $user->ID ) ), $messageText);
+            endif;
+            
             // read all image tags into an array
             preg_match_all('/<img[^>]+>/i', $messageText, $imgTags); 
 
@@ -478,6 +484,7 @@ jQuery(document).ready(function() {
                 $messageText = preg_replace("/(\r\n|\n|\r)/", "<div></div>", $messageText);
                 $messageText = str_replace("<div></div><div></div>", '<div style="height:10px;"></div>', $messageText);
             }
+            
             $messageText = str_replace('[reference]', wp_kses_post($_SESSION['pdf_uniqueid']), $messageText);
             $messageText = str_replace('[url-pdf]', esc_url($upload_dir['url'].'/'.$nameOfPdf.'-'.wp_kses_post($_SESSION['pdf_uniqueid']).'.pdf'), $messageText);
             $messageText = str_replace('[ID]', '000'.date('md'), $messageText);

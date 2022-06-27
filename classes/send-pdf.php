@@ -663,6 +663,12 @@ class cf7_sendpdf {
                 // définit le contenu du PDf
                 $text = wp_kses(trim($meta_values['generate_pdf']), $this->wpcf7pdf_autorizeHtml());
 
+                // replace tag by avatar picture
+                $user = wp_get_current_user();
+                if ( $user ) :
+                    $text = str_replace('[avatar]', esc_url( get_avatar_url( $user->ID ) ), $text);
+                endif;
+
                 // Compatibilité avec CF7 Conditional Fields / Conditional Fields PRO
                 if( class_exists('Wpcf7cfMailParser') ){
 
