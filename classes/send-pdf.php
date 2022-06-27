@@ -1078,7 +1078,7 @@ class cf7_sendpdf {
                     fclose($fpCsv);
 
                     // Je copy le CSV genere
-                    copy(esc_url($createDirectory.'/'.$nameOfPdf.'-'.sanitize_text_field($_SESSION['pdf_uniqueid']).'.csv', $createDirectory.'/'.$nameOfPdf.'.csv'));
+                    copy($createDirectory.'/'.$nameOfPdf.'-'.sanitize_text_field($_SESSION['pdf_uniqueid']).'.csv', $createDirectory.'/'.$nameOfPdf.'.csv');
 
 
                 }
