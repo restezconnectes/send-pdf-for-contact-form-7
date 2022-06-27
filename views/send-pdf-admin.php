@@ -464,7 +464,7 @@ jQuery(document).ready(function() {
             if ( $user ) :
                 $messageText = str_replace('[avatar]', esc_url( get_avatar_url( $user->ID ) ), $messageText);
             endif;
-            
+
             // read all image tags into an array
             preg_match_all('/<img[^>]+>/i', $messageText, $imgTags); 
 
@@ -1278,12 +1278,14 @@ $pathFolder = serialize($createDirectory);
                                     </tr>
                                     <tr>
                                         <td width="50%">
-                                            <span class="mailtag code used" onclick="jQuery(this).selectText()" style="cursor: pointer;"><strong>[reference]</strong></span><br /><i><?php _e("[reference] is a simple mail-tag who is used for create unique PDF. It's also recorded in the database. Every PDF is named like this : name-pdf-uniqid() and it's uploaded in the upload folder of WordPress.", 'send-pdf-for-contact-form-7'); /*printf( __(' For example : document-pdf-%s.pdf', 'send-pdf-for-contact-form-7'), $_SESSION['pdf_uniqueid']);*/ ?></i><br /><br />
-                                            <span class="mailtag code used" onclick="jQuery(this).selectText()" style="cursor: pointer;"><strong>[ID]</strong></span><br /><i><?php _e("[ID] is a simple tag that comes from the database ID if you have allowed registration in the options.", 'send-pdf-for-contact-form-7'); ?></i>
+                                            <span class="mailtag code used" onclick="jQuery(this).selectText()" style="cursor: pointer;"><strong>[reference]</strong></span><br /><i><?php _e("[reference] is a simple mail-tag who is used for create unique PDF. It's also recorded in the database. Every PDF is named like this : name-pdf-uniqid() and it's uploaded in the upload folder of WordPress.", 'send-pdf-for-contact-form-7'); ?></i><br /><br />
+                                            <span class="mailtag code used" onclick="jQuery(this).selectText()" style="cursor: pointer;"><strong>[ID]</strong></span><br /><i><?php _e("[ID] is a simple tag that comes from the database ID if you have allowed registration in the options.", 'send-pdf-for-contact-form-7'); ?></i><br /><br />
+                                            <span class="mailtag code used" onclick="jQuery(this).selectText()" style="cursor: pointer;"><strong>[avatar]</strong></span><br /><i><?php _e("[avatar] is a simple mail-tag for the user Avatar URL.", 'send-pdf-for-contact-form-7'); ?></i>
                                         </td>
                                         <td width="50%">
                                             <?php if( empty($fileTags) || ( isset($fileTags) && $fileTags == '') ) { $fileTags = '[file-1][file-2]'; } ?>
-                                            <i><?php echo sprintf( __('The <strong>[file]</strong> tags are for images? Enter them here to display them in images on your PDF and like this: %s', 'send-pdf-for-contact-form-7'), esc_html($fileTags) ); ?></i><br /><small><?php _e('It will then be necessary to put them in the image HTML tag for the PDF layout.', 'send-pdf-for-contact-form-7'); ?><br /><?php _e('Use url- prefix for display URL like this:', 'send-pdf-for-contact-form-7'); ?> <?php echo str_replace('[', '[url-', esc_html($fileTags)); ?></small><br /><input type="text" class="wpcf7-form-field" name="wp_cf7pdf_settings[file_tags]" size="80%" value="<?php if( isset($meta_values['file_tags'])) { echo esc_html($meta_values['file_tags']); } ?>" />
+                                            <i><?php echo sprintf( __('The <strong>[file]</strong> tags are for images? Enter them here to display them in images on your PDF and like this: %s', 'send-pdf-for-contact-form-7'), esc_html($fileTags) ); ?></i><br /><small><?php _e('It will then be necessary to put them in the image HTML tag for the PDF layout.', 'send-pdf-for-contact-form-7'); ?><br /><?php _e('Use url- prefix for display URL like this:', 'send-pdf-for-contact-form-7'); ?> <?php echo str_replace('[', '[url-', esc_html($fileTags)); ?></small><br /><input type="text" class="wpcf7-form-field" name="wp_cf7pdf_settings[file_tags]" size="80%" value="<?php if( isset($meta_values['file_tags'])) { echo esc_html($meta_values['file_tags']); } ?>" /><br /><br />
+                                            <i><?php echo __('Enter here your Shortcodes', 'send-pdf-for-contact-form-7'); ?></i><br /><small><?php _e('It will then be necessary to put them in the PDF layout. Test with this shortcode: [wpcf7pdf_test]', 'send-pdf-for-contact-form-7'); ?></small><br /><input type="text" class="wpcf7-form-field" name="wp_cf7pdf_settings[shotcodes_tags]" size="80%" value="<?php if( isset($meta_values['shotcodes_tags'])) { echo esc_html($meta_values['shotcodes_tags']); } ?>" />
                                         </td>
                                     
                                     </tr>
@@ -1338,7 +1340,7 @@ $pathFolder = serialize($createDirectory);
                                             }
                                         ?>
                                         </td>
-                                        <td width="50%"><i><?php echo __('Enter here your Shortcodes', 'send-pdf-for-contact-form-7'); ?></i><br /><small><?php _e('It will then be necessary to put them in the PDF layout. Test with this shortcode: [wpcf7pdf_test]', 'send-pdf-for-contact-form-7'); ?></small><br /><input type="text" class="wpcf7-form-field" name="wp_cf7pdf_settings[shotcodes_tags]" size="80%" value="<?php if( isset($meta_values['shotcodes_tags'])) { echo esc_html($meta_values['shotcodes_tags']); } ?>" /></td>
+                                        <td width="50%"></td>
                                     </tr>
                                     <tr>
                                         <td width="50%"><br /></td>
