@@ -288,7 +288,15 @@ class FontVariables
 				],
 				"fontawesome" => [
 					'R' => "fontawesome-webfont.ttf",
+					'I' => "fontawesome-webfont.ttf",
 				],
+				"fontawesome-solid" => [
+					'R' => 'fa-solid-900.ttf',
+				],
+				"fontawesome-brands" => [
+					'R' => 'fa-brands-400.ttf',
+				],
+				
 			],
 
 			// Add fonts to this array if they contain characters in the SIP or SMP Unicode planes

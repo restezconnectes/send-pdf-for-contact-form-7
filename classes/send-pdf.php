@@ -921,6 +921,14 @@ class cf7_sendpdf {
                         $stylesheet = file_get_contents(esc_url($meta_values['stylesheet']));
                         $mpdf->WriteHTML($stylesheet,1);	// The parameter 1 tells that this is css/style only and no body/html/text
                     }
+
+                    // Adding FontAwesome CSS 
+                    $mpdf->WriteHTML('<style>
+                    .fa { font-family: fontawesome; }
+                    .fas { font-family: fontawesome-solid; }
+                    .fab { font-family: fontawesome-brands; }
+                    </style>');
+
                     // Adding Custom CSS            
                     if( isset($meta_values['custom_css']) && $meta_values['custom_css']!='' ) {
                         $mpdf->WriteHTML('<style>'.esc_html($meta_values['custom_css']).'</style>');
