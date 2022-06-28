@@ -823,6 +823,20 @@ class cf7_sendpdf {
                     $text = str_replace('[ID]', $insertPost, $text);
                 }
 
+                // read all image tags into an array
+                preg_match_all('/<img[^>]+>/i', $text, $imgTags); 
+
+                for ($i = 0; $i < count($imgTags[0]); $i++) {
+                    // get the source string
+                    preg_match('/src="([^"]+)/i', $imgTags[0][$i], $imgage);
+
+                    // remove opening 'src=' tag, can`t get the regex right
+                    $origImageSrc = str_ireplace( 'src="', '',  $imgage[0]);
+                    if( strpos( $origImageSrc, 'http' ) === false ) {                
+                        $text = str_replace( $origImageSrc, WPCF7PDF_URL.'images/temporary-image.jpg', $text);
+                    }
+                }
+
                 $text = wpcf7_mail_replace_tags( wpautop($text) );
                 if( empty( $meta_values["linebreak"] ) or ( isset($meta_values["linebreak"]) && $meta_values["linebreak"] == 'false') ) {
                     $text = preg_replace("/(\r\n|\n|\r)/", "<div></div>", $text);
