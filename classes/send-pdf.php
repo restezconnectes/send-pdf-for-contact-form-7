@@ -1570,6 +1570,14 @@ class cf7_sendpdf {
             'h5' => array(), 
             'h6' => array(),             
             'em' => array(),
+            'i' => array(
+                'style' => array(),
+                'class' => array()
+                ),
+            'font-awesome-icon' => array(
+                'icon' => array(),
+                'class' => array()
+                ),
             'strong' => array(),
             'img' => array(
                 'src' => array(),

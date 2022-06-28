@@ -286,6 +286,9 @@ class FontVariables
 				"unbatang" => [/* Korean */
 					'R' => "UnBatang_0613.ttf",
 				],
+				"fontawesome" => [
+					'R' => "fontawesome-webfont.ttf",
+				],
 			],
 
 			// Add fonts to this array if they contain characters in the SIP or SMP Unicode planes
