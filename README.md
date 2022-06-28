@@ -18,6 +18,9 @@ Current Version:  0.9.3
 
 -- 0.9.3 --
 * Bug Safari open PDF fixed
+* Adding Font Awesome and Dashicons
+* Bug HTML footer fixed
+* Adding tag [avatar] for user avatar URL
 
 -- 0.9.2 --
 * Several security patches have been brought
