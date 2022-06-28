@@ -312,7 +312,6 @@ jQuery(document).ready(function() {
             }
             
             $mpdf = new \Mpdf\Mpdf($mpdfConfig);
-
             $mpdf->autoScriptToLang = true;
             $mpdf->baseScript = 1;
             $mpdf->autoVietnamese = true;
@@ -322,7 +321,6 @@ jQuery(document).ready(function() {
             $mpdf->SetCreator(get_bloginfo('name'));
             $mpdf->ignore_invalid_utf8 = true;
             $mpdf->simpleTables = false;
-
 
             if( empty($meta_values["margin_auto_header"]) || ( isset($meta_values["margin_auto_header"]) && $meta_values["margin_auto_header"]=='' ) ) { $meta_values["margin_auto_header"] = 'stretch'; }
             if( empty($meta_values["margin_auto_header"]) || ( isset($meta_values["margin_auto_bottom"]) && $meta_values["margin_auto_bottom"]=='' ) ) { $meta_values["margin_auto_bottom"] = 'stretch'; }
@@ -349,7 +347,8 @@ jQuery(document).ready(function() {
             $mpdf->WriteHTML('<style>
             .fa { font-family: fontawesome; }
             .fas { font-family: fontawesome-solid; }
-            .fab { font-family: fontawesome-brands; }
+            .fab { font-family: fontawesome-brands;}
+            .far { font-family: fontawesome-regular;}
             </style>');
 
             // Adding Custom CSS            
@@ -468,12 +467,6 @@ jQuery(document).ready(function() {
                 
             }
 
-            // replace tag by avatar picture
-            $user = wp_get_current_user();
-            if ( $user ) :
-                $messageText = str_replace('[avatar]', esc_url( get_avatar_url( $user->ID ) ), $messageText);
-            endif;
-
             // read all image tags into an array
             preg_match_all('/<img[^>]+>/i', $messageText, $imgTags); 
 
@@ -483,12 +476,17 @@ jQuery(document).ready(function() {
 
                 // remove opening 'src=' tag, can`t get the regex right
                 $origImageSrc = str_ireplace( 'src="', '',  $imgage[0]);
-                if( strpos( $origImageSrc, 'http' ) === false ) {
-                
+                if( strpos( $origImageSrc, 'http' ) === false ) {                
                     $messageText = str_replace( $origImageSrc, WPCF7PDF_URL.'images/temporary-image.jpg', $messageText);
                 }
             }
-            
+
+            // replace tag by avatar picture
+            $user = wp_get_current_user();
+            if ( $user ) :
+                $messageText = str_replace('[avatar]', esc_url( get_avatar_url( $user->ID ) ), $messageText);
+            endif;
+
             if( empty( $meta_values["linebreak"] ) or ( isset($meta_values["linebreak"]) && $meta_values["linebreak"] == 'false') ) {
                 $messageText = preg_replace("/(\r\n|\n|\r)/", "<div></div>", $messageText);
                 $messageText = str_replace("<div></div><div></div>", '<div style="height:10px;"></div>', $messageText);

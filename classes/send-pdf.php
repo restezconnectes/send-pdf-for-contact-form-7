@@ -890,8 +890,7 @@ class cf7_sendpdf {
 
                     }
 
-                    $mpdf = new \Mpdf\Mpdf($mpdfConfig);	
-
+                    $mpdf = new \Mpdf\Mpdf($mpdfConfig);
                     $mpdf->autoScriptToLang = true;
                     $mpdf->baseScript = 1;
                     $mpdf->autoVietnamese = true;
@@ -926,7 +925,8 @@ class cf7_sendpdf {
                     $mpdf->WriteHTML('<style>
                     .fa { font-family: fontawesome; }
                     .fas { font-family: fontawesome-solid; }
-                    .fab { font-family: fontawesome-brands; }
+                    .fab { font-family: fontawesome-brands;}
+                    .far { font-family: fontawesome-regular;}
                     </style>');
 
                     // Adding Custom CSS            

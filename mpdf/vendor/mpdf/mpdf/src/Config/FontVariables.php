@@ -286,17 +286,31 @@ class FontVariables
 				"unbatang" => [/* Korean */
 					'R' => "UnBatang_0613.ttf",
 				],
+				/* FONT AWESOME */
 				"fontawesome" => [
 					'R' => "fontawesome-webfont.ttf",
+					'B' => "fontawesome-webfont.ttf",
 					'I' => "fontawesome-webfont.ttf",
+					'BI' => "fontawesome-webfont.ttf",
 				],
 				"fontawesome-solid" => [
-					'R' => 'fa-solid-900.ttf',
+					'R' => "fa-solid-900.ttf",
+					'B' => "fa-solid-900.ttf",
+					'I' => "fa-solid-900.ttf",
+					'BI' => "fa-solid-900.ttf",
 				],
 				"fontawesome-brands" => [
 					'R' => 'fa-brands-400.ttf',
+					'B' => "fa-brands-400.ttf",
+					'I' => "fa-brands-400.ttf",
+					'BI' => "fa-brands-400.ttf",
 				],
-				
+				"fontawesome-regular" => [
+					'R' => "fa-regular-400.ttf",
+					'B' => "fa-regular-400.ttf",
+					'I' => "fa-regular-400.ttf",
+					'BI' => "fa-regular-400.ttf",
+				],
 			],
 
 			// Add fonts to this array if they contain characters in the SIP or SMP Unicode planes
