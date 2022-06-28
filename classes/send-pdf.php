@@ -927,6 +927,7 @@ class cf7_sendpdf {
                     .fas { font-family: fontawesome-solid; }
                     .fab { font-family: fontawesome-brands;}
                     .far { font-family: fontawesome-regular;}
+                    .dashicons { font-family: dashicons;}
                     </style>');
 
                     // Adding Custom CSS            

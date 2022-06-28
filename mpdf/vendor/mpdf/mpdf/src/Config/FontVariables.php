@@ -311,6 +311,13 @@ class FontVariables
 					'I' => "fa-regular-400.ttf",
 					'BI' => "fa-regular-400.ttf",
 				],
+				"dashicons" => [
+					'R' => "dashicons.ttf",
+					'B' => "dashicons.ttf",
+					'I' => "dashicons.ttf",
+					'BI' => "dashicons.ttf",
+				],
+				
 			],
 
 			// Add fonts to this array if they contain characters in the SIP or SMP Unicode planes
