@@ -12,9 +12,12 @@ File send-pdf-for-contact-form-7.pot available
 
 <a href="https://demo.restezconnectes.fr/send-pdf-for-contact-form-7/">[Demo Here]</a>
 
-Current Version:  0.9.4
+Current Version:  0.9.5
 
 == Changelog ==
+
+-- 0.9.5 --
+* Bug fxed CSV
 
 -- 0.9.4 --
 * Bug fxed Conditional Fields PRO

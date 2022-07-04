@@ -1101,7 +1101,7 @@ class cf7_sendpdf {
                        $csvTab
                     );
 
-                    $fpCsv = fopen(esc_url($createDirectory.'/'.$nameOfPdf.'-'.sanitize_text_field($_SESSION['pdf_uniqueid']).'.csv'), 'w+');
+                    $fpCsv = fopen($createDirectory.'/'.$nameOfPdf.'-'.sanitize_text_field($_SESSION['pdf_uniqueid']).'.csv', 'w+');
                     if( isset($meta_values["csv-separate"]) && !empty($meta_values["csv-separate"]) ) { $csvSeparate = esc_html($meta_values["csv-separate"]); } else { $csvSeparate = ','; }
                     foreach ($csvlist as $csvfields) {
                         fputcsv($fpCsv, $csvfields, $csvSeparate);
