@@ -571,7 +571,7 @@ class cf7_sendpdf {
 
         $submission = WPCF7_Submission::get_instance();
 
-        if ( $submission ) {
+        if($submission) {
 
             // get submission data
             $posted_data = $submission->get_posted_data();
