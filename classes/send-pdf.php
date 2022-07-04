@@ -672,10 +672,10 @@ class cf7_sendpdf {
                 // Compatibilité avec CF7 Conditional Fields / Conditional Fields PRO
                 if( class_exists('Wpcf7cfMailParser') ){
 
-                    $hidden_groups = json_decode(stripslashes(esc_html($_POST['_wpcf7cf_hidden_groups'])));
-                    $visible_groups = json_decode(stripslashes(esc_html($_POST['_wpcf7cf_visible_groups'])));
-                    $repeaters = json_decode(stripslashes(esc_html($_POST['_wpcf7cf_repeaters'])));
-                    $steps = json_decode(stripslashes(esc_html($_POST['_wpcf7cf_steps'])));                   
+                    $hidden_groups = json_decode(stripslashes($_POST['_wpcf7cf_hidden_groups']));
+                    $visible_groups = json_decode(stripslashes($_POST['_wpcf7cf_visible_groups']));
+                    $repeaters = json_decode(stripslashes($_POST['_wpcf7cf_repeaters']));
+                    $steps = json_decode(stripslashes($_POST['_wpcf7cf_steps']));                   
 
                     $parser = new Wpcf7cfMailParser($text, $visible_groups, $hidden_groups, $repeaters, $_POST);
                     $text = $parser->getParsedMail();
