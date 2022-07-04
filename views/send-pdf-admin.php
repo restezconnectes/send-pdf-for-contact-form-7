@@ -138,8 +138,6 @@ jQuery(document).ready(function() {
                         $forms = WPCF7_ContactForm::find();
                         if ( count($forms) == 0 ) {
                             printf( __('No forms have not been found. %s', 'send-pdf-for-contact-form-7'), '<a href="'.admin_url('admin.php?page=wpcf7').'">'.__('Create your first form here.', 'send-pdf-for-contact-form-7').'</a>');
-                        } else if ( empty($_SESSION['pdf_uniqueid']) ) {
-                            _e('SESSION are not generated. SESSION are required for this plugin.', 'send-pdf-for-contact-form-7');
                         } else {
                     ?>
                     <form method="post" action="<?php echo esc_url($_SERVER['REQUEST_URI']); ?>" name="displayform" id="displayform">
@@ -493,8 +491,8 @@ jQuery(document).ready(function() {
                 $messageText = str_replace("<div></div><div></div>", '<div style="height:10px;"></div>', $messageText);
             }
             
-            $messageText = str_replace('[reference]', wp_kses_post($_SESSION['pdf_uniqueid']), $messageText);
-            $messageText = str_replace('[url-pdf]', esc_url($upload_dir['url'].'/'.$nameOfPdf.'-'.wp_kses_post($_SESSION['pdf_uniqueid']).'.pdf'), $messageText);
+            $messageText = str_replace('[reference]', wp_kses_post(get_transient('pdf_uniqueid')), $messageText);
+            $messageText = str_replace('[url-pdf]', esc_url($upload_dir['url'].'/'.$nameOfPdf.'-'.wp_kses_post(get_transient('pdf_uniqueid')).'.pdf'), $messageText);
             $messageText = str_replace('[ID]', '000'.date('md'), $messageText);
             if( isset($meta_values['date_format']) && !empty($meta_values['date_format']) ) {
                 $dateField = date_i18n($meta_values['date_format']);
@@ -517,8 +515,8 @@ jQuery(document).ready(function() {
             
             if( isset($meta_values['footer_generate_pdf']) && $meta_values['footer_generate_pdf']!='' ) {
                 $footerText = wp_kses(trim($meta_values['footer_generate_pdf']), $this->wpcf7pdf_autorizeHtml());
-                $footerText = str_replace('[reference]', sanitize_text_field($_SESSION['pdf_uniqueid']), $footerText);
-                $footerText = str_replace('[url-pdf]', esc_url($upload_dir['url'].'/'.$nameOfPdf.'-'.wp_kses_post($_SESSION['pdf_uniqueid']).'.pdf'), $footerText);
+                $footerText = str_replace('[reference]', sanitize_text_field(get_transient('pdf_uniqueid')), $footerText);
+                $footerText = str_replace('[url-pdf]', esc_url($upload_dir['url'].'/'.$nameOfPdf.'-'.wp_kses_post(get_transient('pdf_uniqueid')).'.pdf'), $footerText);
                 if( isset($meta_values['date_format']) && !empty($meta_values['date_format']) ) {
                     $dateField = date_i18n($meta_values['date_format']);
                 }
