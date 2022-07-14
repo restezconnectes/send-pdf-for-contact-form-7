@@ -1619,8 +1619,8 @@ class cf7_sendpdf {
                 ),
             'div' => array(
                 'style' => array(),
-                'id' => array()
-                'name' => array()
+                'id' => array(),
+                'name' => array(),
                 'class' => array()
                 ),
             'span' => array(
