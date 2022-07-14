@@ -1614,10 +1614,13 @@ class cf7_sendpdf {
                 'width' => array(),
                 'height' => array(),
                 'style' => array(),
+                'alt' => array(),
                 'class' => array()
                 ),
             'div' => array(
                 'style' => array(),
+                'id' => array()
+                'name' => array()
                 'class' => array()
                 ),
             'span' => array(
@@ -1626,19 +1629,27 @@ class cf7_sendpdf {
                 ),
             'table' => array(
                 'style' => array(),
-                'class' => array()
+                'class' => array(),
+                'colspan' => array(),
+                'rowspan' => array()
                 ),
             'td' => array(
                 'style' => array(),
-                'class' => array()
+                'class' => array(),
+                'colspan' => array(),
+                'rowspan' => array()
                 ),
             'tr' => array(
                 'style' => array(),
-                'class' => array()
+                'class' => array(),
+                'colspan' => array(),
+                'rowspan' => array()
                 ),
             'th' => array(
                 'style' => array(),
-                'class' => array()
+                'class' => array(),
+                'colspan' => array(),
+                'rowspan' => array()
                 ),
             'tbody' => array(
                 'style' => array(),
