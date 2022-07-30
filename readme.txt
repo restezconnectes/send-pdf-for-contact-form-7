@@ -52,12 +52,15 @@ Yes. If you want, you can support this project here: <a href="https://restezconn
 
 == Changelog ==
 
+= 0.9.6 =
+* Bug fixed Checkbox
+
 = 0.9.5 =
-* Bug fxed CSV
+* Bug fixed CSV
 * Remove usage SESSIONS, use TRANSIENT instead
 
 = 0.9.4 =
-* Bug fxed Conditional Fields PRO
+* Bug fixed Conditional Fields PRO
 
 = 0.9.3 =
 * Bug Safari open PDF fixed

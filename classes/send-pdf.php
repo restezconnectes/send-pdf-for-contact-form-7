@@ -712,19 +712,22 @@ class cf7_sendpdf {
 
                     $tagOptions = $sh_tag["options"];
 
-                    if( $sh_tag["basetype"] == 'checkbox') {
+                    if($sh_tag["basetype"]=='checkbox') {
+
                         $inputCheckbox = '';
                         $i = 1;
+                        
                         foreach($sh_tag["values"] as $id=>$val) {
+
                             $caseChecked = '';
                             $valueTag = wpcf7_mail_replace_tags('['.$sh_tag["name"].']');
-
-                            if (isset($meta_values['data_input']) && $meta_values['data_input']== 'true') {
-
-                                if( strpos($valueTag, trim($val) )!== false) {
+ 
+                            if(isset($meta_values['data_input']) && $meta_values['data_input']== 'true') {
+                                
+                                if(preg_match('/\b'.$val.'\b/i', $valueTag)){
                                     $caseChecked = 'checked="checked"';
                                 }
-                                if( in_array('label_first', $tagOptions) ) {
+                                if(in_array('label_first', $tagOptions)) {
                                     $inputCheckbox .= ''.$tagSeparate.''.$val.' <input type="checkbox" class="wpcf7-checkbox" name="'.$sh_tag["name"].$i.'" value="'.$i.'" '.$caseChecked.' />'.$tagSeparateAfter.'';
                                 } else {
                                     $inputCheckbox .= ''.$tagSeparate.'<input type="checkbox" class="wpcf7-checkbox" name="'.$sh_tag["name"].$i.'" value="'.$i.'" '.$caseChecked.' /> '.$val.''.$tagSeparateAfter.'';
@@ -732,7 +735,7 @@ class cf7_sendpdf {
     
                             } else {
 
-                                if( strpos($valueTag, trim($val) )!== false) {
+                                if(preg_match('/\b'.$val.'\b/i', $valueTag)) {
                                     $inputCheckbox .= ''.$tagSeparate.''.$val.''.$tagSeparateAfter.'';
                                 }
                             }
@@ -741,19 +744,21 @@ class cf7_sendpdf {
                         $text = str_replace('['.$sh_tag["name"].']', $inputCheckbox, $text);
                         $text = rtrim($text, $tagSeparateAfter);
 
-                    } else if ( $sh_tag["basetype"] == 'radio') {
+                    } else if($sh_tag["basetype"] == 'radio') {
+
                         $inputRadio = '';
                         $i = 1;
                         foreach($sh_tag["values"] as $id=>$val) {
+
                             $radioChecked = '';
                             $valueTag = wpcf7_mail_replace_tags('['.$sh_tag["name"].']');
 
-                            if (isset($meta_values['data_input']) && $meta_values['data_input']== 'true') {
+                            if(isset($meta_values['data_input']) && $meta_values['data_input']== 'true') {
 
-                                if( strpos($valueTag, trim($val) )!== false) {
+                                if(preg_match('/\b'.$val.'\b/i', $valueTag)) {
                                     $radioChecked = 'checked="checked"';
                                 }                            
-                                if( in_array('label_first', $tagOptions) ) {
+                                if(in_array('label_first', $tagOptions) ) {
                                     $inputRadio .= ''.$tagSeparate.''.$val.' <input type="radio" class="wpcf7-radio" name="'.$sh_tag["name"].'" value="'.$i.'" '.$radioChecked.' >'.$tagSeparateAfter.'';
                                 } else {
                                     $inputRadio .= ''.$tagSeparate.'<input type="radio" class="wpcf7-radio" name="'.$sh_tag["name"].'" value="'.$i.'" '.$radioChecked.' > '.$val.''.$tagSeparateAfter.'';
@@ -761,7 +766,7 @@ class cf7_sendpdf {
     
                             } else {
 
-                                if( strpos($valueTag, trim($val) )!== false) {
+                                if(preg_match('/\b'.$val.'\b/i', $valueTag)) {
                                     $inputRadio .= ''.$tagSeparate.''.$val.''.$tagSeparateAfter.'';
                                 }
                             }
@@ -777,7 +782,7 @@ class cf7_sendpdf {
                     }
 
                 }
-                            
+     
                 $text = str_replace('[reference]', sanitize_text_field(get_transient('pdf_uniqueid')), $text);
                 $text = str_replace('[url-pdf]', str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $createDirectory).'/'.$nameOfPdf.'-'.sanitize_text_field(get_transient('pdf_uniqueid')).'.pdf', $text);
 
@@ -1614,13 +1619,10 @@ class cf7_sendpdf {
                 'width' => array(),
                 'height' => array(),
                 'style' => array(),
-                'alt' => array(),
                 'class' => array()
                 ),
             'div' => array(
                 'style' => array(),
-                'id' => array(),
-                'name' => array(),
                 'class' => array()
                 ),
             'span' => array(
@@ -1629,27 +1631,19 @@ class cf7_sendpdf {
                 ),
             'table' => array(
                 'style' => array(),
-                'class' => array(),
-                'colspan' => array(),
-                'rowspan' => array()
+                'class' => array()
                 ),
             'td' => array(
                 'style' => array(),
-                'class' => array(),
-                'colspan' => array(),
-                'rowspan' => array()
+                'class' => array()
                 ),
             'tr' => array(
                 'style' => array(),
-                'class' => array(),
-                'colspan' => array(),
-                'rowspan' => array()
+                'class' => array()
                 ),
             'th' => array(
                 'style' => array(),
-                'class' => array(),
-                'colspan' => array(),
-                'rowspan' => array()
+                'class' => array()
                 ),
             'tbody' => array(
                 'style' => array(),
