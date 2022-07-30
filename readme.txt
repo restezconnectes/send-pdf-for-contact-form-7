@@ -54,6 +54,7 @@ Yes. If you want, you can support this project here: <a href="https://restezconn
 
 = 0.9.6 =
 * Bug fixed Checkbox
+* Autorize colspans and rowspans in text editor
 
 = 0.9.5 =
 * Bug fixed CSV

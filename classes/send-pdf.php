@@ -1568,7 +1568,7 @@ class cf7_sendpdf {
                 } elseif(filter_var($valueSettings, FILTER_VALIDATE_EMAIL)) {
                     $newTabSettings[$nameSettings] = sanitize_email($valueSettings);
                 } elseif($nameSettings == 'generate_pdf' || $nameSettings == 'footer_generate_pdf') {
-                    $arr = cf7_sendpdf::wpcf7pdf_autorizeHtml();
+                    $arr = $this->wpcf7pdf_autorizeHtml();
                     $newTabSettings[$nameSettings] = wp_kses($valueSettings, $arr);
                 } else {
                     $newTabSettings[$nameSettings] = sanitize_textarea_field($valueSettings);
@@ -1631,27 +1631,39 @@ class cf7_sendpdf {
                 ),
             'table' => array(
                 'style' => array(),
-                'class' => array()
+                'class' => array(),
+                'colspan' => array(),
+                'rowspan' => array()
                 ),
             'td' => array(
                 'style' => array(),
-                'class' => array()
+                'class' => array(),
+                'colspan' => array(),
+                'rowspan' => array()
                 ),
             'tr' => array(
                 'style' => array(),
-                'class' => array()
+                'class' => array(),
+                'colspan' => array(),
+                'rowspan' => array()
                 ),
             'th' => array(
                 'style' => array(),
-                'class' => array()
+                'class' => array(),
+                'colspan' => array(),
+                'rowspan' => array()
                 ),
             'tbody' => array(
                 'style' => array(),
-                'class' => array()
+                'class' => array(),
+                'colspan' => array(),
+                'rowspan' => array()
                 ),
             'thead' => array(
                 'style' => array(),
-                'class' => array()
+                'class' => array(),
+                'colspan' => array(),
+                'rowspan' => array()
                 )
 
             );
