@@ -55,6 +55,7 @@ Yes. If you want, you can support this project here: <a href="https://restezconn
 = 0.9.6 =
 * Bug fixed Checkbox
 * Autorize colspans and rowspans in text editor
+* Bug fixed date in PDF name
 
 = 0.9.5 =
 * Bug fixed CSV

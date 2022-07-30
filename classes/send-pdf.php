@@ -374,7 +374,7 @@ class cf7_sendpdf {
             $data = array(
                 'wpcf7pdf_id_form' => sanitize_text_field($id),
                 'wpcf7pdf_data' => sanitize_textarea_field($data),
-                'wpcf7pdf_reference' => sanitize_textarea_field(get_transient('pdf_uniqueid')),
+                'wpcf7pdf_reference' => get_transient('pdf_uniqueid'),
                 'wpcf7pdf_files' => sanitize_url($file),
                 'wpcf7pdf_files2' => sanitize_url($file2)
             );
@@ -393,8 +393,6 @@ class cf7_sendpdf {
         if( empty($id) ) { die('No ID Form'); }
         $meta_values = get_post_meta(sanitize_textarea_field($id), '_wp_cf7pdf', true);
 
-        //if( empty(get_transient('pdf_uniqueid')) ) { wp_redirect( admin_url('admin.php?page=wpcf7-send-pdf') ); exit; }
-
         if( isset($meta_values["pdf-name"]) && !empty($meta_values["pdf-name"]) ) {
             $namePDF = esc_html(trim($meta_values["pdf-name"]));
             $namePDF = str_replace(' ', '-', $namePDF);
@@ -402,17 +400,17 @@ class cf7_sendpdf {
             $namePDF = 'document-pdf';
         }
 
-        if( isset($meta_values["pdf-add-name"]) && $meta_values["pdf-add-name"] != '' ) {
+        if(isset($meta_values["pdf-add-name"]) && $meta_values["pdf-add-name"]!= '') {
 
             $addName = '';
             $getNamePerso = explode(',', esc_html($meta_values["pdf-add-name"]));
-            if( isset($meta_values["date-for-name"]) && !empty($meta_values["date-for-name"]) ) {
+            if(isset($meta_values["date-for-name"]) && !empty($meta_values["date-for-name"])) {
                 $dateForName = date_i18n($meta_values["date-for-name"]);
             } else {
-                $dateForName = date_i18n( 'mdY', current_time('timestamp'));
+                $dateForName = date_i18n('mdY', current_time('timestamp'));
             }
-            $getNamePerso = str_replace('[date]', $dateForName, $getNamePerso );
-            $getNamePerso = str_replace('[reference]', sanitize_text_field(get_transient('pdf_uniqueid')), $getNamePerso );
+            $getNamePerso = str_replace('[date]', $dateForName, $getNamePerso);
+            $getNamePerso = str_replace('[reference]', get_transient('pdf_uniqueid'), $getNamePerso);
             foreach ( $getNamePerso as $key => $value ) {
                 $addNewName[$key] = wpcf7_mail_replace_tags($value);
                 $addNewName[$key] = str_replace(' ', '-', $addNewName[$key]);
@@ -436,7 +434,7 @@ class cf7_sendpdf {
             }
 
         }        
-        
+        set_transient('pdf_name', $namePDF, HOUR_IN_SECONDS);
         return $namePDF;
 
     }
@@ -663,7 +661,9 @@ class cf7_sendpdf {
             if( isset($meta_values['generate_pdf']) && !empty($meta_values['generate_pdf']) ) {
 
                 // Genere le nom du PDF
-                $nameOfPdf = $this->wpcf7pdf_name_pdf(esc_html($post['_wpcf7']));
+                $generateNameOfPdf = $this->wpcf7pdf_name_pdf(esc_html($post['_wpcf7']));
+                $nameOfPdf = get_transient('pdf_name');
+
                 // définit le contenu du PDf
                 $text = wp_kses(trim($meta_values['generate_pdf']), $this->wpcf7pdf_autorizeHtml());
 
@@ -1069,14 +1069,14 @@ class cf7_sendpdf {
                         $mpdf->SetProtection(array('print','fill-forms'), $pdfPassword, $pdfPassword, 128);             
                     } 
 
-                    $mpdf->Output($createDirectory.'/'.$nameOfPdf.'-'.sanitize_text_field(get_transient('pdf_uniqueid')).'.pdf', 'F');
+                    $mpdf->Output($createDirectory.'/'.$nameOfPdf.'-'.get_transient('pdf_uniqueid').'.pdf', 'F');
 
                     // On efface l'ancien pdf renommé si il y a (on garde l'original)
                     if( file_exists($createDirectory.'/'.$nameOfPdf.'.pdf') ) {
                         unlink($createDirectory.'/'.$nameOfPdf.'.pdf');
                     }
                     // Je copy le PDF genere
-                    copy($createDirectory.'/'.$nameOfPdf.'-'.sanitize_text_field(get_transient('pdf_uniqueid')).'.pdf', $createDirectory.'/'.$nameOfPdf.'.pdf');
+                    copy($createDirectory.'/'.$nameOfPdf.'-'.get_transient('pdf_uniqueid').'.pdf', $createDirectory.'/'.$nameOfPdf.'.pdf');
 
                 }
                 // END GENERATE PDF
@@ -1110,7 +1110,7 @@ class cf7_sendpdf {
                        $csvTab
                     );
 
-                    $fpCsv = fopen($createDirectory.'/'.$nameOfPdf.'-'.sanitize_text_field(get_transient('pdf_uniqueid')).'.csv', 'w+');
+                    $fpCsv = fopen($createDirectory.'/'.$nameOfPdf.'-'.get_transient('pdf_uniqueid').'.csv', 'w+');
                     if( isset($meta_values["csv-separate"]) && !empty($meta_values["csv-separate"]) ) { $csvSeparate = esc_html($meta_values["csv-separate"]); } else { $csvSeparate = ','; }
                     foreach ($csvlist as $csvfields) {
                         fputcsv($fpCsv, $csvfields, $csvSeparate);
@@ -1118,7 +1118,7 @@ class cf7_sendpdf {
                     fclose($fpCsv);
 
                     // Je copy le CSV genere
-                    copy($createDirectory.'/'.$nameOfPdf.'-'.sanitize_text_field(get_transient('pdf_uniqueid')).'.csv', $createDirectory.'/'.$nameOfPdf.'.csv');
+                    copy($createDirectory.'/'.$nameOfPdf.'-'.get_transient('pdf_uniqueid').'.csv', $createDirectory.'/'.$nameOfPdf.'.csv');
 
 
                 }
@@ -1145,8 +1145,8 @@ class cf7_sendpdf {
 
             // On recupere les donnees et le nom du pdf personnalisé
             $meta_values = get_post_meta(esc_html($post['_wpcf7']), '_wp_cf7pdf', true);
-            $nameOfPdf = $this->wpcf7pdf_name_pdf(esc_html($post['_wpcf7']));
-
+            //$nameOfPdf = $this->wpcf7pdf_name_pdf(esc_html($post['_wpcf7']));
+            $nameOfPdf = get_transient('pdf_name');
             // PDF generé et envoyé
             $disablePDF = 0;
 
@@ -1465,6 +1465,7 @@ class cf7_sendpdf {
 
        delete_transient('pdf_uniqueid');
        delete_transient('pdf_password');
+       delete_transient('pdf_name');
 
     }
 
