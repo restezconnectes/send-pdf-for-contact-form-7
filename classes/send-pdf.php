@@ -1614,6 +1614,7 @@ class cf7_sendpdf {
                 'class' => array()
                 ),
             'strong' => array(),
+            'small' => array(),
             'img' => array(
                 'src' => array(),
                 'title' => array(),
@@ -1634,7 +1635,11 @@ class cf7_sendpdf {
                 'style' => array(),
                 'class' => array(),
                 'colspan' => array(),
-                'rowspan' => array()
+                'rowspan' => array(),
+                'width' => array(),
+                'cellpadding' => array(),
+                'cellspacing' => array(),
+                'border' => array()
                 ),
             'td' => array(
                 'style' => array(),
