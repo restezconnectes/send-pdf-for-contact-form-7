@@ -1645,31 +1645,51 @@ class cf7_sendpdf {
                 'style' => array(),
                 'class' => array(),
                 'colspan' => array(),
-                'rowspan' => array()
+                'rowspan' => array(),
+                'width' => array(),
+                'cellpadding' => array(),
+                'cellspacing' => array(),
+                'border' => array()
                 ),
             'tr' => array(
                 'style' => array(),
                 'class' => array(),
                 'colspan' => array(),
-                'rowspan' => array()
+                'rowspan' => array(),
+                'width' => array(),
+                'cellpadding' => array(),
+                'cellspacing' => array(),
+                'border' => array()
                 ),
             'th' => array(
                 'style' => array(),
                 'class' => array(),
                 'colspan' => array(),
-                'rowspan' => array()
+                'rowspan' => array(),
+                'width' => array(),
+                'cellpadding' => array(),
+                'cellspacing' => array(),
+                'border' => array()
                 ),
             'tbody' => array(
                 'style' => array(),
                 'class' => array(),
                 'colspan' => array(),
-                'rowspan' => array()
+                'rowspan' => array(),
+                'width' => array(),
+                'cellpadding' => array(),
+                'cellspacing' => array(),
+                'border' => array()
                 ),
             'thead' => array(
                 'style' => array(),
                 'class' => array(),
                 'colspan' => array(),
-                'rowspan' => array()
+                'rowspan' => array(),
+                'width' => array(),
+                'cellpadding' => array(),
+                'cellspacing' => array(),
+                'border' => array()
                 )
 
             );
