@@ -724,7 +724,7 @@ class cf7_sendpdf {
  
                             if(isset($meta_values['data_input']) && $meta_values['data_input']== 'true') {
                                 
-                                if(preg_match('/\b'.$val.'\b/i', $valueTag)){
+                                if(preg_match('/\b'.$val.'\b/iu', $valueTag)){
                                     $caseChecked = 'checked="checked"';
                                 }
                                 if(in_array('label_first', $tagOptions)) {
@@ -735,7 +735,7 @@ class cf7_sendpdf {
     
                             } else {
 
-                                if(preg_match('/\b'.$val.'\b/i', $valueTag)) {
+                                if(preg_match('/\b'.$val.'\b/iu', $valueTag)) {
                                     $inputCheckbox .= ''.$tagSeparate.''.$val.''.$tagSeparateAfter.'';
                                 }
                             }
@@ -755,7 +755,7 @@ class cf7_sendpdf {
 
                             if(isset($meta_values['data_input']) && $meta_values['data_input']== 'true') {
 
-                                if(preg_match('/\b'.$val.'\b/i', $valueTag)) {
+                                if(preg_match('/\b'.$val.'\b/iu', $valueTag)) {
                                     $radioChecked = 'checked="checked"';
                                 }                            
                                 if(in_array('label_first', $tagOptions) ) {
@@ -766,7 +766,7 @@ class cf7_sendpdf {
     
                             } else {
 
-                                if(preg_match('/\b'.$val.'\b/i', $valueTag)) {
+                                if(preg_match('/\b'.$val.'\b/iu', $valueTag)) {
                                     $inputRadio .= ''.$tagSeparate.''.$val.''.$tagSeparateAfter.'';
                                 }
                             }
