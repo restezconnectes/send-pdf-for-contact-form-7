@@ -79,6 +79,6 @@ function wpcf7pdf_test_shortcode( $atts ) {
 		), $atts )
 	);
 
-    return '<div class="'.esc_html($class).'" style="text-align:center;width:80%;margin-left:auto;margin-right:auto;background-color:#333;color:#ffffff;font-size:'.esc_html($size).'px;"><strong>'.esc_html($text).'</strong></div>';
+    return '<div class="'.esc_html($class).'" style="text-align:center;width:80%;margin-left:auto;margin-right:auto;background-color:#333333;color:#ffffff;padding:5px;margin-top:15px;margin-bottom:15px;font-size:'.esc_html($size).'px;"><strong>'.esc_html($text).'</strong></div>';
 }
 add_shortcode( 'wpcf7pdf_test', 'wpcf7pdf_test_shortcode' );

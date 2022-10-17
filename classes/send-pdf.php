@@ -390,7 +390,7 @@ class cf7_sendpdf {
 
         global $post;
 
-        if( empty($id) ) { die('No ID Form'); }
+        if( empty($id) ) { wp_redirect( 'admin.php?page=wpcf7-send-pdf&deleted=1' ); die('No ID Form'); }
         $meta_values = get_post_meta(sanitize_textarea_field($id), '_wp_cf7pdf', true);
 
         if( isset($meta_values["pdf-name"]) && !empty($meta_values["pdf-name"]) ) {
@@ -1370,12 +1370,12 @@ class cf7_sendpdf {
                 }
                 
                 // Shortcodes?
-               if( isset($meta_values['shotcodes_tags']) && $meta_values['shotcodes_tags']!='') {
-                    $tagShortcodes = explode(',', $meta_values['shotcodes_tags']);
+                if( isset($meta_values['shotcodes_tags']) && $meta_values['shotcodes_tags']!='') {
+                    $tagShortcodes = explode(',', esc_html($meta_values['shotcodes_tags']));
                     $countShortcodes = count($tagShortcodes);
                     for($i = 0; $i < ($countShortcodes);  $i++) {
-                        if( stripos($messageText, $tagShortcodes[$i]) !== false ) {
-                            $messageText = str_replace($tagShortcodes[$i], do_shortcode($tagShortcodes[$i]), $messageText);
+                        if( stripos($text, $tagShortcodes[$i]) !== false ) {
+                            $text = str_replace($tagShortcodes[$i], do_shortcode($tagShortcodes[$i]), $text);
                         }
                     }
                 }
@@ -1532,6 +1532,7 @@ class cf7_sendpdf {
         foreach( $allposts as $postinfo ) {
             delete_post_meta( $postinfo->ID, '_wp_cf7pdf' );
             delete_post_meta( $postinfo->ID, '_wp_cf7pdf_fields' );
+            delete_post_meta( $postinfo->ID, '_wp_cf7pdf_fields_scan' );
         }
        
         $wpcf7pdf_files_table = $wpdb->prefix.'wpcf7pdf_files';

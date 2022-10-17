@@ -15,43 +15,55 @@ $tmpDirectory = $upload_dir['basedir'].'/sendpdfcf7_uploads/tmp';
 /* Update des paramètres */
 if( (isset($_POST['action']) && isset($_POST['idform']) && $_POST['action'] == 'update') && isset($_POST['security-sendform']) && wp_verify_nonce($_POST['security-sendform'], 'go-sendform') ) {
 
-    if( isset($_POST['wp_cf7pdf_settings']['pdf-uploads-delete']) && $_POST['wp_cf7pdf_settings']['pdf-uploads-delete']=="true" ) {
-        
-        $dossier_traite = cf7_sendpdf::wpcf7pdf_folder_uploads(esc_html($_POST['idform']));
-        
-        if( isset($dossier_traite) && is_dir($dossier_traite) ) {
-            
-            $repertoire = opendir($dossier_traite); // On définit le répertoire dans lequel on souhaite travailler.
- 
-            while (false !== ($fichier = readdir($repertoire))) // On lit chaque fichier du répertoire dans la boucle.
-            {
-                $chemin = $dossier_traite."/".$fichier; // On définit le chemin du fichier à effacer.
+    if( isset($_POST['deleteconfig']) && $_POST['deleteconfig']=="true") {
 
-                // Si le fichier n'est pas un répertoire…
-                if ($fichier != ".." AND $fichier != "." AND !is_dir($fichier)) {
-                   wp_delete_file($chemin);
-                   //unlink($chemin); // On efface.
-                }
-            }
-            closedir($repertoire);
+        delete_post_meta( $_POST['idform'], '_wp_cf7pdf' );
+        delete_post_meta( $_POST['idform'], '_wp_cf7pdf_fields' );
+        delete_post_meta( $_POST['idform'], '_wp_cf7pdf_fields_scan' );
+        $_POST['idform'] = '';
+        
+        wp_redirect( 'admin.php?page=wpcf7-send-pdf&deleted=1' );
+
+    } else {
+
+        if( isset($_POST['wp_cf7pdf_settings']['pdf-uploads-delete']) && $_POST['wp_cf7pdf_settings']['pdf-uploads-delete']=="true" ) {
             
-            echo '<div id="message" class="updated fade"><p><strong>'.__('The upload folder has been deleted.', 'send-pdf-for-contact-form-7').'</strong></p></div>';
+            $dossier_traite = cf7_sendpdf::wpcf7pdf_folder_uploads(esc_html($_POST['idform']));
+            
+            if( isset($dossier_traite) && is_dir($dossier_traite) ) {
+                
+                $repertoire = opendir($dossier_traite); // On définit le répertoire dans lequel on souhaite travailler.
+    
+                while (false !== ($fichier = readdir($repertoire))) // On lit chaque fichier du répertoire dans la boucle.
+                {
+                    $chemin = $dossier_traite."/".$fichier; // On définit le chemin du fichier à effacer.
+
+                    // Si le fichier n'est pas un répertoire…
+                    if ($fichier != ".." AND $fichier != "." AND !is_dir($fichier)) {
+                    wp_delete_file($chemin);
+                    //unlink($chemin); // On efface.
+                    }
+                }
+                closedir($repertoire);
+                
+                echo '<div id="message" class="updated fade"><p><strong>'.__('The upload folder has been deleted.', 'send-pdf-for-contact-form-7').'</strong></p></div>';
+            }
+
         }
 
-    }
+        $updateSetting = cf7_sendpdf::wpcf7pdf_update_settings(esc_html($_POST['idform']), $_POST["wp_cf7pdf_settings"], '_wp_cf7pdf');
 
-    $updateSetting = cf7_sendpdf::wpcf7pdf_update_settings(esc_html($_POST['idform']), $_POST["wp_cf7pdf_settings"], '_wp_cf7pdf');
-
-    if ( isset($_POST["wp_cf7pdf_tags"]) ) {
-        $updateSettingTags = cf7_sendpdf::wpcf7pdf_update_settings(esc_html($_POST['idform']), $_POST["wp_cf7pdf_tags"], '_wp_cf7pdf_fields');
-    }
-    if ( isset($_POST["wp_cf7pdf_tags_scan"]) ) {
-        $updateSettingTagsScan = cf7_sendpdf::wpcf7pdf_update_settings(esc_html($_POST['idform']), $_POST["wp_cf7pdf_tags_scan"], '_wp_cf7pdf_fields_scan');
-    }
-    
-    if( isset($updateSetting) && $updateSetting == true) {
-        $options_saved = true;
-        echo '<div id="message" class="updated fade"><p><strong>'.__('Options saved.', 'send-pdf-for-contact-form-7').'</strong></p></div>';
+        if ( isset($_POST["wp_cf7pdf_tags"]) ) {
+            $updateSettingTags = cf7_sendpdf::wpcf7pdf_update_settings(esc_html($_POST['idform']), $_POST["wp_cf7pdf_tags"], '_wp_cf7pdf_fields');
+        }
+        if ( isset($_POST["wp_cf7pdf_tags_scan"]) ) {
+            $updateSettingTagsScan = cf7_sendpdf::wpcf7pdf_update_settings(esc_html($_POST['idform']), $_POST["wp_cf7pdf_tags_scan"], '_wp_cf7pdf_fields_scan');
+        }
+        
+        if( isset($updateSetting) && $updateSetting == true) {
+            $options_saved = true;
+            echo '<div id="message" class="updated fade"><p><strong>'.__('Options saved.', 'send-pdf-for-contact-form-7').'</strong></p></div>';
+        }
     }
 
 }
@@ -87,7 +99,9 @@ if( isset($_POST['action']) && $_POST['action'] == 'reset' ) {
 
 }
 
-
+if( isset($_GET['deleted']) && $_GET['deleted']==1 ) {
+    echo '<div id="message" class="updated fade"><p><strong>'.__('All settings hare been deleted.', 'send-pdf-for-contact-form-7').'</strong></p></div>';
+}
 ?>
 <script type="text/javascript">
 jQuery.fn.selectText = function () {
@@ -527,7 +541,7 @@ jQuery(document).ready(function() {
 
             // Shortcodes?
             if( isset($meta_values['shotcodes_tags']) && $meta_values['shotcodes_tags']!='') {
-                $tagShortcodes = explode(',', $meta_values['shotcodes_tags']);
+                $tagShortcodes = explode(',', esc_html($meta_values['shotcodes_tags']));
                 $countShortcodes = count($tagShortcodes);
                 for($i = 0; $i < ($countShortcodes);  $i++) {
                     if( stripos($messageText, $tagShortcodes[$i]) !== false ) {
@@ -1013,6 +1027,24 @@ $pathFolder = serialize($createDirectory);
                         <td colspan="2"><hr style="background-color: <?php echo esc_html($colors[2]); ?>; height: 1px; border: 0;"></td>
                     </tr>
 
+                    <tr>
+                        <td><?php _e('Delete all config for this form?', 'send-pdf-for-contact-form-7'); ?><p><i><?php _e('Click Yes and save the form.', 'send-pdf-for-contact-form-7'); ?></i></p></td>
+                        <td>
+                            <div style="">
+                                <div class="switch-field">
+                                <input class="switch_left" type="radio" id="switch_deleteconfig" name="deleteconfig" value="true"/>
+                                <label for="switch_deleteconfig"><?php _e('Yes', 'send-pdf-for-contact-form-7'); ?></label>
+                                <input class="switch_right" type="radio" id="switch_deleteconfig_no" name="deleteconfig" value="false" checked />
+                                <label for="switch_deleteconfig_no"><?php _e('No', 'send-pdf-for-contact-form-7'); ?></label>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td colspan="2"><hr style="background-color: <?php echo esc_html($colors[2]); ?>; height: 1px; border: 0;"></td>
+                    </tr>
+
 
                 </tbody>
             </table>
@@ -1288,7 +1320,7 @@ $pathFolder = serialize($createDirectory);
                                         <td width="50%">
                                             <?php if( empty($fileTags) || ( isset($fileTags) && $fileTags == '') ) { $fileTags = '[file-1][file-2]'; } ?>
                                             <i><?php echo sprintf( __('The <strong>[file]</strong> tags are for images? Enter them here to display them in images on your PDF and like this: %s', 'send-pdf-for-contact-form-7'), esc_html($fileTags) ); ?></i><br /><small><?php _e('It will then be necessary to put them in the image HTML tag for the PDF layout.', 'send-pdf-for-contact-form-7'); ?><br /><?php _e('Use url- prefix for display URL like this:', 'send-pdf-for-contact-form-7'); ?> <?php echo str_replace('[', '[url-', esc_html($fileTags)); ?></small><br /><input type="text" class="wpcf7-form-field" name="wp_cf7pdf_settings[file_tags]" size="80%" value="<?php if( isset($meta_values['file_tags'])) { echo esc_html($meta_values['file_tags']); } ?>" /><br /><br />
-                                            <i><?php echo __('Enter here your Shortcodes', 'send-pdf-for-contact-form-7'); ?></i><br /><small><?php _e('It will then be necessary to put them in the PDF layout. Test with this shortcode: [wpcf7pdf_test]', 'send-pdf-for-contact-form-7'); ?></small><br /><input type="text" class="wpcf7-form-field" name="wp_cf7pdf_settings[shotcodes_tags]" size="80%" value="<?php if( isset($meta_values['shotcodes_tags'])) { echo esc_html($meta_values['shotcodes_tags']); } ?>" />
+                                            <i><?php echo __('Enter here your Shortcodes (separated by commas)', 'send-pdf-for-contact-form-7'); ?></i><br /><small><?php _e('It will then be necessary to put them in the PDF layout. Test with this shortcode: [wpcf7pdf_test]', 'send-pdf-for-contact-form-7'); ?></small><br /><input type="text" class="wpcf7-form-field" name="wp_cf7pdf_settings[shotcodes_tags]" size="80%" value="<?php if( isset($meta_values['shotcodes_tags'])) { echo esc_html($meta_values['shotcodes_tags']); } ?>" />
                                         </td>
                                     
                                     </tr>
