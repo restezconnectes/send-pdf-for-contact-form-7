@@ -209,7 +209,7 @@ jQuery(document).ready(function() {
     </div>
 
     <?php
-    if( isset($_POST['idform']) && wp_verify_nonce($_POST['security-sendform'], 'go-sendform') ) {
+    if( isset($_POST['idform']) && ( (isset( $_REQUEST['security-sendform'] ) && wp_verify_nonce($_POST['security-sendform'], 'go-sendform')) || (isset( $_REQUEST['wpcf7_import_nonce'] ) && wp_verify_nonce($_POST['wpcf7_import_nonce'], 'go_import_nonce'))) ) {
 
         //name,forename,bithday,sex,phone,adress,cp,city,sport,
         $idForm = esc_html($_POST['idform']);
@@ -1504,7 +1504,7 @@ $pathFolder = serialize($createDirectory);
               <input type="hidden" name="wpcf7_action" value="import_settings" />
               <input type="hidden" name="idform" value="<?php echo esc_html($idForm); ?>"/>
               <input type="hidden" name="wpcf7pdf_import_id" value="<?php echo esc_html($idForm); ?>" />
-              <?php wp_nonce_field( 'wpcf7_import_nonce', 'wpcf7_import_nonce' ); ?>
+              <?php wp_nonce_field( 'go_import_nonce', 'wpcf7_import_nonce' ); ?>
               <?php submit_button( __( 'Import', 'send-pdf-for-contact-form-7' ), 'secondary', 'submit', false ); ?>
           </p>
       </form>
