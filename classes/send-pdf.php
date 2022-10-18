@@ -1691,6 +1691,11 @@ class cf7_sendpdf {
                 'cellpadding' => array(),
                 'cellspacing' => array(),
                 'border' => array()
+                ),
+            'barcode' => array(
+                'code' => array(),
+                'class' => array(),
+                'type' => array()
                 )
 
             );

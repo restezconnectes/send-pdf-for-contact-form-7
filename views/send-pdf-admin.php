@@ -193,7 +193,7 @@ jQuery(document).ready(function() {
                         </div>
                     <p><?php printf( __('Read %s here !', 'send-pdf-for-contact-form-7'), '<a href="https://restezconnectes.fr/tutoriel-wordpress-lextension-send-pdf-for-contact-form-7/" class="wpcf7-link" target="_blank" onfocus="this.blur();">'.__('Tutorial', 'send-pdf-for-contact-form-7').'</a>' ); ?></p>
                 </td>
-                <td align="right" width="33%">
+                <td style="text-align:right;" width="33%">
                     <!-- FAIRE UN DON SUR PAYPAL -->
                     <div style="font-size:0.8em;">
                         <div style="width:350px;margin-left:auto;margin-right:auto;padding:5px;">
