@@ -20,6 +20,7 @@ Current Version:  0.9.9
 * Adding deleted all settings form option
 * Some Bug fixed
 * Barcode & QrCode are now compatible
+* Fixed bug import / export settings
 
 -- 0.9.8 --
 * Add the u modifier to make UTF-8 work

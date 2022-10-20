@@ -1484,7 +1484,7 @@ $pathFolder = serialize($createDirectory);
               <input type="hidden" name="wpcf7pdf_export_id" value="<?php echo esc_html($idForm); ?>" />
             </p>
             <p>
-                <?php wp_nonce_field( 'wpcf7_export_nonce', 'wpcf7_export_nonce' ); ?>
+                <?php wp_nonce_field( 'go_export_nonce', 'wpcf7_export_nonce' ); ?>
                 <?php submit_button( __( 'Export', 'send-pdf-for-contact-form-7' ), 'secondary', 'submit', false ); ?>
             </p>
         </form>

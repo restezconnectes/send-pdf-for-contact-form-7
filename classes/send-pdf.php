@@ -132,7 +132,7 @@ class cf7_sendpdf {
         if(empty( $_POST['wpcf7_action']) || 'export_settings' != $_POST['wpcf7_action'])
             return;
 
-        if(!wp_verify_nonce($_POST['wpcf7_export_nonce'], 'wpcf7_export_nonce' ))
+        if(!wp_verify_nonce($_POST['wpcf7_export_nonce'], 'go_export_nonce' ))
             return;
 
         if(!current_user_can('manage_options') )
@@ -163,7 +163,7 @@ class cf7_sendpdf {
         if(empty($_POST['wpcf7_action']) || 'import_settings' != $_POST['wpcf7_action'])
             return;
 
-        if(!wp_verify_nonce( $_POST['wpcf7_import_nonce'], 'wpcf7_import_nonce' ))
+        if(!wp_verify_nonce( $_POST['wpcf7_import_nonce'], 'go_import_nonce' ))
             return;
 
         if(!current_user_can( 'manage_options'))
