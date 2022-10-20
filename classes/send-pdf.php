@@ -1140,6 +1140,7 @@ class cf7_sendpdf {
             $upload_dir = wp_upload_dir();
             // On récupère le dossier upload de l'extension (/sendpdfcf7_uploads/)
             $createDirectory = $this->wpcf7pdf_folder_uploads(esc_html($post['_wpcf7']));
+            //error_log('createDirectory ---> '.$createDirectory);
             $uploaded_files = $submission->uploaded_files();
             // on va chercher les options du formulaire
 
@@ -1359,7 +1360,7 @@ class cf7_sendpdf {
                         if( isset($tagsOnMail[1]) && $tagsOnMail[1] != '' && !empty($posted_data[$tagsOnMail[1]]) ) {
                             $image_name_mail = $posted_data[$tagsOnMail[1]];
                             if( isset($image_name_mail) && $image_name_mail!='' ) {
-                                $chemin_final2[$tagsOnMail[1]] = str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $createDirectory).'/'.sanitize_text_field(get_transient('pdf_uniqueid')).'-'.wpcf7_mail_replace_tags($tagsOnMail[0]);
+                                $chemin_final2[$tagsOnMail[1]] = esc_url(str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $createDirectory).'/'.sanitize_text_field(get_transient('pdf_uniqueid')).'-'.wpcf7_mail_replace_tags($tagsOnMail[0]));
                                 $messageText = str_replace('['.$tagsOnMail[1].']', $image_name_mail, $messageText);
                                 $messageText = str_replace('[url-'.$tagsOnMail[1].']', $chemin_final2[$tagsOnMail[1]], $messageText);
                             } else {
@@ -1374,8 +1375,8 @@ class cf7_sendpdf {
                     $tagShortcodes = explode(',', esc_html($meta_values['shotcodes_tags']));
                     $countShortcodes = count($tagShortcodes);
                     for($i = 0; $i < ($countShortcodes);  $i++) {
-                        if( stripos($text, $tagShortcodes[$i]) !== false ) {
-                            $text = str_replace($tagShortcodes[$i], do_shortcode($tagShortcodes[$i]), $text);
+                        if( stripos($messageText, $tagShortcodes[$i]) !== false ) {
+                            $messageText = str_replace($tagShortcodes[$i], do_shortcode($tagShortcodes[$i]), $messageText);
                         }
                     }
                 }
