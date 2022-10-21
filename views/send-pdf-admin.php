@@ -544,8 +544,13 @@ jQuery(document).ready(function() {
                 $tagShortcodes = explode(',', esc_html($meta_values['shotcodes_tags']));
                 $countShortcodes = count($tagShortcodes);
                 for($i = 0; $i < ($countShortcodes);  $i++) {
-                    if( stripos($messageText, $tagShortcodes[$i]) !== false ) {
-                        $messageText = str_replace($tagShortcodes[$i], do_shortcode($tagShortcodes[$i]), $messageText);
+
+                    $pattern = '`\[([^\]]*)\]`';
+                    $result = preg_match_all($pattern, $tagShortcodes[$i], $shortcodeTags);
+                    $shortcodeName = explode(' ', $shortcodeTags[1][0]);
+                    
+                    if( stripos($messageText, '['.$shortcodeName[0].']') !== false ) {
+                        $messageText = str_replace('['.$shortcodeName[0].']', do_shortcode($tagShortcodes[$i]), $messageText);
                     }
                 }
             }
@@ -1424,8 +1429,7 @@ $pathFolder = serialize($createDirectory);
             if( isset($settingsLimit) && $settingsLimit > 0 ) { $limitList = $settingsLimit; }
                                                                                             
             $list = cf7_sendpdf::wpcf7pdf_listing(esc_html($idForm), esc_html($limitList));
-            //var_dump($list);
-            if( $list) { ?>
+            if( $list ) { ?>
                 <div style="padding:5px;margin-bottom:10px;">
                     <div>
                         <form method="post" action="#listing">
@@ -1446,7 +1450,7 @@ $pathFolder = serialize($createDirectory);
                             $datas = unserialize($recorder->wpcf7pdf_data);
                             echo '<td width="80%">';
                             //var_dump($datas);
-                            echo '<a href="'.esc_url($recorder->wpcf7pdf_files).'" target="_blank">'.esc_html($datas[0]) .'</a> - '. esc_html($datas[1]);
+                            echo '<a href="'.esc_url($recorder->wpcf7pdf_files).'" target="_blank">'.esc_html($datas[0]) .'</a> - '.esc_html($datas[1]);
                             
                             echo '</td>';
                             echo '<td width="5%"><a href="'.esc_url($recorder->wpcf7pdf_files).'" target="_blank"><img src="'.esc_url(WPCF7PDF_URL.'images/icon_download.png').'" width="30" title="'.__('Download', 'send-pdf-for-contact-form-7').'" alt="'.__('Download', 'send-pdf-for-contact-form-7').'" /></a></td>';                        

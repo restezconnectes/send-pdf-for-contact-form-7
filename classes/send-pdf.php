@@ -1008,8 +1008,13 @@ class cf7_sendpdf {
                         $tagShortcodes = explode(',', esc_html($meta_values['shotcodes_tags']));
                         $countShortcodes = count($tagShortcodes);
                         for($i = 0; $i < ($countShortcodes);  $i++) {
-                            if( stripos($text, $tagShortcodes[$i]) !== false ) {
-                                $text = str_replace($tagShortcodes[$i], do_shortcode($tagShortcodes[$i]), $text);
+
+                            $pattern = '`\[([^\]]*)\]`';
+                            $result = preg_match_all($pattern, $tagShortcodes[$i], $shortcodeTags);
+                            $shortcodeName = explode(' ', $shortcodeTags[1][0]);
+                            
+                            if( stripos($text, '['.$shortcodeName[0].']') !== false ) {
+                                $text = str_replace('['.$shortcodeName[0].']', do_shortcode($tagShortcodes[$i]), $text);
                             }
                         }
                     }
