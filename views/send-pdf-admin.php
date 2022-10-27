@@ -451,10 +451,7 @@ jQuery(document).ready(function() {
                         
                         $valueTag = wpcf7_mail_replace_tags('['.$sh_tag["name"].']');
                         if (isset($meta_values['data_input']) && $meta_values['data_input']== 'true') {
-
-                            if( strpos($valueTag, trim($val) )!== false) {
-                                $radioChecked = 'checked="checked"';
-                            }                            
+                         
                             if( in_array('label_first', $tagOptions) ) {
                                 $inputRadio .= ''.$tagSeparate.''.esc_html($val).' <input type="radio" class="wpcf7-radio" name="'.esc_html($sh_tag["name"]).'" value="'.$i.'">'.$tagSeparateAfter.'';
                             } else {
@@ -467,8 +464,10 @@ jQuery(document).ready(function() {
                         }
                         $i++;
                     }
+
                     $messageText = str_replace('['.esc_html($sh_tag["name"]).']', $inputRadio, $messageText);
                     $messageText = rtrim($messageText, $tagSeparateAfter);
+
                 } else {
                     
                     $valueTag = wpcf7_mail_replace_tags('['.esc_html($sh_tag["name"]).']');                            

@@ -721,11 +721,16 @@ class cf7_sendpdf {
 
                             $caseChecked = '';
                             $valueTag = wpcf7_mail_replace_tags('['.$sh_tag["name"].']');
- 
+
                             if(isset($meta_values['data_input']) && $meta_values['data_input']== 'true') {
-                                
-                                if(preg_match('/\b'.$val.'\b/iu', $valueTag)){
-                                    $caseChecked = 'checked="checked"';
+                                if( strpos($val, '/') ) {
+                                    if( strpos($valueTag, trim($val) )!== false) {
+                                        $caseChecked = 'checked="checked"';
+                                    }
+                                } else {
+                                    if(preg_match('/\b'.$val.'\b/iu', $valueTag)){
+                                        $caseChecked = 'checked="checked"';
+                                    }
                                 }
                                 if(in_array('label_first', $tagOptions)) {
                                     $inputCheckbox .= ''.$tagSeparate.''.$val.' <input type="checkbox" class="wpcf7-checkbox" name="'.$sh_tag["name"].$i.'" value="'.$i.'" '.$caseChecked.' />'.$tagSeparateAfter.'';
@@ -755,9 +760,16 @@ class cf7_sendpdf {
 
                             if(isset($meta_values['data_input']) && $meta_values['data_input']== 'true') {
 
-                                if(preg_match('/\b'.$val.'\b/iu', $valueTag)) {
-                                    $radioChecked = 'checked="checked"';
-                                }                            
+                                if( strpos($val, '/') ) {
+                                    if( strpos($valueTag, trim($val) )!== false) {
+                                        $radioChecked = 'checked="checked"';
+                                    }
+                                } else {
+                                    if(preg_match('/\b'.$val.'\b/iu', $valueTag)){
+                                        $radioChecked = 'checked="checked"';
+                                    }
+                                }
+                          
                                 if(in_array('label_first', $tagOptions) ) {
                                     $inputRadio .= ''.$tagSeparate.''.$val.' <input type="radio" class="wpcf7-radio" name="'.$sh_tag["name"].'" value="'.$i.'" '.$radioChecked.' >'.$tagSeparateAfter.'';
                                 } else {
