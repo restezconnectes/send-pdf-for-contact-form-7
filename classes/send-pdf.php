@@ -1786,6 +1786,7 @@ class cf7_sendpdf {
             'Roboto' => 'roboto',
             'Poppins' => 'poppins',
             'Montserrat' => 'montserrat',
+            'IslandMoments-Regular' => 'islandmoments',
             'FreeSans' => 'freesans',
             'FreeSerif' => 'freeserif',
             'FreeMono' => 'freemono',

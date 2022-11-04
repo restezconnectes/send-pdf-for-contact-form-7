@@ -352,6 +352,9 @@ class FontVariables
 					'I' => "Montserrat-Italic.ttf",
 					'BI' => "Montserrat-BoldItalic.ttf",
 				],
+				'islandmoments-regular' => [
+					'R' => "IslandMoments-Regular.ttf",
+				],
 				
 			],
 

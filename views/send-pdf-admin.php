@@ -409,7 +409,7 @@ jQuery(document).ready(function() {
                 if( $meta_values["separate"] == 'space') { $tagSeparate = ' '; }
                 if( $meta_values["separate"] == 'dash') { $tagSeparate = '- '; }
                 if( $meta_values["separate"] == 'star') { $tagSeparate = '* '; }
-                if( $meta_values["separate"] == 'rightarrow') { $tagSeparate = '&rarr; '; }
+                if( $meta_values["separate"] == 'rightarrow') { $tagSeparate = '<span class="dashicons dashicons-arrow-right"></span> '; }
                 if( $meta_values["separate"] == 'double-right-arrow') { $tagSeparate = '&rArr; '; }
                 if( $meta_values["separate"] == 'cornerarrow') { $tagSeparate = '&#8627; '; }
                 
