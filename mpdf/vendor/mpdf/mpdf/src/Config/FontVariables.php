@@ -334,6 +334,24 @@ class FontVariables
 				"kolkerbrush-regular" => [
 					'R' => "KolkerBrush-Regular.ttf",
 				],
+				"roboto" => [
+					'R' => "Roboto-Regular.ttf",
+					'B' => "Roboto-Bold.ttf",
+					'I' => "Roboto-Italic.ttf",
+					'BI' => "Roboto-BoldItalic.ttf",
+				],
+				"poppins" => [
+					'R' => "Poppins-Regular.ttf",
+					'B' => "Poppins-Bold.ttf",
+					'I' => "Poppins-Italic.ttf",
+					'BI' => "Poppins-BoldItalic.ttf",
+				],
+				"montserrat" => [
+					'R' => "Montserrat-Regular.ttf",
+					'B' => "Montserrat-Bold.ttf",
+					'I' => "Montserrat-Italic.ttf",
+					'BI' => "Montserrat-BoldItalic.ttf",
+				],
 				
 			],
 
