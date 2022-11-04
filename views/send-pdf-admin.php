@@ -1097,7 +1097,7 @@ $pathFolder = serialize($createDirectory);
             <table class="wp-list-table widefat fixed" cellspacing="0">
                 <tbody id="the-list">
                     <tr>
-                        <td>
+                        <td style="width: 60%;">
                             <h3 class="hndle"><span class="dashicons dashicons-format-image"></span>&nbsp;&nbsp;<?php _e('Image header', 'send-pdf-for-contact-form-7'); ?></h3>
                             <?php _e('Enter a URL or upload an image:', 'send-pdf-for-contact-form-7'); ?><br />
                             <input id="upload_image" size="80%" class="wpcf7-form-field" name="wp_cf7pdf_settings[image]" value="<?php if( isset($meta_values['image']) ) { echo esc_url($meta_values['image']); } ?>" type="text" /> <a href="#" id="upload_image_button" class="button" OnClick="this.blur();"><span> <?php _e('Select or Upload your picture', 'send-pdf-for-contact-form-7'); ?> </span></a> <br />
@@ -1111,14 +1111,13 @@ $pathFolder = serialize($createDirectory);
                                 
                                 <div style=""><?php _e('Display header on each page?', 'send-pdf-for-contact-form-7'); ?>
                                     <div class="switch-field-mini">
-                                    <input class="switch_left" type="radio" id="switch_page_header" name="wp_cf7pdf_settings[page_header]" value="1" <?php if( isset($meta_values["page_header"]) && $meta_values["page_header"]==1) { echo ' checked'; } ?>/>
-                                    <label for="switch_page_header"><?php _e('Yes', 'send-pdf-for-contact-form-7'); ?></label>
-                                    <input class="switch_right" type="radio" id="switch_page_header_no" name="wp_cf7pdf_settings[page_header]" value="0" <?php if( empty($meta_values["page_header"]) || (isset($meta_values["page_header"]) && $meta_values["page_header"]==0) ) { echo ' checked'; } ?> />
-                                    <label for="switch_page_header_no"><?php _e('No', 'send-pdf-for-contact-form-7'); ?></label>
-                                </div><br />
-                                <?php _e('Margin Bottom Header', 'send-pdf-for-contact-form-7'); ?> <input type="text" size="4" class="wpcf7-form-field" name="wp_cf7pdf_settings[margin_bottom_header]" value="<?php if( isset($meta_values["margin_bottom_header"]) && $meta_values["margin_bottom_header"]!='' ) { echo esc_html($meta_values["margin_bottom_header"]); } else { echo esc_html($marginBottomHeader); } ?>" />                            
-                        </div>
-
+                                        <input class="switch_left" type="radio" id="switch_page_header" name="wp_cf7pdf_settings[page_header]" value="1" <?php if( isset($meta_values["page_header"]) && $meta_values["page_header"]==1) { echo ' checked'; } ?>/>
+                                        <label for="switch_page_header"><?php _e('Yes', 'send-pdf-for-contact-form-7'); ?></label>
+                                        <input class="switch_right" type="radio" id="switch_page_header_no" name="wp_cf7pdf_settings[page_header]" value="0" <?php if( empty($meta_values["page_header"]) || (isset($meta_values["page_header"]) && $meta_values["page_header"]==0) ) { echo ' checked'; } ?> />
+                                        <label for="switch_page_header_no"><?php _e('No', 'send-pdf-for-contact-form-7'); ?></label>
+                                    </div><br />
+                                    <?php _e('Margin Bottom Header', 'send-pdf-for-contact-form-7'); ?> <input type="text" size="4" class="wpcf7-form-field" name="wp_cf7pdf_settings[margin_bottom_header]" value="<?php if( isset($meta_values["margin_bottom_header"]) && $meta_values["margin_bottom_header"]!='' ) { echo esc_html($meta_values["margin_bottom_header"]); } else { echo esc_html($marginBottomHeader); } ?>" />                            
+                                </div>
                             </div>
 
                             <h3 class="hndle"><span class="dashicons dashicons-images-alt2"></span>&nbsp;&nbsp;<?php _e('Image Background', 'send-pdf-for-contact-form-7'); ?></h3>
@@ -1136,7 +1135,7 @@ $pathFolder = serialize($createDirectory);
                             </div>
                         </td>
                         <td style="text-align:center;">
-                            <div style="border:1px solid #CCCCCC;height:460px;padding:5px;<?php if( isset($meta_values['image_background']) ) { echo 'background: no-repeat url('.esc_url($meta_values['image_background']); } ?>);background-size: cover;">
+                            <div style="border:1px solid #CCCCCC;height:500px;padding:5px;<?php if( isset($meta_values['image_background']) ) { echo 'background: no-repeat url('.esc_url($meta_values['image_background']); } ?>);background-size: cover;">
                                 <div style="text-align:<?php if( isset($meta_values['image-alignment']) ) { echo esc_html($meta_values['image-alignment']); } ?>;margin-top:<?php if( isset($meta_values["margin_header"]) && $meta_values["margin_header"]!='' ) { echo esc_html($meta_values["margin_header"]); } else { echo esc_html($marginHeader); } ?>px;"><?php if( isset($meta_values['image']) ) { echo '<img src="'.esc_url($meta_values['image']).'" width="150">'; } ?>
                                 </div>
                                 <?php
