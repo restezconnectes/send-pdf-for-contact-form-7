@@ -639,6 +639,9 @@ $pathFolder = serialize($createDirectory);
     <div style="text-align:right;">
         <p>
             <input type="submit" name="wp_cf7pdf_update_settings" class="button-primary" value="<?php _e('Save settings', 'send-pdf-for-contact-form-7'); ?>"/>
+            <?php if( file_exists($createDirectory.'/preview-'.esc_html($idForm).'.pdf') ) { ?>
+                <a class="button button-secondary" target="_blank" href="<?php echo esc_url(str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $createDirectory)).'/preview-'.esc_html($idForm).'.pdf?ver='.rand(); ?>" ><?php _e('Preview your PDF', 'send-pdf-for-contact-form-7'); ?></a>
+            <?php } ?>
         </p>
     </div>
 
