@@ -934,6 +934,13 @@ class cf7_sendpdf {
                     $mpdf->SetTitle(get_the_title(esc_html($post['_wpcf7'])));
                     $mpdf->SetCreator(get_bloginfo('name'));
                     $mpdf->ignore_invalid_utf8 = true;
+
+                    $mpdfCharset = 'utf-8';
+                    if( isset($meta_values["charset"]) && $meta_values["charset"]!='utf-8' ) {
+                        $mpdfCharset = esc_html($meta_values["charset"]);
+                    }
+                    $mpdf->allow_charset_conversion=true;  // Set by default to TRUE
+                    $mpdf->charset_in=''.$mpdfCharset.'';
                     
                     if( empty($meta_values["margin_auto_header"]) || ( isset($meta_values["margin_auto_header"]) && $meta_values["margin_auto_header"]=='' ) ) { $meta_values["margin_auto_header"] = 'stretch'; }
                     if( empty($meta_values["margin_auto_header"]) || ( isset($meta_values["margin_auto_bottom"]) && $meta_values["margin_auto_bottom"]=='' ) ) { $meta_values["margin_auto_bottom"] = 'stretch'; }
@@ -1614,6 +1621,7 @@ class cf7_sendpdf {
                 ),
             'br' => array(),
             'p' => array(
+                'id' => array(),
                 'style' => array(),
                 'class' => array()
                 ),
@@ -1635,6 +1643,7 @@ class cf7_sendpdf {
             'strong' => array(),
             'small' => array(),
             'img' => array(
+                'id' => array(),
                 'src' => array(),
                 'title' => array(),
                 'width' => array(),
@@ -1643,16 +1652,20 @@ class cf7_sendpdf {
                 'class' => array()
                 ),
             'div' => array(
+                'id' => array(),
                 'class' => array(),
                 'title' => array(),
                 'style' => array()
                 ),
             'span' => array(
+                'id' => array(),
                 'class' => array(),
                 'title' => array(),
-                'style' => array()
+                'style' => array(),
+                'dir' => array()
                 ),
             'table' => array(
+                'id' => array(),
                 'style' => array(),
                 'class' => array(),
                 'colspan' => array(),
@@ -1663,6 +1676,7 @@ class cf7_sendpdf {
                 'border' => array()
                 ),
             'td' => array(
+                'id' => array(),
                 'style' => array(),
                 'class' => array(),
                 'colspan' => array(),
@@ -1673,6 +1687,7 @@ class cf7_sendpdf {
                 'border' => array()
                 ),
             'tr' => array(
+                'id' => array(),
                 'style' => array(),
                 'class' => array(),
                 'colspan' => array(),
@@ -1744,7 +1759,15 @@ class cf7_sendpdf {
             'em' => array(),
             'dl' => array(),
             'dt' => array(),
-            'em' => array()
+            'em' => array(),
+            'bdi' => array(),
+            /*'html' => array(
+                'lang' => array(),
+            ),
+            
+            'meta' => array( 'charset' => array()),
+            'title' => array(),
+            'body' => array( 'dir' => array()),*/
         );
 
     }
@@ -1758,6 +1781,8 @@ class cf7_sendpdf {
             'DejaVuSerifCondensed' => 'dejavuserifcondensed',
             'DejaVuSansMono' => 'dejavusansmono',
             'Ubuntu' => 'ubuntu',
+            'Ubuntu-Medium' => 'ubuntu-medium',
+            'Ubuntu-Light' => 'ubuntu-light',
             'FreeSans' => 'freesans',
             'FreeSerif' => 'freeserif',
             'FreeMono' => 'freemono',
@@ -1772,6 +1797,7 @@ class cf7_sendpdf {
             'Pothana2000' => 'pothana2000',
             'Lateef' => 'lateef',
             'Khmeros' => 'khmeros',
+            'KolkerBrush-Regular' => 'kolkerbrush-regular',
             'Dhyana' => 'dhyana',
             'Tharlon' => 'tharlon',
             'Padauk Book' => 'padaukbook',

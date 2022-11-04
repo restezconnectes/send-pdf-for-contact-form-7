@@ -12,9 +12,13 @@ File send-pdf-for-contact-form-7.pot available
 
 <a href="https://demo.restezconnectes.fr/send-pdf-for-contact-form-7/">[Demo Here]</a>
 
-Current Version:  0.9.9
+Current Version:  0.9.9.1
 
 == Changelog ==
+
+-- 0.9.9.1 --
+* Autorize ID tag in text editor
+* Bug Fonts Fixed
 
 -- 0.9.9 --
 * Adding deleted all settings form option

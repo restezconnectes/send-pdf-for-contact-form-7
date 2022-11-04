@@ -317,6 +317,23 @@ class FontVariables
 					'I' => "dashicons.ttf",
 					'BI' => "dashicons.ttf",
 				],
+				"ubuntu" => [
+					'R' => "Ubuntu.ttf",
+					'B' => "Ubuntu-Bold.ttf",
+					'I' => "Ubuntu-Italic.ttf",
+					'BI' => "Ubuntu-BoldItalic.ttf",
+				],
+				"ubuntu-light" => [
+					'R' => "Ubuntu-Light.ttf",
+					'I' => "Ubuntu-LightItalic.ttf",
+				],
+				"ubuntu-medium" => [
+					'R' => "Ubuntu-Medium.ttf",
+					'I' => "Ubuntu-MediumItalic.ttf",
+				],
+				"kolkerbrush-regular" => [
+					'R' => "KolkerBrush-Regular.ttf",
+				],
 				
 			],
 

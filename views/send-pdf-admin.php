@@ -291,6 +291,8 @@ jQuery(document).ready(function() {
                     'margin_top' => $marginTop,
                     'margin_left' => $marginLeft,    	// 15 margin_left
                     'margin_right' => $marginRight,    	// 15 margin right
+                    'default_font' => $fontPdf,
+                    'default_font_size' => $fontsizePdf,
                 );
 
             } else if( isset($meta_values['fillable_data']) && $meta_values['fillable_data']== 'true') {
@@ -333,6 +335,13 @@ jQuery(document).ready(function() {
             $mpdf->SetCreator(get_bloginfo('name'));
             $mpdf->ignore_invalid_utf8 = true;
             $mpdf->simpleTables = false;
+
+            $mpdfCharset = 'utf-8';
+            if( isset($meta_values["charset"]) && $meta_values["charset"]!='utf-8' ) {
+                $mpdfCharset = esc_html($meta_values["charset"]);
+            }
+            $mpdf->allow_charset_conversion=true;  // Set by default to TRUE
+            $mpdf->charset_in=''.$mpdfCharset.'';
 
             if( empty($meta_values["margin_auto_header"]) || ( isset($meta_values["margin_auto_header"]) && $meta_values["margin_auto_header"]=='' ) ) { $meta_values["margin_auto_header"] = 'stretch'; }
             if( empty($meta_values["margin_auto_header"]) || ( isset($meta_values["margin_auto_bottom"]) && $meta_values["margin_auto_bottom"]=='' ) ) { $meta_values["margin_auto_bottom"] = 'stretch'; }
@@ -902,6 +911,25 @@ $pathFolder = serialize($createDirectory);
                             <input id="time_format" size="16" class="wpcf7-form-field" name="wp_cf7pdf_settings[time_format]" value="<?php echo esc_html($formatTime); ?>" type="text" /> <?php _e('Time:', 'send-pdf-for-contact-form-7'); ?> <?php echo date_i18n($formatTime); ?>
                         </td>
                     </tr>
+                    <!-- ENTETE PDF -->
+                    <tr>
+                        <td colspan="2"><hr style="background-color: <?php echo $colors[2]; ?>; height: 1px; border: 0;"></td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <?php _e('Input encoding', 'send-pdf-for-contact-form-7'); ?><br /><p><i><?php _e('mPDF accepts UTF-8 encoded text by default for all functions', 'send-pdf-for-contact-form-7'); ?></i></p>
+                        </td>
+                        <td>
+                            <?php
+
+                            ?>
+                            <select name="wp_cf7pdf_settings[charset]">
+                                <option value="utf-8">utf-8</option>
+                                <option value="windows-1252">windows-1252</option>
+                            </select>
+                        </td>
+                    </tr>
+
                     <tr>
                         <td colspan="2"><hr style="background-color: <?php echo esc_html($colors[2]); ?>; height: 1px; border: 0;"></td>
                     </tr>
