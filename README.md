@@ -19,6 +19,7 @@ Current Version:  0.9.9.1
 -- 0.9.9.1 --
 * Autorize ID tag in text editor
 * Bug Fonts Fixed
+* Bug checkbox fixed
 
 -- 0.9.9 --
 * Adding deleted all settings form option
