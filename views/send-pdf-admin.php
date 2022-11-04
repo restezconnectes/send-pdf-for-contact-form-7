@@ -136,6 +136,7 @@ jQuery(document).ready(function() {
 </script>
 <style type="text/css">
 .CodeMirror{border: 1px solid #eee;height: auto;}
+.customDashicons{color: #444444!important;box-sizing: content-box;padding: 15px;width: 40px;height: 40px;white-space: nowrap;font-size: 40px;line-height: 1;cursor: pointer;float: left;}
 </style>
 <div id="wpcf7-general" class="wrap">
 
@@ -648,7 +649,7 @@ $pathFolder = serialize($createDirectory);
     <!-- PARAMETRES GENERAUX -->
     <div class="postbox">
         <div class="handlediv" style="height:1px!important;" title="<?php _e('Click to toggle', 'send-pdf-for-contact-form-7'); ?>"><br></div>
-        <h3 class="hndle" title="<?php _e('Click to toggle', 'send-pdf-for-contact-form-7'); ?>"><span class="dashicons dashicons-media-document"></span> <?php _e('General Settings', 'send-pdf-for-contact-form-7'); ?></h3>
+        <span class="dashicons customDashicons dashicons-admin-settings"></span> <h3 class="hndle" title="<?php _e('Click to toggle', 'send-pdf-for-contact-form-7'); ?>"><?php _e('General Settings', 'send-pdf-for-contact-form-7'); ?></h3>
         <div class="inside">
 
             <!-- Disable GENERATE PDF -->
@@ -1090,7 +1091,7 @@ $pathFolder = serialize($createDirectory);
     <!-- MISE EN PAGE -->
     <div class="postbox">
         <div class="handlediv" style="height:1px!important;" title="<?php _e('Click to toggle', 'send-pdf-for-contact-form-7'); ?>"><br></div>
-        <h3 class="hndle" title="<?php _e('Click to toggle', 'send-pdf-for-contact-form-7'); ?>"><span class="dashicons dashicons-pdf"></span> <?php _e('Layout of your PDF', 'send-pdf-for-contact-form-7'); ?></h3>
+        <span class="dashicons customDashicons dashicons-pdf"></span> <h3 class="hndle" title="<?php _e('Click to toggle', 'send-pdf-for-contact-form-7'); ?>"><?php _e('Layout of your PDF', 'send-pdf-for-contact-form-7'); ?></h3>
         <div class="inside openinside">
 
             <table class="wp-list-table widefat fixed" cellspacing="0">
@@ -1450,7 +1451,7 @@ $pathFolder = serialize($createDirectory);
     <div class="postbox">
 
         <div class="handlediv" style="height:1px!important;" title="<?php _e('Click to toggle', 'send-pdf-for-contact-form-7'); ?>"><br></div>
-        <h3 class="hndle"><span class="dashicons dashicons-list-view"></span>&nbsp;&nbsp;<?php _e( 'Last records', 'send-pdf-for-contact-form-7' ); ?></h3>
+        <span class="dashicons customDashicons dashicons-list-view"></span> <h3 class="hndle"><?php _e( 'Last records', 'send-pdf-for-contact-form-7' ); ?></h3>
         <div class="inside">
             <a name="listing"></a>
             <?php
@@ -1510,7 +1511,7 @@ $pathFolder = serialize($createDirectory);
     
 <div class="postbox">
    <div class="handlediv" style="height:1px!important;" title="<?php _e('Click to toggle', 'send-pdf-for-contact-form-7'); ?>"><br></div>
-    <h3 class="hndle" title="<?php _e('Click to toggle', 'send-pdf-for-contact-form-7'); ?>"><span class="dashicons dashicons-download"></span> <?php _e( 'Export Settings', 'send-pdf-for-contact-form-7' ); ?></h3>
+   <span class="dashicons customDashicons dashicons-download"></span> <h3 class="hndle" title="<?php _e('Click to toggle', 'send-pdf-for-contact-form-7'); ?>"><?php _e( 'Export Settings', 'send-pdf-for-contact-form-7' ); ?></h3>
     <div class="inside">
         <form method="post">
             <p>
@@ -1527,7 +1528,7 @@ $pathFolder = serialize($createDirectory);
 
 <div class="postbox">
    <div class="handlediv" style="height:1px!important;" title="<?php _e('Click to toggle', 'send-pdf-for-contact-form-7'); ?>"><br></div>
-    <h3 class="hndle" title="<?php _e('Click to toggle', 'send-pdf-for-contact-form-7'); ?>"><span class="dashicons dashicons-upload"></span> <?php _e( 'Import Settings', 'send-pdf-for-contact-form-7' ); ?></h3>
+   <span class="dashicons customDashicons dashicons-upload"></span> <h3 class="hndle" title="<?php _e('Click to toggle', 'send-pdf-for-contact-form-7'); ?>"><?php _e( 'Import Settings', 'send-pdf-for-contact-form-7' ); ?></h3>
     <div class="inside">
       <p><?php _e( 'Import the plugin settings from a .json file. This file can be obtained by exporting the settings on another site using the form above.', 'send-pdf-for-contact-form-7' ); ?></p>
       <form method="post" enctype="multipart/form-data">
