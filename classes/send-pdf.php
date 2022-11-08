@@ -904,6 +904,9 @@ class cf7_sendpdf {
                             'margin_top' => $marginTop,
                             'margin_left' => $marginLeft,    	// 15 margin_left
                             'margin_right' => $marginRight,    	// 15 margin right
+                            'default_font' => $fontPdf,
+                            'default_font_size' => $fontsizePdf,
+                            'tempDir' => $custom_tmp_path,
                         );
 
                     } else if( isset($meta_values['fillable_data']) && $meta_values['fillable_data']== 'true') {
