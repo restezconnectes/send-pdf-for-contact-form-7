@@ -409,10 +409,10 @@ jQuery(document).ready(function() {
                 if( $meta_values["separate"] == 'comma' ) { $tagSeparate = ', '; }
                 if( $meta_values["separate"] == 'space') { $tagSeparate = ' '; }
                 if( $meta_values["separate"] == 'dash') { $tagSeparate = '- '; }
-                if( $meta_values["separate"] == 'star') { $tagSeparate = '* '; }
-                if( $meta_values["separate"] == 'rightarrow') { $tagSeparate = '<span class="dashicons dashicons-arrow-right"></span> '; }
-                if( $meta_values["separate"] == 'double-right-arrow') { $tagSeparate = '&rArr; '; }
-                if( $meta_values["separate"] == 'cornerarrow') { $tagSeparate = '&#8627; '; }
+                if( $meta_values["separate"] == 'star') { $tagSeparate = '<i class="fas">&#xf621</i> '; }
+                if( $meta_values["separate"] == 'rightarrow') { $tagSeparate = '<i class="fas">&#xf061</i> '; }
+                if( $meta_values["separate"] == 'double-right-arrow') { $tagSeparate = '<i class="fas">&#xf101</i> '; }
+                if( $meta_values["separate"] == 'cornerarrow') { $tagSeparate = '<i class="fas">&#xf064</i> '; }
                 
             }
             $tagSeparateAfter = ' ';
@@ -1415,12 +1415,17 @@ $pathFolder = serialize($createDirectory);
                                     <tr>
                                         <td width="50%"><br /></td>
                                         <td width="50%" style="text-align:center;">
-                                            <?php if( file_exists($createDirectory.'/preview-'.esc_html($idForm).'.pdf') ) { ?><br />
-                                            <a href="<?php echo esc_url(str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $createDirectory)).'/preview-'.esc_html($idForm).'.pdf?ver='.rand(); ?>" target="_blank"><span class="preview-btn" style="padding:10px;"><span class="dashicons dashicons-search"></span> <?php _e('Preview your PDF', 'send-pdf-for-contact-form-7'); ?></span></a>
-                                            <?php } ?>
+                                            <div style="text-align:right;">
+                                                <p>
+                                                    <input type="submit" name="wp_cf7pdf_update_settings" class="button-primary" value="<?php _e('Save settings', 'send-pdf-for-contact-form-7'); ?>"/>
+                                                    <?php if( file_exists($createDirectory.'/preview-'.esc_html($idForm).'.pdf') ) { ?>
+                                                        <a class="button button-secondary" target="_blank" href="<?php echo esc_url(str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $createDirectory)).'/preview-'.esc_html($idForm).'.pdf?ver='.rand(); ?>" ><?php _e('Preview your PDF', 'send-pdf-for-contact-form-7'); ?></a>
+                                                    <?php } ?>
+                                                </p>
+                                            </div>
                                         </td>
                                     </tr>
-                                </table>
+                                </table>    
                             </legend>
                         </td>
                     </tr>
@@ -1435,14 +1440,14 @@ $pathFolder = serialize($createDirectory);
         </div>
     </div>
     <div class="clear">&nbsp;</div>
-
-    <ul>
-        <li>
-            <p>
-                <input type="submit" name="wp_cf7pdf_update_settings" class="button-primary" value="<?php _e('Save settings', 'send-pdf-for-contact-form-7'); ?>"/>
-            </p>
-        </li>
-    </ul>
+    <div style="text-align:left;">
+        <p>
+            <input type="submit" name="wp_cf7pdf_update_settings" class="button-primary" value="<?php _e('Save settings', 'send-pdf-for-contact-form-7'); ?>"/>
+            <?php if( file_exists($createDirectory.'/preview-'.esc_html($idForm).'.pdf') ) { ?>
+                <a class="button button-secondary" target="_blank" href="<?php echo esc_url(str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $createDirectory)).'/preview-'.esc_html($idForm).'.pdf?ver='.rand(); ?>" ><?php _e('Preview your PDF', 'send-pdf-for-contact-form-7'); ?></a>
+            <?php } ?>
+        </p>
+    </div>
 
 </form>
 <?php if( isset($meta_values["disable-insert"]) && $meta_values["disable-insert"]=="false") { ?>

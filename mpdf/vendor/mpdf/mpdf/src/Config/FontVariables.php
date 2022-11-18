@@ -289,34 +289,24 @@ class FontVariables
 				/* FONT AWESOME */
 				"fontawesome" => [
 					'R' => "fontawesome-webfont.ttf",
-					'B' => "fontawesome-webfont.ttf",
-					'I' => "fontawesome-webfont.ttf",
-					'BI' => "fontawesome-webfont.ttf",
 				],
 				"fontawesome-solid" => [
 					'R' => "fa-solid-900.ttf",
-					'B' => "fa-solid-900.ttf",
-					'I' => "fa-solid-900.ttf",
-					'BI' => "fa-solid-900.ttf",
 				],
 				"fontawesome-brands" => [
 					'R' => 'fa-brands-400.ttf',
-					'B' => "fa-brands-400.ttf",
-					'I' => "fa-brands-400.ttf",
-					'BI' => "fa-brands-400.ttf",
 				],
 				"fontawesome-regular" => [
 					'R' => "fa-regular-400.ttf",
-					'B' => "fa-regular-400.ttf",
-					'I' => "fa-regular-400.ttf",
-					'BI' => "fa-regular-400.ttf",
 				],
+				/* FONT DASHICONS */
 				"dashicons" => [
 					'R' => "dashicons.ttf",
 					'B' => "dashicons.ttf",
 					'I' => "dashicons.ttf",
 					'BI' => "dashicons.ttf",
 				],
+				/* OTHER FONTS */
 				"ubuntu" => [
 					'R' => "Ubuntu.ttf",
 					'B' => "Ubuntu-Bold.ttf",
@@ -355,6 +345,7 @@ class FontVariables
 				'islandmoments-regular' => [
 					'R' => "IslandMoments-Regular.ttf",
 				],
+				
 				
 			],
 

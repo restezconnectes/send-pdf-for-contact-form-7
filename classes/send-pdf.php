@@ -692,10 +692,10 @@ class cf7_sendpdf {
                     if( $meta_values["separate"] == 'comma' ) { $tagSeparate = ', '; }
                     if( $meta_values["separate"] == 'space') { $tagSeparate = ' '; }
                     if( $meta_values["separate"] == 'dash') { $tagSeparate = '- '; }
-                    if( $meta_values["separate"] == 'star') { $tagSeparate = '* '; }                    
-                    if( $meta_values["separate"] == 'rightarrow') { $tagSeparate = '&rarr; '; }
-                    if( $meta_values["separate"] == 'double-right-arrow') { $tagSeparate = '&rArr; '; }
-                    if( $meta_values["separate"] == 'cornerarrow') { $tagSeparate = '&#8627; '; }
+                    if( $meta_values["separate"] == 'star') { $tagSeparate = '<i class="fas">&#xf621</i> '; }
+                    if( $meta_values["separate"] == 'rightarrow') { $tagSeparate = '<i class="fas">&#xf061</i> '; }
+                    if( $meta_values["separate"] == 'double-right-arrow') { $tagSeparate = '<i class="fas">&#xf101</i> '; }
+                    if( $meta_values["separate"] == 'cornerarrow') { $tagSeparate = '<i class="fas">&#xf064</i> '; }
                 }
                 $tagSeparateAfter = ' ';
                 if( isset($meta_values["separate_after"]) ) {
