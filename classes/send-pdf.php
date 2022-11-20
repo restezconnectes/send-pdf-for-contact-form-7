@@ -753,7 +753,7 @@ class cf7_sendpdf {
                             $i++;
                         }
                         $text = str_replace('['.$sh_tag["name"].']', $inputCheckbox, $text);
-                        $text = rtrim($text, $tagSeparateAfter);
+                        //$text = rtrim($text, $tagSeparateAfter);
 
                     } else if($sh_tag["basetype"] == 'radio') {
 
@@ -796,7 +796,7 @@ class cf7_sendpdf {
                             $i++;
                         }
                         $text = str_replace('['.$sh_tag["name"].']', $inputRadio, $text);
-                        $text = rtrim($text, $tagSeparateAfter);
+                        //$text = rtrim($text, $tagSeparateAfter);
                         
                     } else {
                         

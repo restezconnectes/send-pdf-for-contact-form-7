@@ -451,7 +451,7 @@ jQuery(document).ready(function() {
                         $i++;
                     }
                     $messageText = str_replace('['.esc_html($sh_tag["name"]).']', $inputCheckbox, $messageText);
-                    $messageText = rtrim($messageText, $tagSeparateAfter);
+                    //$messageText = rtrim($messageText, $tagSeparateAfter);
 
                 } else if ( $sh_tag["basetype"] == 'radio') {
                     
@@ -476,7 +476,7 @@ jQuery(document).ready(function() {
                     }
 
                     $messageText = str_replace('['.esc_html($sh_tag["name"]).']', $inputRadio, $messageText);
-                    $messageText = rtrim($messageText, $tagSeparateAfter);
+                    //$messageText = rtrim($messageText, $tagSeparateAfter);
 
                 } else {
                     
