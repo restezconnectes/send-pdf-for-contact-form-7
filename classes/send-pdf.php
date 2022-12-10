@@ -1698,7 +1698,8 @@ class cf7_sendpdf {
                 'width' => array(),
                 'cellpadding' => array(),
                 'cellspacing' => array(),
-                'border' => array()
+                'border' => array(),
+                'valign' => array()
                 ),
             'tr' => array(
                 'id' => array(),
@@ -1709,7 +1710,8 @@ class cf7_sendpdf {
                 'width' => array(),
                 'cellpadding' => array(),
                 'cellspacing' => array(),
-                'border' => array()
+                'border' => array(),
+                'valign' => array()
                 ),
             'th' => array(
                 'style' => array(),
