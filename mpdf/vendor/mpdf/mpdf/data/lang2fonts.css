@@ -354,7 +354,7 @@
 	font-family: unbatang, uhc;
 }
 :lang("ja"), :lang("jpn")  {	/* Japanese HIRAGANA KATAKANA */
-	font-family: sun-exta, sjis;
+	font-family: ipamp, ipagp, sjis;
 }
 :lang("lis") {		/* LISU */
 	font-family: quivira;
