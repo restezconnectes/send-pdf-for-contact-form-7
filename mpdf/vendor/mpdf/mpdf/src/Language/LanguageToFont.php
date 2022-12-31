@@ -415,9 +415,9 @@ class LanguageToFont implements \Mpdf\Language\LanguageToFontInterface
 				break;
 			case 'ja':
 			case 'jpn': // Japanese HIRAGANA KATAKANA
-				$unifont = 'sun-exta';
+				$unifont = 'ipamp';
 				if ($adobeCJK) {
-					$unifont = 'sjis';
+					$unifont = 'ipamp,ipagp,sjis';
 				}
 				break;
 			case 'ii':

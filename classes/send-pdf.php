@@ -1829,6 +1829,8 @@ class cf7_sendpdf {
             'Sun-ExtA' => 'sun-exta',
             'Sun-ExtB' => 'sun-extb',
             'Unbatang' => 'unbatang',
+            'IPA-gp' => 'ipagp',
+            'IPA-mp' => 'ipamp',
             'Aboriginal Sans (Cherokee and Canadian)' => 'aboriginalsans',
             'MPH 2B Damase' => '',
             'Aegyptus' => 'aegyptus',
