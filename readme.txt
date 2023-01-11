@@ -4,7 +4,7 @@ Donate link: https://www.paypal.me/RestezConnectes/
 Tags: WordPress, plugin, contact form, pdf, send, attachment, form, cf7
 Requires at least: 5.2
 Tested up to: 6.1
-Stable tag: 0.9.9.1
+Stable tag: 0.9.9.2
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -51,6 +51,11 @@ Yes. If you want, you can support this project here: <a href="https://restezconn
 
 
 == Changelog ==
+
+= 0.9.9.2 =
+* Vulnerability fixed 
+* Autorize ID tag in text editor
+* Adding font
 
 = 0.9.9.1 =
 * Autorize ID tag in text editor

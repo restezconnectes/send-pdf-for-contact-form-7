@@ -44,7 +44,7 @@ function wpcf7pdf_btn_shortcode( $atts ) {
                         $iconDashicons = '<span class="dashicons '.esc_html($dashicons).'"></span> ';
                     }
                     if( $type == 'text' ) {
-                        return '<a class="'.$class.'" href="'.esc_url($infos->wpcf7pdf_files).'" target="'.$target.'">'.$iconDashicons.$downloadText.'</a>';
+                        return '<a class="'.esc_html($class).'" href="'.esc_url($infos->wpcf7pdf_files).'" target="'.esc_html($target).'">'.$iconDashicons.$downloadText.'</a>';
                     } else {
                         return '<a href="'.esc_url($infos->wpcf7pdf_files).'" target="'.esc_html($target).'"><button class="'.esc_html($class).'" type="button">'.$iconDashicons.$downloadText.'</button></a>';
                     }
