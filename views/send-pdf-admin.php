@@ -400,6 +400,7 @@ jQuery(document).ready(function() {
             }
             $mpdf->SetHTMLHeader($entetePage, 'O', true);
 
+            // définit le contenu du PDf
             //$messageText = $meta_values['generate_pdf'];
             $messageText = wp_kses(trim($meta_values['generate_pdf']), $this->wpcf7pdf_autorizeHtml());
 

@@ -666,7 +666,8 @@ class cf7_sendpdf {
 
                 // définit le contenu du PDf
                 $text = wp_kses(trim($meta_values['generate_pdf']), $this->wpcf7pdf_autorizeHtml());
-
+                $text = apply_filters( 'pl_filter_content', $text, $posted_data );
+                
                 // replace tag by avatar picture
                 $user = wp_get_current_user();
                 if ( $user ) :
@@ -1013,7 +1014,6 @@ class cf7_sendpdf {
                         $mpdf->WriteHTML('<p style="margin-bottom:'.$marginBottomHeader.'px;">&nbsp;</p>');
                     }
                     $mpdf->SetHTMLHeader($entetePage, '', true);
-                    
 
                     if( isset($meta_values['footer_generate_pdf']) && $meta_values['footer_generate_pdf']!='' ) {
 

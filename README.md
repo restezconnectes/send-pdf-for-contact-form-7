@@ -12,9 +12,12 @@ File send-pdf-for-contact-form-7.pot available
 
 <a href="https://demo.restezconnectes.fr/send-pdf-for-contact-form-7/">[Demo Here]</a>
 
-Current Version:  0.9.9.2
+Current Version:  0.9.9.3
 
 == Changelog ==
+
+    = 0.9.9.3 =
+    * Adding apply_filters() to use a query for PDF design
 
 = 0.9.9.2 =
 * Vulnerability fixed 
