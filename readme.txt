@@ -54,6 +54,7 @@ Yes. If you want, you can support this project here: <a href="https://restezconn
 
 = 0.9.9.3 =
 * Adding apply_filters() to use a query for PDF design
+* Adding Lato font
 
 = 0.9.9.2 =
 * Vulnerability fixed 

@@ -337,6 +337,12 @@ class FontVariables
 					'I' => "Roboto-Italic.ttf",
 					'BI' => "Roboto-BoldItalic.ttf",
 				],
+				"lato" => [
+					'R' => "Lato-Regular.ttf",
+					'B' => "Lato-Bold.ttf",
+					'I' => "Lato-Italic.ttf",
+					'BI' => "Lato-BoldItalic.ttf",
+				],
 				"poppins" => [
 					'R' => "Poppins-Regular.ttf",
 					'B' => "Poppins-Bold.ttf",
