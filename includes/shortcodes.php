@@ -32,7 +32,7 @@ function wpcf7pdf_btn_shortcode( $atts ) {
                 if( isset($infos) ) {
 
                     if( empty($meta_values["text-link"]) or $meta_values["text-link"]=="" ) {
-                        $downloadText = __('Download your PDF', 'send-pdf-for-contact-form-7');
+                        $downloadText = __('Download your PDF', WPCF7PDF_TEXT_DOMAIN);
                     } else if( isset($text) && $text!='') {
                         $downloadText = esc_html($text);
                     } else {
@@ -50,12 +50,12 @@ function wpcf7pdf_btn_shortcode( $atts ) {
                     }
 
                 } else {
-                    return '<div style="text-align:center;width:80%;margin-left:auto;margin-right:right;background-color:#333;color:#ffffff;"><strong>ERROR Send PDF for Contact Form 7</strong><br />'.__('No data for this reference number', 'send-pdf-for-contact-form-7').' value:'.esc_html($meta_values["disable-insert"]).'</div>';
+                    return '<div style="text-align:center;width:80%;margin-left:auto;margin-right:right;background-color:#333;color:#ffffff;"><strong>ERROR Send PDF for Contact Form 7</strong><br />'.__('No data for this reference number', WPCF7PDF_TEXT_DOMAIN).' value:'.esc_html($meta_values["disable-insert"]).'</div>';
                 }
                 
             } else if( isset($meta_values["disable-insert"]) && $meta_values["disable-insert"]== 'true' ) {
 
-                return '<div style="text-align:center;width:80%;margin-left:auto;margin-right:right;background-color:#333;color:#ffffff;"><strong>ERROR Send PDF for Contact Form 7</strong><br />'.__('"Insert subscribtion in database" option is disabled!<br />Please enable "Insert subscribtion in database" option', 'send-pdf-for-contact-form-7').' value:'.esc_html($meta_values["disable-insert"]).'</div>';
+                return '<div style="text-align:center;width:80%;margin-left:auto;margin-right:right;background-color:#333;color:#ffffff;"><strong>ERROR Send PDF for Contact Form 7</strong><br />'.__('"Insert subscribtion in database" option is disabled!<br />Please enable "Insert subscribtion in database" option', WPCF7PDF_TEXT_DOMAIN).' value:'.esc_html($meta_values["disable-insert"]).'</div>';
 
             } else {
                 return '';

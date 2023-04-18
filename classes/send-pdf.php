@@ -3,8 +3,7 @@
 class cf7_sendpdf {
 
     protected static $instance;
-    public $session;
-    
+
 	public static function init() {
         is_null( self::$instance ) AND self::$instance = new self;
         return self::$instance;
@@ -19,6 +18,13 @@ class cf7_sendpdf {
         } else if ( get_option('wpcf7pdf_version') != WPCF7PDF_VERSION ) {
             update_option('wpcf7pdf_version', WPCF7PDF_VERSION);
         }
+
+        // If you want to keep certain style properties you have to use this filter
+        add_filter( 'safe_style_css', function( $styles ) {
+            $styles[] = 'text-rotate';
+            return $styles;
+        } );
+
         // Maybe disable AJAX requests
         add_filter( 'wpcf7_mail_components', array( $this, 'wpcf7pdf_mail_components' ), 10, 3 );
         add_action( 'wpcf7_mail_sent', array( $this, 'wpcf7pdf_after_mail_actions' ), 10, 1 );
@@ -61,7 +67,7 @@ class cf7_sendpdf {
 		  return $links;
         } else {
             $settings_link = '<a href="admin.php?page=wpcf7-send-pdf">'
-                . esc_html( __( 'Settings', 'send-pdf-for-contact-form-7' ) ) . '</a>';
+                . esc_html( __( 'Settings', WPCF7PDF_TEXT_DOMAIN ) ) . '</a>';
 
             array_unshift( $links, $settings_link );
 
@@ -182,7 +188,7 @@ class cf7_sendpdf {
         $import_file = $_FILES['wpcf7_import_file']['tmp_name'];
 
         if(empty($import_file) ) {
-            wp_die( __( 'Please upload a file to import', 'send-pdf-for-contact-form-7' ) );
+            wp_die( __( 'Please upload a file to import', WPCF7PDF_TEXT_DOMAIN ) );
         }
 
         // Retrieve the settings from the file and convert the json object to an array.
@@ -190,7 +196,7 @@ class cf7_sendpdf {
 
         update_post_meta(sanitize_text_field($_POST['wpcf7pdf_import_id']), '_wp_cf7pdf', $settings);
 
-        echo '<div id="message" class="updated fade"><p><strong>' . __('New settings imported successfully!', 'send-pdf-for-contact-form-7') . '</strong></p></div>';
+        echo '<div id="message" class="updated fade"><p><strong>' . __('New settings imported successfully!', WPCF7PDF_TEXT_DOMAIN) . '</strong></p></div>';
 
     }
     
@@ -282,8 +288,8 @@ class cf7_sendpdf {
         
         if ( !empty( $capability ) ) { 
             add_submenu_page( 'wpcf7',
-            __('Options for CF7 Send PDF', 'send-pdf-for-contact-form-7'),
-            __('Create PDF', 'send-pdf-for-contact-form-7'),
+            __('Options for CF7 Send PDF', WPCF7PDF_TEXT_DOMAIN),
+            __('Create PDF', WPCF7PDF_TEXT_DOMAIN),
             $capability, 'wpcf7-send-pdf',
             array( $this, 'wpcf7pdf_dashboard_html_page') );
         }
@@ -319,8 +325,8 @@ class cf7_sendpdf {
 
             // Now we can localize the script with our data.
             wp_localize_script( 'wpcf7-my-upload', 'Data', array(
-              'textebutton'  =>  __( 'Choose This Image', 'send-pdf-for-contact-form-7' ),
-              'title'  => __( 'Choose Image', 'send-pdf-for-contact-form-7' ),
+              'textebutton'  =>  __( 'Choose This Image', WPCF7PDF_TEXT_DOMAIN ),
+              'title'  => __( 'Choose Image', WPCF7PDF_TEXT_DOMAIN ),
             ) );
         }
 
@@ -540,7 +546,7 @@ class cf7_sendpdf {
             $uploaded_files = $submission->uploaded_files();
 
             foreach ( (array) $uploaded_files as $name => $paths ) {
-                if ( false !== strpos( $tag, "[${name}]" ) ) {
+                if ( false !== strpos( $tag, "[{$name}]" ) ) {
                     $attachments = array_merge( $attachments, (array) $paths );
                 }
             }
@@ -566,6 +572,75 @@ class cf7_sendpdf {
         }
 
         return $attachments[0];
+    }
+
+    function _mirrorImage ( $imgsrc) {
+
+        $width = imagesx ( $imgsrc );
+        $height = imagesy ( $imgsrc );
+
+        $src_x = $width -1;
+        $src_y = 0;
+        $src_width = -$width;
+        $src_height = $height;
+
+        $imgdest = imagecreatetruecolor ( $width, $height );
+
+        if ( imagecopyresampled ( $imgdest, $imgsrc, 0, 0, $src_x, $src_y, $width, $height, $src_width, $src_height ) )
+        {
+            return $imgdest;
+        }
+
+        return $imgsrc;
+    }
+
+    function wpcf7pdf_autoRotateImage($full_filename) {  
+
+        $exif = @exif_read_data( $full_filename, 'EXIF', true );
+
+        //$exif = exif_read_data($full_filename);
+        if(false !== $exif && isset($exif['Orientation'])) {
+            $orientation = $exif['Orientation'];
+            if($orientation != 1){
+                $img = imagecreatefromjpeg($full_filename);
+
+                $mirror = false;
+                $deg    = 0;
+
+                switch ($orientation) {
+                case 2:
+                    $mirror = true;
+                    break;
+                case 3:
+                    $deg = 180;
+                    break;
+                case 4:
+                    $deg = 180;
+                    $mirror = true;  
+                    break;
+                case 5:
+                    $deg = 270;
+                    $mirror = true; 
+                    break;
+                case 6:
+                    $deg = 270;
+                    break;
+                case 7:
+                    $deg = 90;
+                    $mirror = true; 
+                    break;
+                case 8:
+                    $deg = 90;
+                    break;
+                }
+                if ($deg) $img = imagerotate($img, $deg, 0); 
+                if ($mirror) $img = _mirrorImage($img);
+                //$full_filename = str_replace('.jpg', "-O$orientation.jpg",  $full_filename); 
+                imagejpeg($img, $full_filename, 95);
+            }
+        }
+        //error_log('IMG : '.$full_filename);
+        return $full_filename;
     }
 
     function wpcf7pdf_send_pdf($contact_form) {
@@ -638,10 +713,12 @@ class cf7_sendpdf {
                             if( isset($image_name) && $image_name!='' && !empty($posted_data[$tags[1]]) ) {
                                 
                                 if( !empty($uploaded_files[$tags[1]]) ) {
+                                    
                                     $image_location = $this->wpcf7pdf_attachments($tags[0]);
                                     $chemin_final[$tags[1]] = $createDirectory.'/'.sanitize_text_field(get_transient('pdf_uniqueid')).'-'.wpcf7_mail_replace_tags($tags[0]);
                                     // On copie l'image dans le dossier
                                     copy($image_location, $chemin_final[$tags[1]]);
+                                    //copy($this->wpcf7pdf_autoRotateImage($image_location), $chemin_final[$tags[1]]);
                                 }
 
                             }
@@ -821,9 +898,22 @@ class cf7_sendpdf {
                             if( isset($image_name2) && $image_name2!='' ) {
                                 // remplace le tag
                                 $text = str_replace('['.$tagsOnPdf[1].']', $image_name2, $text);
+ 
+                                // URL IMAGE 
+                                //$uploadingImg[$tagsOnPdf[1]] = $createDirectory.'/'.sanitize_text_field(get_transient('pdf_uniqueid')).'-'.wpcf7_mail_replace_tags($tagsOnPdf[0]);
+                                //error_log('UPLODING : '.$uploadingImg[$tagsOnPdf[1]]);
+
+                                // rotation de l'image si besoin
+                                //$rotate_image[$tagsOnPdf[1]] = $this->wpcf7pdf_autoRotateImage($uploadingImg[$tagsOnPdf[1]]);
+                                // retourne l'URL complete du tag 
+                                //$chemin_final2[$tagsOnPdf[1]] = esc_url(str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $uploadingImg[$tagsOnPdf[1]]));
+
                                 // retourne l'URL complete du tag 
                                 $chemin_final2[$tagsOnPdf[1]] = esc_url(str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $createDirectory).'/'.sanitize_text_field(get_transient('pdf_uniqueid')).'-'.wpcf7_mail_replace_tags($tagsOnPdf[0]));
+
                                 $text = str_replace('[url-'.$tagsOnPdf[1].']', $chemin_final2[$tagsOnPdf[1]], $text);
+                                //error_log('uplading : '.$chemin_final2[$tagsOnPdf[1]]);
+
                             } else {
                                 $text = str_replace('[url-'.$tagsOnPdf[1].']', WPCF7PDF_URL.'images/onepixel.png', $text);
                             }
@@ -1398,6 +1488,7 @@ class cf7_sendpdf {
                         if( isset($tagsOnMail[1]) && $tagsOnMail[1] != '' && !empty($posted_data[$tagsOnMail[1]]) ) {
                             $image_name_mail = $posted_data[$tagsOnMail[1]];
                             if( isset($image_name_mail) && $image_name_mail!='' ) {
+                                
                                 $chemin_final2[$tagsOnMail[1]] = esc_url(str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $createDirectory).'/'.sanitize_text_field(get_transient('pdf_uniqueid')).'-'.wpcf7_mail_replace_tags($tagsOnMail[0]));
                                 $messageText = str_replace('['.$tagsOnMail[1].']', $image_name_mail, $messageText);
                                 $messageText = str_replace('[url-'.$tagsOnMail[1].']', $chemin_final2[$tagsOnMail[1]], $messageText);
@@ -1699,6 +1790,7 @@ class cf7_sendpdf {
                 'cellpadding' => array(),
                 'cellspacing' => array(),
                 'border' => array(),
+                'text-rotate' => array(),
                 'valign' => array()
                 ),
             'tr' => array(
@@ -1711,6 +1803,7 @@ class cf7_sendpdf {
                 'cellpadding' => array(),
                 'cellspacing' => array(),
                 'border' => array(),
+                'text-rotate' => array(),
                 'valign' => array()
                 ),
             'th' => array(
@@ -1721,6 +1814,7 @@ class cf7_sendpdf {
                 'width' => array(),
                 'cellpadding' => array(),
                 'cellspacing' => array(),
+                'text-rotate' => array(),
                 'border' => array()
                 ),
             'tbody' => array(
@@ -1731,6 +1825,7 @@ class cf7_sendpdf {
                 'width' => array(),
                 'cellpadding' => array(),
                 'cellspacing' => array(),
+                'text-rotate' => array(),
                 'border' => array()
                 ),
             'thead' => array(
@@ -1741,6 +1836,7 @@ class cf7_sendpdf {
                 'width' => array(),
                 'cellpadding' => array(),
                 'cellspacing' => array(),
+                'text-rotate' => array(),
                 'border' => array()
                 ),
             'barcode' => array(
