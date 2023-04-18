@@ -594,6 +594,79 @@ class cf7_sendpdf {
         return $imgsrc;
     }
 
+    public static function adjustImageOrientation($filename, $quality = 90) {
+        try {
+            $exif = @exif_read_data($filename);
+        } catch (\Exception $e) {
+            $exif = false;
+        }
+
+        // If no exif info, or no orientation info, or if orientation needs no adjustment
+        $orientation = $exif['Orientation'];
+        if (!$orientation || $orientation === 1) {
+            return false;
+        }
+
+        switch ($fileType = @exif_imagetype($filename)) {
+            case 1: // gif
+                $img = @imageCreateFromGif($filename);
+                break;
+            case 2: // jpg
+                $img = @imageCreateFromJpeg($filename);
+                break;
+            case 3: // png
+                $img = @imageCreateFromPng($filename);
+                break;
+            default:
+                $img = @imagecreatefromjpeg($filename);
+        }
+
+        if (!$img) {
+            return false;
+        }
+
+        $mirror = in_array($orientation, [2, 5, 4, 7]);
+        $deg = 0;
+        switch ($orientation) {
+            case 3:
+            case 4:
+                $deg = 180;
+                break;
+            case 6:
+            case 5:
+                $deg = 270;
+                break;
+            case 8:
+            case 7:
+                $deg = 90;
+                break;
+        }
+
+        if ($deg) {
+            $img = imagerotate($img, $deg, 0);
+        }
+
+        if ($mirror) {
+            $img = imageflip($img, IMG_FLIP_HORIZONTAL);
+        }
+
+        switch ($fileType = @exif_imagetype($filename)) {
+            case 1: // gif
+                imagegif($img, $filename);
+                break;
+            case 2: // jpg
+                imagejpeg($img, $filename, $quality);
+                break;
+            case 3: // png
+                imagepng($img, $filename, $quality);
+                break;
+            default:
+                imagejpeg($img, $filename, $quality);
+        }
+
+        return true;
+    }
+
     function wpcf7pdf_autoRotateImage($full_filename) {  
 
         $exif = @exif_read_data( $full_filename, 'EXIF', true );
@@ -900,16 +973,17 @@ class cf7_sendpdf {
                                 $text = str_replace('['.$tagsOnPdf[1].']', $image_name2, $text);
  
                                 // URL IMAGE 
-                                //$uploadingImg[$tagsOnPdf[1]] = $createDirectory.'/'.sanitize_text_field(get_transient('pdf_uniqueid')).'-'.wpcf7_mail_replace_tags($tagsOnPdf[0]);
+                                $uploadingImg[$tagsOnPdf[1]] = $createDirectory.'/'.sanitize_text_field(get_transient('pdf_uniqueid')).'-'.wpcf7_mail_replace_tags($tagsOnPdf[0]);
                                 //error_log('UPLODING : '.$uploadingImg[$tagsOnPdf[1]]);
 
                                 // rotation de l'image si besoin
                                 //$rotate_image[$tagsOnPdf[1]] = $this->wpcf7pdf_autoRotateImage($uploadingImg[$tagsOnPdf[1]]);
+                                $rotate_image[$tagsOnPdf[1]] = $this->adjustImageOrientation($uploadingImg[$tagsOnPdf[1]]);
                                 // retourne l'URL complete du tag 
-                                //$chemin_final2[$tagsOnPdf[1]] = esc_url(str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $uploadingImg[$tagsOnPdf[1]]));
+                                $chemin_final2[$tagsOnPdf[1]] = esc_url(str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $uploadingImg[$tagsOnPdf[1]]));
 
                                 // retourne l'URL complete du tag 
-                                $chemin_final2[$tagsOnPdf[1]] = esc_url(str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $createDirectory).'/'.sanitize_text_field(get_transient('pdf_uniqueid')).'-'.wpcf7_mail_replace_tags($tagsOnPdf[0]));
+                                //$chemin_final2[$tagsOnPdf[1]] = esc_url(str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $createDirectory).'/'.sanitize_text_field(get_transient('pdf_uniqueid')).'-'.wpcf7_mail_replace_tags($tagsOnPdf[0]));
 
                                 $text = str_replace('[url-'.$tagsOnPdf[1].']', $chemin_final2[$tagsOnPdf[1]], $text);
                                 //error_log('uplading : '.$chemin_final2[$tagsOnPdf[1]]);
