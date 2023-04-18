@@ -1754,6 +1754,7 @@ class cf7_sendpdf {
                 'width' => array(),
                 'height' => array(),
                 'style' => array(),
+                'rotate' => array(),
                 'class' => array()
                 ),
             'div' => array(
