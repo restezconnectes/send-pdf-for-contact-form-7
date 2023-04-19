@@ -55,6 +55,7 @@ Yes. If you want, you can support this project here: <a href="https://restezconn
 = 0.9.9.4 =
 * Autorize text-rotate tags in text editor
 * Bug Fixed Image rotate
+* Change name of PDF sent
 
 = 0.9.9.3 =
 * Adding apply_filters() to use a query for PDF design

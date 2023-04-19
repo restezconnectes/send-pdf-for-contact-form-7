@@ -1373,12 +1373,12 @@ class cf7_sendpdf {
                             // Ajout des fichiers.
                             if( isset($meta_values["disable-pdf"]) && $meta_values['disable-pdf'] == 'false' ) {
                                 if( isset($meta_values["send-attachment"]) && ($meta_values["send-attachment"] == 'sender' OR $meta_values["send-attachment"] == 'both') ) {
-                                    $zip->addFile($createDirectory.'/'.$nameOfPdf.'.pdf', $nameOfPdf.'.pdf');
+                                    $zip->addFile($createDirectory.'/'.$nameOfPdf.'-'.get_transient('pdf_uniqueid').'.pdf', $nameOfPdf.'-'.get_transient('pdf_uniqueid').'.pdf');
                                 }
                             }
                             if( isset($meta_values["disable-csv"]) && $meta_values['disable-csv'] == 'false' ) {
                                 if( isset($meta_values["send-attachment2"]) && ($meta_values["send-attachment2"] == 'sender' OR $meta_values["send-attachment2"] == 'both') ) {
-                                    $zip->addFile($createDirectory.'/'.$nameOfPdf.'.csv', $nameOfPdf.'.csv');
+                                    $zip->addFile($createDirectory.'/'.$nameOfPdf.'-'.get_transient('pdf_uniqueid').'.csv', $nameOfPdf.'-'.get_transient('pdf_uniqueid').'.csv');
                                 }
                             }
                             if( isset($meta_values["send-attachment3"]) && ($meta_values["send-attachment3"] == 'sender' OR $meta_values["send-attachment3"] == 'both') ) {
@@ -1407,14 +1407,14 @@ class cf7_sendpdf {
                         // Send PDF
                         if( isset($meta_values["disable-pdf"]) && $meta_values['disable-pdf'] == 'false' ) {
                             if( isset($meta_values["send-attachment"]) && ($meta_values["send-attachment"] == 'sender' OR $meta_values["send-attachment"] == 'both') ) {
-                                $components['attachments'][] = $createDirectory.'/'.$nameOfPdf.'.pdf';
+                                $components['attachments'][] = $createDirectory.'/'.$nameOfPdf.'-'.get_transient('pdf_uniqueid').'.pdf';
                             }
                         }
 
                         // SEND CSV
                         if( isset($meta_values["disable-csv"]) && $meta_values['disable-csv'] == 'false' ) {
                             if( isset($meta_values["send-attachment2"]) && ($meta_values["send-attachment2"] == 'sender' OR $meta_values["send-attachment2"] == 'both') ) {
-                                $components['attachments'][] = $createDirectory.'/'.$nameOfPdf.'.csv';
+                                $components['attachments'][] = $createDirectory.'/'.$nameOfPdf.'-'.get_transient('pdf_uniqueid').'.csv';
                             }
                         }
                     
@@ -1451,12 +1451,12 @@ class cf7_sendpdf {
                             // Ajout des fichiers.
                             if( isset($meta_values["disable-pdf"]) && $meta_values['disable-pdf'] == 'false' ) {
                                 if( isset($meta_values["send-attachment"]) && ($meta_values["send-attachment"] == 'recipient' OR $meta_values["send-attachment"] == 'both') ) {
-                                    $zip->addFile($createDirectory.'/'.$nameOfPdf.'.pdf', $nameOfPdf.'.pdf');
+                                    $zip->addFile($createDirectory.'/'.$nameOfPdf.'-'.get_transient('pdf_uniqueid').'.pdf', $nameOfPdf.'-'.get_transient('pdf_uniqueid').'.pdf');
                                 }
                             }
                             if( isset($meta_values["disable-csv"]) && $meta_values['disable-csv'] == 'false' ) {
                                 if( isset($meta_values["send-attachment2"]) && ($meta_values["send-attachment2"] == 'recipient' OR $meta_values["send-attachment2"] == 'both') ) {
-                                    $zip->addFile($createDirectory.'/'.$nameOfPdf.'.csv', $nameOfPdf.'.csv');
+                                    $zip->addFile($createDirectory.'/'.$nameOfPdf.'-'.get_transient('pdf_uniqueid').'.csv', $nameOfPdf.'-'.get_transient('pdf_uniqueid').'.csv');
                                 }
                             }
                             if( isset($meta_values["send-attachment3"]) && ($meta_values["send-attachment3"] == 'recipient' OR $meta_values["send-attachment3"] == 'both') ) {
@@ -1485,14 +1485,14 @@ class cf7_sendpdf {
                         // Send PDF
                         if( isset($meta_values["disable-pdf"]) && $meta_values['disable-pdf'] == 'false' ) {
                             if( isset($meta_values["send-attachment"]) && ($meta_values["send-attachment"] == 'recipient' OR $meta_values["send-attachment"] == 'both') ) {
-                                $components['attachments'][] = $createDirectory.'/'.$nameOfPdf.'.pdf';
+                                $components['attachments'][] = $createDirectory.'/'.$nameOfPdf.'-'.get_transient('pdf_uniqueid').'.pdf';
                             }
                         }
 
                         // SEND CSV
                         if( isset($meta_values["disable-csv"]) && $meta_values['disable-csv'] == 'false' ) {
                             if( isset($meta_values["send-attachment2"]) && ($meta_values["send-attachment2"] == 'recipient' OR $meta_values["send-attachment2"] == 'both') ) {
-                                $components['attachments'][] = $createDirectory.'/'.$nameOfPdf.'.csv';
+                                $components['attachments'][] = $createDirectory.'/'.$nameOfPdf.'-'.get_transient('pdf_uniqueid').'.csv';
                             }
                         }
                     

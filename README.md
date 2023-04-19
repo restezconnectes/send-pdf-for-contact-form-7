@@ -15,9 +15,11 @@ File send-pdf-for-contact-form-7.pot available
 Current Version:  0.9.9.4
 
 == Changelog ==
+
 = 0.9.9.4 =
 * Autorize text-rotate tags in text editor
 * Bug Fixed Image rotate
+* Change name of PDF sent
 
 = 0.9.9.3 =
 * Adding apply_filters() to use a query for PDF design
