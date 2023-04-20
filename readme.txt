@@ -20,7 +20,7 @@ This plugin requires the installation and activation of the plugin Contact Form 
 
 <a href="https://demo.restezconnectes.fr/send-pdf-for-contact-form-7/">DEMO HERE</a>
 
-File send-pdf-for-contact-form-7.pot available
+Translations: https://translate.wordpress.org/projects/wp-plugins/send-pdf-for-contact-form-7/
 
 == Installation ==
 
