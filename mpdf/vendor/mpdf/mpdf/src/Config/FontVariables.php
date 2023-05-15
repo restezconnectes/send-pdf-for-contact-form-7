@@ -282,6 +282,15 @@ class FontVariables
 				],
 				'ipagp' => [
 					'R' => "ipagp.ttf",
+					'sip-ext' => 'ipagp',
+				],
+				'ipam' => [
+					'R' => "ipam.ttf",
+					'sip-ext' => 'ipagp',
+				],
+				'ipag' => [
+					'R' => "ipag.ttf",
+					'sip-ext' => 'ipagp',
 				],
 				"sun-exta" => [
 					'R' => "Sun-ExtA.ttf",

@@ -19,6 +19,13 @@ class cf7_sendpdf {
             update_option('wpcf7pdf_version', WPCF7PDF_VERSION);
         }
 
+        /* Définition du répertoire TMP pour CF7 */
+        if ( defined( 'WPCF7_UPLOADS_TMP_DIR' ) ) {
+            update_option('wpcf7pdf_path_temp', WPCF7_UPLOADS_TMP_DIR);
+        } else {
+            update_option('wpcf7pdf_path_temp', $upload_dir['basedir'] . '/sendpdfcf7_uploads/tmp');
+        }
+
         // If you want to keep certain style properties you have to use this filter
         add_filter( 'safe_style_css', function( $styles ) {
             $styles[] = 'text-rotate';
@@ -120,7 +127,7 @@ class cf7_sendpdf {
     /**
      * Listing last PDF
      */
-    function wpcf7pdf_listing($id, $limit = 10 ) {
+    function wpcf7pdf_listing( $id, $limit = 15 ) {
         
         global $wpdb;
         $result = $wpdb->get_results( $wpdb->prepare("SELECT wpcf7pdf_id, wpcf7pdf_id_form, wpcf7pdf_reference, wpcf7pdf_data, wpcf7pdf_files, wpcf7pdf_files2 FROM ". $wpdb->prefix. "wpcf7pdf_files WHERE wpcf7pdf_id_form = %d ORDER BY wpcf7pdf_id DESC LIMIT %d", sanitize_text_field($id),  sanitize_text_field($limit)), 'OBJECT' );
@@ -295,7 +302,6 @@ class cf7_sendpdf {
         }
 
         // If you're not including an image upload then you can leave this function call out
-
         if (isset($_GET['page']) && $_GET['page'] == 'wpcf7-send-pdf') {
 
             wp_enqueue_media();
@@ -454,33 +460,42 @@ class cf7_sendpdf {
 
         $upload_dir = wp_upload_dir();
 
-        $tmpDirectory = $upload_dir['basedir'].'/sendpdfcf7_uploads/tmp';
-        if( is_dir($tmpDirectory) == false ) {
-            $files = array(
-                array(
-                    'base' 		=> $upload_dir['basedir'] . '/sendpdfcf7_uploads/',
-                    'file' 		=> 'index.php',
-                    'content' 	=> '<?php // Silence is Golden'
-                ),
-                array(
-                    'base' 		=> $upload_dir['basedir'] . '/sendpdfcf7_uploads/tmp',
-                    'file' 		=> 'index.php',
-                    'content' 	=> '<?php // Silence is Golden'
-                )
-            );
+        // Si on a déjà défini
+        if ( defined( 'WPCF7_UPLOADS_TMP_DIR' ) ) {
 
-            foreach ( $files as $file ) {
-                if ( wp_mkdir_p( $file['base'] ) && ! file_exists( trailingslashit( $file['base'] ) . $file['file'] ) ) {
-                    if ( $file_handle = @fopen( trailingslashit( $file['base'] ) . $file['file'], 'w' ) ) {
-                        fwrite( $file_handle, $file['content'] );
-                        fclose( $file_handle );
+            add_option('wpcf7pdf_path_temp', sanitize_url(WPCF7_UPLOADS_TMP_DIR));
+
+        } else {
+            
+            $tmpDirectory = $upload_dir['basedir'].'/sendpdfcf7_uploads/tmp';
+            if( is_dir($tmpDirectory) == false ) {
+                $files = array(
+                    array(
+                        'base' 		=> $upload_dir['basedir'] . '/sendpdfcf7_uploads/',
+                        'file' 		=> 'index.php',
+                        'content' 	=> '<?php // Silence is Golden'
+                    ),
+                    array(
+                        'base' 		=> $upload_dir['basedir'] . '/sendpdfcf7_uploads/tmp',
+                        'file' 		=> 'index.php',
+                        'content' 	=> '<?php // Silence is Golden'
+                    )
+                );
+
+                foreach ( $files as $file ) {
+                    if ( wp_mkdir_p( $file['base'] ) && ! file_exists( trailingslashit( $file['base'] ) . $file['file'] ) ) {
+                        if ( $file_handle = @fopen( trailingslashit( $file['base'] ) . $file['file'], 'w' ) ) {
+                            fwrite( $file_handle, $file['content'] );
+                            fclose( $file_handle );
+                        }
                     }
                 }
+
+                add_option('wpcf7pdf_path_temp', sanitize_url($upload_dir['basedir'] . '/sendpdfcf7_uploads/tmp'));
+            } else if( empty(get_option('wpcf7pdf_path_temp')) ) {
+                add_option('wpcf7pdf_path_temp', sanitize_url($upload_dir['basedir'] . '/sendpdfcf7_uploads/tmp'));
             }
 
-            add_option('wpcf7pdf_path_temp', sanitize_url($upload_dir['basedir'] . '/sendpdfcf7_uploads/tmp'));
-        } else if( empty(get_option('wpcf7pdf_path_temp')) ) {
-            add_option('wpcf7pdf_path_temp', sanitize_url($upload_dir['basedir'] . '/sendpdfcf7_uploads/tmp'));
         }
 
         if( isset($meta_values["pdf-uploads"]) && $meta_values["pdf-uploads"]=='true' ) {
@@ -602,7 +617,7 @@ class cf7_sendpdf {
         }
 
         // If no exif info, or no orientation info, or if orientation needs no adjustment
-        $orientation = $exif['Orientation'];
+        if( isset($exif['Orientation']) ) { $orientation = $exif['Orientation']; } else { $orientation = 1; }
         if (!$orientation || $orientation === 1) {
             return false;
         }
@@ -791,7 +806,6 @@ class cf7_sendpdf {
                                     $chemin_final[$tags[1]] = $createDirectory.'/'.sanitize_text_field(get_transient('pdf_uniqueid')).'-'.wpcf7_mail_replace_tags($tags[0]);
                                     // On copie l'image dans le dossier
                                     copy($image_location, $chemin_final[$tags[1]]);
-                                    //copy($this->wpcf7pdf_autoRotateImage($image_location), $chemin_final[$tags[1]]);
                                 }
 
                             }
@@ -969,24 +983,17 @@ class cf7_sendpdf {
                         if( isset($tagsOnPdf[1]) && $tagsOnPdf[1] != '' && !empty($posted_data[$tagsOnPdf[1]]) ) {
                             $image_name2 = $posted_data[$tagsOnPdf[1]];
                             if( isset($image_name2) && $image_name2!='' ) {
+                                
                                 // remplace le tag
                                 $text = str_replace('['.$tagsOnPdf[1].']', $image_name2, $text);
- 
                                 // URL IMAGE 
                                 $uploadingImg[$tagsOnPdf[1]] = $createDirectory.'/'.sanitize_text_field(get_transient('pdf_uniqueid')).'-'.wpcf7_mail_replace_tags($tagsOnPdf[0]);
-                                //error_log('UPLODING : '.$uploadingImg[$tagsOnPdf[1]]);
-
                                 // rotation de l'image si besoin
-                                //$rotate_image[$tagsOnPdf[1]] = $this->wpcf7pdf_autoRotateImage($uploadingImg[$tagsOnPdf[1]]);
                                 $rotate_image[$tagsOnPdf[1]] = $this->adjustImageOrientation($uploadingImg[$tagsOnPdf[1]]);
                                 // retourne l'URL complete du tag 
                                 $chemin_final2[$tagsOnPdf[1]] = esc_url(str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $uploadingImg[$tagsOnPdf[1]]));
-
                                 // retourne l'URL complete du tag 
-                                //$chemin_final2[$tagsOnPdf[1]] = esc_url(str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $createDirectory).'/'.sanitize_text_field(get_transient('pdf_uniqueid')).'-'.wpcf7_mail_replace_tags($tagsOnPdf[0]));
-
                                 $text = str_replace('[url-'.$tagsOnPdf[1].']', $chemin_final2[$tagsOnPdf[1]], $text);
-                                //error_log('uplading : '.$chemin_final2[$tagsOnPdf[1]]);
 
                             } else {
                                 $text = str_replace('[url-'.$tagsOnPdf[1].']', WPCF7PDF_URL.'images/onepixel.png', $text);
@@ -2000,8 +2007,10 @@ class cf7_sendpdf {
             'Sun-ExtA' => 'sun-exta',
             'Sun-ExtB' => 'sun-extb',
             'Unbatang' => 'unbatang',
-            'IPA-gp' => 'ipagp',
-            'IPA-mp' => 'ipamp',
+            'IPA-PGothic' => 'ipagp',
+            'IPA-PMincho' => 'ipamp',
+            'IPA-Mincho' => 'ipam',
+            'IPA-Gothic' => 'ipag',
             'Aboriginal Sans (Cherokee and Canadian)' => 'aboriginalsans',
             'MPH 2B Damase' => '',
             'Aegyptus' => 'aegyptus',

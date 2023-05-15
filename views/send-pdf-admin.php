@@ -10,7 +10,11 @@ $admin_color = get_user_option( 'admin_color', get_current_user_id() );
 $colors      = $_wp_admin_css_colors[$admin_color]->colors;
 
 $upload_dir = wp_upload_dir();
-$tmpDirectory = $upload_dir['basedir'].'/sendpdfcf7_uploads/tmp';
+if ( defined( 'WPCF7_UPLOADS_TMP_DIR' ) ) {
+    $tmpDirectory = WPCF7_UPLOADS_TMP_DIR;
+} else {
+    $tmpDirectory = $upload_dir['basedir'].'/sendpdfcf7_uploads/tmp';
+}
 
 /* Update des paramètres */
 if( (isset($_POST['action']) && isset($_POST['idform']) && $_POST['action'] == 'update') && isset($_POST['security-sendform']) && wp_verify_nonce($_POST['security-sendform'], 'go-sendform') ) {
@@ -95,8 +99,13 @@ if( isset($_POST['action']) && $_POST['action'] == 'reset' ) {
 
     if( ! wp_verify_nonce($_POST['security-resettmp'], 'go-resettmp') )
         return;
-    update_option('wpcf7pdf_path_temp', $upload_dir['basedir'] . '/sendpdfcf7_uploads/tmp');
 
+    if ( defined( 'WPCF7_UPLOADS_TMP_DIR' ) ) {
+        update_option('wpcf7pdf_path_temp', WPCF7_UPLOADS_TMP_DIR);
+    } else {
+        update_option('wpcf7pdf_path_temp', $upload_dir['basedir'] . '/sendpdfcf7_uploads/tmp');
+    }
+    
 }
 
 if( isset($_GET['deleted']) && $_GET['deleted']==1 ) {
