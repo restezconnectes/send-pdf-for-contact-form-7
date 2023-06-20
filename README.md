@@ -12,9 +12,17 @@ Translations: https://translate.wordpress.org/projects/wp-plugins/send-pdf-for-c
 
 <a href="https://demo.restezconnectes.fr/send-pdf-for-contact-form-7/">[Demo Here]</a>
 
-Current Version:  0.9.9.4
+Current Version:  0.9.9.6
 
 == Changelog ==
+
+Change name of generated PDF's
+
+= 0.9.9.6 =
+* Change name of generated PDF's
+
+= 0.9.9.5 =
+* Adding IPA (Japanese) fonts
 
 = 0.9.9.4 =
 * Autorize text-rotate tags in text editor

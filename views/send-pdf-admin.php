@@ -186,7 +186,7 @@ jQuery(document).ready(function() {
                     <?php 
                         if( $tmpDirectory != get_option('wpcf7pdf_path_temp') ) {
                             _e('Your TMP folder is bad.', WPCF7PDF_TEXT_DOMAIN);
-                            ?>
+                            ?><!-- <?php echo $tmpDirectory; ?> ==> <?php echo get_option('wpcf7pdf_path_temp'); ?>-->
                             <form method="post" action="<?php echo esc_url($_SERVER['REQUEST_URI']); ?>" name="resettmp" id="resettmp">
                                 <?php wp_nonce_field('go-resettmp', 'security-resettmp'); ?>
                                 <input type="hidden" name="action" value="reset"/>
@@ -450,9 +450,9 @@ jQuery(document).ready(function() {
                         if (isset($meta_values['data_input']) && $meta_values['data_input']== 'true') {
 
                             if( in_array('label_first', $tagOptions) ) {
-                                $inputCheckbox .= ''.$tagSeparate.''.esc_html($val).' <input type="checkbox" class="wpcf7-checkbox" name="'.esc_html($sh_tag["name"].$i).'" value="'.$i.'" />'.$tagSeparateAfter.'';
+                                $inputCheckbox .= ''.$tagSeparate.''.esc_html($val).' <input type="checkbox" class="wpcf7-checkbox" name="'.esc_html($sh_tag["name"].$i).'" value="'.$i.'" />'.$tagSeparateAfter.'<br />';
                             } else {
-                                $inputCheckbox .= ''.$tagSeparate.'<input type="checkbox" class="wpcf7-checkbox" name="'.esc_html($sh_tag["name"].$i).'" value="'.$i.'"/> '.esc_html($val).''.$tagSeparateAfter.'';
+                                $inputCheckbox .= ''.$tagSeparate.'<input type="checkbox" class="wpcf7-checkbox" name="'.esc_html($sh_tag["name"].$i).'" value="'.$i.'"/> '.esc_html($val).''.$tagSeparateAfter.'<br />';
                             }
 
                         } else {
@@ -473,9 +473,9 @@ jQuery(document).ready(function() {
                         if (isset($meta_values['data_input']) && $meta_values['data_input']== 'true') {
                          
                             if( in_array('label_first', $tagOptions) ) {
-                                $inputRadio .= ''.$tagSeparate.''.esc_html($val).' <input type="radio" class="wpcf7-radio" name="'.esc_html($sh_tag["name"]).'" value="'.$i.'">'.$tagSeparateAfter.'';
+                                $inputRadio .= ''.$tagSeparate.''.esc_html($val).' <input type="radio" class="wpcf7-radio" name="'.esc_html($sh_tag["name"]).'" value="'.$i.'">'.$tagSeparateAfter.'<br />';
                             } else {
-                                $inputRadio .= ''.$tagSeparate.'<input type="radio" class="wpcf7-radio" name="'.esc_html($sh_tag["name"]).'" value="'.$i.'"> '.esc_html($val).''.$tagSeparateAfter.'';
+                                $inputRadio .= ''.$tagSeparate.'<input type="radio" class="wpcf7-radio" name="'.esc_html($sh_tag["name"]).'" value="'.$i.'"> '.esc_html($val).''.$tagSeparateAfter.'<br />';
                             }
 
                         } else {
