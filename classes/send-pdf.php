@@ -1069,6 +1069,8 @@ class cf7_sendpdf {
                     if( isset($meta_values["margin_left"]) && $meta_values["margin_left"]!='' ) { $marginLeft = esc_html($meta_values["margin_left"]); }
                     if( isset($meta_values["margin_right"]) && $meta_values["margin_right"]!='' ) { $marginRight = esc_html($meta_values["margin_right"]); }
 
+                    $setDirectionality = 'ltr';
+                    if( isset($meta_values["set_directionality"]) && $meta_values["set_directionality"]!='' ) {  $setDirectionality = esc_html($meta_values["set_directionality"]);  }
 
                     if( isset($meta_values['pdf-type']) && isset($meta_values['pdf-orientation']) ) {
 
@@ -1124,6 +1126,7 @@ class cf7_sendpdf {
                     $mpdf->autoLangToFont = true;                    
                     $mpdf->SetTitle(get_the_title(esc_html($post['_wpcf7'])));
                     $mpdf->SetCreator(get_bloginfo('name'));
+                    $mpdf->SetDirectionality($setDirectionality);
                     $mpdf->ignore_invalid_utf8 = true;
 
                     $mpdfCharset = 'utf-8';

@@ -290,6 +290,9 @@ jQuery(document).ready(function() {
             if( isset($meta_values["margin_left"]) && $meta_values["margin_left"]!='' ) { $marginLeft = esc_html($meta_values["margin_left"]); }
             if( isset($meta_values["margin_right"]) && $meta_values["margin_right"]!='' ) { $marginRight = esc_html($meta_values["margin_right"]); }
 
+            $setDirectionality = 'ltr';
+            if( isset($meta_values["set_directionality"]) && $meta_values["set_directionality"]!='' ) {  $setDirectionality = esc_html($meta_values["set_directionality"]);  }
+
             if( isset($meta_values['pdf-type']) && isset($meta_values['pdf-orientation']) ) {
 
                 $formatPdf = esc_html($meta_values['pdf-type'].$meta_values['pdf-orientation']);
@@ -343,6 +346,7 @@ jQuery(document).ready(function() {
             $mpdf->autoLangToFont = true;
             $mpdf->SetTitle(get_the_title($idForm));
             $mpdf->SetCreator(get_bloginfo('name'));
+            $mpdf->SetDirectionality($setDirectionality);
             $mpdf->ignore_invalid_utf8 = true;
             $mpdf->simpleTables = false;
 
@@ -938,8 +942,24 @@ $pathFolder = serialize($createDirectory);
 
                             ?>
                             <select name="wp_cf7pdf_settings[charset]">
-                                <option value="utf-8">utf-8</option>
-                                <option value="windows-1252">windows-1252</option>
+                                <option value="utf-8" <?php if( empty($meta_values["charset"]) || (isset($meta_values["charset"]) && $meta_values["charset"]=='utf-8') ) { echo ' selected'; } ?>>utf-8</option>
+                                <option value="windows-1252" <?php if( isset($meta_values["charset"]) && $meta_values["charset"]=='windows-1252"' ) { echo ' selected'; } ?>>windows-1252</option>
+                            </select>
+                        </td>
+                    </tr>
+
+                    <!-- FONT DIRECTIONALITY PDF -->
+                    <tr>
+                        <td>
+                            <?php _e('PDF directionality', WPCF7PDF_TEXT_DOMAIN); ?><br /><p><i><?php _e('Defines the directionality of the document', WPCF7PDF_TEXT_DOMAIN); ?></i></p>
+                        </td>
+                        <td>
+                            <?php
+
+                            ?>
+                            <select name="wp_cf7pdf_settings[set_directionality]">
+                                <option value="ltr" <?php if( empty($meta_values["set_directionality"]) || (isset($meta_values["set_directionality"]) && $meta_values["set_directionality"]=='ltr') ) { echo ' selected'; } ?>>LTR</option>
+                                <option value="rtl" <?php if( isset($meta_values["set_directionality"]) && $meta_values["set_directionality"]=='rtl' ) { echo ' selected'; } ?>>RTL</option>
                             </select>
                         </td>
                     </tr>
