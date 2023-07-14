@@ -891,31 +891,45 @@ class cf7_sendpdf {
 
                             $caseChecked = '';
                             $valueTag = wpcf7_mail_replace_tags('['.$sh_tag["name"].']');
+                            $emptyCheckInput = 0;
 
                             if(isset($meta_values['data_input']) && $meta_values['data_input']=='true') {
 
                                 if( strpos($val, '/') || strpos($val, '%')) {
                                     if( strpos($valueTag, trim($val) )!== false) {
                                         $caseChecked = 'checked="checked"';
+                                    } else if( (isset($meta_values['empty_input']) && $meta_values['empty_input']=='true') ) {
+                                        $emptyCheckInput = 1;
                                     }
                                 } else {
                                     if(preg_match('/\b'.$val.'\b/iu', $valueTag)){
                                         $caseChecked = 'checked="checked"';
+                                    } else if( (isset($meta_values['empty_input']) && $meta_values['empty_input']=='true') ) {
+                                        $emptyCheckInput = 1;
                                     }
                                 }
+
                                 if(in_array('label_first', $tagOptions)) {
-                                    $inputCheckbox .= ''.$tagSeparate.''.$val.' <input type="checkbox" class="wpcf7-checkbox" name="'.$sh_tag["name"].$i.'" value="'.$i.'" '.$caseChecked.' />'.$tagSeparateAfter.'<br />';
+                                    if( $emptyCheckInput == 0 ) {
+                                        $inputCheckbox .= ''.$tagSeparate.''.$val.' <input type="checkbox" class="wpcf7-checkbox" name="'.$sh_tag["name"].$i.'" value="'.$i.'" '.$caseChecked.' />'.$tagSeparateAfter.'<br />';
+                                    }
                                 } else {
-                                    $inputCheckbox .= ''.$tagSeparate.'<input type="checkbox" class="wpcf7-checkbox" name="'.$sh_tag["name"].$i.'" value="'.$i.'" '.$caseChecked.' /> '.$val.''.$tagSeparateAfter.'<br />';
+                                    if( $emptyCheckInput == 0 ) {
+                                        $inputCheckbox .= ''.$tagSeparate.'<input type="checkbox" class="wpcf7-checkbox" name="'.$sh_tag["name"].$i.'" value="'.$i.'" '.$caseChecked.' /> '.$val.''.$tagSeparateAfter.'<br />';
+                                    }
                                 }
     
                             } else {
 
-                                if( strpos($valueTag, trim($val) )!== false && (strpos($val, '/') || strpos($val, '%')) ) {                                    
-                                    $inputCheckbox .= ''.$tagSeparate.''.$val.''.$tagSeparateAfter.'';
+                                if( strpos($valueTag, trim($val) )!== false && (strpos($val, '/') || strpos($val, '%')) ) {   
+                                    if( $emptyCheckInput == 0 ) {                                 
+                                        $inputCheckbox .= ''.$tagSeparate.''.$val.''.$tagSeparateAfter.'';
+                                    }
                                 } else {
                                     if(preg_match('/\b'.$val.'\b/iu', $valueTag)) {
-                                        $inputCheckbox .= ''.$tagSeparate.''.$val.''.$tagSeparateAfter.'';
+                                        if( $emptyCheckInput == 0 ) {
+                                            $inputCheckbox .= ''.$tagSeparate.''.$val.''.$tagSeparateAfter.'';
+                                        }
                                     }
                                 }
                                 
@@ -934,32 +948,45 @@ class cf7_sendpdf {
 
                             $radioChecked = '';
                             $valueTag = wpcf7_mail_replace_tags('['.$sh_tag["name"].']');
+                            $emptyRadioInput = 0;
 
                             if(isset($meta_values['data_input']) && $meta_values['data_input']=='true') {
 
                                 if( strpos($val, '/') ) {
                                     if( strpos($valueTag, trim($val) )!== false) {
                                         $radioChecked = 'checked="checked"';
+                                    } else if( (isset($meta_values['empty_input']) && $meta_values['empty_input']=='true') ) {
+                                        $emptyRadioInput = 1;
                                     }
                                 } else {
                                     if(preg_match('/\b'.$val.'\b/iu', $valueTag)){
                                         $radioChecked = 'checked="checked"';
+                                    } else if( (isset($meta_values['empty_input']) && $meta_values['empty_input']=='true') ) {
+                                        $emptyRadioInput = 1;
                                     }
                                 }
                           
                                 if(in_array('label_first', $tagOptions) ) {
-                                    $inputRadio .= ''.$tagSeparate.''.$val.' <input type="radio" class="wpcf7-radio" name="'.$sh_tag["name"].'" value="'.$i.'" '.$radioChecked.' >'.$tagSeparateAfter.'<br />';
+                                    if( $emptyRadioInput == 0 ) {
+                                        $inputRadio .= ''.$tagSeparate.''.$val.' <input type="radio" class="wpcf7-radio" name="'.$sh_tag["name"].'" value="'.$i.'" '.$radioChecked.' >'.$tagSeparateAfter.'<br />';
+                                    }
                                 } else {
-                                    $inputRadio .= ''.$tagSeparate.'<input type="radio" class="wpcf7-radio" name="'.$sh_tag["name"].'" value="'.$i.'" '.$radioChecked.' > '.$val.''.$tagSeparateAfter.'<br />';
+                                    if( $emptyRadioInput == 0 ) {
+                                        $inputRadio .= ''.$tagSeparate.'<input type="radio" class="wpcf7-radio" name="'.$sh_tag["name"].'" value="'.$i.'" '.$radioChecked.' > '.$val.''.$tagSeparateAfter.'<br />';
+                                    }
                                 }
     
                             } else {
 
-                                if( strpos($valueTag, trim($val) )!== false && (strpos($val, '/') || strpos($val, '%')) ) {                                    
-                                    $inputRadio .= ''.$tagSeparate.''.$val.''.$tagSeparateAfter.'';
+                                if( strpos($valueTag, trim($val) )!== false && (strpos($val, '/') || strpos($val, '%')) ) {  
+                                    if( $emptyRadioInput == 0 ) {                                  
+                                        $inputRadio .= ''.$tagSeparate.''.$val.''.$tagSeparateAfter.'';
+                                    }
                                 } else {
                                     if(preg_match('/\b'.$val.'\b/iu', $valueTag)) {
-                                        $inputRadio .= ''.$tagSeparate.''.$val.''.$tagSeparateAfter.'';
+                                        if( $emptyRadioInput == 0 ) {
+                                            $inputRadio .= ''.$tagSeparate.''.$val.''.$tagSeparateAfter.'';
+                                        }
                                     }
                                 }
                             }

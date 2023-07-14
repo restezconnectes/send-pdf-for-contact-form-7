@@ -55,6 +55,7 @@ Yes. If you want, you can support this project here: <a href="https://restezconn
 = 0.9.9.6 =
 * Change name of generated PDF's
 * Adding Directionality option
+* Adding option for hidden the empty value for checkbox and radio  
 
 = 0.9.9.5 =
 * Adding IPA (Japanese) fonts

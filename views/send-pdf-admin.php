@@ -1017,6 +1017,21 @@ $pathFolder = serialize($createDirectory);
                         </td>
                     </tr>
                     <tr>
+                        <td><!-- Ne pas afficher les entrée vides des Checkbox et Radio -->
+                            <?php _e('Disable display empty data in the checkbox or radio buttons?', WPCF7PDF_TEXT_DOMAIN); ?>
+                        </td>
+                        <td>
+                            <div style="">
+                                <div class="switch-field">
+                                <input class="switch_left" type="radio" id="switch_empty_input" name="wp_cf7pdf_settings[empty_input]" value="true" <?php if( isset($meta_values["empty_input"]) && $meta_values["empty_input"]=='true') { echo ' checked'; } ?>/>
+                                <label for="switch_empty_input"><?php _e('Yes', WPCF7PDF_TEXT_DOMAIN); ?></label>
+                                <input class="switch_right" type="radio" id="switch_empty_input_no" name="wp_cf7pdf_settings[empty_input]" value="false" <?php if( empty($meta_values["empty_input"]) || (isset($meta_values["empty_input"]) && $meta_values["empty_input"]=='false') ) { echo ' checked'; } ?> />
+                                <label for="switch_empty_input_no"><?php _e('No', WPCF7PDF_TEXT_DOMAIN); ?></label>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
                         <td><!-- Propose de mettre le PDF en mode éditable -->
                             <?php _e('Enable fillable PDF Forms?', WPCF7PDF_TEXT_DOMAIN); ?>
                             <p><i><?php _e("Don't works if your PDF is protected.", WPCF7PDF_TEXT_DOMAIN); ?></i></p>
