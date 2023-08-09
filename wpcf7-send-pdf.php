@@ -12,7 +12,7 @@ Text Domain: send-pdf-for-contact-form-7
 GitHub Plugin URI: https://github.com/Florent73/send-pdf-for-contact-form-7
 */
 
-/*  Copyright 2007-2022 Florent Maillefaud (email: contact at restezconnectes.fr)
+/*  Copyright 2007-2023 Florent Maillefaud (email: contact at restezconnectes.fr)
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by

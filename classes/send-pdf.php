@@ -1055,7 +1055,7 @@ class cf7_sendpdf {
 
                 // On insère dans la BDD
                 if( isset($meta_values["disable-insert"]) && $meta_values["disable-insert"] == "false" ) {
-                    $insertPost = $this->save($post['_wpcf7'], serialize($csvTab), esc_url(str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $createDirectory ).'/'.$nameOfPdf.'-'.get_transient('pdf_uniqueid').'.pdf'));
+                    $insertPost = $this->save($post['_wpcf7'], serialize($csvTab), esc_url(str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $createDirectory ).'/'.$nameOfPdf.'.pdf'));
                     $text = str_replace('[ID]', $insertPost, $text);
                 }
 
@@ -1419,12 +1419,12 @@ class cf7_sendpdf {
                             // Ajout des fichiers.
                             if( isset($meta_values["disable-pdf"]) && $meta_values['disable-pdf'] == 'false' ) {
                                 if( isset($meta_values["send-attachment"]) && ($meta_values["send-attachment"] == 'sender' OR $meta_values["send-attachment"] == 'both') ) {
-                                    $zip->addFile($createDirectory.'/'.$nameOfPdf.'-'.get_transient('pdf_uniqueid').'.pdf', $nameOfPdf.'-'.get_transient('pdf_uniqueid').'.pdf');
+                                    $zip->addFile($createDirectory.'/'.$nameOfPdf.'.pdf', $nameOfPdf.'.pdf');
                                 }
                             }
                             if( isset($meta_values["disable-csv"]) && $meta_values['disable-csv'] == 'false' ) {
                                 if( isset($meta_values["send-attachment2"]) && ($meta_values["send-attachment2"] == 'sender' OR $meta_values["send-attachment2"] == 'both') ) {
-                                    $zip->addFile($createDirectory.'/'.$nameOfPdf.'-'.get_transient('pdf_uniqueid').'.csv', $nameOfPdf.'-'.get_transient('pdf_uniqueid').'.csv');
+                                    $zip->addFile($createDirectory.'/'.$nameOfPdf.'.csv', $nameOfPdf.'.csv');
                                 }
                             }
                             if( isset($meta_values["send-attachment3"]) && ($meta_values["send-attachment3"] == 'sender' OR $meta_values["send-attachment3"] == 'both') ) {
