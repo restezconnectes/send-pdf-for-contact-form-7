@@ -454,9 +454,9 @@ jQuery(document).ready(function() {
                         if (isset($meta_values['data_input']) && $meta_values['data_input']== 'true') {
 
                             if( in_array('label_first', $tagOptions) ) {
-                                $inputCheckbox .= ''.$tagSeparate.''.esc_html($val).' <input type="checkbox" class="wpcf7-checkbox" name="'.esc_html($sh_tag["name"].$i).'" value="'.$i.'" />'.$tagSeparateAfter.'<br />';
+                                $inputCheckbox .= ''.$tagSeparate.''.esc_html($val).' <input type="checkbox" class="wpcf7-checkbox" name="'.esc_html($sh_tag["name"].$i).'" value="'.$i.'" />'.$tagSeparateAfter.'';
                             } else {
-                                $inputCheckbox .= ''.$tagSeparate.'<input type="checkbox" class="wpcf7-checkbox" name="'.esc_html($sh_tag["name"].$i).'" value="'.$i.'"/> '.esc_html($val).''.$tagSeparateAfter.'<br />';
+                                $inputCheckbox .= ''.$tagSeparate.'<input type="checkbox" class="wpcf7-checkbox" name="'.esc_html($sh_tag["name"].$i).'" value="'.$i.'"/> '.esc_html($val).''.$tagSeparateAfter.'';
                             }
 
                         } else {
@@ -477,9 +477,9 @@ jQuery(document).ready(function() {
                         if (isset($meta_values['data_input']) && $meta_values['data_input']== 'true') {
                          
                             if( in_array('label_first', $tagOptions) ) {
-                                $inputRadio .= ''.$tagSeparate.''.esc_html($val).' <input type="radio" class="wpcf7-radio" name="'.esc_html($sh_tag["name"]).'" value="'.$i.'">'.$tagSeparateAfter.'<br />';
+                                $inputRadio .= ''.$tagSeparate.''.esc_html($val).' <input type="radio" class="wpcf7-radio" name="'.esc_html($sh_tag["name"]).'" value="'.$i.'">'.$tagSeparateAfter.'';
                             } else {
-                                $inputRadio .= ''.$tagSeparate.'<input type="radio" class="wpcf7-radio" name="'.esc_html($sh_tag["name"]).'" value="'.$i.'"> '.esc_html($val).''.$tagSeparateAfter.'<br />';
+                                $inputRadio .= ''.$tagSeparate.'<input type="radio" class="wpcf7-radio" name="'.esc_html($sh_tag["name"]).'" value="'.$i.'"> '.esc_html($val).''.$tagSeparateAfter.'';
                             }
 
                         } else {

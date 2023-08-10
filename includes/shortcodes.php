@@ -8,11 +8,12 @@ function wpcf7pdf_btn_shortcode( $atts ) {
 	// Attributes
 	extract( shortcode_atts(
 		array(
-			'class' => 'btn btn-large btn-primary',
+			'class' => 'button-primary',
             'target' => '_blank',
             'type' => 'button',
             'dashicons' => 'dashicons-download',
             'text' => '',
+            'textbutton' => 'Download your PDF',
 		), $atts )
 	);
     global $wpdb;
@@ -23,7 +24,6 @@ function wpcf7pdf_btn_shortcode( $atts ) {
 
         if( empty($infos->wpcf7pdf_id_form) ) { 
             return '';
-        
         } else {
             $meta_values = get_post_meta( $infos->wpcf7pdf_id_form, '_wp_cf7pdf', true );
 
@@ -31,12 +31,8 @@ function wpcf7pdf_btn_shortcode( $atts ) {
                 
                 if( isset($infos) ) {
 
-                    if( empty($meta_values["text-link"]) or $meta_values["text-link"]=="" ) {
-                        $downloadText = __('Download your PDF', WPCF7PDF_TEXT_DOMAIN);
-                    } else if( isset($text) && $text!='') {
-                        $downloadText = esc_html($text);
-                    } else {
-                        $downloadText = esc_html($meta_values["text-link"]);
+                    if( isset($textbutton) && $textbutton!='') {
+                        $downloadText = esc_html($textbutton);
                     }
                     if( $dashicons == 'none') {
                         $iconDashicons = '';
