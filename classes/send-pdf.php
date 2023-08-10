@@ -944,7 +944,7 @@ class cf7_sendpdf {
 
                             if(isset($meta_values['data_input']) && $meta_values['data_input']=='true') {
 
-                                if( strpos($val, '/') ) {
+                                if( strpos($val, '/') || strpos($val, '%')) {
                                     if( strpos($valueTag, trim($val) )!== false) {
                                         $radioChecked = 'checked="checked"';
                                     } else if( (isset($meta_values['empty_input']) && $meta_values['empty_input']=='true') ) {
@@ -960,24 +960,25 @@ class cf7_sendpdf {
                           
                                 if(in_array('label_first', $tagOptions) ) {
                                     if( $emptyRadioInput == 0 ) {
-                                        $inputRadio .= ''.$tagSeparate.''.$val.' <input type="radio" class="wpcf7-radio" name="'.$sh_tag["name"].'" value="'.$i.'" '.$radioChecked.' >'.$tagSeparateAfter.'<br />';
+                                        $inputRadio = ''.$tagSeparate.''.$val.' <input type="radio" class="wpcf7-radio" name="'.$sh_tag["name"].'" value="'.$i.'" '.$radioChecked.' >'.$tagSeparateAfter.'<br />';
                                     }
                                 } else {
                                     if( $emptyRadioInput == 0 ) {
-                                        $inputRadio .= ''.$tagSeparate.'<input type="radio" class="wpcf7-radio" name="'.$sh_tag["name"].'" value="'.$i.'" '.$radioChecked.' > '.$val.''.$tagSeparateAfter.'<br />';
+                                        $inputRadio = ''.$tagSeparate.'<input type="radio" class="wpcf7-radio" name="'.$sh_tag["name"].'" value="'.$i.'" '.$radioChecked.' > '.$val.''.$tagSeparateAfter.'<br />';
                                     }
                                 }
     
                             } else {
 
-                                if( strpos($valueTag, trim($val) )!== false && (strpos($val, '/') || strpos($val, '%')) ) {  
-                                    if( $emptyRadioInput == 0 ) {                                  
-                                        $inputRadio .= ''.$tagSeparate.''.$val.''.$tagSeparateAfter.'';
+                                if( strpos($valueTag, trim($val) )!== false && (strpos($val, '/') || strpos($val, '%')) ) {   
+                                    if( $emptyRadioInput == 0 ) {                                 
+                                        $inputRadio = ''.$tagSeparate.''.$val.''.$tagSeparateAfter.'';
                                     }
                                 } else {
                                     if(preg_match('/\b'.$val.'\b/iu', $valueTag)) {
                                         if( $emptyRadioInput == 0 ) {
-                                            $inputRadio .= ''.$tagSeparate.''.$val.''.$tagSeparateAfter.'';
+                                            error_log(''.$tagSeparate.''.$val.''.$tagSeparateAfter.'');
+                                            $inputRadio = ''.$tagSeparate.''.$val.''.$tagSeparateAfter.'';
                                         }
                                     }
                                 }
@@ -985,7 +986,6 @@ class cf7_sendpdf {
                             $i++;
                         }
                         $text = str_replace('['.$sh_tag["name"].']', $inputRadio, $text);
-                        //$text = rtrim($text, $tagSeparateAfter);
                         
                     } else {
                         
