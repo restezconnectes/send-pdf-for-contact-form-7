@@ -903,11 +903,11 @@ class cf7_sendpdf {
 
                                 if(in_array('label_first', $tagOptions)) {
                                     if( $emptyCheckInput == 0 ) {
-                                        $inputCheckbox .= ''.$tagSeparate.''.$val.' <input type="checkbox" class="wpcf7-checkbox" name="'.$sh_tag["name"].$i.'" value="'.$i.'" '.$caseChecked.' />'.$tagSeparateAfter.'<br />';
+                                        $inputCheckbox .= ''.$tagSeparate.''.$val.' <input type="checkbox" class="wpcf7-checkbox" name="'.$sh_tag["name"].$i.'" value="'.$i.'" '.$caseChecked.' />'.$tagSeparateAfter.'';
                                     }
                                 } else {
                                     if( $emptyCheckInput == 0 ) {
-                                        $inputCheckbox .= ''.$tagSeparate.'<input type="checkbox" class="wpcf7-checkbox" name="'.$sh_tag["name"].$i.'" value="'.$i.'" '.$caseChecked.' /> '.$val.''.$tagSeparateAfter.'<br />';
+                                        $inputCheckbox .= ''.$tagSeparate.'<input type="checkbox" class="wpcf7-checkbox" name="'.$sh_tag["name"].$i.'" value="'.$i.'" '.$caseChecked.' /> '.$val.''.$tagSeparateAfter.'';
                                     }
                                 }
     
@@ -960,11 +960,11 @@ class cf7_sendpdf {
                           
                                 if(in_array('label_first', $tagOptions) ) {
                                     if( $emptyRadioInput == 0 ) {
-                                        $inputRadio = ''.$tagSeparate.''.$val.' <input type="radio" class="wpcf7-radio" name="'.$sh_tag["name"].'" value="'.$i.'" '.$radioChecked.' >'.$tagSeparateAfter.'<br />';
+                                        $inputRadio = ''.$tagSeparate.''.$val.' <input type="radio" class="wpcf7-radio" name="'.$sh_tag["name"].'" value="'.$i.'" '.$radioChecked.' >'.$tagSeparateAfter.'';
                                     }
                                 } else {
                                     if( $emptyRadioInput == 0 ) {
-                                        $inputRadio = ''.$tagSeparate.'<input type="radio" class="wpcf7-radio" name="'.$sh_tag["name"].'" value="'.$i.'" '.$radioChecked.' > '.$val.''.$tagSeparateAfter.'<br />';
+                                        $inputRadio = ''.$tagSeparate.'<input type="radio" class="wpcf7-radio" name="'.$sh_tag["name"].'" value="'.$i.'" '.$radioChecked.' > '.$val.''.$tagSeparateAfter.'';
                                     }
                                 }
     
