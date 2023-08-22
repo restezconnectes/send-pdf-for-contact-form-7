@@ -129,7 +129,7 @@ class cf7_sendpdf {
     /**
      * Listing last PDF
      */
-    function wpcf7pdf_listing( $id, $limit = 15 ) {
+    static function wpcf7pdf_listing( $id, $limit = 15 ) {
         
         global $wpdb;
         $result = $wpdb->get_results( $wpdb->prepare("SELECT wpcf7pdf_id, wpcf7pdf_id_form, wpcf7pdf_reference, wpcf7pdf_data, wpcf7pdf_files, wpcf7pdf_files2 FROM ". $wpdb->prefix. "wpcf7pdf_files WHERE wpcf7pdf_id_form = %d ORDER BY wpcf7pdf_id DESC LIMIT %d", sanitize_text_field($id),  sanitize_text_field($limit)), 'OBJECT' );
@@ -392,7 +392,7 @@ class cf7_sendpdf {
 
     }
 
-    function wpcf7pdf_name_pdf($id) {
+    static function wpcf7pdf_name_pdf($id) {
 
         if( empty($id) ) { wp_redirect( 'admin.php?page=wpcf7-send-pdf&deleted=1' ); die('No ID Form'); }
 
@@ -451,7 +451,7 @@ class cf7_sendpdf {
 
     }
 
-    function wpcf7pdf_folder_uploads($id) {
+    static function wpcf7pdf_folder_uploads($id) {
 
         global $post;
 
@@ -977,7 +977,7 @@ class cf7_sendpdf {
                                 } else {
                                     if(preg_match('/\b'.$val.'\b/iu', $valueTag)) {
                                         if( $emptyRadioInput == 0 ) {
-                                            error_log(''.$tagSeparate.''.$val.''.$tagSeparateAfter.'');
+                                            //error_log(''.$tagSeparate.''.$val.''.$tagSeparateAfter.'');
                                             $inputRadio = ''.$tagSeparate.''.$val.''.$tagSeparateAfter.'';
                                         }
                                     }
@@ -1041,6 +1041,7 @@ class cf7_sendpdf {
                 $csvTab = array(sanitize_text_field(get_transient('pdf_uniqueid')), $dateField.' '.$timeField);
                 /* Prepare les valeurs dans tableau CSV */
                 foreach($meta_tags as $ntags => $vtags) {
+                    //error_log($ntags.' => '.$vtags);
                     $returnValue = wpcf7_mail_replace_tags($vtags);
                     array_push($csvTab, $returnValue);
                 }
@@ -1742,7 +1743,7 @@ class cf7_sendpdf {
         }
     }
 
-    function truncate() {
+    static function truncate() {
         global $wpdb;
         $result =  $wpdb->query( "TRUNCATE TABLE ".$wpdb->prefix."wpcf7pdf_files" );
 		if($result) {
@@ -1777,7 +1778,7 @@ class cf7_sendpdf {
         $wpdb->query($sql);
     }
 
-    function wpcf7pdf_generateRandomPassword($nb_car = 8, $chaine = 'azertyuiopqsdfghjklmwxcvbnAZERTYUIOPMLKJGFDNBD123456789') {
+    static function wpcf7pdf_generateRandomPassword($nb_car = 8, $chaine = 'azertyuiopqsdfghjklmwxcvbnAZERTYUIOPMLKJGFDNBD123456789') {
         // the finished password
         //return md5(time());
         $nb_lettres = strlen($chaine) - 1;
@@ -1792,7 +1793,7 @@ class cf7_sendpdf {
     }
 
     
-    function wpcf7pdf_update_settings($idForm, $tabSettings, $nameOption = '', $type=0) {
+    static function wpcf7pdf_update_settings($idForm, $tabSettings, $nameOption = '', $type=0) {
 
         if( empty($nameOption) || $nameOption =='' ) { return false; }
 
@@ -1807,14 +1808,13 @@ class cf7_sendpdf {
                 } elseif(filter_var($valueSettings, FILTER_VALIDATE_EMAIL)) {
                     $newTabSettings[$nameSettings] = sanitize_email($valueSettings);
                 } elseif($nameSettings == 'generate_pdf' || $nameSettings == 'footer_generate_pdf') {
-                    $arr = $this->wpcf7pdf_autorizeHtml();
+                    $arr = self::wpcf7pdf_autorizeHtml();
                     $newTabSettings[$nameSettings] = wp_kses($valueSettings, $arr);
                 } else {
                     $newTabSettings[$nameSettings] = sanitize_textarea_field($valueSettings);
                 }
             }
             update_post_meta(sanitize_text_field($idForm), $nameOption, $newTabSettings);
-            //update_option($nameOption, $newTabSettings );
 
             return true;
 
@@ -1992,7 +1992,7 @@ class cf7_sendpdf {
 
     }
     
-    function wpcf7pdf_getFontsTab() {
+    static function wpcf7pdf_getFontsTab() {
     
         return array(
             'DejaVuSans' => 'dejavusans',
