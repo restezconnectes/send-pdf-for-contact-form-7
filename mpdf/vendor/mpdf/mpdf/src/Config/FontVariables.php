@@ -207,6 +207,9 @@ class FontVariables
 				"daibannasilbook" => [/* New Tai Lue */
 					'R' => "DBSILBR.ttf",
 				],
+				"times-new-roman-cyr" => [
+					'R' => "times-new-roman-cyr.ttf",
+				],
 				"garuda" => [/* Thai */
 					'R' => "Garuda.ttf",
 					'B' => "Garuda-Bold.ttf",

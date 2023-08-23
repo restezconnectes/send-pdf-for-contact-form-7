@@ -2042,7 +2042,8 @@ class cf7_sendpdf {
             'Aegyptus' => 'aegyptus',
             'Eeyek Unicode (Meetei Mayek)' => 'eeyekunicode',
             'Lannaalif (Tai Tham)' => 'lannaalif',
-            'Daibanna SIL Book (New Tai Lue)' => 'daibannasilbook'
+            'Daibanna SIL Book (New Tai Lue)' => 'daibannasilbook',
+            'Cyrillic Time New roman Bulgarian' => 'times-new-roman-cyr',
         );
     }
     

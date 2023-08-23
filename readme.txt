@@ -55,6 +55,7 @@ Yes. If you want, you can support this project here: <a href="https://restezconn
 = 0.9.9.7 =
 * Bug Fixed tags for name PDF
 * Cleaning code
+* Adding Cyrillic Time New roman Bulgarian font
 
 = 0.9.9.6 =
 * Change name of generated PDF's
