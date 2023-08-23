@@ -94,7 +94,7 @@ class cf7_sendpdf {
 
         if( wp_verify_nonce($nonce, 'delete_record-'.$id) ) {
 
-            // Supprime dans la table des promesses 'PREFIX_wpspo_promesse'
+            // Supprime dans la table des promesses 'PREFIX_wpcf7pdf_files'
             $resultOptions =  $wpdb->query( $wpdb->prepare("DELETE FROM ". $wpdb->prefix. "wpcf7pdf_files WHERE wpcf7pdf_id = %d LIMIT 1", $id), 'OBJECT' );
 
             if($resultOptions) {
@@ -408,38 +408,34 @@ class cf7_sendpdf {
         if(isset($meta_values["pdf-add-name"]) && $meta_values["pdf-add-name"]!= '') {
 
             $addName = '';
-
+            $getNamePerso = explode(',', esc_html($meta_values["pdf-add-name"]));
             if(isset($meta_values["date-for-name"]) && !empty($meta_values["date-for-name"])) {
                 $dateForName = date_i18n($meta_values["date-for-name"]);
             } else {
                 $dateForName = date_i18n('mdY', current_time('timestamp'));
             }
-
-            $addName = str_replace('[date]', $dateForName, $addName);
-            $addName = str_replace('[reference]', get_transient('pdf_uniqueid'), $addName);
-
-            $getNamePerso = explode(',', esc_html($meta_values["pdf-add-name"]));
-            
+            $getNamePerso = str_replace('[date]', $dateForName, $getNamePerso);
+            $getNamePerso = str_replace('[reference]', get_transient('pdf_uniqueid'), $getNamePerso);
             foreach ( $getNamePerso as $key => $value ) {
-                if( isset($value) && $value!='' ) {
-                    $addNewName[$key] = wpcf7_mail_replace_tags($value);
-                    $addNewName[$key] = str_replace(' ', '-', $addNewName[$key]);
-                    $addNewName[$key] = strtolower($addNewName[$key]);
-                    $addName .= '-'.sanitize_title($addNewName[$key]);
-                }
+                $addNewName[$key] = wpcf7_mail_replace_tags($value);
+                $addNewName[$key] = str_replace(' ', '-', $addNewName[$key]);
+                $addNewName[$key] = strtolower($addNewName[$key]);
+                $addName .= '-'.sanitize_title($addNewName[$key]);
             }
             $namePDF = $namePDF.$addName;
 
-            /*$contact_form = WPCF7_ContactForm::get_instance($id);
+            $contact_form = WPCF7_ContactForm::get_instance($id);
             if( $contact_form ) {
                 $contact_tag = $contact_form->scan_form_tags();
                 if( !empty($contact_tag) ) {
                     foreach ( $contact_tag as $sh_tag ) {
-                        $valueTag = wpcf7_mail_replace_tags('['.esc_html($sh_tag["name"]).']');                            
-                        $namePDF = str_replace('['.esc_html($sh_tag["name"]).']', sanitize_title($valueTag), $namePDF);                            
+
+                            $valueTag = wpcf7_mail_replace_tags('['.esc_html($sh_tag["name"]).']');                            
+                            $namePDF = str_replace('['.esc_html($sh_tag["name"]).']', sanitize_title($valueTag), $namePDF);                            
+
                     }
                 }
-            }*/
+            }
 
         } else {
 
@@ -2115,6 +2111,7 @@ class cf7_sendpdf {
 
             $meta_values = get_post_meta( $id, '_wp_cf7pdf', true );
             $nameOfPdf = get_transient('pdf_name');
+            //$nameOfPdf = $this->wpcf7pdf_name_pdf(esc_html($id));
 
             // On récupère le dossier upload de WP
             $createDirectory = $this->wpcf7pdf_folder_uploads($id);    
@@ -2143,14 +2140,52 @@ class cf7_sendpdf {
                 if( isset($meta_values["redirect-window"]) && $meta_values["redirect-window"] == 'off' ) {
                     $targetPDF = '_tab';
                 }
-                $urlRredirectPDF = str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $createDirectory).'/'.$nameOfPdf.'.pdf?ver='.rand();
-                $redirectPDF = "/* REDICTION DIRECT */ ";
+                //$urlRredirectPDF = str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $createDirectory).'/'.$nameOfPdf.'.pdf?ver='.rand();
+                $redirectPDF = "/* REDICTION DIRECT */ 
+                var string_to_slug = function (str) {
+                    str = str.replace(/^\s+|\s+$/g, ''); // trim
+                    str = str.toLowerCase();
+
+                    // remove accents, swap ñ for n, etc
+                    var from = 'àáäâèéëêìíïîòóöôùúüûñçěščřžýúůďťň·/_,:;';
+                    var to   = 'aaaaeeeeiiiioooouuuuncescrzyuudtn------';
+
+                    for (var i=0, l=from.length ; i<l ; i++)
+                    {
+                        str = str.replace(new RegExp(from.charAt(i), 'g'), to.charAt(i));
+                    }
+
+                    str = str.replace('.', '-') // replace a dot by a dash 
+                        .replace(/[^a-z0-9 -]/g, '') // remove invalid chars
+                        .replace(/\s+/g, '-') // collapse whitespace and replace by a dash
+                        .replace(/-+/g, '-') // collapse dashes
+                        .replace( /\//g, '' ); // collapse all forward-slashes
+
+                    return str;
+                }
+
+                var inputs = event.detail.inputs;
+                let text = '".$nameOfPdf."';
+
+                for ( var i = 0; i < inputs.length; i++ ) {
+
+                    
+                    let result = text.indexOf(inputs[i].name);
+                    console.log('Position:' + result);
+                    if ( result > 0 ) {
+                        newname = string_to_slug(text.replace(inputs[i].name, inputs[i].value));
+                        break;
+                    } else {
+                        newname = '';
+                    }
+                }
+                ";
                     if( isset($meta_values["redirect-window"]) && $meta_values["redirect-window"] == 'popup' ) {
                         $redirectPDF .= "
-        window.open('".$urlRredirectPDF."','".$nameOfPdf."','menubar=no, status=no, scrollbars=yes, menubar=no, width=600, height=900');";
+        window.open('".str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $createDirectory)."/' + newname + '.pdf?ver=".rand()."','newname','menubar=no, status=no, scrollbars=yes, menubar=no, width=600, height=900');";
                         } else { 
                         $redirectPDF .= "
-        var location = '".$urlRredirectPDF."'; window.open(location, '.$nameOfPdf.', '".$targetPDF."');";
+        var location = '".str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $createDirectory)."/' + newname + '.pdf?ver=".rand()."'; window.open(location, newname, '".$targetPDF."');";
                     }
                 $redirectPDF .= "
 ";

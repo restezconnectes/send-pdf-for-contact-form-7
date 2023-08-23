@@ -1525,9 +1525,7 @@ $pathFolder = serialize($createDirectory);
                             $datas = maybe_unserialize($recorder->wpcf7pdf_data);
                             if( isset($datas) && $datas!=false) {
                                 echo '<td width="80%">';
-                                //echo '<a href="'.esc_url($recorder->wpcf7pdf_files).'" target="_blank">titre</a> - autre';
-                                echo '<a href="'.esc_url($recorder->wpcf7pdf_files).'" target="_blank">'.esc_html($datas[0]) .'</a> - '.esc_html($datas[1]);
-                                
+                                echo '<a href="'.esc_url($recorder->wpcf7pdf_files).'" target="_blank">'.esc_html($datas[0]) .'</a> - '.esc_html($datas[1]);                                
                                 echo '</td>';
                                 echo '<td width="5%"><a href="'.esc_url($recorder->wpcf7pdf_files).'" target="_blank"><img src="'.esc_url(WPCF7PDF_URL.'images/icon_download.png').'" width="30" title="'.__('Download', WPCF7PDF_TEXT_DOMAIN).'" alt="'.__('Download', WPCF7PDF_TEXT_DOMAIN).'" /></a></td>';                        
                         ?><td width="5%"><a href="#" data-idform="<?php echo esc_html($idForm); ?>" data-id="<?php echo esc_html($recorder->wpcf7pdf_id); ?>" data-message="<?php _e('Are you sure you want to delete this Record?', WPCF7PDF_TEXT_DOMAIN); ?>" data-nonce="<?php echo wp_create_nonce('delete_record-'.esc_html($recorder->wpcf7pdf_id)); ?>" class="delete-record"><img src="<?php echo esc_url(WPCF7PDF_URL.'images/icon_delete.png'); ?>" width="30" title="<?php _e('Delete', WPCF7PDF_TEXT_DOMAIN); ?>" alt="<?php _e('Delete', WPCF7PDF_TEXT_DOMAIN); ?>" /></a>
