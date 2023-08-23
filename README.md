@@ -22,6 +22,7 @@ Change name of generated PDF's
 * Bug Fixed tags for name PDF
 * Cleaning code
 * Adding Cyrillic Time New roman Bulgarian font
+* Autorized form tags in name of PDF
 
 = 0.9.9.6 =
 * Change name of generated PDF's
