@@ -432,88 +432,126 @@ jQuery(document).ready(function() {
                 if( $meta_values["separate_after"] == 'linebreak') { $tagSeparateAfter = '<br />'; }
             }
         
-            $contact_form = WPCF7_ContactForm::get_instance($idForm);
-            $contact_tag = $contact_form->scan_form_tags();
-            foreach ( $contact_tag as $sh_tag ) {
-
-                $tagOptions = $sh_tag["options"];
-
-                if( $sh_tag["basetype"] == 'checkbox') {
-                    
-                    $inputCheckbox = '';
-                    $i = 1;
-                    foreach($sh_tag["values"] as $id=>$val) {
-                        
-                        $valueTag = wpcf7_mail_replace_tags('['.$sh_tag["name"].']');
-
-                        if (isset($meta_values['data_input']) && $meta_values['data_input']== 'true') {
-
-                            if( in_array('label_first', $tagOptions) ) {
-                                $inputCheckbox .= ''.$tagSeparate.''.esc_html($val).' <input type="checkbox" class="wpcf7-checkbox" name="'.esc_html($sh_tag["name"].$i).'" value="'.$i.'" />'.$tagSeparateAfter.'';
-                            } else {
-                                $inputCheckbox .= ''.$tagSeparate.'<input type="checkbox" class="wpcf7-checkbox" name="'.esc_html($sh_tag["name"].$i).'" value="'.$i.'"/> '.esc_html($val).''.$tagSeparateAfter.'';
-                            }
-
-                        } else {
-                            $inputCheckbox .= ''.$tagSeparate.''.esc_html($val).''.$tagSeparateAfter.'';
-                        }
-                        $i++;
-                    }
-                    $messageText = str_replace('['.esc_html($sh_tag["name"]).']', $inputCheckbox, $messageText);
-                    //$messageText = rtrim($messageText, $tagSeparateAfter);
-
-                } else if ( $sh_tag["basetype"] == 'radio') {
-                    
-                    $inputRadio = '';
-                    $i = 1;
-                    foreach($sh_tag["values"] as $id=>$val) {
-                        
-                        $valueTag = wpcf7_mail_replace_tags('['.$sh_tag["name"].']');
-                        if (isset($meta_values['data_input']) && $meta_values['data_input']== 'true') {
-                         
-                            if( in_array('label_first', $tagOptions) ) {
-                                $inputRadio .= ''.$tagSeparate.''.esc_html($val).' <input type="radio" class="wpcf7-radio" name="'.esc_html($sh_tag["name"]).'" value="'.$i.'">'.$tagSeparateAfter.'';
-                            } else {
-                                $inputRadio .= ''.$tagSeparate.'<input type="radio" class="wpcf7-radio" name="'.esc_html($sh_tag["name"]).'" value="'.$i.'"> '.esc_html($val).''.$tagSeparateAfter.'';
-                            }
-
-                        } else {
-                            
-                            $inputRadio .= ''.$tagSeparate.''.esc_html($val).''.$tagSeparateAfter.'';
-                        }
-                        $i++;
-                    }
-
-                    $messageText = str_replace('['.esc_html($sh_tag["name"]).']', $inputRadio, $messageText);
-                    //$messageText = rtrim($messageText, $tagSeparateAfter);
-
-                } else {
-                    
-                    $valueTag = wpcf7_mail_replace_tags('['.esc_html($sh_tag["name"]).']');                            
-                    $messageText = str_replace('['.esc_html($sh_tag["name"]).']', esc_html($valueTag), $messageText);
-                }
-                
-            }
-
+            /**
+             * GESTION DES IMAGES UPLOADEES / AVATAR
+             */
             // read all image tags into an array
-            preg_match_all('/<img[^>]+>/i', $messageText, $imgTags); 
-
+            preg_match_all('/<img[^>]+>/i', $messageText, $imgTags);
             for ($i = 0; $i < count($imgTags[0]); $i++) {
                 // get the source string
-                preg_match('/src="([^"]+)/i', $imgTags[0][$i], $imgage);
-
-                // remove opening 'src=' tag, can`t get the regex right
-                $origImageSrc = str_ireplace( 'src="', '',  $imgage[0]);
+                preg_match('/src="([^"]+)/i', $imgTags[0][$i], $imageTag);
+                   // remove opening 'src=' tag, can`t get the regex right
+                $origImageSrc = str_ireplace( 'src="', '',  $imageTag[0]);
                 if( strpos( $origImageSrc, 'http' ) === false ) {                
                     $messageText = str_replace( $origImageSrc, WPCF7PDF_URL.'images/temporary-image.jpg', $messageText);
                 }
             }
-
+        
             // replace tag by avatar picture
             $user = wp_get_current_user();
             if ( $user ) :
                 $messageText = str_replace('[avatar]', esc_url( get_avatar_url( $user->ID ) ), $messageText);
             endif;
+            /**
+             * FIN
+             */
+
+            $contact_form = WPCF7_ContactForm::get_instance($idForm);
+            $contact_tag = $contact_form->scan_form_tags();
+            $form_tag = new WPCF7_FormTag( $contact_tag[0] );
+            $contentPdfTags = cf7_sendpdf::wpcf7pdf_mailparser($messageText);
+
+            foreach ( (array) $contentPdfTags as $name_tags ) {
+
+                $found_key = cf7_sendpdf::wpcf7pdf_foundkey($contact_tag, $name_tags[1]);
+
+                $thisTagRaw = false;
+                if( isset($contact_tag[$found_key]['basetype']) ) {
+                    $basetype = $contact_tag[$found_key]['basetype'];
+                }
+
+                $tagOptions = '';
+                if( isset( $contact_tag[$found_key]['options'] ) ) {
+                    $tagOptions = $contact_tag[$found_key]['options'];
+                }
+
+                if ( preg_match( '/^_raw_(.+)$/', $name_tags[1], $matches ) ) {
+                    $thisTagRaw = true;
+                }
+
+                if( isset($basetype) && ($basetype==='text' || $basetype==='email') ) {                  
+
+                    if (isset($meta_values['data_input']) && $meta_values['data_input']=='true') {
+
+                        $inputSelect = '<input type="text" class="wpcf7-input" name="'.esc_html($name_tags[1]).'" value="" />';
+
+                    } else {
+
+                        $inputSelect = '';
+                        
+                    }
+                    $messageText = str_replace(esc_html($name_tags[0]), $inputSelect, $messageText);
+
+                } else if( isset($basetype) && $basetype==='checkbox' && $thisTagRaw===false ) {
+
+                    $inputCheckbox = '';
+                    $i = 1;
+                    
+                    foreach( $contact_tag[$found_key]['values'] as $id=>$val ) {
+
+                        $valueTag = wpcf7_mail_replace_tags($name_tags[0]);
+
+                        if (isset($meta_values['data_input']) && $meta_values['data_input']=='true') {
+
+                            if( in_array('label_first', $tagOptions) ) {
+                                $inputCheckbox .= ''.$tagSeparate.''.esc_html($val).' <input type="checkbox" class="wpcf7-checkbox" name="'.esc_html($name_tags[1].$id).'" value="'.$i.'" />'.$tagSeparateAfter.'';
+                            } else {
+                                $inputCheckbox .= ''.$tagSeparate.'<input type="checkbox" class="wpcf7-checkbox" name="'.esc_html($name_tags[1].$id).'" value="'.$i.'"/> '.esc_html($val).''.$tagSeparateAfter.'';
+                            }
+
+                        } else {
+
+                            $inputCheckbox .= ''.$tagSeparate.''.esc_html($val).''.$tagSeparateAfter.'';
+                            
+                        }
+                        $i++;
+
+                    }
+                    $messageText = str_replace(esc_html($name_tags[0]), $inputCheckbox, $messageText);
+                    
+                } else if( isset($basetype) && $basetype==='radio' && $thisTagRaw===false ) {
+
+                    $inputRadio = '';
+                    $i = 1;
+
+                    foreach( $contact_tag[$found_key]['values'] as $id=>$val ) {
+
+                        $valueTag = wpcf7_mail_replace_tags($name_tags[0]);
+
+                        if (isset($meta_values['data_input']) && $meta_values['data_input']=='true') {
+                         
+                            if( in_array('label_first', $tagOptions) ) {
+                                $inputRadio .= ''.$tagSeparate.''.esc_html($val).' <input type="radio" class="wpcf7-radio" name="'.esc_html($name_tags[1].$id).'" value="'.$i.'" />'.$tagSeparateAfter.'';
+                            } else {
+                                $inputRadio .= ''.$tagSeparate.'<input type="radio" class="wpcf7-radio" name="'.esc_html($name_tags[1].$id).'" value="'.$i.'" /> '.esc_html($val).''.$tagSeparateAfter.'';
+                            }
+
+                        } else {                          
+
+                            $inputRadio .= ''.$tagSeparate.''.esc_html($val).''.$tagSeparateAfter.'';
+                        }
+                        $i++;
+                    }
+
+                    $messageText = str_replace(esc_html($name_tags[0]), $inputRadio, $messageText);
+
+                } else {
+                    
+                    $valueTag = wpcf7_mail_replace_tags(esc_html($name_tags[0]));                            
+                    $messageText = str_replace(esc_html($name_tags[0]), esc_html($valueTag), $messageText);
+                }
+
+            }
 
             if( empty( $meta_values["linebreak"] ) or ( isset($meta_values["linebreak"]) && $meta_values["linebreak"] == 'false') ) {
                 $messageText = preg_replace("/(\r\n|\n|\r)/", "<div></div>", $messageText);

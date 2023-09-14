@@ -12,11 +12,16 @@ Translations: https://translate.wordpress.org/projects/wp-plugins/send-pdf-for-c
 
 <a href="https://demo.restezconnectes.fr/send-pdf-for-contact-form-7/">[Demo Here]</a>
 
-Current Version:  0.9.9.7
+Current Version:  1.0.0.0
 
 == Changelog ==
 
 Change name of generated PDF's
+
+= 1.0.0.0 =
+* Bug Fixed tags for name PDF
+* Cleaning code
+* Bug fixed supports channels pipes
 
 = 0.9.9.7 =
 * Bug Fixed tags for name PDF
