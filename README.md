@@ -22,6 +22,7 @@ Change name of generated PDF's
 * Bug Fixed tags for name PDF
 * Cleaning code
 * Bug fixed supports channels pipes
+* Compatibility with Shortcoder plugin
 
 = 0.9.9.7 =
 * Bug Fixed tags for name PDF

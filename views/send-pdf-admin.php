@@ -597,16 +597,31 @@ jQuery(document).ready(function() {
 
             // Shortcodes?
             if( isset($meta_values['shotcodes_tags']) && $meta_values['shotcodes_tags']!='') {
+
                 $tagShortcodes = explode(',', esc_html($meta_values['shotcodes_tags']));
                 $countShortcodes = count($tagShortcodes);
                 for($i = 0; $i < ($countShortcodes);  $i++) {
 
                     $pattern = '`\[([^\]]*)\]`';
-                    $result = preg_match_all($pattern, $tagShortcodes[$i], $shortcodeTags);
-                    $shortcodeName = explode(' ', $shortcodeTags[1][0]);
-                    
-                    if( stripos($messageText, '['.$shortcodeName[0].']') !== false ) {
-                        $messageText = str_replace('['.$shortcodeName[0].']', do_shortcode($tagShortcodes[$i]), $messageText);
+                    preg_match_all($pattern, $tagShortcodes[$i], $shortcodeTags);
+
+                    if( is_array($shortcodeTags) && isset($shortcodeTags[1][0]) ) {
+
+                        $shortcodeName = explode(' ', $shortcodeTags[1][0]);
+                        if( is_plugin_active('shortcoder/shortcoder.php') && class_exists('Shortcoder') ) {
+
+                            $shortcodes =  Shortcoder::get_shortcodes();
+                            $returnShortcode = Shortcoder::find_shortcode(array('name'=>$shortcodeName[0]), $shortcodes);
+
+                            if( isset($returnShortcode['id']) ) {
+                                $messageText = str_replace('['.$shortcodeName[0].']', esc_html( Shortcoder::get_sc_tag( $returnShortcode['id'] ) ), $messageText);
+                            }
+                        
+                        }
+                        
+                        if( stripos($messageText, '['.$shortcodeName[0].']') !== false ) {
+                            $messageText = str_replace('['.$shortcodeName[0].']', do_shortcode($tagShortcodes[$i]), $messageText);
+                        }
                     }
                 }
             }

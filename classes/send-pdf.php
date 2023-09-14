@@ -1295,11 +1295,23 @@ class cf7_sendpdf {
                         for($i = 0; $i < ($countShortcodes);  $i++) {
 
                             $pattern = '`\[([^\]]*)\]`';
-                            $result = preg_match_all($pattern, $tagShortcodes[$i], $shortcodeTags);
-                            $shortcodeName = explode(' ', $shortcodeTags[1][0]);
-                            
-                            if( stripos($contentPdf, '['.$shortcodeName[0].']') !== false ) {
-                                $contentPdf = str_replace('['.$shortcodeName[0].']', do_shortcode($tagShortcodes[$i]), $contentPdf);
+                            preg_match_all($pattern, $tagShortcodes[$i], $shortcodeTags);
+                            if( is_array($shortcodeTags) && isset($shortcodeTags[1][0]) ) {
+
+                                $shortcodeName = explode(' ', $shortcodeTags[1][0]);
+                                if( is_plugin_active('shortcoder/shortcoder.php') && class_exists('Shortcoder') ) {
+        
+                                    $shortcodes =  Shortcoder::get_shortcodes();
+                                    $returnShortcode = Shortcoder::find_shortcode(array('name'=>$shortcodeName[0]), $shortcodes);
+                                    if( isset($returnShortcode['id']) ) {
+                                        $contentPdf = str_replace('['.$shortcodeName[0].']', do_shortcode('[sc name="'.$shortcodeName[0].'"][/sc]'), $contentPdf);
+                                    }
+                                
+                                }
+                                
+                                if( stripos($contentPdf, '['.$shortcodeName[0].']') !== false ) {
+                                    $contentPdf = str_replace('['.$shortcodeName[0].']', do_shortcode($tagShortcodes[$i]), $contentPdf);
+                                }
                             }
                         }
                     }

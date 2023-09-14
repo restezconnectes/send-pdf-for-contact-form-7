@@ -56,6 +56,7 @@ Yes. If you want, you can support this project here: <a href="https://restezconn
 * Bug Fixed tags for name PDF
 * Cleaning code
 * Bug fixed supports channels pipes
+* Compatibility with Shortcoder plugin
 
 = 0.9.9.7 =
 * Bug Fixed tags for name PDF
