@@ -665,6 +665,17 @@ jQuery(document).ready(function() {
 
             }
 
+            // En cas de nouveau document PDF
+            /*preg_match_all('/\[add_document([^\]]*)\]/m', $messageText, $matches, PREG_SET_ORDER, 0);
+            if( $matches ) {
+
+                foreach($matches as $document) {
+                    // Print the entire match result
+                    preg_match_all('/\"([^\]]*)\"/m', $document[1], $suffix, PREG_SET_ORDER, 0);
+                    var_dump($suffix[0][1]);
+                }
+            }*/
+
             $pdfPassword = '';
             if ( isset($meta_values["protect"]) && $meta_values["protect"]=='true') {
                 
