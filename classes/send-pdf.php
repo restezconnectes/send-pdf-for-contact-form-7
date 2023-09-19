@@ -830,34 +830,6 @@ class cf7_sendpdf {
                 $nbPassword = esc_html($meta_values["protect_password_nb"]); 
             }
             set_transient('pdf_password', $this->wpcf7pdf_generateRandomPassword($nbPassword), HOUR_IN_SECONDS);
-    
-            // On va chercher les tags FILE destinés aux images
-            if( isset( $meta_values['file_tags'] ) && $meta_values['file_tags']!='' ) {
-                $cf7_file_field_name = esc_html($meta_values['file_tags']); // [file uploadyourfile]
-                if( !empty($cf7_file_field_name) ) {
-
-                    preg_match_all('`\[([^\]]*)\]`', $cf7_file_field_name, $contentTags, PREG_SET_ORDER, 0);
-                    foreach($contentTags as $tags) {
-                        $image_name = '';
-                        if( isset($tags[1]) && $tags[1] != '' && !empty($posted_data[$tags[1]]) ) {
-                            $image_name = $posted_data[$tags[1]];
-                            
-                            if( isset($image_name) && $image_name!='' && !empty($posted_data[$tags[1]]) ) {
-                                
-                                if( !empty($uploaded_files[$tags[1]]) ) {
-                                    
-                                    $image_location = $this->wpcf7pdf_attachments($tags[0]);
-                                    $chemin_final[$tags[1]] = $createDirectory.'/'.sanitize_text_field(get_transient('pdf_uniqueid')).'-'.wpcf7_mail_replace_tags($tags[0]);
-                                    // On copie l'image dans le dossier
-                                    copy($image_location, $chemin_final[$tags[1]]);
-                                }
-
-                            }
-
-                        }
-                    }
-                }
-            }
 
             // On va cherche les champs du formulaire
             $meta_tags = get_post_meta(esc_html($post['_wpcf7']), '_wp_cf7pdf_fields', true);
@@ -881,7 +853,7 @@ class cf7_sendpdf {
                     $contentPdf = str_replace('[avatar]', esc_url( get_avatar_url( $user->ID ) ), $contentPdf);
                 endif;
                 // read all image tags into an array
-                preg_match_all('/<img[^>]+>/i', $contentPdf, $imgTags); 
+                /*preg_match_all('/<img[^>]+>/i', $contentPdf, $imgTags); 
 
                 for ($i = 0; $i < count($imgTags[0]); $i++) {
                     // get the source string
@@ -892,7 +864,7 @@ class cf7_sendpdf {
                     if( strpos( $origImageSrc, 'http' ) === false ) {                
                         $contentPdf = str_replace( $origImageSrc, WPCF7PDF_URL.'images/temporary-image.jpg', $contentPdf);
                     }
-                }
+                }*/
                 /**
                  * FIN
                  */
@@ -977,7 +949,44 @@ class cf7_sendpdf {
                         }
                         $contentPdf = str_replace(esc_html($name_tags[0]), $inputSelect, $contentPdf);
 
-                    } else */if( isset($basetype) && $basetype==='checkbox' ) {
+                    } else */
+                    if( isset($basetype) && $basetype==='file' ) {
+
+                        $file_location = $this->wpcf7pdf_attachments($name_tags[0]);
+                        $valueTag = wpcf7_mail_replace_tags($name_tags[0]);
+                        $a = getimagesize($file_location);
+                        if( isset($a[2]) ) {
+                        $file_type = $a[2];
+                        }
+
+                        // remplace le tag
+                        $contentPdf = str_replace($name_tags[0], $valueTag, $contentPdf);
+
+                        if(isset($file_type) && in_array($file_type, array(IMAGETYPE_GIF, IMAGETYPE_JPEG, IMAGETYPE_PNG, IMAGETYPE_BMP))) {
+
+                            $chemin_initial[$name_tags[0]] = $createDirectory.'/'.sanitize_text_field(get_transient('pdf_uniqueid')).'-'.wpcf7_mail_replace_tags($name_tags[0]);
+                            // On copie l'image dans le dossier
+                            copy($file_location, $chemin_initial[$name_tags[0]]);
+                            
+                            // URL IMAGE 
+                            $uploadingImg[$name_tags[1]] = $createDirectory.'/'.sanitize_text_field(get_transient('pdf_uniqueid')).'-'.wpcf7_mail_replace_tags($name_tags[0]);
+                            // rotation de l'image si besoin
+                            $rotate_image[$name_tags[1]] = $this->adjustImageOrientation($uploadingImg[$name_tags[1]]);
+                            // retourne l'URL complete du tag 
+                            $chemin_final[$name_tags[1]] = esc_url(str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $uploadingImg[$name_tags[1]]));
+                            // retourne l'URL complete du tag 
+                            $contentPdf = str_replace('[url-'.$name_tags[1].']', $chemin_final[$name_tags[1]], $contentPdf);
+                            
+                        } else {
+
+                            // URL DU FICHER
+                            $uploadingImg[$name_tags[1]] = $createDirectory.'/'.sanitize_text_field(get_transient('pdf_uniqueid')).'-'.wpcf7_mail_replace_tags($name_tags[0]);
+                            $chemin_final[$name_tags[1]] = esc_url(str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $uploadingImg[$name_tags[1]]));
+                            // retourne l'URL complete du tag 
+                            $contentPdf = str_replace('[url-'.$name_tags[1].']', $chemin_final[$name_tags[1]], $contentPdf);
+                        }                        
+
+                    } else if( isset($basetype) && $basetype==='checkbox' ) {
 
                         $inputCheckbox = '';
                         $i = 1;
@@ -1087,33 +1096,6 @@ class cf7_sendpdf {
                 $contentPdf = str_replace('[reference]', sanitize_text_field(get_transient('pdf_uniqueid')), $contentPdf);
                 $contentPdf = str_replace('[url-pdf]', str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $createDirectory).'/'.$nameOfPdf.'.pdf', $contentPdf);
 
-                $cf7_file_field_name = $meta_values['file_tags']; // [file uploadyourfile]
-                if( !empty($cf7_file_field_name) ) {
-
-                    preg_match_all('`\[([^\]]*)\]`', $cf7_file_field_name, $contentTagsOnPdf, PREG_SET_ORDER, 0);
-                    foreach($contentTagsOnPdf as $tagsOnPdf) {
-                        $image_name2 = '';
-                        if( isset($tagsOnPdf[1]) && $tagsOnPdf[1] != '' && !empty($posted_data[$tagsOnPdf[1]]) ) {
-                            $image_name2 = $posted_data[$tagsOnPdf[1]];
-                            if( isset($image_name2) && $image_name2!='' ) {
-                                
-                                // remplace le tag
-                                $contentPdf = str_replace('['.$tagsOnPdf[1].']', $image_name2, $contentPdf);
-                                // URL IMAGE 
-                                $uploadingImg[$tagsOnPdf[1]] = $createDirectory.'/'.sanitize_text_field(get_transient('pdf_uniqueid')).'-'.wpcf7_mail_replace_tags($tagsOnPdf[0]);
-                                // rotation de l'image si besoin
-                                $rotate_image[$tagsOnPdf[1]] = $this->adjustImageOrientation($uploadingImg[$tagsOnPdf[1]]);
-                                // retourne l'URL complete du tag 
-                                $chemin_final2[$tagsOnPdf[1]] = esc_url(str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $uploadingImg[$tagsOnPdf[1]]));
-                                // retourne l'URL complete du tag 
-                                $contentPdf = str_replace('[url-'.$tagsOnPdf[1].']', $chemin_final2[$tagsOnPdf[1]], $contentPdf);
-
-                            } else {
-                                $contentPdf = str_replace('[url-'.$tagsOnPdf[1].']', WPCF7PDF_URL.'images/onepixel.png', $contentPdf);
-                            }
-                        }
-                    }
-                }
                 if( isset($meta_values['date_format']) && !empty($meta_values['date_format']) ) {
                     $dateField = date_i18n( $meta_values['date_format'] );
                 } else {

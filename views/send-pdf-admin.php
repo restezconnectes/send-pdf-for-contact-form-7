@@ -464,7 +464,7 @@ jQuery(document).ready(function() {
             foreach ( (array) $contentPdfTags as $name_tags ) {
 
                 $found_key = cf7_sendpdf::wpcf7pdf_foundkey($contact_tag, $name_tags[1]);
-
+                //var_dump($contact_tag[$found_key]);
                 $thisTagRaw = false;
                 if( isset($contact_tag[$found_key]['basetype']) ) {
                     $basetype = $contact_tag[$found_key]['basetype'];
@@ -479,7 +479,7 @@ jQuery(document).ready(function() {
                     $thisTagRaw = true;
                 }
 
-                if( isset($basetype) && ($basetype==='text' || $basetype==='email') ) {                  
+                /*if( isset($basetype) && ($basetype==='text' || $basetype==='email') ) {                  
 
                     if (isset($meta_values['data_input']) && $meta_values['data_input']=='true') {
 
@@ -492,7 +492,8 @@ jQuery(document).ready(function() {
                     }
                     $messageText = str_replace(esc_html($name_tags[0]), $inputSelect, $messageText);
 
-                } else if( isset($basetype) && $basetype==='checkbox' && $thisTagRaw===false ) {
+                } else */
+                if( isset($basetype) && $basetype==='checkbox' && $thisTagRaw===false ) {
 
                     $inputCheckbox = '';
                     $i = 1;
@@ -1453,13 +1454,10 @@ $pathFolder = serialize($createDirectory);
                                     <tr>
                                         <td width="50%">
                                             <span class="mailtag code used" onclick="jQuery(this).selectText()" style="cursor: pointer;"><strong>[reference]</strong></span><br /><i><?php _e("[reference] is a simple mail-tag who is used for create unique PDF. It's also recorded in the database. Every PDF is named like this : name-pdf-uniqid() and it's uploaded in the upload folder of WordPress.", WPCF7PDF_TEXT_DOMAIN); ?></i><br /><br />
-                                            <span class="mailtag code used" onclick="jQuery(this).selectText()" style="cursor: pointer;"><strong>[ID]</strong></span><br /><i><?php _e("[ID] is a simple tag that comes from the database ID if you have allowed registration in the options.", WPCF7PDF_TEXT_DOMAIN); ?></i><br /><br />
-                                            <span class="mailtag code used" onclick="jQuery(this).selectText()" style="cursor: pointer;"><strong>[avatar]</strong></span><br /><i><?php _e("[avatar] is a simple mail-tag for the user Avatar URL.", WPCF7PDF_TEXT_DOMAIN); ?></i>
                                         </td>
-                                        <td width="50%">
-                                            <?php if( empty($fileTags) || ( isset($fileTags) && $fileTags == '') ) { $fileTags = '[file-1][file-2]'; } ?>
-                                            <i><?php echo sprintf( __('The <strong>[file]</strong> tags are for images? Enter them here to display them in images on your PDF and like this: %s', WPCF7PDF_TEXT_DOMAIN), esc_html($fileTags) ); ?></i><br /><small><?php _e('It will then be necessary to put them in the image HTML tag for the PDF layout.', WPCF7PDF_TEXT_DOMAIN); ?><br /><?php _e('Use url- prefix for display URL like this:', WPCF7PDF_TEXT_DOMAIN); ?> <?php echo str_replace('[', '[url-', esc_html($fileTags)); ?></small><br /><input type="text" class="wpcf7-form-field" name="wp_cf7pdf_settings[file_tags]" size="80%" value="<?php if( isset($meta_values['file_tags'])) { echo esc_html($meta_values['file_tags']); } ?>" /><br /><br />
-                                            <i><?php echo __('Enter here your Shortcodes (separated by commas)', WPCF7PDF_TEXT_DOMAIN); ?></i><br /><small><?php _e('It will then be necessary to put them in the PDF layout. Test with this shortcode: [wpcf7pdf_test]', WPCF7PDF_TEXT_DOMAIN); ?></small><br /><input type="text" class="wpcf7-form-field" name="wp_cf7pdf_settings[shotcodes_tags]" size="80%" value="<?php if( isset($meta_values['shotcodes_tags'])) { echo esc_html($meta_values['shotcodes_tags']); } ?>" />
+                                        <td width="50%">                                            
+                                            <span class="mailtag code used" onclick="jQuery(this).selectText()" style="cursor: pointer;"><strong>[ID]</strong></span><br /><i><?php _e("[ID] is a simple tag that comes from the database ID if you have allowed registration in the options.", WPCF7PDF_TEXT_DOMAIN); ?></i><br /><br />
+                                            <span class="mailtag code used" onclick="jQuery(this).selectText()" style="cursor: pointer;"><strong>[avatar]</strong></span><br /><i><?php _e("[avatar] is a simple mail-tag for the user Avatar URL.", WPCF7PDF_TEXT_DOMAIN); ?></i>/
                                         </td>
                                     
                                     </tr>
