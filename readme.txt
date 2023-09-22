@@ -58,6 +58,7 @@ Yes. If you want, you can support this project here: <a href="https://restezconn
 * Bug fixed supports channels pipes
 * Compatibility with Shortcoder plugin
 * Bug with images fixed
+* Adding Directionality option
 
 = 0.9.9.7 =
 * Bug Fixed tags for name PDF

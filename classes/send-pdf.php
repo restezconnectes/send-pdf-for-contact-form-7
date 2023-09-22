@@ -1937,8 +1937,16 @@ class cf7_sendpdf {
                 'id' => array(),
                 'class' => array(),
                 'title' => array(),
-                'style' => array()
+                'style' => array(),
+                'dir' => array()
                 ),
+            'bdo' => array(
+                'id' => array(),
+                'class' => array(),
+                'title' => array(),
+                'style' => array(),
+                'dir' => array()
+                ),                
             'span' => array(
                 'id' => array(),
                 'class' => array(),

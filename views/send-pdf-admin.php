@@ -1457,7 +1457,9 @@ $pathFolder = serialize($createDirectory);
                                         </td>
                                         <td width="50%">                                            
                                             <span class="mailtag code used" onclick="jQuery(this).selectText()" style="cursor: pointer;"><strong>[ID]</strong></span><br /><i><?php _e("[ID] is a simple tag that comes from the database ID if you have allowed registration in the options.", WPCF7PDF_TEXT_DOMAIN); ?></i><br /><br />
-                                            <span class="mailtag code used" onclick="jQuery(this).selectText()" style="cursor: pointer;"><strong>[avatar]</strong></span><br /><i><?php _e("[avatar] is a simple mail-tag for the user Avatar URL.", WPCF7PDF_TEXT_DOMAIN); ?></i>/
+                                            <span class="mailtag code used" onclick="jQuery(this).selectText()" style="cursor: pointer;"><strong>[avatar]</strong></span><br /><i><?php _e("[avatar] is a simple mail-tag for the user Avatar URL.", WPCF7PDF_TEXT_DOMAIN); ?></i>
+                                            <br /><br />
+                                            <i><?php echo __('Enter here your Shortcodes', 'send-pdf-for-contact-form-7'); ?></i><br /><small><?php _e('It will then be necessary to put them in the PDF layout. Test with this shortcode: [wpcf7pdf_test]', 'send-pdf-for-contact-form-7'); ?></small><br /><input type="text" class="wpcf7-form-field" name="wp_cf7pdf_settings[shotcodes_tags]" size="80%" value="<?php if( isset($meta_values['shotcodes_tags'])) { echo esc_html($meta_values['shotcodes_tags']); } ?>" />
                                         </td>
                                     
                                     </tr>
