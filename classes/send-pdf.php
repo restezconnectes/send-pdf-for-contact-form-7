@@ -952,17 +952,24 @@ class cf7_sendpdf {
                     } else */
                     if( isset($basetype) && $basetype==='file' ) {
 
+                        $noImage = 0;
                         $file_location = $this->wpcf7pdf_attachments($name_tags[0]);
                         $valueTag = wpcf7_mail_replace_tags($name_tags[0]);
-                        $a = getimagesize($file_location);
-                        if( isset($a[2]) ) {
-                        $file_type = $a[2];
+                        // Test si fichier envoyé
+                        if( isset($file_location) && !empty($file_location) ) {
+                            $a = getimagesize($file_location);
+                            if( isset($a[2]) ) { $file_type = $a[2]; }
+                            $noImage = 1;
                         }
-
+                        // Si pas de fichier envoyé on retourne une image de 1 px
+                        if( isset($noImage) && $noImage==0) {
+                            $contentPdf = str_replace('[url-'.$name_tags[1].']', WPCF7PDF_URL.'images/onepixel.png', $contentPdf);
+                        }
+                       
                         // remplace le tag
                         $contentPdf = str_replace($name_tags[0], $valueTag, $contentPdf);
-
-                        if(isset($file_type) && in_array($file_type, array(IMAGETYPE_GIF, IMAGETYPE_JPEG, IMAGETYPE_PNG, IMAGETYPE_BMP))) {
+                        
+                        if( isset($file_type) && in_array($file_type, array(IMAGETYPE_GIF, IMAGETYPE_JPEG, IMAGETYPE_PNG, IMAGETYPE_BMP))) {
 
                             $chemin_initial[$name_tags[0]] = $createDirectory.'/'.sanitize_text_field(get_transient('pdf_uniqueid')).'-'.wpcf7_mail_replace_tags($name_tags[0]);
                             // On copie l'image dans le dossier
@@ -1440,14 +1447,14 @@ class cf7_sendpdf {
         $submission = WPCF7_Submission::get_instance();
         if( $submission ) {
 
-            $posted_data = $submission->get_posted_data();
+            //$posted_data = $submission->get_posted_data();
 
             global $post;
             // On récupère le dossier upload de WP (utile pour les autres pièces jointes)
             $upload_dir = wp_upload_dir();
             // On récupère le dossier upload de l'extension (/sendpdfcf7_uploads/)
             $createDirectory = $this->wpcf7pdf_folder_uploads(esc_html($post['_wpcf7']));
-            $uploaded_files = $submission->uploaded_files();
+            //$uploaded_files = $submission->uploaded_files();
 
             // On recupere les donnees et le nom du pdf personnalisé
             $meta_values = get_post_meta(esc_html($post['_wpcf7']), '_wp_cf7pdf', true);
@@ -1455,6 +1462,10 @@ class cf7_sendpdf {
             $nameOfPdf = get_transient('pdf_name');
             // PDF generé et envoyé
             $disablePDF = 0;
+
+            // On récupère les tags du formulaire
+            $contact_form = WPCF7_ContactForm::get_instance(esc_html($post['_wpcf7']));           
+            $contact_tag = $contact_form->scan_form_tags();
 
             // Je déclare le contenu de l'email
             $messageText = $components['body'];
@@ -1468,7 +1479,6 @@ class cf7_sendpdf {
 
                     // Send just zip
                     if( isset($meta_values["pdf-to-zip"]) && $meta_values["pdf-to-zip"] == 'true' ) {
-
                         
                         // Création du zip
                         $zip = new ZipArchive(); 
@@ -1656,24 +1666,27 @@ class cf7_sendpdf {
                     $messageText = str_replace('[pdf-password]', '', $messageText);
                 }
 
-                // On va chercher les tags FILE destinés aux images               
-                if( isset( $meta_values['file_tags'] ) && $meta_values['file_tags']!='' ) {
+                $contentPdfTags = self::wpcf7pdf_mailparser($messageText);
+                foreach ( (array) $contentPdfTags as $name_tags ) {
 
-                    preg_match_all('`\[([^\]]*)\]`', $meta_values['file_tags'], $contentTagsOnMail, PREG_SET_ORDER, 0);
-                    foreach($contentTagsOnMail as $tagsOnMail) {
-                        $image_name_mail = '';
-                        if( isset($tagsOnMail[1]) && $tagsOnMail[1] != '' && !empty($posted_data[$tagsOnMail[1]]) ) {
-                            $image_name_mail = $posted_data[$tagsOnMail[1]];
-                            if( isset($image_name_mail) && $image_name_mail!='' ) {
-                                
-                                $chemin_final2[$tagsOnMail[1]] = esc_url(str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $createDirectory).'/'.sanitize_text_field(get_transient('pdf_uniqueid')).'-'.wpcf7_mail_replace_tags($tagsOnMail[0]));
-                                $messageText = str_replace('['.$tagsOnMail[1].']', $image_name_mail, $messageText);
-                                $messageText = str_replace('[url-'.$tagsOnMail[1].']', $chemin_final2[$tagsOnMail[1]], $messageText);
-                            } else {
-                                $messageText = str_replace('[url-'.$tagsOnMail[1].']', WPCF7PDF_URL.'images/onepixel.png', $messageText);
-                            }
-                        }
+                    $tagReplace = str_replace('url-', '', $name_tags[1]);
+                    $found_key = cf7_sendpdf::wpcf7pdf_foundkey($contact_tag, $tagReplace);
+                    $basetype = $contact_tag[$found_key]['basetype'];
+
+                    if( isset($basetype) && $basetype==='file' ) {
+                      
+                        $valueTag = wpcf7_mail_replace_tags('['.$tagReplace.']');
+                        $uploadingImg[$name_tags[1]] = $createDirectory.'/'.sanitize_text_field(get_transient('pdf_uniqueid')).'-'.$valueTag;
+                        // retourne l'URL complete du tag 
+                        $chemin_final[$name_tags[1]] = esc_url(str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $uploadingImg[$name_tags[1]]));
+                        error_log(' --> ['.$tagReplace.'] --> '.$chemin_final[$name_tags[1]]);
+                        
+                        // remplace le tag
+                        $messageText = str_replace('['.$name_tags[1].']', $chemin_final[$name_tags[1]], $messageText);
+                        //$messageText = str_replace($name_tags[0], $valueTag, $messageText);                     
+
                     }
+
                 }
                 
                 // Shortcodes?
@@ -1906,12 +1919,30 @@ class cf7_sendpdf {
                 'style' => array(),
                 'class' => array()
                 ),
-            'h1' => array(),
-            'h2' => array(), 
-            'h3' => array(), 
-            'h4' => array(),
-            'h5' => array(), 
-            'h6' => array(),             
+            'h1' => array(
+                'class' => array(),
+                'style' => array(),
+            ),
+            'h2' => array(
+                'class' => array(),
+                'style' => array(),
+            ), 
+            'h3' => array(
+                'class' => array(),
+                'style' => array(),
+            ), 
+            'h4' => array(
+                'class' => array(),
+                'style' => array(),
+            ),
+            'h5' => array(
+                'class' => array(),
+                'style' => array(),
+            ), 
+            'h6' => array(
+                'class' => array(),
+                'style' => array(),
+            ),             
             'em' => array(),
             'i' => array(
                 'style' => array(),

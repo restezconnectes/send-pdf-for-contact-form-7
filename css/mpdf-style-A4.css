@@ -43,6 +43,3 @@ h6 {	font-weight: bold; font-size: 9.5pt; color: #333333;
 .big { font-size: 1.5em; }
 .red { color: #880000; }
 .slanted { font-style: italic; }
-#image {
-  image-orientation: from-image!important; /* Peut être édité dans l'exemple */
-}
