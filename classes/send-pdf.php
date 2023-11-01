@@ -949,24 +949,22 @@ class cf7_sendpdf {
                     } else */
                     if( isset($basetype) && $basetype==='file' ) {
 
-                        $noImage = 0;
                         $file_location = $this->wpcf7pdf_attachments($name_tags[0]);
-                        $valueTag = wpcf7_mail_replace_tags($name_tags[0]);
-                        // Test si fichier envoyé
-                        if( isset($file_location) && !empty($file_location) ) {
-                            $a = getimagesize($file_location);
-                            if( isset($a[2]) ) { $file_type = $a[2]; }
-                            $noImage = 1;
-                        }
-                        // Si pas de fichier envoyé on retourne une image de 1 px
-                        if( isset($noImage) && $noImage==0) {
-                            $contentPdf = str_replace('[url-'.$name_tags[1].']', WPCF7PDF_URL.'images/onepixel.png', $contentPdf);
-                        }
+                        if( isset($file_location) && exif_imagetype($file_location) !=false ) {
+                            $valueTag = wpcf7_mail_replace_tags($name_tags[0]);
+                            // Test si fichier envoyé
+                            /*if( isset($file_location) && !empty($file_location) ) {
+                                $a = getimagesize($file_location);
+                                if( isset($a[2]) ) { $file_type = $a[2]; }
+                                $noImage = 1;
+                            }
+                            // Si pas de fichier envoyé on retourne une image de 1 px
+                            if( isset($noImage) && $noImage==0) {
+                                $contentPdf = str_replace('[url-'.$name_tags[1].']', WPCF7PDF_URL.'images/onepixel.png', $contentPdf);
+                            }*/
                        
-                        // remplace le tag
-                        $contentPdf = str_replace($name_tags[0], $valueTag, $contentPdf);
-                        
-                        if( isset($file_type) && in_array($file_type, array(IMAGETYPE_GIF, IMAGETYPE_JPEG, IMAGETYPE_PNG, IMAGETYPE_BMP))) {
+                            // remplace le tag
+                            $contentPdf = str_replace($name_tags[0], $valueTag, $contentPdf);
 
                             $chemin_initial[$name_tags[0]] = $createDirectory.'/'.sanitize_text_field(get_transient('pdf_uniqueid')).'-'.wpcf7_mail_replace_tags($name_tags[0]);
                             // On copie l'image dans le dossier
@@ -981,6 +979,10 @@ class cf7_sendpdf {
                             // retourne l'URL complete du tag 
                             $contentPdf = str_replace('[url-'.$name_tags[1].']', $chemin_final[$name_tags[1]], $contentPdf);
                             
+                        } else if( empty($file_location) ) {
+
+                            $contentPdf = str_replace('[url-'.$name_tags[1].']', WPCF7PDF_URL.'images/onepixel.png', $contentPdf);
+
                         } else {
 
                             // URL DU FICHER
