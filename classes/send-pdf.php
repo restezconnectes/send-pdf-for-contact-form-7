@@ -161,6 +161,31 @@ class cf7_sendpdf {
         return $found_key;
 
     }
+
+    static function wpf7pdf_tagsparser($id) {
+
+        // nothing's here... do nothing...
+        if (empty($id))
+            return;
+
+
+        // On va cherche les champs du formulaire
+        $meta_tags = get_post_meta(esc_html($id), '_wp_cf7pdf_fields', true);
+
+        // Definition des dates par defaut
+        $dateField = WPCF7PDF_prepare::returndate($id);
+        $timeField = WPCF7PDF_prepare::returntime($id);
+
+        // Prepare les valeurs dans tableau CSV
+        $tagsParser = array(sanitize_text_field(get_transient('pdf_uniqueid')), $dateField.' '.$timeField);
+        foreach($meta_tags as $ntags => $vtags) {
+            $returnValue = wpcf7_mail_replace_tags($vtags);
+            array_push($tagsParser, $returnValue);
+        }
+
+        return $tagsParser;
+
+    }
     
      /**
      * Process a settings export that generates a .json file of the erident settings
@@ -432,7 +457,7 @@ class cf7_sendpdf {
         // Le transient est-il inexistant ou expiré ?
         //if ( false === ( $transient = get_transient('pdf_name') ) ) {
 
-            // Si oui, je fais appelle aux fonction pour donner une valeur au transient.
+            // Si oui, je fais appelle aux fonctions pour donner une valeur au transient.
             $meta_values = get_post_meta(sanitize_textarea_field($idForm), '_wp_cf7pdf', true);
             if( isset($meta_values["pdf-name"]) && !empty($meta_values["pdf-name"]) ) {
                 $namePDF = esc_html(trim($meta_values["pdf-name"]));
@@ -578,18 +603,24 @@ class cf7_sendpdf {
                         }
                     }
                 }
+                
             }
             $createDirectory = $upload_dir['basedir'].'/sendpdfcf7_uploads/'.$id;
+            
 
         } else {
             $createDirectory = $upload_dir['basedir'].$upload_dir['subdir'];
         }
 
+        // Je crée une image dans le dossier des uploads PDF. onepixel.png remplace l'image si pas d'upload du client
+        if( file_exists($createDirectory.'/onepixel.png')===FALSE) {
+            copy(WPCF7PDF_URL.'images/onepixel.png', $createDirectory . '/onepixel.png');
+        }
         return $createDirectory;
 
     }
 
-    function wpcf7pdf_attachments( $tag = null ) {
+    static function wpcf7pdf_attachments( $tag = null ) {
 
         if ( ! $tag ) {
             $tag = $this->get( 'attachments' );
@@ -626,7 +657,9 @@ class cf7_sendpdf {
             }
         }
 
-        return $attachments[0];
+        if( isset($attachments[0]) ) {
+            return $attachments[0];
+        }
     }
 
     function _mirrorImage ( $imgsrc) {
@@ -649,126 +682,6 @@ class cf7_sendpdf {
         return $imgsrc;
     }
 
-    public static function adjustImageOrientation($filename, $quality = 90) {
-        try {
-            $exif = @exif_read_data($filename);
-        } catch (\Exception $e) {
-            $exif = false;
-        }
-
-        // If no exif info, or no orientation info, or if orientation needs no adjustment
-        if( isset($exif['Orientation']) ) { $orientation = $exif['Orientation']; } else { $orientation = 1; }
-        if (!$orientation || $orientation === 1) {
-            return false;
-        }
-
-        switch ($fileType = @exif_imagetype($filename)) {
-            case 1: // gif
-                $img = @imageCreateFromGif($filename);
-                break;
-            case 2: // jpg
-                $img = @imageCreateFromJpeg($filename);
-                break;
-            case 3: // png
-                $img = @imageCreateFromPng($filename);
-                break;
-            default:
-                $img = @imagecreatefromjpeg($filename);
-        }
-
-        if (!$img) {
-            return false;
-        }
-
-        $mirror = in_array($orientation, [2, 5, 4, 7]);
-        $deg = 0;
-        switch ($orientation) {
-            case 3:
-            case 4:
-                $deg = 180;
-                break;
-            case 6:
-            case 5:
-                $deg = 270;
-                break;
-            case 8:
-            case 7:
-                $deg = 90;
-                break;
-        }
-
-        if ($deg) {
-            $img = imagerotate($img, $deg, 0);
-        }
-
-        if ($mirror) {
-            $img = imageflip($img, IMG_FLIP_HORIZONTAL);
-        }
-
-        switch ($fileType = @exif_imagetype($filename)) {
-            case 1: // gif
-                imagegif($img, $filename);
-                break;
-            case 2: // jpg
-                imagejpeg($img, $filename, $quality);
-                break;
-            case 3: // png
-                imagepng($img, $filename, $quality);
-                break;
-            default:
-                imagejpeg($img, $filename, $quality);
-        }
-
-        return true;
-    }
-
-    function wpcf7pdf_autoRotateImage($full_filename) {  
-
-        $exif = @exif_read_data( $full_filename, 'EXIF', true );
-
-        //$exif = exif_read_data($full_filename);
-        if(false !== $exif && isset($exif['Orientation'])) {
-            $orientation = $exif['Orientation'];
-            if($orientation != 1){
-                $img = imagecreatefromjpeg($full_filename);
-
-                $mirror = false;
-                $deg    = 0;
-
-                switch ($orientation) {
-                case 2:
-                    $mirror = true;
-                    break;
-                case 3:
-                    $deg = 180;
-                    break;
-                case 4:
-                    $deg = 180;
-                    $mirror = true;  
-                    break;
-                case 5:
-                    $deg = 270;
-                    $mirror = true; 
-                    break;
-                case 6:
-                    $deg = 270;
-                    break;
-                case 7:
-                    $deg = 90;
-                    $mirror = true; 
-                    break;
-                case 8:
-                    $deg = 90;
-                    break;
-                }
-                if ($deg) $img = imagerotate($img, $deg, 0); 
-                if ($mirror) $img = _mirrorImage($img);
-                imagejpeg($img, $full_filename, 95);
-            }
-        }
-        return $full_filename;
-    }
-
     function wpcf7pdf_send_pdf($contact_form) {
 
         $submission = WPCF7_Submission::get_instance();
@@ -788,29 +701,11 @@ class cf7_sendpdf {
 
             $upload_dir = wp_upload_dir();
             $uploaded_files = $submission->uploaded_files(); // this allows you access to the upload file in the temp location
-            $custom_tmp_path = get_option('wpcf7pdf_path_temp');
 
             $meta_values = get_post_meta(esc_html($post['_wpcf7']), '_wp_cf7pdf', true);
-            $meta_fields = get_post_meta(esc_html($post['_wpcf7']), '_wp_cf7pdf_fields', true);
             
             // On récupère le dossier upload de WP
             $createDirectory = $this->wpcf7pdf_folder_uploads(esc_html($post['_wpcf7']));
-            
-            // On récupère le format de date dans les paramètres
-            $date_format = get_option('date_format');
-            $hour_format = get_option('time_format');
-
-            // Definition des marges par defaut
-            $marginHeader = 10;
-            $marginTop = 40;
-            $marginBottomHeader = 10;
-            $marginLeft = 15;
-            $marginRight = 15;
-
-            // Definition de la taille, le format de page et la font par defaut
-            $fontsizePdf = 9;
-            $fontPdf = 'dejavusanscondensed';
-            $formatPdf = 'A4-P';
 
             // On supprime le password en session
             if(null!==get_transient('pdf_password')) {
@@ -821,51 +716,19 @@ class cf7_sendpdf {
             $nameOfPdf = $this->wpcf7pdf_name_pdf(esc_html($post['_wpcf7']));
             //$nameOfPdf = get_transient('pdf_name');
 
-
             $nbPassword = 12;
             if(isset($meta_values["protect_password_nb"]) && $meta_values["protect_password_nb"]!='' && is_numeric($meta_values["protect_password_nb"])) { 
                 $nbPassword = esc_html($meta_values["protect_password_nb"]); 
             }
-            set_transient('pdf_password', $this->wpcf7pdf_generateRandomPassword($nbPassword), HOUR_IN_SECONDS);
+            set_transient('pdf_password', $this->wpcf7pdf_generateRandomPassword($nbPassword), HOUR_IN_SECONDS);          
 
-            // On va cherche les champs du formulaire
-            $meta_tags = get_post_meta(esc_html($post['_wpcf7']), '_wp_cf7pdf_fields', true);
-            
-            // On va cherche les champs détaillés du formulaire
-            //$meta_tags_scan = get_post_meta(esc_html($post['_wpcf7']), '_wp_cf7pdf_fields_scan', true);
-            
-            // SAVE FORM FIELD DATA AS VARIABLES
+            // Si on a personnalisé le PDF, on recupère le contenu et on remplace les tags
             if( isset($meta_values['generate_pdf']) && !empty($meta_values['generate_pdf']) ) {
 
                 // définit le contenu du PDf
-                $contentPdf = wp_kses(trim($meta_values['generate_pdf']), $this->wpcf7pdf_autorizeHtml());
+                $contentPdf = wp_kses(trim($meta_values['generate_pdf']), WPCF7PDF_prepare::wpcf7pdf_autorizeHtml());
                 $contentPdf = apply_filters( 'pl_filter_content', $contentPdf, $posted_data );
                 
-                /**
-                 * GESTION DES IMAGES UPLOADEES / AVATAR
-                 */
-                // replace tag by avatar picture
-                $user = wp_get_current_user();
-                if ( $user ) :
-                    $contentPdf = str_replace('[avatar]', esc_url( get_avatar_url( $user->ID ) ), $contentPdf);
-                endif;
-                // read all image tags into an array
-                /*preg_match_all('/<img[^>]+>/i', $contentPdf, $imgTags); 
-
-                for ($i = 0; $i < count($imgTags[0]); $i++) {
-                    // get the source string
-                    preg_match('/src="([^"]+)/i', $imgTags[0][$i], $imgage);
-
-                    // remove opening 'src=' tag, can`t get the regex right
-                    $origImageSrc = str_ireplace( 'src="', '',  $imgage[0]);
-                    if( strpos( $origImageSrc, 'http' ) === false ) {                
-                        $contentPdf = str_replace( $origImageSrc, WPCF7PDF_URL.'images/temporary-image.jpg', $contentPdf);
-                    }
-                }*/
-                /**
-                 * FIN
-                 */
-
                 // Compatibilité avec CF7 Conditional Fields / Conditional Fields PRO
                 if( class_exists('Wpcf7cfMailParser') ){
 
@@ -878,565 +741,32 @@ class cf7_sendpdf {
                     $contentPdf = $parser->getParsedMail();
                 }
 
-                // On gère les séparateurs avant et après les balise checkbox et radio
-                $tagSeparate = '';
-                if( isset($meta_values["separate"]) ) {
-                    if( $meta_values["separate"] == 'none' ) { $tagSeparate = ''; }
-                    if( $meta_values["separate"] == 'comma' ) { $tagSeparate = ', '; }
-                    if( $meta_values["separate"] == 'space') { $tagSeparate = ' '; }
-                    if( $meta_values["separate"] == 'dash') { $tagSeparate = '- '; }
-                    if( $meta_values["separate"] == 'star') { $tagSeparate = '<i class="fas">&#xf621</i> '; }
-                    if( $meta_values["separate"] == 'rightarrow') { $tagSeparate = '<i class="fas">&#xf061</i> '; }
-                    if( $meta_values["separate"] == 'double-right-arrow') { $tagSeparate = '<i class="fas">&#xf101</i> '; }
-                    if( $meta_values["separate"] == 'cornerarrow') { $tagSeparate = '<i class="fas">&#xf064</i> '; }
-                }
-                $tagSeparateAfter = ' ';
-                if( isset($meta_values["separate_after"]) ) {
-                    if( $meta_values["separate_after"] == 'none' ) { $tagSeparateAfter = ''; }
-                    if( $meta_values["separate_after"] == 'comma' ) { $tagSeparateAfter = ', '; }
-                    if( $meta_values["separate_after"] == 'space') { $tagSeparateAfter = ' '; }
-                    if( $meta_values["separate_after"] == 'linebreak') { $tagSeparateAfter = '<br />'; }
-                }
-
-                // Si option fillable, on genere les champs et remplace les données                   
-                $contact_form = WPCF7_ContactForm::get_instance(esc_html($post['_wpcf7']));           
-                $contact_tag = $contact_form->scan_form_tags();
-
-                $contentPdfTagsRaw = self::wpcf7pdf_mailparser($contentPdf, 1);
-                foreach ( (array) $contentPdfTagsRaw as $name_raw ) {
-
-                    $name1raw = str_replace('_raw_', '', $name_raw);
-                    $found_key = cf7_sendpdf::wpcf7pdf_foundkey($contact_tag, $name1raw);
-                    $baseTypeRaw = $contact_tag[$found_key]['basetype'];
-
-                    if( isset($baseTypeRaw) && ($baseTypeRaw==='checkbox' || $baseTypeRaw==='radio') ) {
-                        // Exemple : CEO | sales@example.com
-                        // on remplace _raw_TAG par l'avant PIPE soit CEO
-                        $rawValue = wpcf7_mail_replace_tags(esc_html('['.$name_raw.']'));                        
-                        $contentPdf = str_replace(esc_html('['.$name_raw.']'), $rawValue, $contentPdf);
-
-                        // on remplace TAG du raw par la valeur d'après PIPE soit sales@example.com                        
-                        $raw1Value = wpcf7_mail_replace_tags(esc_html('['.$name1raw.']'));
-                        $contentPdf = str_replace(esc_html('['.$name1raw.']'), $raw1Value, $contentPdf);
-                    }
-                }
-
-                $contentPdfTags = self::wpcf7pdf_mailparser($contentPdf);
-                foreach ( (array) $contentPdfTags as $name_tags ) {
-
-                    $found_key = cf7_sendpdf::wpcf7pdf_foundkey($contact_tag, $name_tags[1]);
-                    $basetype = $contact_tag[$found_key]['basetype'];
-                    
-                    $tagOptions = '';
-                    if( isset( $contact_tag[$found_key]['options'] ) ) {
-                        $tagOptions = $contact_tag[$found_key]['options'];
-                    }
-
-                    /*if( isset($basetype) && ($basetype==='text' || $basetype==='email') ) {  
-                        
-                        $valueTag = wpcf7_mail_replace_tags(esc_html($name_tags[0]));
-                        if (isset($meta_values['data_input']) && $meta_values['data_input']=='true') {
-
-                            $inputSelect = '<input type="text" class="wpcf7-input" name="'.esc_html($valueTag).'" value="" />';
-    
-                        } else {
-    
-                            $inputSelect = esc_html($valueTag);
-                            
-                        }
-                        $contentPdf = str_replace(esc_html($name_tags[0]), $inputSelect, $contentPdf);
-
-                    } else */
-                    if( isset($basetype) && $basetype==='file' ) {
-
-                        $file_location = $this->wpcf7pdf_attachments($name_tags[0]);
-                        if( isset($file_location) && exif_imagetype($file_location) !=false ) {
-                            $valueTag = wpcf7_mail_replace_tags($name_tags[0]);
-                            // Test si fichier envoyé
-                            /*if( isset($file_location) && !empty($file_location) ) {
-                                $a = getimagesize($file_location);
-                                if( isset($a[2]) ) { $file_type = $a[2]; }
-                                $noImage = 1;
-                            }
-                            // Si pas de fichier envoyé on retourne une image de 1 px
-                            if( isset($noImage) && $noImage==0) {
-                                $contentPdf = str_replace('[url-'.$name_tags[1].']', WPCF7PDF_URL.'images/onepixel.png', $contentPdf);
-                            }*/
-                       
-                            // remplace le tag
-                            $contentPdf = str_replace($name_tags[0], $valueTag, $contentPdf);
-
-                            $chemin_initial[$name_tags[0]] = $createDirectory.'/'.sanitize_text_field(get_transient('pdf_uniqueid')).'-'.wpcf7_mail_replace_tags($name_tags[0]);
-                            // On copie l'image dans le dossier
-                            copy($file_location, $chemin_initial[$name_tags[0]]);
-                            
-                            // URL IMAGE 
-                            $uploadingImg[$name_tags[1]] = $createDirectory.'/'.sanitize_text_field(get_transient('pdf_uniqueid')).'-'.wpcf7_mail_replace_tags($name_tags[0]);
-                            // rotation de l'image si besoin
-                            $rotate_image[$name_tags[1]] = $this->adjustImageOrientation($uploadingImg[$name_tags[1]]);
-                            // retourne l'URL complete du tag 
-                            $chemin_final[$name_tags[1]] = esc_url(str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $uploadingImg[$name_tags[1]]));
-                            // retourne l'URL complete du tag 
-                            $contentPdf = str_replace('[url-'.$name_tags[1].']', $chemin_final[$name_tags[1]], $contentPdf);
-                            
-                        } else if( empty($file_location) ) {
-
-                            $contentPdf = str_replace('[url-'.$name_tags[1].']', WPCF7PDF_URL.'images/onepixel.png', $contentPdf);
-
-                        } else {
-
-                            // URL DU FICHER
-                            $uploadingImg[$name_tags[1]] = $createDirectory.'/'.sanitize_text_field(get_transient('pdf_uniqueid')).'-'.wpcf7_mail_replace_tags($name_tags[0]);
-                            $chemin_final[$name_tags[1]] = esc_url(str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $uploadingImg[$name_tags[1]]));
-                            // retourne l'URL complete du tag 
-                            $contentPdf = str_replace('[url-'.$name_tags[1].']', $chemin_final[$name_tags[1]], $contentPdf);
-                        }                        
-
-                    } else if( isset($basetype) && $basetype==='checkbox' ) {
-
-                        $inputCheckbox = '';
-                        $i = 1;
-                        
-                        foreach( $contact_tag[$found_key]['values'] as $idCheckbox=>$valCheckbox ) {
-                            
-                            $caseChecked = '';
-                            $valueTag = wpcf7_mail_replace_tags(esc_html($name_tags[0]));
-                            $emptyCheckInput = 0;
-
-                            if (isset($meta_values['data_input']) && $meta_values['data_input']== 'true') {
-
-                                // Si le tag est exclusive
-                                if( in_array('exclusive', $tagOptions) ) {  
-                                    if( sanitize_text_field($valueTag)===sanitize_text_field($valCheckbox) ) {
-                                        $caseChecked = 'checked="checked"';
-                                    } else if( (isset($meta_values['empty_input']) && $meta_values['empty_input']=='true') ) {
-                                        $emptyCheckInput = 1;
-                                    }
-                                } else {
-                                    if( strpos($valueTag, trim($valCheckbox) )!== false ){
-                                        $caseChecked = 'checked="checked"';
-                                    } else if( (isset($meta_values['empty_input']) && $meta_values['empty_input']=='true') ) {
-                                        $emptyCheckInput = 1;
-                                    }
-                                }
-
-                                if( in_array('label_first', $tagOptions) ) {
-                                    if( $emptyCheckInput == 0 ) {
-                                        $inputCheckbox .= ''.$tagSeparate.''.esc_html($valCheckbox).' <input type="checkbox" class="wpcf7-checkbox" name="'.esc_html($name_tags[1].$idCheckbox).'" value="'.$i.'" '.$caseChecked.' />'.$tagSeparateAfter.'';
-                                    }
-                                } else {
-                                    if( $emptyCheckInput == 0 ) {
-                                        $inputCheckbox .= ''.$tagSeparate.'<input type="checkbox" class="wpcf7-checkbox" name="'.esc_html($name_tags[1].$idCheckbox).'" value="'.$i.'" '.$caseChecked.'/> '.esc_html($valCheckbox).''.$tagSeparateAfter.'';
-                                    }
-                                }
-
-                            } else {
-
-                                if( in_array('exclusive', $tagOptions) ) { 
-                                    if( sanitize_text_field($valueTag)===sanitize_text_field($valCheckbox) ) {  
-                                        if( $emptyCheckInput == 0 ) {                                 
-                                            $inputCheckbox .= ''.$tagSeparate.''.$valCheckbox.''.$tagSeparateAfter.'';
-                                        }
-                                    }
-                                } else {
-                                    if( strpos($valueTag, trim($valCheckbox) )!== false ) {
-                                        if( $emptyCheckInput == 0 ) {
-                                            $inputCheckbox .= ''.$tagSeparate.''.$valCheckbox.''.$tagSeparateAfter.'';
-                                        }
-                                    }
-                                }
-
-                            } 
-                            $i++;
-
-                        }
-                        $contentPdf = str_replace(esc_html($name_tags[0]), $inputCheckbox, $contentPdf);
-                        
-                    } else if( isset($basetype) && $basetype==='radio' ) {
-
-                        $inputRadio = '';
-
-                        foreach( $contact_tag[$found_key]['values'] as $idRadio=>$valRadio ) {
-                           
-                            $radioChecked = '';
-                            $valueRadioTag = wpcf7_mail_replace_tags(esc_html($name_tags[0]));
-                            $emptyRadioInput = 0;
-                            
-                            if(isset($meta_values['data_input']) && $meta_values['data_input']=='true') {
-
-                                if( sanitize_text_field($valueRadioTag)===sanitize_text_field($valRadio) ) {
-                                    $radioChecked = ' checked="yes"';
-                                } else if( (isset($meta_values['empty_input']) && $meta_values['empty_input']=='true') ) {
-                                    $emptyRadioInput = 1;
-                                }
-                          
-                                if(in_array('label_first', $tagOptions) ) {
-                                    if( $emptyRadioInput == 0 ) {
-                                        $inputRadio .= ''.$tagSeparate.''.$valRadio.' <input type="radio" class="wpcf7-radio" name="'.esc_html($name_tags[1]).'" value="'.$idRadio.'" '.$radioChecked.' >'.$tagSeparateAfter.'';
-                                    }
-                                } else {
-                                    if( $emptyRadioInput == 0 ) {
-                                        $inputRadio .= ''.$tagSeparate.'<input type="radio" class="wpcf7-radio" name="'.esc_html($name_tags[1]).'" value="'.$idRadio.'" '.$radioChecked.' > '.$valRadio.''.$tagSeparateAfter.'';
-                                    }
-                                }
-
-                            } else {
-
-                                if( sanitize_text_field($valueRadioTag)===sanitize_text_field($valRadio) ) {
-                                    if( $emptyRadioInput == 0 ) {                                 
-                                        $inputRadio .= ''.$tagSeparate.''.$valRadio.''.$tagSeparateAfter.'';
-                                    }
-                                }
-                            }
-                        }
-                        $contentPdf = str_replace(esc_html($name_tags[0]), $inputRadio, $contentPdf);
-
-                    } else {
-                        
-                        $valueTag = wpcf7_mail_replace_tags(esc_html($name_tags[0]));                            
-                        $contentPdf = str_replace(esc_html($name_tags[0]), esc_html($valueTag), $contentPdf);
-                    }
-
-                }
-     
-                $contentPdf = str_replace('[reference]', sanitize_text_field(get_transient('pdf_uniqueid')), $contentPdf);
-                $contentPdf = str_replace('[url-pdf]', str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $createDirectory).'/'.$nameOfPdf.'.pdf', $contentPdf);
-
-                if( isset($meta_values['date_format']) && !empty($meta_values['date_format']) ) {
-                    $dateField = date_i18n( $meta_values['date_format'] );
-                } else {
-                    $dateField = date_i18n( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), current_time('timestamp') );
-                }
-                if( isset($meta_values['time_format']) && !empty($meta_values['time_format']) ) {
-                    $timeField = date_i18n( $meta_values['time_format'] );
-                } else {
-                    $timeField = date_i18n( get_option( 'time_format' ), current_time('timestamp') );
-                }
-                $contentPdf = str_replace('[date]', $dateField, $contentPdf);
-                $contentPdf = str_replace('[time]', $timeField, $contentPdf);
-
-                $csvTab = array(sanitize_text_field(get_transient('pdf_uniqueid')), $dateField.' '.$timeField);
-                /* Prepare les valeurs dans tableau CSV */
-                foreach($meta_tags as $ntags => $vtags) {
-                    $returnValue = wpcf7_mail_replace_tags($vtags);
-                    array_push($csvTab, $returnValue);
-                }
-
+                // Je vais chercher le tableau des tags
+                $csvTab = cf7_sendpdf::wpf7pdf_tagsparser($post['_wpcf7']);
                 // On insère dans la BDD
                 if( isset($meta_values["disable-insert"]) && $meta_values["disable-insert"] == "false" ) {
                     $insertPost = $this->save($post['_wpcf7'], serialize($csvTab), esc_url(str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $createDirectory ).'/'.$nameOfPdf.'.pdf'));
                     $contentPdf = str_replace('[ID]', $insertPost, $contentPdf);
-                }
-
-                
-
-                $contentPdf = wpcf7_mail_replace_tags( wpautop($contentPdf) );
-                if( empty( $meta_values["linebreak"] ) or ( isset($meta_values["linebreak"]) && $meta_values["linebreak"] == 'false') ) {
-                    $contentPdf = preg_replace("/(\r\n|\n|\r)/", "<div></div>", $contentPdf);
-                    $contentPdf = str_replace("<div></div><div></div>", '<div style="height:10px;"></div>', $contentPdf);
-                }
+                }                
 
                 // On génère le PDF
                 if( isset($meta_values["disable-pdf"]) && $meta_values['disable-pdf'] == 'false') {
 
-                    require WPCF7PDF_DIR . 'mpdf/vendor/autoload.php';
-
-                    if( isset($meta_values['pdf-font'])  ) {
-                        $fontPdf = esc_html($meta_values['pdf-font']);
-                    }
-                    if( isset($meta_values['pdf-fontsize']) && is_numeric($meta_values['pdf-fontsize']) ) {
-                        $fontsizePdf = esc_html($meta_values['pdf-fontsize']);
-                    }
-                    
-                    if( isset($meta_values["margin_header"]) && $meta_values["margin_header"]!='' ) { $marginHeader = esc_html($meta_values["margin_header"]); }
-                    if( isset($meta_values["margin_top"]) && $meta_values["margin_top"]!='' ) { $marginTop = esc_html($meta_values["margin_top"]); }
-                    if( isset($meta_values["margin_left"]) && $meta_values["margin_left"]!='' ) { $marginLeft = esc_html($meta_values["margin_left"]); }
-                    if( isset($meta_values["margin_right"]) && $meta_values["margin_right"]!='' ) { $marginRight = esc_html($meta_values["margin_right"]); }
-
-                    $setDirectionality = 'ltr';
-                    if( isset($meta_values["set_directionality"]) && $meta_values["set_directionality"]!='' ) {  $setDirectionality = esc_html($meta_values["set_directionality"]);  }
-
-                    if( isset($meta_values['pdf-type']) && isset($meta_values['pdf-orientation']) ) {
-
-                        $formatPdf = esc_html($meta_values['pdf-type'].$meta_values['pdf-orientation']);
-                        $mpdfConfig = array(
-                            'mode' =>
-                            'utf-8',
-                            'format' => $formatPdf,
-                            'margin_header' => $marginHeader,
-                            'margin_top' => $marginTop,
-                            'margin_left' => $marginLeft,    	// 15 margin_left
-                            'margin_right' => $marginRight,    	// 15 margin right
-                            'default_font' => $fontPdf,
-                            'default_font_size' => $fontsizePdf,
-                            'tempDir' => $custom_tmp_path,
-                        );
-
-                    } else if( isset($meta_values['fillable_data']) && $meta_values['fillable_data']== 'true') {
-
-                        $mpdfConfig = array(
-                            'mode' => 'c',
-                            'format' => $formatPdf,
-                            'margin_header' => $marginHeader,
-                            'margin_top' => $marginTop,
-                            'default_font' => $fontPdf,
-                            'default_font_size' => $fontsizePdf,
-                            'tempDir' => $custom_tmp_path,
-                            'margin_left' => $marginLeft,    	// 15 margin_left
-                            'margin_right' => $marginRight,    	// 15 margin right
-                        );
-
-                    } else {
-
-                        $mpdfConfig = array(
-                            'mode' => 'utf-8',
-                            'format' => 'A4-L',
-                            'margin_header' => $marginHeader,
-                            'margin_top' => $marginTop,
-                            'default_font' => $fontPdf,
-                            'default_font_size' => $fontsizePdf,
-                            'tempDir' => $custom_tmp_path,
-                            'margin_left' => $marginLeft,    	// 15 margin_left
-                            'margin_right' => $marginRight,    	// 15 margin right
-                        );
-
-                    }
-
-                    $mpdf = new \Mpdf\Mpdf($mpdfConfig);
-                    $mpdf->autoScriptToLang = true;
-                    $mpdf->baseScript = 1;
-                    $mpdf->autoVietnamese = true;
-                    $mpdf->autoArabic = true;
-                    $mpdf->autoLangToFont = true;                    
-                    $mpdf->SetTitle(get_the_title(esc_html($post['_wpcf7'])));
-                    $mpdf->SetCreator(get_bloginfo('name'));
-                    $mpdf->SetDirectionality($setDirectionality);
-                    $mpdf->ignore_invalid_utf8 = true;
-
-                    $mpdfCharset = 'utf-8';
-                    if( isset($meta_values["charset"]) && $meta_values["charset"]!='utf-8' ) {
-                        $mpdfCharset = esc_html($meta_values["charset"]);
-                    }
-                    $mpdf->allow_charset_conversion=true;  // Set by default to TRUE
-                    $mpdf->charset_in=''.$mpdfCharset.'';
-                    
-                    if( empty($meta_values["margin_auto_header"]) || ( isset($meta_values["margin_auto_header"]) && $meta_values["margin_auto_header"]=='' ) ) { $meta_values["margin_auto_header"] = 'stretch'; }
-                    if( empty($meta_values["margin_auto_header"]) || ( isset($meta_values["margin_auto_bottom"]) && $meta_values["margin_auto_bottom"]=='' ) ) { $meta_values["margin_auto_bottom"] = 'stretch'; }
-
-                    $mpdf->setAutoTopMargin = esc_html($meta_values["margin_auto_header"]);
-                    $mpdf->setAutoBottomMargin = esc_html($meta_values["margin_auto_bottom"]);
-
-                    if( isset($meta_values['fillable_data']) && $meta_values['fillable_data']== 'true') {
-                        $mpdf->useActiveForms = true;
-                    }
-                    
-                    if( isset($meta_values['image_background']) && $meta_values['image_background']!='' ) {
-                        $mpdf->SetDefaultBodyCSS('background', "url('".esc_url($meta_values['image_background'])."')");
-                        $mpdf->SetDefaultBodyCSS('background-image-resize', 6);
-                    }
-                    
-                    // LOAD a stylesheet
-                    if( isset($meta_values['stylesheet']) && $meta_values['stylesheet']!='' ) {
-                        $stylesheet = file_get_contents(esc_url($meta_values['stylesheet']));
-                        $mpdf->WriteHTML($stylesheet,1);	// The parameter 1 tells that this is css/style only and no body/html/text
-                    }
-
-                    // Adding FontAwesome CSS 
-                    $mpdf->WriteHTML('<style>
-                    .fa { font-family: fontawesome; }
-                    .fas { font-family: fontawesome-solid; }
-                    .fab { font-family: fontawesome-brands;}
-                    .far { font-family: fontawesome-regular;}
-                    .dashicons { font-family: dashicons;}
-                    </style>');
-
-                    // Adding Custom CSS            
-                    if( isset($meta_values['custom_css']) && $meta_values['custom_css']!='' ) {
-                        $mpdf->WriteHTML('<style>'.esc_html($meta_values['custom_css']).'</style>');
-                    }
-
-                    $entetePage = '';
-                    if( isset($meta_values["image"]) && !empty($meta_values["image"]) ) {
-                        if( ini_get('allow_url_fopen')==1) {
-                            list($width, $height, $type, $attr) = getimagesize(esc_url($meta_values["image"]));
-                        } else {
-                            $width = 150;
-                            $height = 80;
-                        }
-                        $imgAlign = 'left';
-                        if( isset($meta_values['image-alignment']) ) {
-                            $imgAlign = esc_html($meta_values['image-alignment']);
-                        }
-                        if( empty($meta_values['image-width']) ) { $imgWidth = $width; } else { $imgWidth = esc_html($meta_values['image-width']);  }
-                        if( empty($meta_values['image-height']) ) { $imgHeight = $height; } else { $imgHeight = esc_html($meta_values['image-height']);  }
-
-                        $attribut = 'width='.$imgWidth.' height="'.$imgHeight.'"';
-                        $entetePage = '<div style="text-align:'.$imgAlign.';height:'.$imgHeight.'"><img src="'.esc_url($meta_values["image"]).'" '.$attribut.' /></div>';
-
-                        if( isset($meta_values["margin_bottom_header"]) && $meta_values["margin_bottom_header"]!='' ) { $marginBottomHeader = esc_html($meta_values["margin_bottom_header"]); }
-                        $mpdf->WriteHTML('<p style="margin-bottom:'.$marginBottomHeader.'px;">&nbsp;</p>');
-                    }
-                    $mpdf->SetHTMLHeader($entetePage, '', true);
-
-                    if( isset($meta_values['footer_generate_pdf']) && $meta_values['footer_generate_pdf']!='' ) {
-
-                        $footerText = wp_kses(trim($meta_values['footer_generate_pdf']), $this->wpcf7pdf_autorizeHtml());
-                        $footerText = str_replace('[reference]', sanitize_text_field(get_transient('pdf_uniqueid')), $footerText);
-                        $footerText = str_replace('[url-pdf]', esc_url($upload_dir['url'].'/'.$nameOfPdf.'.pdf'), $footerText);
-                        if( isset($meta_values['date_format']) && !empty($meta_values['date_format']) ) {
-                            $dateField = date_i18n($meta_values['date_format']);
-                        } else {
-                            $dateField = date_i18n( $date_format . ' ' . $hour_format, current_time('timestamp'));
-                        }
-                        if( isset($meta_values['time_format']) && !empty($meta_values['time_format']) ) {
-                            $timeField = date_i18n($meta_values['time_format']);
-                        } else {
-                            $timeField = date_i18n($hour_format, current_time('timestamp'));
-                        }
-                        $footerText = str_replace('[date]', $dateField, $footerText);
-                        $footerText = str_replace('[time]', $timeField, $footerText);
-                        $mpdf->SetHTMLFooter($footerText);
-                    }
-
-
-                    // Shortcodes?
-                    if( isset($meta_values['shotcodes_tags']) && $meta_values['shotcodes_tags']!='') {
-                        $tagShortcodes = explode(',', esc_html($meta_values['shotcodes_tags']));
-                        $countShortcodes = count($tagShortcodes);
-                        for($i = 0; $i < ($countShortcodes);  $i++) {
-
-                            $pattern = '`\[([^\]]*)\]`';
-                            preg_match_all($pattern, $tagShortcodes[$i], $shortcodeTags);
-                            if( is_array($shortcodeTags) && isset($shortcodeTags[1][0]) ) {
-
-                                $shortcodeName = explode(' ', $shortcodeTags[1][0]);
-                                if( is_plugin_active('shortcoder/shortcoder.php') && class_exists('Shortcoder') ) {
-        
-                                    $shortcodes =  Shortcoder::get_shortcodes();
-                                    $returnShortcode = Shortcoder::find_shortcode(array('name'=>$shortcodeName[0]), $shortcodes);
-                                    if( isset($returnShortcode['id']) ) {
-                                        $contentPdf = str_replace('['.$shortcodeName[0].']', do_shortcode('[sc name="'.$shortcodeName[0].'"][/sc]'), $contentPdf);
-                                    }
-                                
-                                }
-                                
-                                if( stripos($contentPdf, '['.$shortcodeName[0].']') !== false ) {
-                                    $contentPdf = str_replace('['.$shortcodeName[0].']', do_shortcode($tagShortcodes[$i]), $contentPdf);
-                                }
-                            }
-                        }
-                    }
-
-                    // En cas de saut de page avec le tag [addpage]
-                    if( stripos($contentPdf, '[addpage]') !== false ) {
-
-                        $newPage = explode('[addpage]', $contentPdf);
-                        $countPage = count($newPage);
-
-                        for($i = 0; $i < ($countPage);  $i++) {
-                            
-                            if( $i == 0 ) {
-                                // On print la première page
-                                $mpdf->WriteHTML($newPage[$i]);
-                            } else {
-                                // On print ensuite les autres pages trouvées
-                                if( isset($meta_values["page_header"]) && $meta_values["page_header"]==1) {
-                                    $mpdf->SetHTMLHeader($entetePage, '', true);
-                                    $mpdf->AddPage();
-                                } else {
-                                    $mpdf->SetHTMLHeader(); 
-                                    $mpdf->AddPage('','','','','',15,15,15,15,5,5);
-                                }
-                                if( isset($meta_values['footer_generate_pdf']) && $meta_values['footer_generate_pdf']!='' ) {
-                                    $mpdf->SetHTMLFooter($footerText);
-                                }
-                                $mpdf->WriteHTML($newPage[$i]);
-                                if( isset($meta_values["page_header"]) && $meta_values["page_header"]==1) {
-                                    $mpdf->SetHTMLHeader($entetePage, '', true);
-                                } else {
-                                    $mpdf->SetHTMLHeader();                                 
-                                }
-                            }
-                            
-                        }
-
-                    } else {
-
-                        $contentPdf = apply_filters('wpcf7pdf_text', $contentPdf, $contact_form);
-                        $mpdf->WriteHTML($contentPdf);
-
-                    }
-                    
-                    // Option for Protect PDF by Password
-                    if ( isset($meta_values["protect"]) && $meta_values["protect"]=='true') {
-                        $pdfPassword = '';
-                        if( isset($meta_values["protect_password"]) && $meta_values["protect_password"]!='' ) {
-                            $pdfPassword = esc_html($meta_values["protect_password"]);
-                        }
-                        if( isset($meta_values["protect_uniquepassword"]) && $meta_values["protect_uniquepassword"]=='true' && (null!==get_transient('pdf_password') && get_transient('pdf_password')!='')) {
-                            $pdfPassword = get_transient('pdf_password');
-                        }
-                        if( isset($meta_values["protect_password_tag"]) && $meta_values["protect_password_tag"]!='' ) {
-                            $pdfPassword = wpcf7_mail_replace_tags($meta_values["protect_password_tag"]);
-                        }
-                        $mpdf->SetProtection(array('print','fill-forms'), $pdfPassword, $pdfPassword, 128);             
-                    } 
-
-                    $mpdf->Output($createDirectory.'/'.$nameOfPdf.'.pdf', 'F');
-
-                    // Je copy le PDF genere
-                    if( file_exists($createDirectory.'/'.$nameOfPdf.'.pdf') ) {
-                        copy($createDirectory.'/'.$nameOfPdf.'.pdf', $createDirectory.'/'.$nameOfPdf.'-'.get_transient('pdf_uniqueid').'.pdf');
-                    }
+                    $contentPdf = WPCF7PDF_prepare::tags_parser($post['_wpcf7'], $nameOfPdf, $contentPdf);
+                    // Si il existe des Shortcodes?
+                    $contentPdf = WPCF7PDF_prepare::shortcodes($meta_values['shotcodes_tags'], $contentPdf);
+                    // On genere le PDF
+                    $generatePdfFile = WPCF7PDF_generate::wpcf7pdf_create_pdf($post['_wpcf7'], $contentPdf, $nameOfPdf, $createDirectory);
 
                 }
                 // END GENERATE PDF
-
-                // If CSV is enable
-                if( isset($meta_values["disable-csv"]) && $meta_values['disable-csv'] == 'false') {
-
-                    // On efface l'ancien csv renommé si il y a (on garde l'original)
-                    /*if( file_exists($createDirectory.'/'.$nameOfPdf.'.csv') ) {
-                        unlink($createDirectory.'/'.$nameOfPdf.'.csv');
-                    }*/
-
-                    if( isset($meta_fields) ) {
-
-                        $entete = array("reference", "date");
-
-                        foreach($meta_fields as $field) {
-
-                            preg_match_all( '#\[(.*?)\]#', $field, $nameField );
-                            $nb=count($nameField[1]);
-                            for($i=0;$i<$nb;$i++) {
-                                array_push($entete, $nameField[1][$i]);
-                            }
-
-                        }
-
-                    }
-
-                    $csvlist = array (
-                       $entete,
-                       $csvTab
-                    );
-
-                    $fpCsv = fopen($createDirectory.'/'.$nameOfPdf.'.csv', 'w+');
-                    if( isset($meta_values["csv-separate"]) && !empty($meta_values["csv-separate"]) ) { $csvSeparate = esc_html($meta_values["csv-separate"]); } else { $csvSeparate = ','; }
-                    foreach ($csvlist as $csvfields) {
-                        fputcsv($fpCsv, $csvfields, $csvSeparate);
-                    }
-                    fclose($fpCsv);
-
-                    // Je copy le CSV genere
-                    if( file_exists($createDirectory.'/'.$nameOfPdf.'.csv') ) {
-                        copy($createDirectory.'/'.$nameOfPdf.'.csv', $createDirectory.'/'.$nameOfPdf.'-'.get_transient('pdf_uniqueid').'.csv');
-                    }
-
-
-                }
-                // END GENERATE CSV
             }
+
+            // If CSV is enable
+            if( isset($meta_values["disable-csv"]) && $meta_values['disable-csv'] == 'false') {
+                $generateCsvFile = WPCF7PDF_generate::wpcf7pdf_create_csv($post['_wpcf7'], $nameOfPdf, $createDirectory);
+            }
+
         }
     }
 
@@ -1634,27 +964,12 @@ class cf7_sendpdf {
             // Option for Protect PDF by Password
             $pdfPassword = '';
             if ( isset($meta_values["protect"]) && $meta_values["protect"]=='true') {
-                $pdfPassword = '--';
-                if( isset($meta_values["protect_password"]) && $meta_values["protect_password"]!='' ) {
-                    $pdfPassword = $meta_values["protect_password"];
-                }
-                if( isset($meta_values["protect_uniquepassword"]) && $meta_values["protect_uniquepassword"]=='true' && (null!==get_transient('pdf_password') && get_transient('pdf_password')!='') ) {
-                    $pdfPassword = get_transient('pdf_password');
-                }
-                if( isset($meta_values["protect_password_tag"]) && $meta_values["protect_password_tag"]!='' ) {
-                    $pdfPassword = wpcf7_mail_replace_tags($meta_values["protect_password_tag"]);
-                }
+                $pdfPassword = WPCF7PDF_prepare::protect_pdf($post['_wpcf7']);
             }
 
-            // les format de dates
-            $dateField = date_i18n( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), current_time('timestamp') );
-            if( isset($meta_values['date_format']) && !empty($meta_values['date_format']) ) {
-                $dateField = date_i18n( $meta_values['date_format'] );
-            }
-            $timeField = date_i18n( get_option( 'time_format' ), current_time('timestamp') );
-            if( isset($meta_values['time_format']) && !empty($meta_values['time_format']) ) {
-                $timeField = date_i18n( $meta_values['time_format'] );
-            }
+            // Definition des dates par defaut
+            $dateField = WPCF7PDF_prepare::returndate($post['_wpcf7']);
+            $timeField = WPCF7PDF_prepare::returntime($post['_wpcf7']);
 
             // Je remplace les codes courts dans le text
             if( isset($messageText) && !empty($messageText) ) {
@@ -1662,55 +977,38 @@ class cf7_sendpdf {
                 if( isset($pdfPassword) && $pdfPassword!='' ) {
                     $messageText = str_replace('[pdf-password]', $pdfPassword, $messageText);
                 } else {
-                    $messageText = str_replace('[pdf-password]', '', $messageText);
+                    $messageText = str_replace('[pdf-password]', __('*** NO PASSWORD ***', WPCF7PDF_TEXT_DOMAIN), $messageText);
                 }
-
+                
+                $messageText = WPCF7PDF_prepare::tags_parser($post['_wpcf7'], $nameOfPdf, $messageText);
+/*
                 $contentPdfTags = self::wpcf7pdf_mailparser($messageText);
+                
+                error_log( print_r($contentPdfTags, true) );
                 foreach ( (array) $contentPdfTags as $name_tags ) {
-
                     $tagReplace = str_replace('url-', '', $name_tags[1]);
                     $found_key = cf7_sendpdf::wpcf7pdf_foundkey($contact_tag, $tagReplace);
                     $basetype = $contact_tag[$found_key]['basetype'];
 
                     if( isset($basetype) && $basetype==='file' ) {
-                      
                         $valueTag = wpcf7_mail_replace_tags('['.$tagReplace.']');
-
-                        if( isset($valueTag) && $valueTag!='') {
-                            $uploadingImg[$name_tags[1]] = $createDirectory.'/'.sanitize_text_field(get_transient('pdf_uniqueid')).'-'.$valueTag;
-                            // retourne l'URL complete du tag 
-                            $chemin_final[$name_tags[1]] = esc_url(str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $uploadingImg[$name_tags[1]]));
-                        } else {
-                            $chemin_final[$name_tags[1]] = esc_url(WPCF7PDF_URL.'images/onepixel.png');
-                        }
-                        
-                        // remplace le tag
-                        $messageText = str_replace('['.$name_tags[1].']', $chemin_final[$name_tags[1]], $messageText);
-                        //$messageText = str_replace($name_tags[0], $valueTag, $messageText);                     
-
+                        error_log('EMAIL: '.$valueTag.'  -  '.str_replace('url-', '', $name_tags[0]).'  -  '.str_replace('url-', '', $name_tags[1]));
+                        $messageText = WPCF7PDF_prepare::upload_file($post['_wpcf7'], $valueTag, str_replace('url-', '', $name_tags[0]), str_replace('url-', '', $name_tags[1]), $messageText);
                     }
 
-                }
+                }*/
                 
                 // Shortcodes?
-                if( isset($meta_values['shotcodes_tags']) && $meta_values['shotcodes_tags']!='') {
-                    $tagShortcodes = explode(',', esc_html($meta_values['shotcodes_tags']));
-                    $countShortcodes = count($tagShortcodes);
-                    for($i = 0; $i < ($countShortcodes);  $i++) {
-                        if( stripos($messageText, $tagShortcodes[$i]) !== false ) {
-                            $messageText = str_replace($tagShortcodes[$i], do_shortcode($tagShortcodes[$i]), $messageText);
-                        }
-                    }
-                }
-
-                $messageText = str_replace('[reference]', sanitize_text_field(get_transient('pdf_uniqueid')), $messageText);
+                $messageText = WPCF7PDF_prepare::shortcodes($meta_values['shotcodes_tags'], $messageText);
+                /*$messageText = str_replace('[reference]', sanitize_text_field(get_transient('pdf_uniqueid')), $messageText);
                 $messageText = str_replace('[url-pdf]', str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $createDirectory ).'/'.$nameOfPdf.'.pdf', $messageText);
                 
                 $messageText = str_replace('[date]', $dateField, $messageText);
-                $messageText = str_replace('[time]', $timeField, $messageText);
+                $messageText = str_replace('[time]', $timeField, $messageText);*/
                
                 $components['body'] = $messageText;
             }
+
             // Je remplace les codes courts dans le sujet
             $subjectText = $components['subject'];
             if( isset($messageText) && !empty($messageText) ) {
@@ -1747,10 +1045,10 @@ class cf7_sendpdf {
             $createDirectory = $this->wpcf7pdf_folder_uploads(esc_html($post['_wpcf7']));
 
             $meta_values = get_post_meta(esc_html($post['_wpcf7']), '_wp_cf7pdf', true );
-            $cf7_file_field_name = '';
+            /*$cf7_file_field_name = '';
             if( isset( $meta_values['file_tags'] ) && $meta_values['file_tags']!='' ) {
                 $cf7_file_field_name = $meta_values['file_tags'];
-            }
+            }*/
 
             // Si l'option de supprimer les fichiers est activée
             if( isset($meta_values["pdf-file-delete"]) && $meta_values["pdf-file-delete"]=="true") {
@@ -1767,7 +1065,7 @@ class cf7_sendpdf {
                 if( file_exists($createDirectory.'/'.$nameOfPdf.'.zip') ) {
                     unlink($createDirectory.'/'.$nameOfPdf.'.zip');
                 }
-                if( !empty($cf7_file_field_name) ) {
+                /*if( !empty($cf7_file_field_name) ) {
 
                     preg_match_all('`\[([^\]]*)\]`', $cf7_file_field_name, $contentTagsDelete, PREG_SET_ORDER, 0);
                     foreach($contentTagsDelete as $tagsDelete) {
@@ -1781,7 +1079,7 @@ class cf7_sendpdf {
                             }
                         }
                     }
-                }
+                }*/
 
             }
             
@@ -1893,7 +1191,7 @@ class cf7_sendpdf {
                 } elseif(filter_var($valueSettings, FILTER_VALIDATE_EMAIL)) {
                     $newTabSettings[$nameSettings] = sanitize_email($valueSettings);
                 } elseif($nameSettings == 'generate_pdf' || $nameSettings == 'footer_generate_pdf') {
-                    $arr = self::wpcf7pdf_autorizeHtml();
+                    $arr = WPCF7PDF_prepare::wpcf7pdf_autorizeHtml();
                     $newTabSettings[$nameSettings] = wp_kses($valueSettings, $arr);
                 } else {
                     $newTabSettings[$nameSettings] = sanitize_textarea_field($valueSettings);
@@ -1907,200 +1205,6 @@ class cf7_sendpdf {
             return false;
         }
         
-    }
-
-    static function wpcf7pdf_autorizeHtml() {
-
-        return array(
-            'a' => array(
-                'href' => array(),
-                'title' => array()
-                ),
-            'br' => array(),
-            'p' => array(
-                'id' => array(),
-                'style' => array(),
-                'class' => array()
-                ),
-            'h1' => array(
-                'class' => array(),
-                'style' => array(),
-            ),
-            'h2' => array(
-                'class' => array(),
-                'style' => array(),
-            ), 
-            'h3' => array(
-                'class' => array(),
-                'style' => array(),
-            ), 
-            'h4' => array(
-                'class' => array(),
-                'style' => array(),
-            ),
-            'h5' => array(
-                'class' => array(),
-                'style' => array(),
-            ), 
-            'h6' => array(
-                'class' => array(),
-                'style' => array(),
-            ),             
-            'em' => array(),
-            'i' => array(
-                'style' => array(),
-                'class' => array()
-                ),
-            'font-awesome-icon' => array(
-                'icon' => array(),
-                'class' => array()
-                ),
-            'strong' => array(),
-            'small' => array(),
-            'img' => array(
-                'id' => array(),
-                'src' => array(),
-                'title' => array(),
-                'width' => array(),
-                'height' => array(),
-                'style' => array(),
-                'rotate' => array(),
-                'class' => array()
-                ),
-            'div' => array(
-                'id' => array(),
-                'class' => array(),
-                'title' => array(),
-                'style' => array(),
-                'dir' => array()
-                ),
-            'bdo' => array(
-                'id' => array(),
-                'class' => array(),
-                'title' => array(),
-                'style' => array(),
-                'dir' => array()
-                ),                
-            'span' => array(
-                'id' => array(),
-                'class' => array(),
-                'title' => array(),
-                'style' => array(),
-                'dir' => array()
-                ),
-            'table' => array(
-                'id' => array(),
-                'style' => array(),
-                'class' => array(),
-                'colspan' => array(),
-                'rowspan' => array(),
-                'width' => array(),
-                'cellpadding' => array(),
-                'cellspacing' => array(),
-                'border' => array()
-                ),
-            'td' => array(
-                'id' => array(),
-                'style' => array(),
-                'class' => array(),
-                'colspan' => array(),
-                'rowspan' => array(),
-                'width' => array(),
-                'cellpadding' => array(),
-                'cellspacing' => array(),
-                'border' => array(),
-                'text-rotate' => array(),
-                'valign' => array()
-                ),
-            'tr' => array(
-                'id' => array(),
-                'style' => array(),
-                'class' => array(),
-                'colspan' => array(),
-                'rowspan' => array(),
-                'width' => array(),
-                'cellpadding' => array(),
-                'cellspacing' => array(),
-                'border' => array(),
-                'text-rotate' => array(),
-                'valign' => array()
-                ),
-            'th' => array(
-                'style' => array(),
-                'class' => array(),
-                'colspan' => array(),
-                'rowspan' => array(),
-                'width' => array(),
-                'cellpadding' => array(),
-                'cellspacing' => array(),
-                'text-rotate' => array(),
-                'border' => array()
-                ),
-            'tbody' => array(
-                'style' => array(),
-                'class' => array(),
-                'colspan' => array(),
-                'rowspan' => array(),
-                'width' => array(),
-                'cellpadding' => array(),
-                'cellspacing' => array(),
-                'text-rotate' => array(),
-                'border' => array()
-                ),
-            'thead' => array(
-                'style' => array(),
-                'class' => array(),
-                'colspan' => array(),
-                'rowspan' => array(),
-                'width' => array(),
-                'cellpadding' => array(),
-                'cellspacing' => array(),
-                'text-rotate' => array(),
-                'border' => array()
-                ),
-            'barcode' => array(
-                'code' => array(),
-                'class' => array(),
-                'type' => array()
-                ),
-            'ul' => array(
-                'class' => array(),
-                ),
-            'li' => array(
-                'class' => array(),
-                ),
-            'ol' => array(
-                'class' => array(),
-                ),
-            'b' => array(),
-            'blockquote' => array(
-                'cite'  => array(),
-                ),
-            'cite' => array(
-                'title' => array(),
-                ),
-            'code' => array(),
-            'del' => array(
-                'datetime' => array(),
-                'title' => array(),
-                ),
-                'dd' => array(),
-                'dl' => array(),
-            'dt' => array(),
-            'em' => array(),
-            'dl' => array(),
-            'dt' => array(),
-            'em' => array(),
-            'bdi' => array(),
-            /*'html' => array(
-                'lang' => array(),
-            ),
-            
-            'meta' => array( 'charset' => array()),
-            'title' => array(),
-            'body' => array( 'dir' => array()),*/
-        );
-
     }
     
     static function wpcf7pdf_getFontsTab() {
@@ -2375,7 +1479,7 @@ function wpcf7pdf_form_hidden_fields($hidden_fields) {
     $current_form_id = $current_form->id();
  
     return array_merge($hidden_fields, array(
-        '_wpcf7cfpdf_hidden_namepdf' => cf7_sendpdf::wpcf7pdf_name_pdf($current_form_id),
+        '_wpcf7cfpdf_hidden_namepdf' => $current_form_id,
     ));
 
 }

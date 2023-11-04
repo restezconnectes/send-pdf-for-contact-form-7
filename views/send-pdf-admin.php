@@ -234,8 +234,6 @@ jQuery(document).ready(function() {
         $upload_dir = wp_upload_dir();
         $createDirectory = cf7_sendpdf::wpcf7pdf_folder_uploads($idForm);
         
-        $custom_tmp_path = get_option('wpcf7pdf_path_temp');
-        
         // On récupère le format de date dans les paramètres
         $date_format = get_option( 'date_format' );
         $hour_format = get_option( 'time_format' );
@@ -246,8 +244,6 @@ jQuery(document).ready(function() {
         $marginBottomHeader = 10;
         $marginLeft = 15;
         $marginRight = 15;
-        $setAutoTopMargin = 'stretch';
-        $setAutoBottomMargin = 'stretch';
 
         // Definition de la taille, le format de page et la font par defaut
         $fontsizePdf = 9;
@@ -255,8 +251,8 @@ jQuery(document).ready(function() {
         $formatPdf = 'A4-P';
 
         // Definition des dates par defaut
-        $dateField = date_i18n(esc_html($date_format), current_time('timestamp'));
-        $timeField = date_i18n(esc_html($hour_format), current_time('timestamp'));
+        $dateField = WPCF7PDF_prepare::returndate($idForm);
+        $timeField = WPCF7PDF_prepare::returntime($idForm);
 
         // Definition des dimensions du logo par defaut
         $width = 150;
@@ -269,424 +265,33 @@ jQuery(document).ready(function() {
 
         if( isset($meta_values['generate_pdf']) && !empty($meta_values['generate_pdf']) ) {
 
-            if( isset($meta_values['pdf-type']) && isset($meta_values['pdf-orientation']) ) {
-                $formatPdf = esc_html($meta_values['pdf-type'].$meta_values['pdf-orientation']);
-            }
-            if( isset($meta_values['pdf-font'])  ) {
-                $fontPdf = esc_html($meta_values['pdf-font']);
-            }
-            if( isset($meta_values['pdf-fontsize']) && is_numeric($meta_values['pdf-fontsize']) ) {
-                $fontsizePdf = esc_html($meta_values['pdf-fontsize']);
-            }
-            
-            require WPCF7PDF_DIR . 'mpdf/vendor/autoload.php';
-            
-            if( isset($meta_values["margin_header"]) && $meta_values["margin_header"]!='' ) { $marginHeader = esc_html($meta_values["margin_header"]); }
-            if( isset($meta_values["margin_top"]) && $meta_values["margin_top"]!='' ) { $marginTop = esc_html($meta_values["margin_top"]); }            
-            if( isset($meta_values["margin_left"]) && $meta_values["margin_left"]!='' ) { $marginLeft = esc_html($meta_values["margin_left"]); }
-            if( isset($meta_values["margin_right"]) && $meta_values["margin_right"]!='' ) { $marginRight = esc_html($meta_values["margin_right"]); }
-
-            $setDirectionality = 'ltr';
-            if( isset($meta_values["set_directionality"]) && $meta_values["set_directionality"]!='' ) {  $setDirectionality = esc_html($meta_values["set_directionality"]);  }
-
-            if( isset($meta_values['pdf-type']) && isset($meta_values['pdf-orientation']) ) {
-
-                $formatPdf = esc_html($meta_values['pdf-type'].$meta_values['pdf-orientation']);
-                $mpdfConfig = array(
-                    'mode' =>
-                    'utf-8',
-                    'format' => $formatPdf,
-                    'margin_header' => $marginHeader,
-                    'margin_top' => $marginTop,
-                    'margin_left' => $marginLeft,    	// 15 margin_left
-                    'margin_right' => $marginRight,    	// 15 margin right
-                    'default_font' => $fontPdf,
-                    'default_font_size' => $fontsizePdf,
-                );
-
-            } else if( isset($meta_values['fillable_data']) && $meta_values['fillable_data']== 'true') {
-
-                $mpdfConfig = array(
-                    'mode' => 'c',
-                    'format' => $formatPdf,
-                    'margin_header' => $marginHeader,
-                    'margin_top' => $marginTop,
-                    'default_font' => $fontPdf,
-                    'default_font_size' => $fontsizePdf,
-                    'tempDir' => $custom_tmp_path,
-                    'margin_left' => $marginLeft,    	// 15 margin_left
-                    'margin_right' => $marginRight,    	// 15 margin right
-                );
-
-            } else {
-
-                $mpdfConfig = array(
-                    'mode' => 'utf-8',
-                    'format' => 'A4-L',
-                    'margin_header' => $marginHeader,
-                    'margin_top' => $marginTop,
-                    'default_font' => $fontPdf,
-                    'default_font_size' => $fontsizePdf,
-                    'tempDir' => $custom_tmp_path,
-                    'margin_left' => $marginLeft,    	// 15 margin_left
-                    'margin_right' => $marginRight,    	// 15 margin right
-                );
-                
-            }
-            
-            $mpdf = new \Mpdf\Mpdf($mpdfConfig);
-            $mpdf->autoScriptToLang = true;
-            $mpdf->baseScript = 1;
-            $mpdf->autoVietnamese = true;
-            $mpdf->autoArabic = true;
-            $mpdf->autoLangToFont = true;
-            $mpdf->SetTitle(get_the_title($idForm));
-            $mpdf->SetCreator(get_bloginfo('name'));
-            $mpdf->SetDirectionality($setDirectionality);
-            $mpdf->ignore_invalid_utf8 = true;
-            $mpdf->simpleTables = false;
-
-            $mpdfCharset = 'utf-8';
-            if( isset($meta_values["charset"]) && $meta_values["charset"]!='utf-8' ) {
-                $mpdfCharset = esc_html($meta_values["charset"]);
-            }
-            $mpdf->allow_charset_conversion=true;  // Set by default to TRUE
-            $mpdf->charset_in=''.$mpdfCharset.'';
-
-            if( empty($meta_values["margin_auto_header"]) || ( isset($meta_values["margin_auto_header"]) && $meta_values["margin_auto_header"]=='' ) ) { $meta_values["margin_auto_header"] = 'stretch'; }
-            if( empty($meta_values["margin_auto_header"]) || ( isset($meta_values["margin_auto_bottom"]) && $meta_values["margin_auto_bottom"]=='' ) ) { $meta_values["margin_auto_bottom"] = 'stretch'; }
-
-            if( isset($meta_values["margin_auto_header"]) && $meta_values["margin_auto_header"]!='' ) { $setAutoBottomMargin = esc_html($meta_values["margin_auto_header"]); }
-            if( isset($meta_values["margin_auto_bottom"]) && $meta_values["margin_auto_bottom"]!='' ) { $setAutoBottomMargin = esc_html($meta_values["margin_auto_bottom"]); }
-
-            $mpdf->setAutoTopMargin = $setAutoBottomMargin;
-            $mpdf->setAutoBottomMargin = $setAutoBottomMargin;
-
-            if( isset($meta_values['image_background']) && $meta_values['image_background']!='' ) {
-                 
-                $mpdf->SetDefaultBodyCSS('background', "url('".esc_url($meta_values['image_background'])."')");
-                $mpdf->SetDefaultBodyCSS('background-image-resize', 6);
-            }
-            
-            // LOAD a stylesheet
-            if( isset($meta_values['stylesheet']) && $meta_values['stylesheet']!='' ) {
-                $stylesheet = file_get_contents(esc_url($meta_values['stylesheet']));
-                $mpdf->WriteHTML($stylesheet,1);	// The parameter 1 tells that this is css/style only and no body/html/text
-            }
-
-            // Adding FontAwesome CSS 
-            $mpdf->WriteHTML('<style>
-            .fa { font-family: fontawesome; }
-            .fas { font-family: fontawesome-solid; }
-            .fab { font-family: fontawesome-brands;}
-            .far { font-family: fontawesome-regular;}
-            .dashicons { font-family: dashicons;}
-            </style>');
-
-            // Adding Custom CSS            
-            if( isset($meta_values['custom_css']) && $meta_values['custom_css']!='' ) {
-                $mpdf->WriteHTML('<style>'.esc_html($meta_values['custom_css']).'</style>');
-            }
-            
-            $entetePage = '';
-            if( isset($meta_values["image"]) && !empty($meta_values["image"]) ) {
-                if( ini_get('allow_url_fopen')==1) {
-                    $image_path = str_replace(get_bloginfo('url'), ABSPATH, $meta_values['image']);
-                    list($width, $height, $type, $attr) = getimagesize($image_path);
-                }
-                $imgAlign = 'left';
-                if( isset($meta_values['image-alignment']) ) {
-                    $imgAlign = esc_html($meta_values['image-alignment']);
-                }
-                if( empty($meta_values['image-width']) ) { $imgWidth = esc_html($width); } else { $imgWidth = esc_html($meta_values['image-width']);  }
-                if( empty($meta_values['image-height']) ) { $imgHeight = esc_html($height); } else { $imgHeight = esc_html($meta_values['image-height']);  }
-
-                $attribut = 'width='.esc_html($imgWidth).' height="'.esc_html($imgHeight).'"';
-                $entetePage = '<div style="text-align:'.esc_html($imgAlign).';"><img src="'.esc_url($meta_values["image"]).'" '.esc_html($attribut).' /></div>';
-
-                if( isset($meta_values["margin_bottom_header"]) && $meta_values["margin_bottom_header"]!='' ) { $marginBottomHeader = esc_html($meta_values["margin_bottom_header"]); }
-                $mpdf->WriteHTML('<p style="margin-bottom:'.esc_html($marginBottomHeader).'px;">&nbsp;</p>');
-            }
-            $mpdf->SetHTMLHeader($entetePage, 'O', true);
-
             // définit le contenu du PDf
-            $messageText = wp_kses(trim($meta_values['generate_pdf']), $this->wpcf7pdf_autorizeHtml());
-
-            $tagSeparate = '';
-            if( isset($meta_values["separate"]) ) {
-                if( $meta_values["separate"] == 'none' ) { $tagSeparate = ''; }
-                if( $meta_values["separate"] == 'comma' ) { $tagSeparate = ', '; }
-                if( $meta_values["separate"] == 'space') { $tagSeparate = ' '; }
-                if( $meta_values["separate"] == 'dash') { $tagSeparate = '- '; }
-                if( $meta_values["separate"] == 'star') { $tagSeparate = '<i class="fas">&#xf621</i> '; }
-                if( $meta_values["separate"] == 'rightarrow') { $tagSeparate = '<i class="fas">&#xf061</i> '; }
-                if( $meta_values["separate"] == 'double-right-arrow') { $tagSeparate = '<i class="fas">&#xf101</i> '; }
-                if( $meta_values["separate"] == 'cornerarrow') { $tagSeparate = '<i class="fas">&#xf064</i> '; }
-                
-            }
-            $tagSeparateAfter = ' ';
-            if( isset($meta_values["separate_after"]) ) {
-                if( $meta_values["separate_after"] == 'none' ) { $tagSeparateAfter = ''; }
-                if( $meta_values["separate_after"] == 'comma' ) { $tagSeparateAfter = ', '; }
-                if( $meta_values["separate_after"] == 'space') { $tagSeparateAfter = ' '; }
-                if( $meta_values["separate_after"] == 'linebreak') { $tagSeparateAfter = '<br />'; }
-            }
-        
-            /**
-             * GESTION DES IMAGES UPLOADEES / AVATAR
-             */
-            // read all image tags into an array
-            preg_match_all('/<img[^>]+>/i', $messageText, $imgTags);
-            for ($i = 0; $i < count($imgTags[0]); $i++) {
-                // get the source string
-                preg_match('/src="([^"]+)/i', $imgTags[0][$i], $imageTag);
-                   // remove opening 'src=' tag, can`t get the regex right
-                $origImageSrc = str_ireplace( 'src="', '',  $imageTag[0]);
-                if( strpos( $origImageSrc, 'http' ) === false ) {                
-                    $messageText = str_replace( $origImageSrc, WPCF7PDF_URL.'images/temporary-image.jpg', $messageText);
-                }
-            }
-        
-            // replace tag by avatar picture
-            $user = wp_get_current_user();
-            if ( $user ) :
-                $messageText = str_replace('[avatar]', esc_url( get_avatar_url( $user->ID ) ), $messageText);
-            endif;
-            /**
-             * FIN
-             */
-
-            $contact_form = WPCF7_ContactForm::get_instance($idForm);
-            $contact_tag = $contact_form->scan_form_tags();
-            $form_tag = new WPCF7_FormTag( $contact_tag[0] );
-            $contentPdfTags = cf7_sendpdf::wpcf7pdf_mailparser($messageText);
-
-            foreach ( (array) $contentPdfTags as $name_tags ) {
-
-                $found_key = cf7_sendpdf::wpcf7pdf_foundkey($contact_tag, $name_tags[1]);
-                //var_dump($contact_tag[$found_key]);
-                $thisTagRaw = false;
-                if( isset($contact_tag[$found_key]['basetype']) ) {
-                    $basetype = $contact_tag[$found_key]['basetype'];
-                }
-
-                $tagOptions = '';
-                if( isset( $contact_tag[$found_key]['options'] ) ) {
-                    $tagOptions = $contact_tag[$found_key]['options'];
-                }
-
-                if ( preg_match( '/^_raw_(.+)$/', $name_tags[1], $matches ) ) {
-                    $thisTagRaw = true;
-                }
-
-                /*if( isset($basetype) && ($basetype==='text' || $basetype==='email') ) {                  
-
-                    if (isset($meta_values['data_input']) && $meta_values['data_input']=='true') {
-
-                        $inputSelect = '<input type="text" class="wpcf7-input" name="'.esc_html($name_tags[1]).'" value="" />';
-
-                    } else {
-
-                        $inputSelect = '';
-                        
-                    }
-                    $messageText = str_replace(esc_html($name_tags[0]), $inputSelect, $messageText);
-
-                } else */
-                if( isset($basetype) && $basetype==='checkbox' && $thisTagRaw===false ) {
-
-                    $inputCheckbox = '';
-                    $i = 1;
-                    
-                    foreach( $contact_tag[$found_key]['values'] as $id=>$val ) {
-
-                        $valueTag = wpcf7_mail_replace_tags($name_tags[0]);
-
-                        if (isset($meta_values['data_input']) && $meta_values['data_input']=='true') {
-
-                            if( in_array('label_first', $tagOptions) ) {
-                                $inputCheckbox .= ''.$tagSeparate.''.esc_html($val).' <input type="checkbox" class="wpcf7-checkbox" name="'.esc_html($name_tags[1].$id).'" value="'.$i.'" />'.$tagSeparateAfter.'';
-                            } else {
-                                $inputCheckbox .= ''.$tagSeparate.'<input type="checkbox" class="wpcf7-checkbox" name="'.esc_html($name_tags[1].$id).'" value="'.$i.'"/> '.esc_html($val).''.$tagSeparateAfter.'';
-                            }
-
-                        } else {
-
-                            $inputCheckbox .= ''.$tagSeparate.''.esc_html($val).''.$tagSeparateAfter.'';
-                            
-                        }
-                        $i++;
-
-                    }
-                    $messageText = str_replace(esc_html($name_tags[0]), $inputCheckbox, $messageText);
-                    
-                } else if( isset($basetype) && $basetype==='radio' && $thisTagRaw===false ) {
-
-                    $inputRadio = '';
-                    $i = 1;
-
-                    foreach( $contact_tag[$found_key]['values'] as $id=>$val ) {
-
-                        $valueTag = wpcf7_mail_replace_tags($name_tags[0]);
-
-                        if (isset($meta_values['data_input']) && $meta_values['data_input']=='true') {
-                         
-                            if( in_array('label_first', $tagOptions) ) {
-                                $inputRadio .= ''.$tagSeparate.''.esc_html($val).' <input type="radio" class="wpcf7-radio" name="'.esc_html($name_tags[1].$id).'" value="'.$i.'" />'.$tagSeparateAfter.'';
-                            } else {
-                                $inputRadio .= ''.$tagSeparate.'<input type="radio" class="wpcf7-radio" name="'.esc_html($name_tags[1].$id).'" value="'.$i.'" /> '.esc_html($val).''.$tagSeparateAfter.'';
-                            }
-
-                        } else {                          
-
-                            $inputRadio .= ''.$tagSeparate.''.esc_html($val).''.$tagSeparateAfter.'';
-                        }
-                        $i++;
-                    }
-
-                    $messageText = str_replace(esc_html($name_tags[0]), $inputRadio, $messageText);
-
-                } else {
-                    
-                    $valueTag = wpcf7_mail_replace_tags(esc_html($name_tags[0]));                            
-                    $messageText = str_replace(esc_html($name_tags[0]), esc_html($valueTag), $messageText);
-                }
-
-            }
-
-            if( empty( $meta_values["linebreak"] ) or ( isset($meta_values["linebreak"]) && $meta_values["linebreak"] == 'false') ) {
-                $messageText = preg_replace("/(\r\n|\n|\r)/", "<div></div>", $messageText);
-                $messageText = str_replace("<div></div><div></div>", '<div style="height:10px;"></div>', $messageText);
-            }
+            $messageText = wp_kses(trim($meta_values['generate_pdf']), WPCF7PDF_prepare::wpcf7pdf_autorizeHtml());       
             
-            $messageText = str_replace('[reference]', wp_kses_post(get_transient('pdf_uniqueid')), $messageText);
-            $messageText = str_replace('[url-pdf]', esc_url($upload_dir['url'].'/'.$nameOfPdf.'-'.wp_kses_post(get_transient('pdf_uniqueid')).'.pdf'), $messageText);
-            $messageText = str_replace('[ID]', '000'.date('md'), $messageText);
-            if( isset($meta_values['date_format']) && !empty($meta_values['date_format']) ) {
-                $dateField = date_i18n($meta_values['date_format']);
-            } else {
-                $dateField = date_i18n($date_format, current_time('timestamp'));
-            }
-            if( isset($meta_values['time_format']) && !empty($meta_values['time_format']) ) {
-                $timeField = date_i18n($meta_values['time_format']);
-            } else {
-                $timeField = date_i18n($hour_format, current_time('timestamp'));
-            }
-            $messageText = str_replace('[date]', $dateField, $messageText);
-            $messageText = str_replace('[time]', $timeField, $messageText);
-            
-            // Enable Fillable Form
-            if( isset($meta_values['fillable_data']) && $meta_values['fillable_data']=='true') {
-                $mpdf->useActiveForms = true;
-                $mpdf->SetProtection(array('copy', 'print', 'fill-forms', 'modify', 'annot-forms' ), '', '', 128);
-            }
-            
-            if( isset($meta_values['footer_generate_pdf']) && $meta_values['footer_generate_pdf']!='' ) {
-                $footerText = wp_kses(trim($meta_values['footer_generate_pdf']), $this->wpcf7pdf_autorizeHtml());
-                $footerText = str_replace('[reference]', sanitize_text_field(get_transient('pdf_uniqueid')), $footerText);
-                $footerText = str_replace('[url-pdf]', esc_url($upload_dir['url'].'/'.$nameOfPdf.'-'.wp_kses_post(get_transient('pdf_uniqueid')).'.pdf'), $footerText);
-                if( isset($meta_values['date_format']) && !empty($meta_values['date_format']) ) {
-                    $dateField = date_i18n($meta_values['date_format']);
-                }
-                if( isset($meta_values['time_format']) && !empty($meta_values['time_format']) ) {
-                    $timeField = date_i18n($meta_values['time_format']);
-                }
-                $footerText = str_replace('[date]', $dateField, $footerText);
-                $footerText = str_replace('[time]', $timeField, $footerText);
-                $mpdf->SetHTMLFooter($footerText);
-            }
+            // Preparation du contenu du PDF
+            $messageText = WPCF7PDF_prepare::tags_parser($idForm, $nameOfPdf, $messageText, 1);
 
             // Shortcodes?
-            if( isset($meta_values['shotcodes_tags']) && $meta_values['shotcodes_tags']!='') {
-
-                $tagShortcodes = explode(',', esc_html($meta_values['shotcodes_tags']));
-                $countShortcodes = count($tagShortcodes);
-                for($i = 0; $i < ($countShortcodes);  $i++) {
-
-                    $pattern = '`\[([^\]]*)\]`';
-                    preg_match_all($pattern, $tagShortcodes[$i], $shortcodeTags);
-
-                    if( is_array($shortcodeTags) && isset($shortcodeTags[1][0]) ) {
-
-                        $shortcodeName = explode(' ', $shortcodeTags[1][0]);
-                        if( is_plugin_active('shortcoder/shortcoder.php') && class_exists('Shortcoder') ) {
-
-                            $shortcodes =  Shortcoder::get_shortcodes();
-                            $returnShortcode = Shortcoder::find_shortcode(array('name'=>$shortcodeName[0]), $shortcodes);
-
-                            if( isset($returnShortcode['id']) ) {
-                                $messageText = str_replace('['.$shortcodeName[0].']', esc_html( Shortcoder::get_sc_tag( $returnShortcode['id'] ) ), $messageText);
-                            }
-                        
-                        }
-                        
-                        if( stripos($messageText, '['.$shortcodeName[0].']') !== false ) {
-                            $messageText = str_replace('['.$shortcodeName[0].']', do_shortcode($tagShortcodes[$i]), $messageText);
-                        }
-                    }
-                }
-            }
-
-            // En cas de saut de page avec le tag [addpage]
-            if( stripos($messageText, '[addpage]') !== false ) {
-
-                $newPage = explode('[addpage]', $messageText);
-                $countPage = count($newPage);
-
-                for($i = 0; $i < ($countPage);  $i++) {
-                    
-                    if( $i == 0 ) {
-                        // On print la première page
-                        $mpdf->WriteHTML($newPage[$i]);
-                    } else {
-                        // On print ensuite les autres pages trouvées
-                        if( isset($meta_values["page_header"]) && $meta_values["page_header"]==1) {
-                            $mpdf->SetHTMLHeader($entetePage, '', true);
-                            $mpdf->AddPage();
-                        } else {
-                            $mpdf->SetHTMLHeader(); 
-                            $mpdf->AddPage('','','','','',15,15,15,15,5,5);
-                        } 
-                        if( isset($meta_values['footer_generate_pdf']) && $meta_values['footer_generate_pdf']!='' ) {
-                            $mpdf->SetHTMLFooter($footerText);
-                        }
-                        $mpdf->WriteHTML($newPage[$i]);
-                        if( isset($meta_values["page_header"]) && $meta_values["page_header"]==1) {
-                            $mpdf->SetHTMLHeader($entetePage, '', true);
-                        } else {
-                            $mpdf->SetHTMLHeader();                                 
-                        }
-                    }
-                    
-                }
-
-            } else {
-
-                $mpdf->WriteHTML( wpautop( $messageText ) );
-
-            }
-
-            // En cas de nouveau document PDF
-            /*preg_match_all('/\[add_document([^\]]*)\]/m', $messageText, $matches, PREG_SET_ORDER, 0);
+            $messageText = WPCF7PDF_prepare::shortcodes($meta_values['shotcodes_tags'], $messageText);    
+            
+            // En cas de plusieurs document à générer
+           /* preg_match_all('/\[add_document([^\]]*)\]/m', $messageText, $matches, PREG_SET_ORDER, 0);
             if( $matches ) {
 
                 foreach($matches as $document) {
                     // Print the entire match result
                     preg_match_all('/\"([^\]]*)\"/m', $document[1], $suffix, PREG_SET_ORDER, 0);
-                    var_dump($suffix[0][1]);
+                    var_dump = $suffix[0][1];
                 }
+            } else {
+
+                $generatePdfFile = WPCF7PDF_generate::wpcf7pdf_create_pdf($idForm, $messageText, $nameOfPdf, $createDirectory, 1);
             }*/
+            $generatePdfFile = WPCF7PDF_generate::wpcf7pdf_create_pdf($idForm, $messageText, $nameOfPdf, $createDirectory, 1);
 
-            $pdfPassword = '';
-            if ( isset($meta_values["protect"]) && $meta_values["protect"]=='true') {
-                
-                if( isset($meta_values["protect_password"]) && $meta_values["protect_password"]!='' ) {
-                    $pdfPassword = esc_html($meta_values["protect_password"]);
-                }
-                $mpdf->SetProtection(array('print', 'fill-forms', 'modify', 'copy'), $pdfPassword, $pdfPassword, 128);
-            }            
-            $mpdf->Output($createDirectory.'/preview-'.esc_html($idForm).'.pdf', 'F');
-
+        }
+        if( isset($meta_values["disable-csv"]) && $meta_values['disable-csv'] == 'false') {
+            $generateCsvFile = WPCF7PDF_generate::wpcf7pdf_create_csv($idForm, $nameOfPdf, $createDirectory, 1);
         }
 
             $messagePdf = '
