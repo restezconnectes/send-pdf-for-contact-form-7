@@ -17,13 +17,11 @@ defined( 'ABSPATH' )
 class WPCF7PDF_prepare extends cf7_sendpdf {
 
 
-    public static function shortcodes($shotcodes_tags='', $contentPdf='') {
-
-        if (empty($shotcodes_tags))
-            return;
-
+    public static function shortcodes($shotcodes_tags='', $contentPdf) {
+        
         // Shortcodes?
         if( isset($shotcodes_tags) && $shotcodes_tags!='') {
+
             $tagShortcodes = explode(',', esc_html($shotcodes_tags));
             $countShortcodes = count($tagShortcodes);
             for($i = 0; $i < ($countShortcodes);  $i++) {
@@ -49,8 +47,10 @@ class WPCF7PDF_prepare extends cf7_sendpdf {
                     
                 }
             }
-            return $contentPdf;
+
         }
+
+        return $contentPdf;
 
     }
 

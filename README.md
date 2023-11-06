@@ -16,6 +16,9 @@ Current Version:  1.0.1.0
 
 == Changelog ==
 
+= 1.0.1.1 =
+* Bug Fixed generate PDF
+
 = 1.0.1.0 = 
 * Major version : reprogramming plugin
 * Bug Fixed form image upload

@@ -18,15 +18,14 @@ class WPCF7PDF_generate extends cf7_sendpdf {
 
     static function wpcf7pdf_create_pdf($id, $data, $nameOfPdf, $createDirectory, $preview = 0) {
 
-        // get submission data
-        $contentPdf = $data;
-                
         // nothing's here... do nothing...
-        if (empty($id))
+        if (empty($id) || empty($data))
             return;
 
         $upload_dir = wp_upload_dir();
         $custom_tmp_path = get_option('wpcf7pdf_path_temp');
+
+        $contact_form = WPCF7_ContactForm::get_instance(esc_html($id));   
 
         // Definition des dates par defaut
         $dateField = WPCF7PDF_prepare::returndate($id);
@@ -192,9 +191,9 @@ class WPCF7PDF_generate extends cf7_sendpdf {
         }
 
         // En cas de saut de page avec le tag [addpage]
-        if( stripos($contentPdf, '[addpage]') !== false ) {
+        if( isset($data) && stripos($data, '[addpage]') !== false ) {
 
-            $newPage = explode('[addpage]', $contentPdf);
+            $newPage = explode('[addpage]', $data);
             $countPage = count($newPage);
 
             for($i = 0; $i < ($countPage);  $i++) {
@@ -226,8 +225,8 @@ class WPCF7PDF_generate extends cf7_sendpdf {
 
         } else {
 
-            $contentPdf = apply_filters('wpcf7pdf_text', $contentPdf, $contact_form);
-            $mpdf->WriteHTML($contentPdf);
+            $data = apply_filters('wpcf7pdf_text', $data, $contact_form);
+            $mpdf->WriteHTML($data);
 
         }
         
@@ -239,10 +238,12 @@ class WPCF7PDF_generate extends cf7_sendpdf {
 
         // Si je suis dans l'admin je génère un preview
         if ( isset($preview) && $preview == 1 ) {
+
             $mpdf->Output($createDirectory.'/preview-'.esc_html($id).'.pdf', 'F');
+
         } else {
 
-            $contentPdf = wpcf7_mail_replace_tags( wpautop($contentPdf) );
+            $data = wpcf7_mail_replace_tags( wpautop($data) );
             $mpdf->Output($createDirectory.'/'.$nameOfPdf.'.pdf', 'F');
             
             // Je copy le PDF genere

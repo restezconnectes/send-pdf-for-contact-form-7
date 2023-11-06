@@ -270,10 +270,12 @@ jQuery(document).ready(function() {
             
             // Preparation du contenu du PDF
             $messageText = WPCF7PDF_prepare::tags_parser($idForm, $nameOfPdf, $messageText, 1);
-
+            
             // Shortcodes?
             $messageText = WPCF7PDF_prepare::shortcodes($meta_values['shotcodes_tags'], $messageText);    
-            
+            /*error_log('---- DEBUG ----');
+            error_log(print_r($messageText, true));
+            error_log('---- FIN DEBUG ----');*/
             // En cas de plusieurs document à générer
            /* preg_match_all('/\[add_document([^\]]*)\]/m', $messageText, $matches, PREG_SET_ORDER, 0);
             if( $matches ) {
@@ -287,13 +289,14 @@ jQuery(document).ready(function() {
 
                 $generatePdfFile = WPCF7PDF_generate::wpcf7pdf_create_pdf($idForm, $messageText, $nameOfPdf, $createDirectory, 1);
             }*/
+
             $generatePdfFile = WPCF7PDF_generate::wpcf7pdf_create_pdf($idForm, $messageText, $nameOfPdf, $createDirectory, 1);
 
         }
         if( isset($meta_values["disable-csv"]) && $meta_values['disable-csv'] == 'false') {
             $generateCsvFile = WPCF7PDF_generate::wpcf7pdf_create_csv($idForm, $nameOfPdf, $createDirectory, 1);
         }
-
+            // Contenu PDF par default
             $messagePdf = '
 <p>Votre nom : [your-name]</p>
 
