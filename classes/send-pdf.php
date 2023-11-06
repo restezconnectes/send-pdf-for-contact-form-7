@@ -999,7 +999,9 @@ class cf7_sendpdf {
                 }*/
                 
                 // Shortcodes?
-                $messageText = WPCF7PDF_prepare::shortcodes($meta_values['shotcodes_tags'], $messageText);
+                if( isset($meta_values['shotcodes_tags']) && !empty($meta_values['shotcodes_tags'])) {
+                    $messageText = WPCF7PDF_prepare::shortcodes($meta_values['shotcodes_tags'], $messageText);
+                }
                 /*$messageText = str_replace('[reference]', sanitize_text_field(get_transient('pdf_uniqueid')), $messageText);
                 $messageText = str_replace('[url-pdf]', str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $createDirectory ).'/'.$nameOfPdf.'.pdf', $messageText);
                 
@@ -1366,79 +1368,101 @@ class cf7_sendpdf {
 
         // Redirection direct ver le pdf après envoi du formulaire
         if( isset($meta_values["redirect-to-pdf"]) && $meta_values["redirect-to-pdf"]=="true" ) {
+
+            if( empty($meta_values['pdf-name']) ) { $meta_values['pdf-name'] = $nameOfPdf; }
+
+            // On recupère les tags du nom du PDF
+            if (isset($meta_values["pdf-add-name"]) && $meta_values["pdf-add-name"] != '') {
         ?>
 
-            // Fonction sanitize champs du formulaire
-            var string_to_slug = function (str) {
-                str = str.replace(/^\s+|\s+$/g, ''); // trim
-                str = str.toLowerCase();
+                // Fonction sanitize champs du formulaire
+                var string_to_slug = function (str) {
+                    str = str.replace(/^\s+|\s+$/g, ''); // trim
+                    str = str.toLowerCase();
 
-                // remove accents, swap ñ for n, etc
-                var from = 'àáäâèéëêìíïîòóöôùúüûñçěščřžýúůďťň·/_,:;';
-                var to   = 'aaaaeeeeiiiioooouuuuncescrzyuudtn------';
+                    // remove accents, swap ñ for n, etc
+                    var from = 'àáäâèéëêìíïîòóöôùúüûñçěščřžýúůďťň·/_,:;';
+                    var to   = 'aaaaeeeeiiiioooouuuuncescrzyuudtn------';
 
-                for (var i=0, l=from.length ; i<l ; i++) {
-                    str = str.replace(new RegExp(from.charAt(i), 'g'), to.charAt(i));
-                }
-
-                str = str.replace('.', '') // replace a dot by a dash 
-                    .replace(/[^a-z0-9 -]/g, '') // remove invalid chars
-                    .replace(/\s+/g, '-') // collapse whitespace and replace by a dash
-                    .replace(/-+/g, '-') // collapse dashes
-                    .replace( /\//g, '' ); // collapse all forward-slashes
-
-                return str;
-            }
-        
-            var inputs = event.detail.inputs;
-            <?php 
-                // On recupère les tags du nom du PDF
-                if (isset($meta_values["pdf-add-name"]) && $meta_values["pdf-add-name"] != '') {
-
-                    $addName = '';
-                    $getNamePerso = explode(',', esc_html($meta_values["pdf-add-name"]));
-                    if(isset($meta_values["date-for-name"]) && !empty($meta_values["date-for-name"])) {
-                        $dateForName = date_i18n($meta_values["date-for-name"]);
-                    } else {
-                        $dateForName = date_i18n('mdY', current_time('timestamp'));
+                    for (var i=0, l=from.length ; i<l ; i++) {
+                        str = str.replace(new RegExp(from.charAt(i), 'g'), to.charAt(i));
                     }
-                    $getNamePerso = str_replace('[date]', $dateForName, $getNamePerso);
-                    $getNamePerso = str_replace('[reference]', get_transient('pdf_uniqueid'), $getNamePerso);
-                    foreach ( $getNamePerso as $key => $value ) {
-                        $addNewName[$key] = str_replace(' ', '-', $value);
-                        $addNewName[$key] = strtolower($addNewName[$key]);
-                        $addName .= '"'.sanitize_title($addNewName[$key]).'",';
 
-                    }
-                    ?>                
-                    var fieldname = new Array(<?php echo substr($addName, 0, -1); ?>);
-                    <?php 
+                    str = str.replace('.', '') // replace a dot by a dash 
+                        .replace(/[^a-z0-9 -]/g, '') // remove invalid chars
+                        .replace(/\s+/g, '-') // collapse whitespace and replace by a dash
+                        .replace(/-+/g, '-') // collapse dashes
+                        .replace( /\//g, '' ); // collapse all forward-slashes
+
+                    return str;
                 }
-                
-            ?>
-            let valuefield = '';
-            for ( var i = 0; i < fieldname.length; i++ ) {
             
-                for ( var i = 0; i < inputs.length; i++ ) {
-                    if ( fieldname[i] == inputs[i].name ) {
-                       valuefield += string_to_slug(inputs[i].value) + '-';
-                       //console.log('value:' + string_to_slug(inputs[i].value) );
+                var inputs = event.detail.inputs;
+                <?php 
+                    
+
+                        $addName = '';
+                        $getNamePerso = explode(',', esc_html($meta_values["pdf-add-name"]));
+                        if(isset($meta_values["date-for-name"]) && !empty($meta_values["date-for-name"])) {
+                            $dateForName = date_i18n($meta_values["date-for-name"]);
+                        } else {
+                            $dateForName = date_i18n('mdY', current_time('timestamp'));
+                        }
+                        $getNamePerso = str_replace('[date]', $dateForName, $getNamePerso);
+                        $getNamePerso = str_replace('[reference]', get_transient('pdf_uniqueid'), $getNamePerso);
+                        foreach ( $getNamePerso as $key => $value ) {
+                            $addNewName[$key] = str_replace(' ', '-', $value);
+                            $addNewName[$key] = strtolower($addNewName[$key]);
+                            $addName .= '"'.sanitize_title($addNewName[$key]).'",';
+
+                        }
+                        ?>                
+                        var fieldname = new Array(<?php echo substr($addName, 0, -1); ?>);
+
+                        <?php 
+                    
+                    
+                ?>
+                let valuefield = '';
+                for ( var i = 0; i < fieldname.length; i++ ) {
+                
+                    for ( var i = 0; i < inputs.length; i++ ) {
+                        if ( fieldname[i] == inputs[i].name ) {
+                        valuefield += '-' + string_to_slug(inputs[i].value);
+                        //console.log('value:' + string_to_slug(inputs[i].value) );
+                        }
                     }
+
+                    const text = valuefield;
+                    <?php if( isset($meta_values["redirect-window"]) && $meta_values["redirect-window"] == 'popup' ) { ?>
+
+                    window.open('<?php echo str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $createDirectory)?>/<?php echo esc_html($meta_values['pdf-name']); ?>' + text + '.pdf?ver=<?php echo rand(); ?>','text','menubar=no, status=no, scrollbars=yes, menubar=no, width=600, height=900');
+                    
+                    <?php } else { ?>
+
+                    var location = '<?php echo str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $createDirectory)?>/<?php echo esc_html($meta_values['pdf-name']); ?>' + text + '.pdf?ver=<?php echo rand(); ?>'; window.open(location, text, '<?php echo $targetPDF; ?>');
+                    
+                    <?php } ?>
+
                 }
+            
+    <?php   } else {
 
-                const text = valuefield.slice(0, -1);
-                <?php if( isset($meta_values["redirect-window"]) && $meta_values["redirect-window"] == 'popup' ) { ?>
+                $urlRredirectPDF = str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $createDirectory).'/'.$nameOfPdf.'-'.sanitize_text_field(get_transient('pdf_uniqueid')).'.pdf?ver='.rand();
 
-                window.open('<?php echo str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $createDirectory)?>/<?php echo esc_html($meta_values['pdf-name']).'-'; ?>' + text + '.pdf?ver=<?php echo rand(); ?>','text','menubar=no, status=no, scrollbars=yes, menubar=no, width=600, height=900');
+                if( isset($meta_values["redirect-window"]) && $meta_values["redirect-window"] == 'popup' ) { ?>
+
+                window.open('<?php echo esc_html($urlRredirectPDF); ?>', '<?php echo esc_html($nameOfPdf); ?>','menubar=no, status=no, scrollbars=yes, menubar=no, width=600, height=900');
                 
                 <?php } else { ?>
 
-                var location = '<?php echo str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $createDirectory)?>/<?php echo esc_html($meta_values['pdf-name']).'-'; ?>' + text + '.pdf?ver=<?php echo rand(); ?>'; window.open(location, text, '<?php echo $targetPDF; ?>');
+                var location = '<?php echo esc_html($urlRredirectPDF); ?>'; window.open(location, '<?php echo esc_html($nameOfPdf); ?>', '<?php echo $targetPDF; ?>');
                 
-                <?php } ?>
+                <?php } 
 
             }
-    <?php } ?>
+
+} ?>
     <?php 
     if( (isset($meta_values['page_next']) && is_numeric($meta_values['page_next'])) ) {
         /* REDIRECTION  */

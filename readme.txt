@@ -54,6 +54,7 @@ Yes. If you want, you can support this project here: <a href="https://restezconn
 
 = 1.0.1.1 =
 * Bug Fixed generate PDF
+* Bug Fixed redirect page or PDF
 
 = 1.0.1.0 = 
 * Major version : reprogramming plugin
