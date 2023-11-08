@@ -54,6 +54,7 @@ Yes. If you want, you can support this project here: <a href="https://restezconn
 
 = 1.0.1.2 =
 * Bug fixed if option "Delete all PDF" checked
+* Bug fixed for download button shortcode [wpcf7pdf_download]
 
 
 = 1.0.1.1 =

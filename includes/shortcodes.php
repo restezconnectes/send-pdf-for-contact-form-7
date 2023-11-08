@@ -12,13 +12,11 @@ function wpcf7pdf_btn_shortcode( $atts ) {
             'target' => '_blank',
             'type' => 'button',
             'dashicons' => 'dashicons-download',
-            'text' => '',
             'textbutton' => 'Download your PDF',
 		), $atts )
 	);
-    global $wpdb;
     
-    if( !empty($_GET['pdf-reference']) ) {
+    if( isset($_GET['pdf-reference']) && !empty($_GET['pdf-reference']) ) {
         
         $infos = cf7_sendpdf::get_byReference(esc_html($_GET['pdf-reference']));
 
@@ -31,18 +29,15 @@ function wpcf7pdf_btn_shortcode( $atts ) {
                 
                 if( isset($infos) ) {
 
-                    if( isset($textbutton) && $textbutton!='') {
-                        $downloadText = esc_html($textbutton);
-                    }
                     if( $dashicons == 'none') {
                         $iconDashicons = '';
                     } else {
                         $iconDashicons = '<span class="dashicons '.esc_html($dashicons).'"></span> ';
                     }
                     if( $type == 'text' ) {
-                        return '<a class="'.esc_html($class).'" href="'.esc_url($infos->wpcf7pdf_files).'" target="'.esc_html($target).'">'.$iconDashicons.$downloadText.'</a>';
+                        return '<a class="'.esc_html($class).'" href="'.esc_url($infos->wpcf7pdf_files).'" target="'.esc_html($target).'">'.$iconDashicons.esc_html($textbutton).'</a>';
                     } else {
-                        return '<a href="'.esc_url($infos->wpcf7pdf_files).'" target="'.esc_html($target).'"><button class="'.esc_html($class).'" type="button">'.$iconDashicons.$downloadText.'</button></a>';
+                        return '<a href="'.esc_url($infos->wpcf7pdf_files).'" target="'.esc_html($target).'"><button class="'.esc_html($class).'" type="button">'.$iconDashicons.esc_html($textbutton).'</button></a>';
                     }
 
                 } else {

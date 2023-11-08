@@ -17,10 +17,10 @@ defined( 'ABSPATH' )
 class WPCF7PDF_prepare extends cf7_sendpdf {
 
 
-    public static function shortcodes($shotcodes_tags='', $contentPdf) {
+    public static function shortcodes($shotcodes_tags='', $contentPdf = '') {
         
         // Shortcodes?
-        if( isset($shotcodes_tags) && $shotcodes_tags!='') {
+        if( isset($shotcodes_tags) && $shotcodes_tags!='' && isset($contentPdf) && $contentPdf!='') {
 
             $tagShortcodes = explode(',', esc_html($shotcodes_tags));
             $countShortcodes = count($tagShortcodes);
