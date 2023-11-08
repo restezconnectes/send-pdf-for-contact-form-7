@@ -32,24 +32,28 @@ if( (isset($_POST['action']) && isset($_POST['idform']) && $_POST['action'] == '
 
         if( isset($_POST['wp_cf7pdf_settings']['pdf-uploads-delete']) && $_POST['wp_cf7pdf_settings']['pdf-uploads-delete']=="true" ) {
             
-            $dossier_traite = cf7_sendpdf::wpcf7pdf_folder_uploads(esc_html($_POST['idform']));
-            
-            if( isset($dossier_traite) && is_dir($dossier_traite) ) {
+            if( isset($meta_values["pdf-uploads"]) && $meta_values["pdf-uploads"]=='true') {
+                echo '<div id="message" class="notice notice-error"><p><strong>'.__("I can't deleted all files in this folder. Only in my folder. Thanks to check 'Change uploads folder?' option for this.", WPCF7PDF_TEXT_DOMAIN).'</strong></p></div>';
+            } else {
+                $dossier_traite = cf7_sendpdf::wpcf7pdf_folder_uploads(esc_html($_POST['idform']));
                 
-                $repertoire = opendir($dossier_traite); // On définit le répertoire dans lequel on souhaite travailler.
-    
-                while (false !== ($fichier = readdir($repertoire))) // On lit chaque fichier du répertoire dans la boucle.
-                {
-                    $chemin = $dossier_traite."/".$fichier; // On définit le chemin du fichier à effacer.
+                if( isset($dossier_traite) && is_dir($dossier_traite) ) {
+                    
+                    $repertoire = opendir($dossier_traite); // On définit le répertoire dans lequel on souhaite travailler.
+        
+                    while (false !== ($fichier = readdir($repertoire))) // On lit chaque fichier du répertoire dans la boucle.
+                    {
+                        $chemin = $dossier_traite."/".$fichier; // On définit le chemin du fichier à effacer.
 
-                    // Si le fichier n'est pas un répertoire…
-                    if ($fichier != ".." AND $fichier != "." AND !is_dir($fichier)) {
-                        wp_delete_file($chemin);
+                        // Si le fichier n'est pas un répertoire…
+                        if ($fichier != ".." AND $fichier != "." AND !is_dir($fichier)) {
+                            wp_delete_file($chemin);
+                        }
                     }
+                    closedir($repertoire);
+                    
+                    echo '<div id="message" class="updated fade"><p><strong>'.__('The upload folder has been deleted.', WPCF7PDF_TEXT_DOMAIN).'</strong></p></div>';
                 }
-                closedir($repertoire);
-                
-                echo '<div id="message" class="updated fade"><p><strong>'.__('The upload folder has been deleted.', WPCF7PDF_TEXT_DOMAIN).'</strong></p></div>';
             }
 
         }
@@ -463,9 +467,9 @@ $pathFolder = serialize($createDirectory);
                     </tr>
                     <tr>
                         <td>
-                            <?php _e('Delete all files into this uploads folder?', WPCF7PDF_TEXT_DOMAIN); ?><p></p>
+                            <?php _e('Delete all files into this uploads folder?', WPCF7PDF_TEXT_DOMAIN); ?><?php if( isset($meta_values["pdf-uploads"]) && $meta_values["pdf-uploads"]=='false') { ?><p><i style="color:#CC0000;">I can't deleted all files in this folder. Only in my folder. Thanks to check 'Change uploads folder?' option for this.</i></p><?php } ?>
                         </td>
-                        <td>
+                        <td><?php if( isset($meta_values["pdf-uploads"]) && $meta_values["pdf-uploads"]=='true') { ?>
                             <div>
                                 <div class="switch-field">
                                 <input class="switch_left" type="radio" id="switch_delete" name="wp_cf7pdf_settings[pdf-uploads-delete]" value="true" />
@@ -474,6 +478,10 @@ $pathFolder = serialize($createDirectory);
                                 <label for="switch_delete_no"><?php _e('No', WPCF7PDF_TEXT_DOMAIN); ?></label>
                                 </div>
                             </div>
+                            <?php } else { ?>
+                                <img src="<?php echo esc_url(WPCF7PDF_URL.'images/btn_off.png'); ?>" /><br />                                
+                                <input type="hidden" name="wp_cf7pdf_settings[pdf-uploads-delete]" value="false" />
+                            <?php } ?>
                         </td>
                     </tr>
                     <tr>
@@ -543,7 +551,11 @@ $pathFolder = serialize($createDirectory);
                             <?php _e('Redirects directly to the PDF after sending the form?', WPCF7PDF_TEXT_DOMAIN); ?>
                             <p><i><?php _e( 'This option disable the Page Redirection selected', WPCF7PDF_TEXT_DOMAIN); ?> (<?php _e( 'Except the popup window option', WPCF7PDF_TEXT_DOMAIN); ?>)</i></p>
                         </td>
-                        <td>
+                        <td><?php if( isset($idSelectPage) && $idSelectPage > 0) { 
+                                $meta_values["redirect-to-pdf"]='false';
+                            ?>
+                                <input type="hidden"  name="wp_cf7pdf_settings[redirect-to-pdf]" value="false" />
+                            <?php } ?>
                             <div>
                                 <div class="switch-field">
                                 <input class="switch_left" type="radio" id="switch_redirect" name="wp_cf7pdf_settings[redirect-to-pdf]" value="true" <?php if( isset($meta_values["redirect-to-pdf"]) && $meta_values["redirect-to-pdf"]=='true') { echo ' checked'; } ?>/>

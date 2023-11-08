@@ -16,6 +16,9 @@ Current Version:  1.0.1.0
 
 == Changelog ==
 
+= 1.0.1.2 =
+* Bug fixed if option "Delete all PDF" checked
+
 = 1.0.1.1 =
 * Bug Fixed generate PDF
 * Bug Fixed redirect page or PDF
