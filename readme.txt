@@ -19,6 +19,7 @@ Send the PDF for Contact Form plugin will allow you to recover the data yourself
 This plugin requires the installation and activation of the plugin Contact Form 7.
 
 <a href="https://demo.restezconnectes.fr/send-pdf-for-contact-form-7/">DEMO HERE</a>
+<a href="https://restezconnectes.fr/tutoriel-wordpress-lextension-send-pdf-for-contact-form-7/">[Tutorial Here]</a>
 
 Translations: https://translate.wordpress.org/projects/wp-plugins/send-pdf-for-contact-form-7/
 
