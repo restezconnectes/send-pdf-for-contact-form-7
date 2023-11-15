@@ -376,7 +376,7 @@ class WPCF7PDF_prepare extends cf7_sendpdf {
         return $pdfPassword;
     }
 
-    public static function upload_file($id, $valueTag, $name_tags, $name_tags1, $content) {
+    public static function upload_file($id, $valueTag, $name_tags, $name_tags1, $referenceOfPdf, $content) {
 
         $upload_dir = wp_upload_dir();
         // On récupère le dossier upload de WP
@@ -384,33 +384,29 @@ class WPCF7PDF_prepare extends cf7_sendpdf {
         $file_location = cf7_sendpdf::wpcf7pdf_attachments($name_tags);
 
         if( isset($file_location) && exif_imagetype($file_location) !=false ) {
-
             // remplace le tag d'une image
             $content = str_replace($name_tags, $valueTag, $content);
             // URL de l'image envoyée
-            $chemin_initial[$name_tags1] = $createDirectory.'/'.sanitize_text_field(get_transient('pdf_uniqueid')).'-'.wpcf7_mail_replace_tags($name_tags);
+            $chemin_initial[$name_tags1] = $createDirectory.'/'.sanitize_text_field($referenceOfPdf).'-'.wpcf7_mail_replace_tags($name_tags);
             // On copie l'image dans le dossier
-            //copy($file_location, $chemin_initial[$name_tags1]);
+            copy($file_location, $chemin_initial[$name_tags1]);
             // rotation de l'image si besoin
             $rotate_image[$name_tags1] = self::adjust_image_orientation($chemin_initial[$name_tags1]);
             // retourne l'URL complete du tag 
             $chemin_final[$name_tags1] = str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $chemin_initial[$name_tags1]);
-
         } else if( isset($valueTag) && $valueTag!='') {
             // remplace le tag d'une image
             $content = str_replace($name_tags, $valueTag, $content);
             // URL du fichier envoyé
-            $uploadingImg[$name_tags1] = $createDirectory.'/'.sanitize_text_field(get_transient('pdf_uniqueid')).'-'.wpcf7_mail_replace_tags($name_tags);
+            $uploadingImg[$name_tags1] = $createDirectory.'/'.sanitize_text_field($referenceOfPdf).'-'.wpcf7_mail_replace_tags($name_tags);
             $chemin_final[$name_tags1] = str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $uploadingImg[$name_tags1]);
 
         } else {
-
             // On copie l'image ONE PIXEL dans le dossier si il n'existe pas déjà
             if( file_exists($upload_dir['basedir'] . '/sendpdfcf7_uploads/'.$id.'/onepixel.png')===FALSE) {
                 copy(esc_url(WPCF7PDF_URL.'images/onepixel.png'), esc_url(str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $createDirectory . '/onepixel.png')));
             }
             $chemin_final[$name_tags1] = str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $createDirectory . '/onepixel.png');
-
         }
         $content = str_replace('[url-'.$name_tags1.']', $chemin_final[$name_tags1], $content);
         return $content;
@@ -542,7 +538,7 @@ class WPCF7PDF_prepare extends cf7_sendpdf {
                 } else {
                     
                     $valueTag = wpcf7_mail_replace_tags($name_tags[0]);
-                    $contentPdf = self::upload_file($id, $valueTag, $name_tags[0], $name_tags[1], $contentPdf);
+                    $contentPdf = self::upload_file($id, $valueTag, $name_tags[0], $name_tags[1], $referenceOfPdf, $contentPdf);
                     
                 }                    
 
