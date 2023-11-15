@@ -58,13 +58,13 @@ if( (isset($_POST['action']) && isset($_POST['idform']) && $_POST['action'] == '
 
         }
 
-        $updateSetting = cf7_sendpdf::wpcf7pdf_update_settings(esc_html($_POST['idform']), $_POST["wp_cf7pdf_settings"], '_wp_cf7pdf');
+        $updateSetting = WPCF7PDF_settings::update_settings(esc_html($_POST['idform']), $_POST["wp_cf7pdf_settings"], '_wp_cf7pdf');
 
         if ( isset($_POST["wp_cf7pdf_tags"]) ) {
-            $updateSettingTags = cf7_sendpdf::wpcf7pdf_update_settings(esc_html($_POST['idform']), $_POST["wp_cf7pdf_tags"], '_wp_cf7pdf_fields');
+            $updateSettingTags = WPCF7PDF_settings::update_settings(esc_html($_POST['idform']), $_POST["wp_cf7pdf_tags"], '_wp_cf7pdf_fields');
         }
         if ( isset($_POST["wp_cf7pdf_tags_scan"]) ) {
-            $updateSettingTagsScan = cf7_sendpdf::wpcf7pdf_update_settings(esc_html($_POST['idform']), $_POST["wp_cf7pdf_tags_scan"], '_wp_cf7pdf_fields_scan');
+            $updateSettingTagsScan = WPCF7PDF_settings::update_settings(esc_html($_POST['idform']), $_POST["wp_cf7pdf_tags_scan"], '_wp_cf7pdf_fields_scan');
         }
         
         if( isset($updateSetting) && $updateSetting == true) {
@@ -77,7 +77,7 @@ if( (isset($_POST['action']) && isset($_POST['idform']) && $_POST['action'] == '
 
 if( isset($_POST['idform']) && isset($_POST['truncate_table']) && $_POST['truncate_table'] == 'true' && wp_verify_nonce($_POST['security-sendform'], 'go-sendform') ) {
 
-    $DeleteList = cf7_sendpdf::truncate();
+    $DeleteList = WPCF7PDF_settings::truncate();
     if( $DeleteList == true ) {
         echo '<div id="message" class="updated fade"><p><strong>'.__('All the data has been deleted.', WPCF7PDF_TEXT_DOMAIN).'</strong></p></div>';
     }
@@ -273,7 +273,7 @@ jQuery(document).ready(function() {
             $messageText = wp_kses(trim($meta_values['generate_pdf']), WPCF7PDF_prepare::wpcf7pdf_autorizeHtml());       
             
             // Preparation du contenu du PDF
-            $messageText = WPCF7PDF_prepare::tags_parser($idForm, $nameOfPdf, $messageText, 1);
+            $messageText = WPCF7PDF_prepare::tags_parser($idForm, $nameOfPdf, '', $messageText, 1);
             
             // Shortcodes?
             $messageText = WPCF7PDF_prepare::shortcodes($meta_values['shotcodes_tags'], $messageText);    
@@ -294,7 +294,7 @@ jQuery(document).ready(function() {
                 $generatePdfFile = WPCF7PDF_generate::wpcf7pdf_create_pdf($idForm, $messageText, $nameOfPdf, $createDirectory, 1);
             }*/
 
-            $generatePdfFile = WPCF7PDF_generate::wpcf7pdf_create_pdf($idForm, $messageText, $nameOfPdf, $createDirectory, 1);
+            $generatePdfFile = WPCF7PDF_generate::wpcf7pdf_create_pdf($idForm, $messageText, $nameOfPdf, '', $createDirectory, 1);
 
         }
         if( isset($meta_values["disable-csv"]) && $meta_values['disable-csv'] == 'false') {
@@ -445,14 +445,14 @@ $pathFolder = serialize($createDirectory);
 
                         </td>
                         <td>
-                            <input type= "text" class="wpcf7-form-field" name="wp_cf7pdf_settings[pdf-name]" value="<?php if( isset($meta_values["pdf-name"]) && !empty($meta_values["pdf-name"]) ) { echo esc_html($meta_values["pdf-name"]); } ?>">.pdf<br /><br /><br />
+                            <input type= "text" class="wpcf7-form-field" name="wp_cf7pdf_settings[pdf-name]" value="<?php if( isset($meta_values["pdf-name"]) && !empty($meta_values["pdf-name"]) ) { echo esc_html(sanitize_title($meta_values["pdf-name"])); } ?>">.pdf<br /><br /><br />
                             <input type="text" class="wpcf7-form-field" size="30" name="wp_cf7pdf_settings[pdf-add-name]" value="<?php if( isset($meta_values["pdf-add-name"]) && !empty($meta_values["pdf-add-name"]) ) { echo esc_html($meta_values["pdf-add-name"]); } ?>" />
                         </td>
 
                     </tr>
                     <tr>
                         <td>
-                            <?php _e('Change uploads folder?', WPCF7PDF_TEXT_DOMAIN); ?><p>(<i><?php _e("By default, the uploads folder's name is in /wp-content/uploads/*YEAR*/*MONTH*/", WPCF7PDF_TEXT_DOMAIN); ?></i>)</p>
+                            <?php _e('Change uploads folder?', WPCF7PDF_TEXT_DOMAIN); ?><p>(<i><?php if( isset($meta_values["pdf-uploads"]) && $meta_values["pdf-uploads"]=='true') { _e("Great ! Now the upload folder's path is /wp-content/sendpdfcf7_uploads/*ID_FORM*/", WPCF7PDF_TEXT_DOMAIN); } else { _e("By default, the upload folder's path is /wp-content/uploads/*YEAR*/*MONTH*/", WPCF7PDF_TEXT_DOMAIN); } ?></i>)</p>
                         </td>
                         <td>
                             <div>
@@ -486,17 +486,22 @@ $pathFolder = serialize($createDirectory);
                     </tr>
                     <tr>
                         <td>
-                            <?php _e('Delete each PDF file after send the email?', WPCF7PDF_TEXT_DOMAIN); ?><p></p>
+                            <?php _e('Delete each PDF file after send the email?', WPCF7PDF_TEXT_DOMAIN); ?><?php if( isset($meta_values["redirect-to-pdf"]) && $meta_values["redirect-to-pdf"]=='true') { ?><p><i style="color:#CC0000;">I can't deleted each PDF file because the 'Redirects directly to the PDF after sending the form?' option is activated.</i></p><?php } ?>
                         </td>
                         <td>
-                            <div>
+                            <?php if( isset($meta_values["redirect-to-pdf"]) && $meta_values["redirect-to-pdf"]=='false') { ?>
                             <div class="switch-field">
                                 <input class="switch_left" type="radio" id="switch_filedelete" name="wp_cf7pdf_settings[pdf-file-delete]" value="true" <?php if( isset($meta_values["pdf-uploads-delete"]) && $meta_values["pdf-file-delete"]=='true') { echo ' checked'; } ?>/>
                                 <label for="switch_filedelete"><?php _e('Yes', WPCF7PDF_TEXT_DOMAIN); ?></label>
-                                <input class="switch_right" type="radio" id="switch_filedelete_no" name="wp_cf7pdf_settings[pdf-file-delete]" value="false" <?php if( empty($meta_values["pdf-file-delete"]) || (isset($meta_values["pdf-file-delete"]) && $meta_values["pdf-file-delete"]=='false') ) { echo ' checked'; } ?> />
+                                <input class="switch_right" type="radio" id="switch_filedelete_no" name="wp_cf7pdf_settings[pdf-file-delete]" value="false" <?php if( (empty($meta_values["pdf-file-delete"]) || (isset($meta_values["pdf-file-delete"]) && $meta_values["pdf-file-delete"]=='false')) || isset($meta_values["redirect-to-pdf"]) && $meta_values["redirect-to-pdf"]=='true' ) { echo ' checked'; } ?> />
                                 <label for="switch_filedelete_no"><?php _e('No', WPCF7PDF_TEXT_DOMAIN); ?></label>
                             </div>
                             </div>
+                            <?php } else { ?>
+                                <img src="<?php echo esc_url(WPCF7PDF_URL.'images/btn_off.png'); ?>" /><br />                                
+                                <input type="hidden" name="wp_cf7pdf_settings[pdf-file-delete]" value="false" />
+                            <?php } ?>
+                            <div>
                         </td>
                     </tr>
                     <tr><td colspan="2"><hr style="background-color: <?php echo esc_html($colors[2]); ?>; height: 1px; border: 0;"></td></tr>
@@ -519,7 +524,7 @@ $pathFolder = serialize($createDirectory);
                         <td>
                             <?php _e('Select a page to display after sending the form (optional)', WPCF7PDF_TEXT_DOMAIN); ?>
                         </td>
-                        <td>
+                        <td><?php if( isset($meta_values["disable-insert"]) && $meta_values["disable-insert"]=='false') { ?>
                             <?php
                                 if( isset($meta_values['page_next']) ) {
                                     $idSelectPage = $meta_values['page_next'];
@@ -529,6 +534,10 @@ $pathFolder = serialize($createDirectory);
                                 $args = array('name' => 'wp_cf7pdf_settings[page_next]', 'class' => 'wpcf7-form-field', 'selected' => esc_html($idSelectPage), 'show_option_none' => __('Please select a page', WPCF7PDF_TEXT_DOMAIN) );
                                 wp_dropdown_pages($args);
                             ?>
+                             <?php } else { ?>
+                                <img src="<?php echo esc_url(WPCF7PDF_URL.'images/select_off.png'); ?>" /><br />                                
+                                <input type="hidden" name="wp_cf7pdf_settings[page_next]" value="0" />
+                            <?php } ?>
                         </td>
                     </tr>
                     <tr>
@@ -549,22 +558,29 @@ $pathFolder = serialize($createDirectory);
                     <tr>
                         <td><!-- Propose la redirection vers le pdf direct -->
                             <?php _e('Redirects directly to the PDF after sending the form?', WPCF7PDF_TEXT_DOMAIN); ?>
-                            <p><i><?php _e( 'This option disable the Page Redirection selected', WPCF7PDF_TEXT_DOMAIN); ?> (<?php _e( 'Except the popup window option', WPCF7PDF_TEXT_DOMAIN); ?>)</i></p>
+                            <p><i><?php _e( 'This option disable the Page Redirection selected', WPCF7PDF_TEXT_DOMAIN); ?> (<?php _e( 'Except the popup window option', WPCF7PDF_TEXT_DOMAIN); ?>)</i></p><?php if( (isset($meta_values["disable-insert"]) && $meta_values["disable-insert"]=='true') || (isset($meta_values["pdf-file-delete"]) && $meta_values["pdf-file-delete"]=='true') ) { ?><p><i style="color:#CC0000;">I can't redirect PDF file because the 'Disable data submit in a database?' option is activated.</i></p><?php } ?>
                         </td>
                         <td><?php if( isset($idSelectPage) && $idSelectPage > 0) { 
                                 $meta_values["redirect-to-pdf"]='false';
                             ?>
                                 <input type="hidden"  name="wp_cf7pdf_settings[redirect-to-pdf]" value="false" />
                             <?php } ?>
+                            <?php if( (isset($meta_values["disable-insert"]) && $meta_values["disable-insert"]=='false') || (isset($meta_values["pdf-file-delete"]) && $meta_values["pdf-file-delete"]=='false') ) { ?>
+                                <div>
+                                    <div class="switch-field">
+                                    <input class="switch_left" type="radio" id="switch_redirect" name="wp_cf7pdf_settings[redirect-to-pdf]" value="true" <?php if( isset($meta_values["redirect-to-pdf"]) && $meta_values["redirect-to-pdf"]=='true') { echo ' checked'; } ?>/>
+                                    <label for="switch_redirect"><?php _e('Yes', WPCF7PDF_TEXT_DOMAIN); ?></label>
+                                    <input class="switch_right" type="radio" id="switch_redirect_no" name="wp_cf7pdf_settings[redirect-to-pdf]" value="false" <?php if( empty($meta_values["redirect-to-pdf"]) || (isset($meta_values["redirect-to-pdf"]) && $meta_values["redirect-to-pdf"]=='false') ) { echo ' checked'; } ?> />
+                                    <label for="switch_redirect_no"><?php _e('No', WPCF7PDF_TEXT_DOMAIN); ?></label>
+                                    </div>
+                                </div><br />
+                                <input type="radio" class="wpcf7-form-field" name="wp_cf7pdf_settings[redirect-window]" value="on" <?php if( (isset($meta_values["redirect-window"]) && $meta_values["redirect-window"]=='on') or empty($meta_values["redirect-window"]) ) { echo ' checked'; } ?>  /><?php _e('Same Window', WPCF7PDF_TEXT_DOMAIN); ?> <input type="radio" class="wpcf7-form-field" name="wp_cf7pdf_settings[redirect-window]" value="off" <?php if( isset($meta_values["redirect-window"]) && $meta_values["redirect-window"]=='off') { echo 'checked'; } ?> /><?php _e('New Window', WPCF7PDF_TEXT_DOMAIN); ?> <input type="radio" class="wpcf7-form-field" name="wp_cf7pdf_settings[redirect-window]" value="popup" <?php if( isset($meta_values["redirect-window"]) && $meta_values["redirect-window"]=='popup') { echo 'checked'; } ?> /><?php _e('Popup Window', WPCF7PDF_TEXT_DOMAIN); ?>
+                            <?php } else { ?>
+                                <img src="<?php echo esc_url(WPCF7PDF_URL.'images/btn_off.png'); ?>" /><br />                                
+                                <input type="hidden" name="wp_cf7pdf_settings[redirect-to-pdf]" value="false" />
+                            <?php } ?>
                             <div>
-                                <div class="switch-field">
-                                <input class="switch_left" type="radio" id="switch_redirect" name="wp_cf7pdf_settings[redirect-to-pdf]" value="true" <?php if( isset($meta_values["redirect-to-pdf"]) && $meta_values["redirect-to-pdf"]=='true') { echo ' checked'; } ?>/>
-                                <label for="switch_redirect"><?php _e('Yes', WPCF7PDF_TEXT_DOMAIN); ?></label>
-                                <input class="switch_right" type="radio" id="switch_redirect_no" name="wp_cf7pdf_settings[redirect-to-pdf]" value="false" <?php if( empty($meta_values["redirect-to-pdf"]) || (isset($meta_values["redirect-to-pdf"]) && $meta_values["redirect-to-pdf"]=='false') ) { echo ' checked'; } ?> />
-                                <label for="switch_redirect_no"><?php _e('No', WPCF7PDF_TEXT_DOMAIN); ?></label>
-                                </div>
-                            </div><br />
-                            <input type="radio" class="wpcf7-form-field" name="wp_cf7pdf_settings[redirect-window]" value="on" <?php if( (isset($meta_values["redirect-window"]) && $meta_values["redirect-window"]=='on') or empty($meta_values["redirect-window"]) ) { echo ' checked'; } ?>  /><?php _e('Same Window', WPCF7PDF_TEXT_DOMAIN); ?> <input type="radio" class="wpcf7-form-field" name="wp_cf7pdf_settings[redirect-window]" value="off" <?php if( isset($meta_values["redirect-window"]) && $meta_values["redirect-window"]=='off') { echo 'checked'; } ?> /><?php _e('New Window', WPCF7PDF_TEXT_DOMAIN); ?> <input type="radio" class="wpcf7-form-field" name="wp_cf7pdf_settings[redirect-window]" value="popup" <?php if( isset($meta_values["redirect-window"]) && $meta_values["redirect-window"]=='popup') { echo 'checked'; } ?> /><?php _e('Popup Window', WPCF7PDF_TEXT_DOMAIN); ?>
+                            
                         </td>
                     </tr>
                     <tr>
@@ -648,7 +664,7 @@ $pathFolder = serialize($createDirectory);
                         <td colspan="2"><hr style="background-color: <?php echo esc_html($colors[2]); ?>; height: 1px; border: 0;"></td>
                     </tr>
                     <tr>
-                        <td><!-- Propose de télécharger le pdf? -->
+                        <td>
                             <?php _e('Desactivate line break auto?', WPCF7PDF_TEXT_DOMAIN); ?>
                             <p><i><?php _e('This disables automatic line break replacement (\n and \r)', WPCF7PDF_TEXT_DOMAIN); ?></i></p>
                         </td>
@@ -996,7 +1012,7 @@ $pathFolder = serialize($createDirectory);
                                 <select name="wp_cf7pdf_settings[pdf-font]" class="wpcf7-form-field">
                                     <?php 
                                         
-                                        $listFont = cf7_sendpdf::wpcf7pdf_getFontsTab();
+                                        $listFont = WPCF7PDF_settings::getFontsTab();
             
                                         foreach($listFont as $font => $nameFont) {
                                             $selected ='';
@@ -1187,7 +1203,7 @@ $pathFolder = serialize($createDirectory);
             $settingsLimit = get_post_meta( esc_html($idForm), '_wp_cf7pdf_limit', true );
             if( isset($settingsLimit) && $settingsLimit > 0 ) { $limitList = $settingsLimit; }
                                                                                             
-            $list = cf7_sendpdf::wpcf7pdf_listing(esc_html($idForm), esc_html($limitList));
+            $list = WPCF7PDF_settings::wpcf7pdf_listing(esc_html($idForm), esc_html($limitList));
             if( $list ) { ?>
                 <div style="padding:5px;margin-bottom:10px;">
                     <div>

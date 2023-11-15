@@ -16,11 +16,13 @@ defined( 'ABSPATH' )
 
 class WPCF7PDF_generate extends cf7_sendpdf {
 
-    static function wpcf7pdf_create_pdf($id, $data, $nameOfPdf, $createDirectory, $preview = 0) {
+    static function wpcf7pdf_create_pdf($id, $data, $nameOfPdf, $referenceOfPdf, $createDirectory, $preview = 0) {
 
         // nothing's here... do nothing...
         if (empty($id) || empty($data))
             return;
+
+        global $wp_session;
 
         $upload_dir = wp_upload_dir();
         $custom_tmp_path = get_option('wpcf7pdf_path_temp');
@@ -183,7 +185,7 @@ class WPCF7PDF_generate extends cf7_sendpdf {
         if( isset($meta_values['footer_generate_pdf']) && $meta_values['footer_generate_pdf']!='' ) {
 
             $footerText = wp_kses(trim($meta_values['footer_generate_pdf']), WPCF7PDF_prepare::wpcf7pdf_autorizeHtml());
-            $footerText = str_replace('[reference]', sanitize_text_field(get_transient('pdf_uniqueid')), $footerText);
+            $footerText = str_replace('[reference]', sanitize_text_field($referenceOfPdf), $footerText);
             $footerText = str_replace('[url-pdf]', esc_url($upload_dir['url'].'/'.$nameOfPdf.'.pdf'), $footerText);
             $footerText = str_replace('[date]', $dateField, $footerText);
             $footerText = str_replace('[time]', $timeField, $footerText);
@@ -248,13 +250,13 @@ class WPCF7PDF_generate extends cf7_sendpdf {
             
             // Je copy le PDF genere
             if( file_exists($createDirectory.'/'.$nameOfPdf.'.pdf') ) {
-                copy($createDirectory.'/'.$nameOfPdf.'.pdf', $createDirectory.'/'.$nameOfPdf.'-'.get_transient('pdf_uniqueid').'.pdf');
+                copy($createDirectory.'/'.$nameOfPdf.'.pdf', $createDirectory.'/'.$nameOfPdf.'-'.$referenceOfPdf.'.pdf');
             }
         }
 
     }
 
-    static function wpcf7pdf_create_csv($id, $nameOfPdf, $createDirectory, $preview = 0) {
+    static function wpcf7pdf_create_csv($id, $nameOfPdf, $referenceOfPdf, $createDirectory, $preview = 0) {
 
         // nothing's here... do nothing...
         if (empty($id))
@@ -294,7 +296,7 @@ class WPCF7PDF_generate extends cf7_sendpdf {
         if( isset($preview) && $preview == 0 ) {
             // Je copy le CSV genere
             if( file_exists($createDirectory.'/'.$nameOfPdf.'.csv') ) {
-                copy($createDirectory.'/'.$nameOfPdf.'.csv', $createDirectory.'/'.$nameOfPdf.'-'.get_transient('pdf_uniqueid').'.csv');
+                copy($createDirectory.'/'.$nameOfPdf.'.csv', $createDirectory.'/'.$nameOfPdf.'-'.$referenceOfPdf.'.csv');
             }
         }
         // END GENERATE CSV

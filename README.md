@@ -13,9 +13,15 @@ Translations: https://translate.wordpress.org/projects/wp-plugins/send-pdf-for-c
 <a href="https://demo.restezconnectes.fr/send-pdf-for-contact-form-7/">[Demo Here]</a>
 <a href="https://restezconnectes.fr/tutoriel-wordpress-lextension-send-pdf-for-contact-form-7/">[Tutorial Here]</a>
 
-Current Version:  1.0.1.2
+Current Version:  1.0.1.3
 
 == Changelog ==
+
+= 1.0.1.3 =
+* Bug fixed tags name
+* Remove TRANSIENTS for reference of PDF
+* Adding form fields for reference and name of PDF
+* Adding checking for fields settings in admin page
 
 = 1.0.1.2 =
 * Bug fixed if option "Delete all PDF" checked

@@ -4,7 +4,7 @@ Donate link: https://www.paypal.me/RestezConnectes/
 Tags: WordPress, plugin, contact form, pdf, send, attachment, form, cf7
 Requires at least: 5.2
 Tested up to: 6.4
-Stable tag: 1.0.1.2
+Stable tag: 1.0.1.3
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -53,10 +53,15 @@ Yes. If you want, you can support this project here: <a href="https://restezconn
 
 == Changelog ==
 
+= 1.0.1.3 =
+* Bug fixed tags name
+* Remove TRANSIENTS for reference of PDF
+* Adding form fields for reference and name of PDF
+* Adding checking for fields settings in admin page
+
 = 1.0.1.2 =
 * Bug fixed if option "Delete all PDF" checked
 * Bug fixed for download button shortcode [wpcf7pdf_download]
-
 
 = 1.0.1.1 =
 * Bug Fixed generate PDF

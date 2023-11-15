@@ -390,7 +390,7 @@ class WPCF7PDF_prepare extends cf7_sendpdf {
             // URL de l'image envoyée
             $chemin_initial[$name_tags1] = $createDirectory.'/'.sanitize_text_field(get_transient('pdf_uniqueid')).'-'.wpcf7_mail_replace_tags($name_tags);
             // On copie l'image dans le dossier
-            copy($file_location, $chemin_initial[$name_tags1]);
+            //copy($file_location, $chemin_initial[$name_tags1]);
             // rotation de l'image si besoin
             $rotate_image[$name_tags1] = self::adjust_image_orientation($chemin_initial[$name_tags1]);
             // retourne l'URL complete du tag 
@@ -413,12 +413,11 @@ class WPCF7PDF_prepare extends cf7_sendpdf {
 
         }
         $content = str_replace('[url-'.$name_tags1.']', $chemin_final[$name_tags1], $content);
-
         return $content;
 
     }
 
-    public static function tags_parser($id, $nameOfPdf, $contentPdf, $preview = 0) {
+    public static function tags_parser($id, $nameOfPdf, $referenceOfPdf, $contentPdf, $preview = 0) {
 
         if (empty($id))
         return;
@@ -449,11 +448,13 @@ class WPCF7PDF_prepare extends cf7_sendpdf {
             $contentPdf = preg_replace("/(\r\n|\n|\r)/", "<div></div>", $contentPdf);
             $contentPdf = str_replace("<div></div><div></div>", '<div style="height:10px;"></div>', $contentPdf);
         }
-        
+        if ( isset($preview) && $preview == 1 ) {
+            $referenceOfPdf = uniqid();
+        }
         // Remplace le tag reference
-        $contentPdf = str_replace('[reference]', wp_kses_post(get_transient('pdf_uniqueid')), $contentPdf);
+        $contentPdf = str_replace('[reference]', wp_kses_post($referenceOfPdf), $contentPdf);
         // Remplace le tag URL-PDF
-        $contentPdf = str_replace('[url-pdf]', esc_url($upload_dir['url'].'/'.$nameOfPdf.'-'.wp_kses_post(get_transient('pdf_uniqueid')).'.pdf'), $contentPdf);
+        $contentPdf = str_replace('[url-pdf]', esc_url($upload_dir['url'].'/'.$nameOfPdf.'-'.wp_kses_post($referenceOfPdf).'.pdf'), $contentPdf);
         if ( isset($preview) && $preview == 1 ) {
             // Remplace le tag ID
             $contentPdf = str_replace('[ID]', '000'.date('md'), $contentPdf);
