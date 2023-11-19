@@ -449,6 +449,7 @@ class cf7_sendpdf {
             } else {
                 $dateForName = date_i18n('mdY', current_time('timestamp'));
             }
+            
             $getNamePerso = str_replace('[date]', $dateForName, $getNamePerso);
             $getNamePerso = str_replace('[reference]', $reference, $getNamePerso);
             foreach ( $getNamePerso as $key => $value ) {

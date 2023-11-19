@@ -298,7 +298,7 @@ jQuery(document).ready(function() {
 
         }
         if( isset($meta_values["disable-csv"]) && $meta_values['disable-csv'] == 'false') {
-            $generateCsvFile = WPCF7PDF_generate::wpcf7pdf_create_csv($idForm, $nameOfPdf, $createDirectory, 1);
+            $generateCsvFile = WPCF7PDF_generate::wpcf7pdf_create_csv($idForm, $nameOfPdf, '', $createDirectory, 1);
         }
             // Contenu PDF par default
             $messagePdf = '

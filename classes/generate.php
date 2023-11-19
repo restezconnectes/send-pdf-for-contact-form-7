@@ -281,6 +281,7 @@ class WPCF7PDF_generate extends cf7_sendpdf {
             $entete,
             $csvTab
         );
+
         if( isset($preview) && $preview == 1 ) {
             $fpCsv = fopen($createDirectory.'/preview-'.esc_html($id).'.csv', 'w+');
         } else {

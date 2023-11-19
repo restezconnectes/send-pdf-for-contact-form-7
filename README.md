@@ -17,6 +17,9 @@ Current Version:  1.0.1.3
 
 == Changelog ==
 
+= 1.0.1.4 =
+* Bug fixed generate CSV
+
 = 1.0.1.3 =
 * Bug fixed tags name
 * Remove TRANSIENTS for reference of PDF
