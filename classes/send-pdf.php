@@ -1323,7 +1323,6 @@ class cf7_sendpdf {
 
 <?php
             }
-        }
         
 ?>
 <?php
@@ -1344,6 +1343,7 @@ class cf7_sendpdf {
     
 </script>
 <!-- END :: Send PDF for CF7 -->
+<?php } ?>
 <?php
 
     }
