@@ -1198,16 +1198,13 @@ class cf7_sendpdf {
             $id = $wpcf7->id();
 
             $meta_values = get_post_meta( $id, '_wp_cf7pdf', true );
-            //$nameOfPdf = get_transient('pdf_name');
+            //$nameOfPdf = $this->wpcf7pdf_name_pdf($id);
             if (isset($meta_values['pdf-name']) && is_string($meta_values['pdf-name'])) {
-            $singleNamePDF = esc_html(sanitize_title($meta_values['pdf-name']));
+                $singleNamePDF = esc_html(sanitize_title($meta_values['pdf-name']));
             } else {
-             // Handle the error or set a default value
-             $singleNamePDF = 'default-pdf-name';
-             }
-
-            $singleNamePDF = esc_html(sanitize_title($meta_values['pdf-name']));
-
+                // Handle the error or set a default value
+                $singleNamePDF = 'document-pdf';
+            
             // On récupère le dossier upload de WP
             $createDirectory = $this->wpcf7pdf_folder_uploads($id);    
             $upload_dir = wp_upload_dir();
@@ -1329,7 +1326,6 @@ class cf7_sendpdf {
 
 <?php
             }
-        }
         
 ?>
 <?php
@@ -1350,6 +1346,7 @@ class cf7_sendpdf {
     
 </script>
 <!-- END :: Send PDF for CF7 -->
+<?php } ?>
 <?php
 
     }
