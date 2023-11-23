@@ -274,7 +274,7 @@ jQuery(document).ready(function() {
             
             // Preparation du contenu du PDF
             $messageText = WPCF7PDF_prepare::tags_parser($idForm, $nameOfPdf, '', $messageText, 1);
-            
+
             // Shortcodes?
             $messageText = WPCF7PDF_prepare::shortcodes($meta_values['shotcodes_tags'], $messageText);    
             /*error_log('---- DEBUG ----');

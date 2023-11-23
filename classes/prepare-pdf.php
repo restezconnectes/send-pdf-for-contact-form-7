@@ -428,8 +428,8 @@ class WPCF7PDF_prepare extends cf7_sendpdf {
         $nameOfPdf = cf7_sendpdf::wpcf7pdf_name_pdf($id);
 
         // Definition des dates par defaut
-        $dateField = WPCF7PDF_prepare::returndate($id);
-        $timeField = WPCF7PDF_prepare::returntime($id);
+        $dateField = self::returndate($id);
+        $timeField = self::returntime($id);
 
         // replace tag by avatar picture
         $user = wp_get_current_user();
@@ -439,6 +439,24 @@ class WPCF7PDF_prepare extends cf7_sendpdf {
         /**
          * FIN
          */
+
+        // Recupère les dates Tags _format_ potentiels, et change le format définit par l'user
+        if ( preg_match( '/\[(_format_.*?)\]/',  $contentPdf, $matches ) ) {
+
+            $dateFormat = str_replace('_format_', '', $matches[1]);
+            $dateFormat = explode('"', $dateFormat);
+
+            if ( isset($preview) && $preview == 1 ) {
+                $date = date("d-m-Y");
+                $formatDate = new DateTime($date);
+                $contentPdf = str_replace('['.$matches[1].']', $formatDate->format($dateFormat[1]), $contentPdf);
+            } else {                
+                $dateValue = wpcf7_mail_replace_tags(esc_html('['.trim($dateFormat[0]).']'));
+                $formatDate = new DateTime($dateValue);
+                $contentPdf = str_replace('['.$matches[1].']', $formatDate->format($dateFormat[1]), $contentPdf);
+            }
+            
+        }
 
         if( empty( $meta_values["linebreak"] ) or ( isset($meta_values["linebreak"]) && $meta_values["linebreak"] == 'false') ) {
             $contentPdf = preg_replace("/(\r\n|\n|\r)/", "<div></div>", $contentPdf);
