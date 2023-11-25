@@ -116,6 +116,9 @@ class WPCF7PDF_generate extends cf7_sendpdf {
         $mpdf->SetCreator(get_bloginfo('name'));
         $mpdf->SetDirectionality($setDirectionality);
         $mpdf->ignore_invalid_utf8 = true;
+        if( empty($meta_values["page_header"]) || (isset($meta_values["page_header"]) && $meta_values["page_header"]==0)) {
+        $mpdf->mirrorMargins = 1;
+        }
 
         $mpdfCharset = 'utf-8';
         if( isset($meta_values["charset"]) && $meta_values["charset"]!='utf-8' ) {
@@ -180,10 +183,8 @@ class WPCF7PDF_generate extends cf7_sendpdf {
             if( isset($meta_values["margin_bottom_header"]) && $meta_values["margin_bottom_header"]!='' ) { $marginBottomHeader = esc_html($meta_values["margin_bottom_header"]); }
             $mpdf->WriteHTML('<p style="margin-bottom:'.$marginBottomHeader.'px;">&nbsp;</p>');
         }
-        $mpdf->SetHTMLHeader($entetePage, '', true);
 
         if( isset($meta_values['footer_generate_pdf']) && $meta_values['footer_generate_pdf']!='' ) {
-
             $footerText = wp_kses(trim($meta_values['footer_generate_pdf']), WPCF7PDF_prepare::wpcf7pdf_autorizeHtml());
             $footerText = str_replace('[reference]', sanitize_text_field($referenceOfPdf), $footerText);
             $footerText = str_replace('[url-pdf]', esc_url($upload_dir['url'].'/'.$nameOfPdf.'.pdf'), $footerText);
@@ -191,7 +192,7 @@ class WPCF7PDF_generate extends cf7_sendpdf {
             $footerText = str_replace('[time]', $timeField, $footerText);
             $mpdf->SetHTMLFooter($footerText);
         }
-
+        
         // En cas de saut de page avec le tag [addpage]
         if( isset($data) && stripos($data, '[addpage]') !== false ) {
 
@@ -200,35 +201,37 @@ class WPCF7PDF_generate extends cf7_sendpdf {
 
             for($i = 0; $i < ($countPage);  $i++) {
                 
-                if( $i == 0 ) {
-                    // On print la première page
-                    $mpdf->WriteHTML($newPage[$i]);
+                // On print les pages trouvées
+                if( isset($meta_values["page_header"]) && $meta_values["page_header"]==1) {
+                    $mpdf->SetHTMLHeader($entetePage, '', true);
+                } else if ($i == 0) {
+                    $mpdf->SetHTMLHeader($entetePage, '', true);
                 } else {
-                    // On print ensuite les autres pages trouvées
-                    if( isset($meta_values["page_header"]) && $meta_values["page_header"]==1) {
-                        $mpdf->SetHTMLHeader($entetePage, '', true);
-                        $mpdf->AddPage();
-                    } else {
-                        $mpdf->SetHTMLHeader(); 
-                        $mpdf->AddPage('','','','','',15,15,15,15,5,5);
-                    }
-                    if( isset($meta_values['footer_generate_pdf']) && $meta_values['footer_generate_pdf']!='' ) {
-                        $mpdf->SetHTMLFooter($footerText);
-                    }
-                    $mpdf->WriteHTML($newPage[$i]);
-                    if( isset($meta_values["page_header"]) && $meta_values["page_header"]==1) {
-                        $mpdf->SetHTMLHeader($entetePage, '', true);
-                    } else {
-                        $mpdf->SetHTMLHeader();                                 
-                    }
+                    $mpdf->SetHTMLHeader('&nbsp;', '', true);                        
+                } 
+                $mpdf->WriteHTML($newPage[$i]);
+                if( isset($meta_values['footer_generate_pdf']) && $meta_values['footer_generate_pdf']!='' ) {
+                    $mpdf->SetHTMLFooter($footerText);
                 }
-                
+                if( $i < ($countPage-1) ) {
+                    $mpdf->AddPage('','','','','',15,15,15,15,5,5);
+                }
+
             }
 
         } else {
 
+            $mpdf->SetHTMLHeader($entetePage, '', true);
+            if( isset($meta_values["page_header"]) && $meta_values["page_header"]==1) {
+                $mpdf->SetHTMLHeader($entetePage, 'O', true);
+            } else {
+                $mpdf->SetHTMLHeader();
+            }
             $data = apply_filters('wpcf7pdf_text', $data, $contact_form);
             $mpdf->WriteHTML($data);
+            if( isset($meta_values['footer_generate_pdf']) && $meta_values['footer_generate_pdf']!='' ) {
+                $mpdf->SetHTMLFooter($footerText);
+            }
 
         }
         
