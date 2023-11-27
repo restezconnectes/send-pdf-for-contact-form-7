@@ -441,19 +441,22 @@ class WPCF7PDF_prepare extends cf7_sendpdf {
          */
 
         // Recupère les dates Tags _format_ potentiels, et change le format définit par l'user
-        if ( preg_match( '/\[(_format_.*?)\]/',  $contentPdf, $matches ) ) {
+        if ( preg_match_all( '/\[(_format_.*?)\]/',  $contentPdf, $outdate, PREG_PATTERN_ORDER ) ) {
 
-            $dateFormat = str_replace('_format_', '', $matches[1]);
-            $dateFormat = explode('"', $dateFormat);
+            for ($i = 0; $i < count($outdate[1]); $i++) {
 
-            if ( isset($preview) && $preview == 1 ) {
-                $date = date("d-m-Y");
-                $formatDate = new DateTime($date);
-                $contentPdf = str_replace('['.$matches[1].']', $formatDate->format($dateFormat[1]), $contentPdf);
-            } else {                
-                $dateValue = wpcf7_mail_replace_tags(esc_html('['.trim($dateFormat[0]).']'));
-                $formatDate = new DateTime($dateValue);
-                $contentPdf = str_replace('['.$matches[1].']', $formatDate->format($dateFormat[1]), $contentPdf);
+                $dateFormat = str_replace('_format_', '', $outdate[1][$i]);
+                $dateFormat = explode('"', $dateFormat);
+
+                if ( isset($preview) && $preview == 1 ) {
+                    $date = date("d-m-Y");
+                    $formatDate = new DateTime($date);
+                    $contentPdf = str_replace('['.$outdate[1][$i].']', $formatDate->format($dateFormat[1]), $contentPdf);
+                } else {                
+                    $dateValue = wpcf7_mail_replace_tags(esc_html('['.trim($dateFormat[0]).']'));
+                    $formatDate = new DateTime($dateValue);
+                    $contentPdf = str_replace('['.$outdate[1][$i].']', $formatDate->format($dateFormat[1]), $contentPdf);
+                }
             }
             
         }
