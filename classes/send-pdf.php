@@ -603,7 +603,7 @@ class cf7_sendpdf {
         }
 
         // Je crée une image dans le dossier des uploads PDF. onepixel.png remplace l'image si pas d'upload du client
-        if( file_exists($createDirectory.'/onepixel.png')===FALSE) {
+        if( filter_var( ini_get('allow_url_fopen'), FILTER_VALIDATE_BOOLEAN ) && file_exists($createDirectory.'/onepixel.png')===FALSE) {
             copy(WPCF7PDF_URL.'images/onepixel.png', $createDirectory . '/onepixel.png');
         }
         return $createDirectory;
