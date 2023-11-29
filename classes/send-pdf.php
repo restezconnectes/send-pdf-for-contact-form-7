@@ -698,12 +698,6 @@ class cf7_sendpdf {
 
             $meta_values = get_post_meta(esc_html($post['_wpcf7']), '_wp_cf7pdf', true);
 
-            // Si le contenu du PDF doit rester en brut et pas en HTML
-            $disableHTML = 0;
-            if( isset($meta_values["linebreak"]) && $meta_values['linebreak'] == 'true' ) {
-                $disableHTML = 1;
-            }
-
             // On récupère le dossier upload de WP
             $createDirectory = $this->wpcf7pdf_folder_uploads(esc_html($post['_wpcf7']));
 
@@ -753,7 +747,7 @@ class cf7_sendpdf {
                 // On génère le PDF
                 if( isset($meta_values["disable-pdf"]) && $meta_values['disable-pdf'] == 'false') {
 
-                    $contentPdf = WPCF7PDF_prepare::tags_parser($post['_wpcf7'], $nameOfPdf, $referencePDF, $contentPdf, $disableHTML);
+                    $contentPdf = WPCF7PDF_prepare::tags_parser($post['_wpcf7'], $nameOfPdf, $referencePDF, $contentPdf);
                     // Si il existe des Shortcodes?
                     $contentPdf = WPCF7PDF_prepare::shortcodes($meta_values['shotcodes_tags'], $contentPdf);
                     // On genere le PDF
@@ -794,13 +788,7 @@ class cf7_sendpdf {
             $nameOfPdf = $this->wpcf7pdf_name_pdf(esc_html($post['_wpcf7']), esc_html($referencePDF));
             // PDF generé et envoyé
             $disablePDF = 0;
-
-            // Si le contenu du mail doit rester en brut et pas en HTML
-            $disableHTML = 0;
-            if( isset($meta_values["disable-html"]) && $meta_values['disable-html'] == 'true' ) {
-                $disableHTML = 1;
-            }
-
+            
             // On récupère les tags du formulaire
             $contact_form = WPCF7_ContactForm::get_instance(esc_html($post['_wpcf7']));           
             $contact_tag = $contact_form->scan_form_tags();
@@ -988,7 +976,7 @@ class cf7_sendpdf {
                 } else {
                     $messageText = str_replace('[pdf-password]', __('*** NO PASSWORD ***', WPCF7PDF_TEXT_DOMAIN), $messageText);
                 }
-                $messageText = WPCF7PDF_prepare::tags_parser($post['_wpcf7'], $nameOfPdf, $referencePDF, $messageText, $disableHTML);
+                $messageText = WPCF7PDF_prepare::tags_parser($post['_wpcf7'], $nameOfPdf, $referencePDF, $messageText, 1);
                 
                 // Shortcodes?
                 if( isset($meta_values['shotcodes_tags']) && !empty($meta_values['shotcodes_tags'])) {
@@ -1308,11 +1296,11 @@ class cf7_sendpdf {
                 // Si on ne redirige pas sur une page, on construit la redirection 
                 if( isset($meta_values['page_next']) && $meta_values['page_next']=='' ) { 
                     // Si on redirige sur une popup
-                    if( isset($meta_values["redirect-window"]) && $meta_values["redirect-window"] == 'popup' ) { ?>
+                    if( (isset($meta_values["redirect-to-pdf"]) && $meta_values["redirect-to-pdf"] == 'true') && (isset($meta_values["redirect-window"]) && $meta_values["redirect-window"] == 'popup') ) { ?>
 
                 window.open('<?php echo str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $createDirectory)?>/<?php echo esc_html($singleNamePDF); ?>' + text + '-' + reference + '.pdf?ver=<?php echo rand(); ?>','text','menubar=no, status=no, scrollbars=yes, menubar=no, width=600, height=900');
 
-                <?php } else { ?>
+                <?php } else if( isset($meta_values["redirect-to-pdf"]) && $meta_values["redirect-window"] == 'true' ) { ?>
                 // Si option réglée sur nouvelle fenêtre mais avec des tags dans le nom du PDF
                 var location = '<?php echo str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $createDirectory)?>/<?php echo esc_html($singleNamePDF); ?>' + text + '-' + reference + '.pdf?ver=<?php echo rand(); ?>';
                 window.open(location, text, '<?php echo $targetPDF; ?>');
@@ -1324,11 +1312,11 @@ class cf7_sendpdf {
         
         $urlRredirectPDF = str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $createDirectory).'/'.$singleNamePDF;
 
-        if( isset($meta_values["redirect-window"]) && $meta_values["redirect-window"] == 'popup' ) { ?>
+        if( (isset($meta_values["redirect-to-pdf"]) && $meta_values["redirect-to-pdf"] == 'true' ) && (isset($meta_values["redirect-window"]) && $meta_values["redirect-window"] == 'popup') ) { ?>
         // Si popup
         window.open('<?php echo esc_html($urlRredirectPDF); ?>-' + reference + '.pdf?ver=<?php echo rand(); ?>', '<?php echo esc_html($singleNamePDF); ?>','menubar=no, status=no, scrollbars=yes, menubar=no, width=600, height=900');
         
-        <?php } else { ?>
+        <?php } else if( isset($meta_values["redirect-to-pdf"]) && $meta_values["redirect-window"] == 'true' ) { ?>
         // Si option réglée sur nouvelle fenêtre
         var location = '<?php echo esc_html($urlRredirectPDF); ?>-' + reference + '.pdf?ver=<?php echo rand(); ?>'; 
         window.open(location, '<?php echo esc_html($singleNamePDF); ?>', '<?php echo $targetPDF; ?>');

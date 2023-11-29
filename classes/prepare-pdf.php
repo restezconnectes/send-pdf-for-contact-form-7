@@ -460,11 +460,7 @@ class WPCF7PDF_prepare extends cf7_sendpdf {
             }
             
         }
-        // Option line break sur NON, on ne remplace pas le contenu
-        if( isset($mailcontent) && $mailcontent==0 ) {
-            $contentPdf = preg_replace("/(\r\n|\n|\r)/", "<div></div>", $contentPdf);
-            $contentPdf = str_replace("<div></div><div></div>", '<div style="height:10px;"></div>', $contentPdf);
-        }
+
         if ( isset($preview) && $preview == 1 ) {
             $referenceOfPdf = uniqid();
         }
@@ -561,7 +557,22 @@ class WPCF7PDF_prepare extends cf7_sendpdf {
                     $valueTag = wpcf7_mail_replace_tags($name_tags[0]);
                     $contentPdf = self::upload_file($id, $valueTag, $name_tags[0], $name_tags[1], $referenceOfPdf, $contentPdf);
                     
-                }                    
+                }
+
+            } else if(isset($basetype) && $basetype==='textarea') {
+
+                $valueTag = wpcf7_mail_replace_tags(esc_html($name_tags[0]));
+                // Si le contenu du PDF doit rester en brut et pas en HTML
+                if( isset($meta_values["linebreak"]) && $meta_values['linebreak'] == 'false' ) {
+                    $linebreakText = str_replace("\r\n", "<br />", $valueTag);
+                    $contentPdf = str_replace(esc_html($name_tags[0]), $linebreakText, $contentPdf);
+                } else if( $mailcontent==1 && (isset($meta_values["disable-html"]) && $meta_values['disable-html'] == 'false') ) {      
+                    $linebreakText = str_replace("\r\n", "<br />", $valueTag);
+                    $contentPdf = str_replace(esc_html($name_tags[0]), $linebreakText, $contentPdf);
+                } else {
+                    $contentPdf = str_replace(esc_html($name_tags[0]), $valueTag, $contentPdf);
+                }
+                
 
             } else if( isset($basetype) && $basetype==='checkbox' ) {
 
