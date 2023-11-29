@@ -413,7 +413,7 @@ class WPCF7PDF_prepare extends cf7_sendpdf {
 
     }
 
-    public static function tags_parser($id, $nameOfPdf, $referenceOfPdf, $contentPdf, $preview = 0) {
+    public static function tags_parser($id, $nameOfPdf, $referenceOfPdf, $contentPdf, $mailcontent = 0, $preview = 0) {
 
         if (empty($id))
         return;
@@ -460,8 +460,8 @@ class WPCF7PDF_prepare extends cf7_sendpdf {
             }
             
         }
-
-        if( isset($meta_values["linebreak"]) && $meta_values["linebreak"] == 'true' ) {
+        // Option line break sur NON, on ne remplace pas le contenu
+        if( isset($mailcontent) && $mailcontent==0 ) {
             $contentPdf = preg_replace("/(\r\n|\n|\r)/", "<div></div>", $contentPdf);
             $contentPdf = str_replace("<div></div><div></div>", '<div style="height:10px;"></div>', $contentPdf);
         }

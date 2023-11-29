@@ -273,7 +273,7 @@ jQuery(document).ready(function() {
             $messageText = wp_kses(trim($meta_values['generate_pdf']), WPCF7PDF_prepare::wpcf7pdf_autorizeHtml());       
             
             // Preparation du contenu du PDF
-            $messageText = WPCF7PDF_prepare::tags_parser($idForm, $nameOfPdf, '', $messageText, 1);
+            $messageText = WPCF7PDF_prepare::tags_parser($idForm, $nameOfPdf, '', $messageText, 0, 1);
             
             // Shortcodes?
             $messageText = WPCF7PDF_prepare::shortcodes($meta_values['shotcodes_tags'], $messageText);    
@@ -559,12 +559,9 @@ $pathFolder = serialize($createDirectory);
                         <td><!-- Propose la redirection vers le pdf direct -->
                             <?php _e('Redirects directly to the PDF after sending the form?', WPCF7PDF_TEXT_DOMAIN); ?>
                             <p><i><?php _e( 'This option disable the Page Redirection selected', WPCF7PDF_TEXT_DOMAIN); ?> (<?php _e( 'Except the popup window option', WPCF7PDF_TEXT_DOMAIN); ?>)</i></p><?php if( (isset($meta_values["disable-insert"]) && $meta_values["disable-insert"]=='true') || (isset($meta_values["pdf-file-delete"]) && $meta_values["pdf-file-delete"]=='true') ) { ?><p><i style="color:#CC0000;">I can't redirect PDF file because the 'Disable data submit in a database?' option is activated.</i></p><?php } ?>
+                            <?php if( isset($idSelectPage) && $idSelectPage > 0) { ?><p><i style="color:#CC0000;">I can't redirect PDF file because you have choose a redirection page.</i></p><?php $meta_values["redirect-to-pdf"]='false'; ?><input type="hidden"  name="wp_cf7pdf_settings[redirect-to-pdf]" value="false" /><?php } ?>
                         </td>
-                        <td><?php if( isset($idSelectPage) && $idSelectPage > 0) { 
-                                $meta_values["redirect-to-pdf"]='false';
-                            ?>
-                                <input type="hidden"  name="wp_cf7pdf_settings[redirect-to-pdf]" value="false" />
-                            <?php } ?>
+                        <td>
                             <?php if( (isset($meta_values["disable-insert"]) && $meta_values["disable-insert"]=='false') || (isset($meta_values["pdf-file-delete"]) && $meta_values["pdf-file-delete"]=='false') ) { ?>
                                 <div>
                                     <div class="switch-field">
@@ -665,8 +662,8 @@ $pathFolder = serialize($createDirectory);
                     </tr>
                     <tr>
                         <td>
-                            <?php _e('Desactivate line break auto?', WPCF7PDF_TEXT_DOMAIN); ?>
-                            <p><i><?php _e('This disables automatic line break replacement (\n and \r)', WPCF7PDF_TEXT_DOMAIN); ?></i></p>
+                            <?php _e('Desactivate line break auto for PDF content?', WPCF7PDF_TEXT_DOMAIN); ?>
+                            <p><i><?php _e('This disables automatic line break replacement (\n and \r) in PDF content', WPCF7PDF_TEXT_DOMAIN); ?></i></p>
                         </td>
                         <td>
                             <div>
@@ -675,6 +672,22 @@ $pathFolder = serialize($createDirectory);
                                 <label for="switch_linebreak"><?php _e('Yes', WPCF7PDF_TEXT_DOMAIN); ?></label>
                                 <input class="switch_right" type="radio" id="switch_linebreak_no" name="wp_cf7pdf_settings[linebreak]" value="false" <?php if( empty($meta_values["linebreak"]) || (isset($meta_values["linebreak"]) && $meta_values["linebreak"]=='false') ) { echo ' checked'; } ?> />
                                 <label for="switch_linebreak_no"><?php _e('No', WPCF7PDF_TEXT_DOMAIN); ?></label>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <?php _e('Desactivate line break auto for MAIL?', WPCF7PDF_TEXT_DOMAIN); ?>
+                            <p><i><?php _e('This disables automatic line break replacement (\n and \r) in mail content', WPCF7PDF_TEXT_DOMAIN); ?></i></p>
+                        </td>
+                        <td>
+                            <div>
+                                <div class="switch-field">
+                                <input class="switch_left" type="radio" id="switch_disable-html" name="wp_cf7pdf_settings[disable-html]" value="true" <?php if( isset($meta_values["disable-html"]) && $meta_values["disable-html"]=='true') { echo ' checked'; } ?>/>
+                                <label for="switch_disable-html"><?php _e('Yes', WPCF7PDF_TEXT_DOMAIN); ?></label>
+                                <input class="switch_right" type="radio" id="switch_disable-html_no" name="wp_cf7pdf_settings[disable-html]" value="false" <?php if( empty($meta_values["disable-html"]) || (isset($meta_values["disable-html"]) && $meta_values["disable-html"]=='false') ) { echo ' checked'; } ?> />
+                                <label for="switch_disable-html_no"><?php _e('No', WPCF7PDF_TEXT_DOMAIN); ?></label>
                                 </div>
                             </div>
                         </td>

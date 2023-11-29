@@ -55,6 +55,9 @@ Yes. If you want, you can support this project here: <a href="https://restezconn
 
 = 1.0.1.7 = 
 * Fix bug and defined constants WPCF7_ADMIN_READ_CAPABILITY / WPCF7_ADMIN_READ_WRITE_CAPABILITY
+* Fix bug redirection page after sending form
+* Fix bug "Desactivate line break auto" option reversed
+* Adding a option for desactivated line break for mail content
 
 = 1.0.1.6 =
 * Fix bug headers with or without [addpage] shortcode
