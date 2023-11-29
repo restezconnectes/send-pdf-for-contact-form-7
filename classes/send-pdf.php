@@ -330,13 +330,17 @@ class cf7_sendpdf {
 
         $capability = apply_filters( 'wpcf7pdf_modify_capability', WPCF7_ADMIN_READ_CAPABILITY );
         
-        if ( !empty( $capability ) ) { 
+        if ( isset($capability) && !empty( $capability ) ) { 
             add_submenu_page( 'wpcf7',
             __('Options for CF7 Send PDF', WPCF7PDF_TEXT_DOMAIN),
             __('Create PDF', WPCF7PDF_TEXT_DOMAIN),
             $capability, 'wpcf7-send-pdf',
             array( $this, 'wpcf7pdf_dashboard_html_page') );
         }
+       /* add_submenu_page( 'wpcf7',
+        __('Options for CF7 Send PDF', WPCF7PDF_TEXT_DOMAIN),
+        __('Create PDF', WPCF7PDF_TEXT_DOMAIN), 'manage_options', 'wpcf7-send-pdf',
+        array( $this, 'wpcf7pdf_dashboard_html_page') );*/
 
         // If you're not including an image upload then you can leave this function call out
         if (isset($_GET['page']) && $_GET['page'] == 'wpcf7-send-pdf') {

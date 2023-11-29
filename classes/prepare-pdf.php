@@ -461,7 +461,7 @@ class WPCF7PDF_prepare extends cf7_sendpdf {
             
         }
 
-        if( empty( $meta_values["linebreak"] ) or ( isset($meta_values["linebreak"]) && $meta_values["linebreak"] == 'false') ) {
+        if( isset($meta_values["linebreak"]) && $meta_values["linebreak"] == 'true' ) {
             $contentPdf = preg_replace("/(\r\n|\n|\r)/", "<div></div>", $contentPdf);
             $contentPdf = str_replace("<div></div><div></div>", '<div style="height:10px;"></div>', $contentPdf);
         }

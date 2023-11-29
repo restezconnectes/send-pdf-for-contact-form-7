@@ -4,7 +4,7 @@ Donate link: https://www.paypal.me/RestezConnectes/
 Tags: WordPress, plugin, contact form, pdf, send, attachment, form, cf7
 Requires at least: 5.2
 Tested up to: 6.4
-Stable tag: 1.0.1.6
+Stable tag: 1.0.1.7
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -52,6 +52,9 @@ Yes. If you want, you can support this project here: <a href="https://restezconn
 
 
 == Changelog ==
+
+= 1.0.1.7 = 
+* Fix bug and defined constants WPCF7_ADMIN_READ_CAPABILITY / WPCF7_ADMIN_READ_WRITE_CAPABILITY
 
 = 1.0.1.6 =
 * Fix bug headers with or without [addpage] shortcode
