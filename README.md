@@ -19,6 +19,7 @@ Current Version:  1.0.1.9
 
 = 1.0.1.9 = 
 * Fix bug redirect PDF
+* Fix bug footer PDF
 
 = 1.0.1.8 = 
 * Fix bug with line break on PDF

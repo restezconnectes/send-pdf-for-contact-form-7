@@ -142,6 +142,16 @@ class WPCF7PDF_generate extends cf7_sendpdf {
             $mpdf->SetDefaultBodyCSS('background-image-resize', 6);
         }
         
+        // Set HTML headers/footers before writing to the document
+        if( isset($meta_values['footer_generate_pdf']) && $meta_values['footer_generate_pdf']!='' ) {
+            $footerText = wp_kses(trim($meta_values['footer_generate_pdf']), WPCF7PDF_prepare::wpcf7pdf_autorizeHtml());
+            $footerText = str_replace('[reference]', sanitize_text_field($referenceOfPdf), $footerText);
+            $footerText = str_replace('[url-pdf]', esc_url($upload_dir['url'].'/'.$nameOfPdf.'.pdf'), $footerText);
+            $footerText = str_replace('[date]', $dateField, $footerText);
+            $footerText = str_replace('[time]', $timeField, $footerText);
+            $mpdf->SetHTMLFooter($footerText, 'E');
+        }
+
         // LOAD a stylesheet
         if( isset($meta_values['stylesheet']) && $meta_values['stylesheet']!='' ) {
             $stylesheet = file_get_contents(esc_url($meta_values['stylesheet']));
@@ -184,14 +194,6 @@ class WPCF7PDF_generate extends cf7_sendpdf {
             $mpdf->WriteHTML('<p style="margin-bottom:'.$marginBottomHeader.'px;">&nbsp;</p>');
         }
 
-        if( isset($meta_values['footer_generate_pdf']) && $meta_values['footer_generate_pdf']!='' ) {
-            $footerText = wp_kses(trim($meta_values['footer_generate_pdf']), WPCF7PDF_prepare::wpcf7pdf_autorizeHtml());
-            $footerText = str_replace('[reference]', sanitize_text_field($referenceOfPdf), $footerText);
-            $footerText = str_replace('[url-pdf]', esc_url($upload_dir['url'].'/'.$nameOfPdf.'.pdf'), $footerText);
-            $footerText = str_replace('[date]', $dateField, $footerText);
-            $footerText = str_replace('[time]', $timeField, $footerText);
-            $mpdf->SetHTMLFooter($footerText);
-        }
         
         // En cas de saut de page avec le tag [addpage]
         if( isset($data) && stripos($data, '[addpage]') !== false ) {
@@ -209,10 +211,11 @@ class WPCF7PDF_generate extends cf7_sendpdf {
                 } else {
                     $mpdf->SetHTMLHeader('&nbsp;', '', true);                        
                 } 
-                $mpdf->WriteHTML($newPage[$i]);
                 if( isset($meta_values['footer_generate_pdf']) && $meta_values['footer_generate_pdf']!='' ) {
                     $mpdf->SetHTMLFooter($footerText);
                 }
+                $mpdf->WriteHTML($newPage[$i]);
+                
                 if( $i < ($countPage-1) ) {
                     $mpdf->AddPage('','','','','',15,15,15,15,5,5);
                 }
@@ -227,11 +230,12 @@ class WPCF7PDF_generate extends cf7_sendpdf {
             } else {
                 $mpdf->SetHTMLHeader();
             }
-            $data = apply_filters('wpcf7pdf_text', $data, $contact_form);
-            $mpdf->WriteHTML($data);
             if( isset($meta_values['footer_generate_pdf']) && $meta_values['footer_generate_pdf']!='' ) {
                 $mpdf->SetHTMLFooter($footerText);
             }
+            $data = apply_filters('wpcf7pdf_text', $data, $contact_form);
+            $mpdf->WriteHTML($data);
+            
 
         }
         
