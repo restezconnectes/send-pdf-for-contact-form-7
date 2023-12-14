@@ -13,9 +13,12 @@ Translations: https://translate.wordpress.org/projects/wp-plugins/send-pdf-for-c
 <a href="https://demo.restezconnectes.fr/send-pdf-for-contact-form-7/">[Demo Here]</a>
 <a href="https://restezconnectes.fr/tutoriel-wordpress-lextension-send-pdf-for-contact-form-7/">[Tutorial Here]</a>
 
-Current Version:  1.0.1.8
+Current Version:  1.0.1.9
 
 == Changelog ==
+
+= 1.0.1.9 = 
+* Fix bug redirect PDF
 
 = 1.0.1.8 = 
 * Fix bug with line break on PDF

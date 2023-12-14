@@ -1316,7 +1316,7 @@ class cf7_sendpdf {
         // Si popup
         window.open('<?php echo esc_html($urlRredirectPDF); ?>-' + reference + '.pdf?ver=<?php echo rand(); ?>', '<?php echo esc_html($singleNamePDF); ?>','menubar=no, status=no, scrollbars=yes, menubar=no, width=600, height=900');
         
-        <?php } else if( isset($meta_values["redirect-to-pdf"]) && $meta_values["redirect-window"] == 'true' ) { ?>
+        <?php } else if( isset($meta_values["redirect-to-pdf"]) && $meta_values["redirect-to-pdf"] == 'true' ) { ?>
         // Si option réglée sur nouvelle fenêtre
         var location = '<?php echo esc_html($urlRredirectPDF); ?>-' + reference + '.pdf?ver=<?php echo rand(); ?>'; 
         window.open(location, '<?php echo esc_html($singleNamePDF); ?>', '<?php echo $targetPDF; ?>');
