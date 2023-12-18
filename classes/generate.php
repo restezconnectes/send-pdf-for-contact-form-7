@@ -60,6 +60,41 @@ class WPCF7PDF_generate extends cf7_sendpdf {
         $setDirectionality = 'ltr';
         if( isset($meta_values["set_directionality"]) && $meta_values["set_directionality"]!='' ) {  $setDirectionality = esc_html($meta_values["set_directionality"]);  }
 
+        // Adding custom font
+        $defaultConfig = (new Mpdf\Config\ConfigVariables())->getDefaults();
+        $fontDirs = $defaultConfig['fontDir'];
+
+        $defaultFontConfig = (new Mpdf\Config\FontVariables())->getDefaults();
+        $fontData = $defaultFontConfig['fontdata'];
+        
+        $folderFont = '';
+        if ( is_dir(get_stylesheet_directory()."/pdffonts/") == true ) {
+
+            $folderFont = get_stylesheet_directory()."/pdffonts/";
+            $dossier = new DirectoryIterator(get_stylesheet_directory()."/pdffonts/");
+            foreach($dossier as $fichier){
+            
+                // si c'est pas un "." ni ".."
+                if($fichier->isDot())
+                    continue; // "continue" permet de passer à l'itération suivante
+
+                //si c'est pas un fichier
+                if($fichier->getType() != 'file')
+                    continue;
+            
+                // continue;
+                if(preg_match("#\.(ttf)$#i", $fichier)){
+                    //on fusionne les fonts avec ceux définis dans FontVariables.php
+                    $addFontData = array(
+                        ''.sanitize_title(substr($fichier->getFilename(), 0, -4)).'' => array(
+                            'R' => ''.$fichier->getFilename().'',
+                            ),
+                        );
+                    $fontData = array_merge($fontData, $addFontData);
+                }
+            }
+        }
+
         if( isset($meta_values['pdf-type']) && isset($meta_values['pdf-orientation']) ) {
 
             $formatPdf = esc_html($meta_values['pdf-type'].$meta_values['pdf-orientation']);
@@ -74,6 +109,8 @@ class WPCF7PDF_generate extends cf7_sendpdf {
                 'default_font' => $fontPdf,
                 'default_font_size' => $fontsizePdf,
                 'tempDir' => $custom_tmp_path,
+                'fontDir' => array_merge($fontDirs, [$folderFont]),
+                'fontdata' => $fontData,
             );
 
         } else if( isset($meta_values['fillable_data']) && $meta_values['fillable_data']== 'true') {
@@ -88,6 +125,15 @@ class WPCF7PDF_generate extends cf7_sendpdf {
                 'tempDir' => $custom_tmp_path,
                 'margin_left' => $marginLeft,    	// 15 margin_left
                 'margin_right' => $marginRight,    	// 15 margin right
+                'fontDir' => array_merge($fontDirs, [$folderFont]),
+                'fontdata' => $fontData + [
+                    'croissantOne-regular' => [
+                        'R' => 'CroissantOne-Regular.ttf',
+                    ],
+                    'sedgwickavedisplay-regular' => [
+                        'R' => 'SedgwickAveDisplay-Regular.ttf',
+                    ],
+                ],
             );
 
         } else {
@@ -102,6 +148,15 @@ class WPCF7PDF_generate extends cf7_sendpdf {
                 'tempDir' => $custom_tmp_path,
                 'margin_left' => $marginLeft,    	// 15 margin_left
                 'margin_right' => $marginRight,    	// 15 margin right
+                'fontDir' => array_merge($fontDirs, [$folderFont]),
+                'fontdata' => $fontData + [
+                    'croissantOne-regular' => [
+                        'R' => 'CroissantOne-Regular.ttf',
+                    ],
+                    'sedgwickavedisplay-regular' => [
+                        'R' => 'SedgwickAveDisplay-Regular.ttf',
+                    ],
+                ],
             );
 
         }

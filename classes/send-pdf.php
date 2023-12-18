@@ -1300,7 +1300,7 @@ class cf7_sendpdf {
 
                 window.open('<?php echo str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $createDirectory)?>/<?php echo esc_html($singleNamePDF); ?>' + text + '-' + reference + '.pdf?ver=<?php echo rand(); ?>','text','menubar=no, status=no, scrollbars=yes, menubar=no, width=600, height=900');
 
-                <?php } else if( isset($meta_values["redirect-to-pdf"]) && $meta_values["redirect-window"] == 'true' ) { ?>
+                <?php } else if( isset($meta_values["redirect-to-pdf"]) && $meta_values["redirect-to-pdf"] == 'true' ) { ?>
                 // Si option réglée sur nouvelle fenêtre mais avec des tags dans le nom du PDF
                 var location = '<?php echo str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $createDirectory)?>/<?php echo esc_html($singleNamePDF); ?>' + text + '-' + reference + '.pdf?ver=<?php echo rand(); ?>';
                 window.open(location, text, '<?php echo $targetPDF; ?>');
@@ -1346,10 +1346,12 @@ class cf7_sendpdf {
     });
 
 <?php } ?>
-   
+
     document.addEventListener( 'wpcf7submit', function( event ) {
+
         var reference = Date.now().toString(36) + Math.floor(Math.pow(10, 12) + Math.random() * 9*Math.pow(10, 12)).toString(36);
         jQuery('input[name="wpcf7cfpdf_hidden_reference"]').val(reference);
+        
     }, false );
     
 </script>

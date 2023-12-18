@@ -312,8 +312,28 @@ jQuery(document).ready(function() {
 
 ';
 
+// Liste Fonts
+$listFont = WPCF7PDF_settings::getFontsTab();
+
+// Si custom fonts dans dossiers /pdffonts
 $pathFolder = serialize($createDirectory);
-        
+if ( is_dir(get_stylesheet_directory()."/pdffonts/") == true ) {
+    
+    $dossier = new DirectoryIterator(get_stylesheet_directory()."/pdffonts/");
+
+    foreach($dossier as $fichier){
+    
+        // continue;
+        if(preg_match("#\.(ttf)$#i", $fichier)){
+
+            //on fusionne les fonts avec ceux définis dans getFontsTab()
+            $addFontData = array(
+            ''.substr($fichier->getFilename(), 0, -4).'' => ''.sanitize_title(substr($fichier->getFilename(), 0, -4)).'',
+            );
+            $listFont = array_merge($listFont, $addFontData);
+        }
+    }
+}
 ?>
 
 <form method="post" action="" name="valide_settings">
@@ -1023,10 +1043,7 @@ $pathFolder = serialize($createDirectory);
                             <td><?php _e('Font Family & Size', WPCF7PDF_TEXT_DOMAIN); ?></td>
                             <td>
                                 <select name="wp_cf7pdf_settings[pdf-font]" class="wpcf7-form-field">
-                                    <?php 
-                                        
-                                        $listFont = WPCF7PDF_settings::getFontsTab();
-            
+                                    <?php             
                                         foreach($listFont as $font => $nameFont) {
                                             $selected ='';
                                             if( isset($meta_values['pdf-font']) && $meta_values['pdf-font']==$nameFont ) { $selected = 'selected'; }
@@ -1034,7 +1051,7 @@ $pathFolder = serialize($createDirectory);
                                         }
                                     ?>
                                 </select>
-                                <input name="wp_cf7pdf_settings[pdf-fontsize]" class="wpcf7-form-field" size="2" value="<?php if( isset($meta_values['pdf-fontsize']) && is_numeric($meta_values['pdf-fontsize']) ) { echo esc_html($meta_values['pdf-fontsize']); } else { echo esc_html($fontsizePdf); } ?>">
+                                <input type="text" name="wp_cf7pdf_settings[pdf-fontsize]" class="wpcf7-form-field" size="2" value="<?php if( isset($meta_values['pdf-fontsize']) && is_numeric($meta_values['pdf-fontsize']) ) { echo esc_html($meta_values['pdf-fontsize']); } else { echo esc_html($fontsizePdf); } ?>">
                             </td>
                         </tr>
                         <tr>

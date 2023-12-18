@@ -56,6 +56,7 @@ Yes. If you want, you can support this project here: <a href="https://restezconn
 = 1.0.1.9 = 
 * Fix bug redirect PDF
 * Fix bug footer PDF
+* Adding Custom Fonts is now ready
 
 = 1.0.1.8 = 
 * Fix bug with line break on PDF
