@@ -4,7 +4,7 @@ Donate link: https://www.paypal.me/RestezConnectes/
 Tags: WordPress, plugin, contact form, pdf, send, attachment, form, cf7
 Requires at least: 5.2
 Tested up to: 6.4
-Stable tag: 1.0.1.9
+Stable tag: 1.0.2.0
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -21,7 +21,7 @@ This plugin requires the installation and activation of the plugin Contact Form 
 <a href="https://demo.restezconnectes.fr/send-pdf-for-contact-form-7/">DEMO HERE</a>
 <a href="https://restezconnectes.fr/tutoriel-wordpress-lextension-send-pdf-for-contact-form-7/">[Tutorial Here]</a>
 
-Translations: https://translate.wordpress.org/projects/wp-plugins/send-pdf-for-contact-form-7/
+Translations: <a href="https://translate.wordpress.org/projects/wp-plugins/send-pdf-for-contact-form-7/">Here</a>
 
 == Installation ==
 
@@ -52,6 +52,9 @@ Yes. If you want, you can support this project here: <a href="https://restezconn
 
 
 == Changelog ==
+
+= 1.0.2.0 = 
+* Adding shortcode for prices
 
 = 1.0.1.9 = 
 * Fix bug redirect PDF

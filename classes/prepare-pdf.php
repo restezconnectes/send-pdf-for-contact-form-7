@@ -461,6 +461,26 @@ class WPCF7PDF_prepare extends cf7_sendpdf {
             
         }
 
+        // Si on trouve des shortcodes de prix
+        if ( preg_match_all( '/\[(_price.*?)\]/',  $contentPdf, $outprice, PREG_PATTERN_ORDER ) ) {
+
+            for ($i = 0; $i < count($outprice[1]); $i++) {
+                
+                // On separe les données
+                $price = explode('|', $outprice[1][$i]);
+
+                if ( isset($preview) && $preview == 1 ) {
+                    $valueprice = 25000;                  
+                } else {
+                    $valueprice = wpcf7_mail_replace_tags(esc_html('['.$price[1].']'));
+                }
+                // Nom du tag $price[1] / Decimals : $price[2] / Decimal_separator : $price[3].' / Thousands_separator : $price[4]
+                $formatPrice = number_format($valueprice, $price[2], $price[3], $price[4]);
+                $contentPdf = str_replace('['.$outprice[1][$i].']', $formatPrice, $contentPdf);
+            }
+
+        }
+        
         if ( isset($preview) && $preview == 1 ) {
             $referenceOfPdf = uniqid();
         }

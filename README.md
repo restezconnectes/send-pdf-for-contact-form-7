@@ -8,14 +8,17 @@ Send the PDF for Contact Form plugin will allow you to recover the data yourself
 
 This plugin requires the installation and activation of the plugin Contact Form 7.
 
-Translations: https://translate.wordpress.org/projects/wp-plugins/send-pdf-for-contact-form-7/
+Translations: <a href="https://translate.wordpress.org/projects/wp-plugins/send-pdf-for-contact-form-7/">Here</a>
 
 <a href="https://demo.restezconnectes.fr/send-pdf-for-contact-form-7/">[Demo Here]</a>
 <a href="https://restezconnectes.fr/tutoriel-wordpress-lextension-send-pdf-for-contact-form-7/">[Tutorial Here]</a>
 
-Current Version:  1.0.1.9
+Current Version:  1.0.2.0
 
 == Changelog ==
+
+= 1.0.2.0 = 
+* Adding shortcode for prices
 
 = 1.0.1.9 = 
 * Fix bug redirect PDF
