@@ -13,17 +13,15 @@ Translations: <a href="https://translate.wordpress.org/projects/wp-plugins/send-
 <a href="https://demo.restezconnectes.fr/send-pdf-for-contact-form-7/">[Demo Here]</a>
 <a href="https://restezconnectes.fr/tutoriel-wordpress-lextension-send-pdf-for-contact-form-7/">[Tutorial Here]</a>
 
-Current Version:  1.0.2.0
+Current Version:  1.0.1.9
 
 == Changelog ==
-
-= 1.0.2.0 = 
-* Adding shortcode for prices
 
 = 1.0.1.9 = 
 * Fix bug redirect PDF
 * Fix bug footer PDF
 * Adding Custom Fonts is now ready
+* Adding shortcode for prices
 
 = 1.0.1.8 = 
 * Fix bug with line break on PDF
