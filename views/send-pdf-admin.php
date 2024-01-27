@@ -204,7 +204,7 @@ jQuery(document).ready(function() {
                         <div id="wpmimgcreated">
                             <a href="https://MadeBy.RestezConnectes.fr" title="Created by MadeByRestezConnectes.fr" class="wpcf7-link" alt="Created by MadeByRestezConnectes.fr" target="_blank" onfocus="this.blur();"><img class="wpmresponsive" src="<?php echo plugins_url('send-pdf-for-contact-form-7/images/logo-madeby-restezconnectes.png'); ?>" width="250" valign="bottom"  /></a>
                         </div>
-                    <p><?php printf( __('Read %s here !', WPCF7PDF_TEXT_DOMAIN), '<a href="https://restezconnectes.fr/tutoriel-wordpress-lextension-send-pdf-for-contact-form-7/" class="wpcf7-link" target="_blank" onfocus="this.blur();">'.__('Tutorial', WPCF7PDF_TEXT_DOMAIN).'</a>' ); ?></p>
+                    <p><?php printf( __('Read %s here !', WPCF7PDF_TEXT_DOMAIN), '<a href="https://restezconnectes.fr/tutoriel-wordpress-lextension-send-pdf-for-contact-form-7/" class="wpcf7-link" target="_blank" onfocus="this.blur();">'.__('Tutorial', WPCF7PDF_TEXT_DOMAIN).'</a>' ); ?> -  <a href="https://github.com/Florent73/send-pdf-for-contact-form-7/" class="wpcf7-link" target="_blank" onfocus="this.blur();"><?php _e('GitHub version', WPCF7PDF_TEXT_DOMAIN); ?></a></p>
                 </td>
                 <td style="text-align:right;" width="33%">
                     <!-- FAIRE UN DON SUR PAYPAL -->

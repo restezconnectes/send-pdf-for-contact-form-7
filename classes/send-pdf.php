@@ -486,6 +486,18 @@ class cf7_sendpdf {
 
     }
 
+    function uniqidReal($lenght = 13) {
+        // uniqid gives 13 chars, but you could adjust it to your needs.
+        if (function_exists("random_bytes")) {
+            $bytes = random_bytes(ceil($lenght / 2));
+        } elseif (function_exists("openssl_random_pseudo_bytes")) {
+            $bytes = openssl_random_pseudo_bytes(ceil($lenght / 2));
+        } else {
+            $bytes = uniqid();
+        }
+        return substr(bin2hex($bytes), 0, $lenght);
+    }
+
     function wpcf7pdf_form_hidden_fields($fields) {
 
         $current_form = wpcf7_get_current_contact_form();
@@ -494,7 +506,7 @@ class cf7_sendpdf {
         $nonce = wp_create_nonce('cf7-redirect-id');
         $fields['redirect_nonce'] = $nonce;
         $fields['wpcf7cfpdf_hidden_name'] = self::wpcf7pdf_name_pdf($current_form_id);
-        $fields['wpcf7cfpdf_hidden_reference'] = uniqid();
+        $fields['wpcf7cfpdf_hidden_reference'] = self::uniqidReal(8);
 
         $meta_values = get_post_meta( $current_form_id, '_wp_cf7pdf', true );
 
@@ -1197,6 +1209,28 @@ class cf7_sendpdf {
         ?>
 <!-- Send PDF for CF7 -->
 <script type='text/javascript'>
+
+        //generates random id for reference;
+        let wpcf7_unique_id = (type = 2) => {
+            let dateuid = () => {
+                return Date.now().toString(26)
+                        .toString(16)
+                        .substring(1);
+            }
+            let mathuid = () => {
+                return Math.floor((1 + Math.random()) * 0x10000)
+                    .toString(16)
+                    .substring(1);
+            }
+            //return id if type = 2
+            if( type == 2 ) {
+                return dateuid() + mathuid();
+            } else {
+                return dateuid();
+            }
+            
+        }
+
         <?php
             $id = $wpcf7->id();
 
@@ -1348,9 +1382,7 @@ class cf7_sendpdf {
 <?php } ?>
 
     document.addEventListener( 'wpcf7submit', function( event ) {
-
-        var reference = Date.now().toString(36) + Math.floor(Math.pow(10, 12) + Math.random() * 9*Math.pow(10, 12)).toString(36);
-        jQuery('input[name="wpcf7cfpdf_hidden_reference"]').val(reference);
+        jQuery('input[name="wpcf7cfpdf_hidden_reference"]').val(wpcf7_unique_id(3));
         
     }, false );
     
