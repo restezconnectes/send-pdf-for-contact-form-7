@@ -475,8 +475,12 @@ class WPCF7PDF_prepare extends cf7_sendpdf {
                     $valueprice = wpcf7_mail_replace_tags(esc_html('['.$price[1].']'));
                 }
                 // Nom du tag $price[1] / Decimals : $price[2] / Decimal_separator : $price[3].' / Thousands_separator : $price[4]
-                $formatPrice = number_format($valueprice, $price[2], $price[3], $price[4]);
-                $contentPdf = str_replace('['.$outprice[1][$i].']', $formatPrice, $contentPdf);
+                if( isset($valueprice) && $valueprice>0 ) {
+                    $formatPrice = number_format($valueprice, $price[2], $price[3], $price[4]);
+                    $contentPdf = str_replace('['.$outprice[1][$i].']', $formatPrice, $contentPdf);
+                } else {
+                    $contentPdf = str_replace('['.$outprice[1][$i].']', '', $contentPdf);
+                }
             }
 
         }
@@ -593,6 +597,10 @@ class WPCF7PDF_prepare extends cf7_sendpdf {
                     $contentPdf = str_replace(esc_html($name_tags[0]), $valueTag, $contentPdf);
                 }
                 
+            } else if( isset($basetype) && $basetype==='select' ) {
+
+                $valueTag = wpcf7_mail_replace_tags(esc_html($name_tags[0]));
+                $contentPdf = str_replace(esc_html($name_tags[0]), $valueTag, $contentPdf);
 
             } else if( isset($basetype) && $basetype==='checkbox' ) {
 
