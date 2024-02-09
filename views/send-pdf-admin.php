@@ -472,7 +472,7 @@ if ( is_dir(get_stylesheet_directory()."/pdffonts/") == true ) {
                     </tr>
                     <tr>
                         <td>
-                            <?php _e('Change uploads folder?', WPCF7PDF_TEXT_DOMAIN); ?><p>(<i><?php if( isset($meta_values["pdf-uploads"]) && $meta_values["pdf-uploads"]=='true') { _e("Great ! Now the upload folder's path is /wp-content/sendpdfcf7_uploads/*ID_FORM*/", WPCF7PDF_TEXT_DOMAIN); } else { _e("By default, the upload folder's path is /wp-content/uploads/*YEAR*/*MONTH*/", WPCF7PDF_TEXT_DOMAIN); } ?></i>)</p>
+                            <?php _e('Change uploads folder?', WPCF7PDF_TEXT_DOMAIN); ?><p>(<i><?php if( isset($meta_values["pdf-uploads"]) && $meta_values["pdf-uploads"]=='true') { _e("Great ! Now the upload folder's path is /wp-content/uploads/sendpdfcf7_uploads/*ID_FORM*/", WPCF7PDF_TEXT_DOMAIN); } else { _e("By default, the upload folder's path is /wp-content/uploads/*YEAR*/*MONTH*/", WPCF7PDF_TEXT_DOMAIN); } ?></i>)</p>
                         </td>
                         <td>
                             <div>
