@@ -999,7 +999,7 @@ class cf7_sendpdf {
             }
 
             // Si le contenu du PDF doit rester en brut et pas en HTML
-            if( isset($meta_values["linebreak"]) && $meta_values['linebreak'] == 'false' ) {
+            if( isset($meta_values["disable-html"]) && $meta_values['disable-html'] == 'false' ) {
                 $messageText = str_replace("\r\n", "
     ", $messageText);
             }
