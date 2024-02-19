@@ -998,6 +998,12 @@ class cf7_sendpdf {
                 $components['body'] = $messageText;
             }
 
+            // Si le contenu du PDF doit rester en brut et pas en HTML
+            if( isset($meta_values["linebreak"]) && $meta_values['linebreak'] == 'false' ) {
+                $messageText = str_replace("\r\n", "
+    ", $messageText);
+            }
+
             // Je remplace les codes courts dans le sujet
             $subjectText = $components['subject'];
             if( isset($messageText) && !empty($messageText) ) {
