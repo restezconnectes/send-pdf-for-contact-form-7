@@ -976,6 +976,12 @@ class cf7_sendpdf {
                 $pdfPassword = WPCF7PDF_prepare::protect_pdf($post['_wpcf7']);
             }
 
+            // Si le contenu du PDF doit rester en brut et pas en HTML
+            if( isset($meta_values["disable-html"]) && $meta_values['disable-html'] == 'false' ) {
+                $messageText = str_replace("\r\n", "
+    ", $messageText);
+            }
+            
             // Definition des dates par defaut
             $dateField = WPCF7PDF_prepare::returndate($post['_wpcf7']);
             $timeField = WPCF7PDF_prepare::returntime($post['_wpcf7']);
@@ -996,12 +1002,6 @@ class cf7_sendpdf {
                 }
               
                 $components['body'] = $messageText;
-            }
-
-            // Si le contenu du PDF doit rester en brut et pas en HTML
-            if( isset($meta_values["disable-html"]) && $meta_values['disable-html'] == 'false' ) {
-                $messageText = str_replace("\r\n", "
-    ", $messageText);
             }
 
             // Je remplace les codes courts dans le sujet
