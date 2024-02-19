@@ -13,9 +13,12 @@ Translations: <a href="https://translate.wordpress.org/projects/wp-plugins/send-
 <a href="https://demo.restezconnectes.fr/send-pdf-for-contact-form-7/">[Demo Here]</a>
 <a href="https://restezconnectes.fr/tutoriel-wordpress-lextension-send-pdf-for-contact-form-7/">[Tutorial Here]</a>
 
-Current Version:  1.0.2.1
+Current Version:  1.0.2.2
 
 == Changelog ==
+
+= 1.0.2.2 = 
+* Fix bug format text
 
 = 1.0.2.1 = 
 * Fix bug for shortcode prices
