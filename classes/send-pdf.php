@@ -978,8 +978,7 @@ class cf7_sendpdf {
 
             // Si le contenu du PDF doit rester en brut et pas en HTML
             if( isset($meta_values["disable-html"]) && $meta_values['disable-html'] == 'false' ) {
-                $messageText = str_replace("\r\n", "
-    ", $messageText);
+                $messageText = str_replace("\r\n", "<br />", $messageText);
             }
             
             // Definition des dates par defaut
