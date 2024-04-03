@@ -352,6 +352,8 @@ class WPCF7PDF_generate extends cf7_sendpdf {
         
         if( isset($meta_values["csv-separate"]) && !empty($meta_values["csv-separate"]) ) { $csvSeparate = esc_html($meta_values["csv-separate"]); } else { $csvSeparate = ','; }
         foreach ($csvlist as $csvfields) {
+            $csvfields = str_replace("<br />", " ", $csvfields);
+            $csvfields = str_replace("\r\n", " ", $csvfields);
             fputcsv($fpCsv, $csvfields, $csvSeparate);
         }
         fclose($fpCsv);
