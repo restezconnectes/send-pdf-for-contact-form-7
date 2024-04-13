@@ -26,7 +26,7 @@ class WPCF7PDF_settings extends cf7_sendpdf {
             foreach($tabSettings as $nameSettings => $valueSettings) {
 
                 if( $type == 3 ) {
-                    $newTabSettings[$nameSettings] = strip_tags( stripslashes( esc_url_raw($valueSettings) ) );
+                    $newTabSettings[$nameSettings] = wp_strip_all_tags( stripslashes( esc_url_raw($valueSettings) ) );
                 } elseif(filter_var($valueSettings, FILTER_VALIDATE_URL)) {
                     $newTabSettings[$nameSettings] = sanitize_url($valueSettings);
                 } elseif(filter_var($valueSettings, FILTER_VALIDATE_EMAIL)) {
@@ -134,24 +134,60 @@ class WPCF7PDF_settings extends cf7_sendpdf {
 
         global $wpdb;
         if(!$idForm or !$idForm) { die('Aucun formulaire sélectionné !'); }
-        $result = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM ".$wpdb->prefix."wpcf7pdf_files WHERE wpcf7pdf_id_form = %d ", intval($idForm) ), 'OBJECT' );
+        $result = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM ".$wpdb->prefix."wpcf7pdf_files WHERE wpcf7pdf_id_form = %d ", intval($idForm) ), 'OBJECT' ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
         if($result) {
             return $result;
         }
     }
 
-    
+    static function drop() {
+
+        global $wpdb;
+        $result = $wpdb->query( "DROP TABLE IF EXISTS ".$wpdb->prefix."wpcf7pdf_files" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+        if($result) {
+            return true;
+        }
+    }
+
     /**
      * Listing last PDF
      */
     static function wpcf7pdf_listing( $id, $limit = 15 ) {
         
         global $wpdb;
-        $result = $wpdb->get_results( $wpdb->prepare("SELECT wpcf7pdf_id, wpcf7pdf_id_form, wpcf7pdf_reference, wpcf7pdf_data, wpcf7pdf_files, wpcf7pdf_files2 FROM ". $wpdb->prefix. "wpcf7pdf_files WHERE wpcf7pdf_id_form = %d ORDER BY wpcf7pdf_id DESC LIMIT %d", sanitize_text_field($id),  sanitize_text_field($limit)), 'OBJECT' );
+        $result = $wpdb->get_results( $wpdb->prepare("SELECT wpcf7pdf_id, wpcf7pdf_id_form, wpcf7pdf_reference, wpcf7pdf_data, wpcf7pdf_files, wpcf7pdf_files2 FROM ". $wpdb->prefix. "wpcf7pdf_files WHERE wpcf7pdf_id_form = %d ORDER BY wpcf7pdf_id DESC LIMIT %d", sanitize_text_field($id),  sanitize_text_field($limit)), 'OBJECT' ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
         if($result) {
             return $result;
         } 
         
+    }
+
+    static function get( $id ) {
+
+        global $wpdb;
+
+        if(empty($id) || $id=='') { return false; }
+
+        $result =  $wpdb->get_row( $wpdb->prepare("SELECT wpcf7pdf_files FROM ". $wpdb->prefix. "wpcf7pdf_files WHERE wpcf7pdf_id = %d LIMIT %d", $id,  1), 'OBJECT' ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+        if($result) {
+            return $result;
+        }
+    }
+
+    static function delete($id) {
+
+        global $wpdb;
+
+        if(empty($id) || $id=='') { return false; }
+
+        // Supprime dans la table des PDF 'PREFIX_wpcf7pdf_files'
+        $result =  $wpdb->query( $wpdb->prepare("DELETE FROM ". $wpdb->prefix. "wpcf7pdf_files WHERE wpcf7pdf_id = %d LIMIT 1", $id), 'OBJECT' ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+        if($result) {
+            return 'true';
+        } else {
+            return 'false';
+        }
+
     }
 
 }

@@ -53,20 +53,22 @@ class cf7_sendpdf {
         // on affiche les scripts footer
         add_action( 'wp_footer', array( $this, 'wpcf7_add_footer' ), 90 );
         
-        if( isset($_GET['csv']) && intval($_GET['csv']) && $_GET['csv']==1 && (isset($_GET['csv_security']) || wp_verify_nonce($_GET['csv_security'], 'go_generate')) ) {
-			$csv = $this->wpcf7_export_csv( esc_html($_GET['idform']) );
+        if( isset($_GET['csv_security']) && wp_verify_nonce($_GET['csv_security'], 'go_generate') ) {
+            if( isset($_GET['csv']) && intval($_GET['csv']) && $_GET['csv']==1 ) {
+                $csv = $this->wpcf7_export_csv( esc_html($_GET['idform']) );
 
-			header("Pragma: public");
-			header("Expires: 0");
-			header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
-			header("Cache-Control: private", false);
-			header("Content-Type: application/octet-stream");
-			header("Content-Disposition: attachment; filename=\"sendpdfcf7_export_".esc_html($_GET['idform']).".csv\";" );
-			header("Content-Transfer-Encoding: binary");
+                header("Pragma: public");
+                header("Expires: 0");
+                header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
+                header("Cache-Control: private", false);
+                header("Content-Type: application/octet-stream");
+                header("Content-Disposition: attachment; filename=\"sendpdfcf7_export_".esc_html($_GET['idform']).".csv\";" );
+                header("Content-Transfer-Encoding: binary");
 
-			echo $csv;
-			exit;
-		}
+                echo esc_html($csv);
+                exit;
+            }
+        }
 
     }
 
@@ -77,7 +79,7 @@ class cf7_sendpdf {
 		  return $links;
         } else {
             $settings_link = '<a href="admin.php?page=wpcf7-send-pdf">'
-                . esc_html( __( 'Settings', WPCF7PDF_TEXT_DOMAIN ) ) . '</a>';
+                . esc_html( __( 'Settings', 'send-pdf-for-contact-form-7' ) ) . '</a>';
 
             array_unshift( $links, $settings_link );
 
@@ -85,7 +87,8 @@ class cf7_sendpdf {
         }
     }
 
-    
+
+
     function wpcf7pdf_js_action() {
 
         global $wpdb;
@@ -96,28 +99,24 @@ class cf7_sendpdf {
 
         if( wp_verify_nonce($nonce, 'delete_record-'.$id) ) {
 
-            // Supprime dans la table des promesses 'PREFIX_wpcf7pdf_files'
-            $resultOptions =  $wpdb->query( $wpdb->prepare("DELETE FROM ". $wpdb->prefix. "wpcf7pdf_files WHERE wpcf7pdf_id = %d LIMIT 1", $id), 'OBJECT' );
+            // Supprime dans la table des PDF 'PREFIX_wpcf7pdf_files'
+            $resultOptions = WPCF7PDF_settings::delete($id);
 
-            if($resultOptions) {
+            if( isset($resultOptions) && $resultOptions == "true" ) {
 
                 // On récupère le dossier upload de WP
-                $createDirectory = $this->wpcf7pdf_folder_uploads($idform);
                 $upload_dir = wp_upload_dir();
 
                 // va chercher le nom du PDF
-                $resultFile = $wpdb->get_row( $wpdb->prepare("SELECT wpcf7pdf_files FROM ". $wpdb->prefix. "wpcf7pdf_files WHERE wpcf7pdf_id = %d LIMIT %d", $id,  1), 'OBJECT' );
+                $resultFile = WPCF7PDF_settings::get($id);
 
                 if( isset($resultFile) && !empty($resultFile) ) {
                     // remplace par le PATH            
                     $chemin_path = str_replace($upload_dir['baseurl'], $upload_dir['basedir'], $resultFile->wpcf7pdf_files);
-
                     if( isset($chemin_path) && file_exists($chemin_path) ) {
                         wp_delete_file($chemin_path);
-                        //unlink($chemin_path);
                     }
                 }
-
                 echo 'success';
             }
             
@@ -197,10 +196,10 @@ class cf7_sendpdf {
 
         nocache_headers();
         header('Content-Type: application/json; charset=utf-8');
-        header('Content-Disposition: attachment; filename=wpcf7pdf-settings-export-'.esc_html($_POST['wpcf7pdf_export_id']).'-'.date('m-d-Y').'.json');
+        header('Content-Disposition: attachment; filename=wpcf7pdf-settings-export-'.esc_html($_POST['wpcf7pdf_export_id']).'-'.gmdate('m-d-Y').'.json');
         header("Expires: 0");
 
-        echo json_encode($settings);
+        echo wp_json_encode($settings);
         exit;
     }
 
@@ -222,17 +221,15 @@ class cf7_sendpdf {
         if(empty($_POST['wpcf7pdf_import_id']))
         return;
 
-        $extensionExploded = explode('.', $_FILES['wpcf7_import_file']['name']);
-        $extension = strtolower(end($extensionExploded));
-
+        $extension = strtolower(pathinfo($_FILES['wpcf7_import_file']['name'], PATHINFO_EXTENSION));
         if($extension != 'json') {
-            wp_die(__( 'Please upload a valid .json file' ));
+            wp_die( esc_html__( 'Please upload a valid .json file', 'send-pdf-for-contact-form-7' ) );
         }
 
         $import_file = $_FILES['wpcf7_import_file']['tmp_name'];
 
         if(empty($import_file) ) {
-            wp_die( __( 'Please upload a file to import', WPCF7PDF_TEXT_DOMAIN ) );
+            wp_die( esc_html__( 'Please upload a file to import', 'send-pdf-for-contact-form-7' ) );
         }
 
         // Retrieve the settings from the file and convert the json object to an array.
@@ -240,7 +237,7 @@ class cf7_sendpdf {
 
         update_post_meta(sanitize_text_field($_POST['wpcf7pdf_import_id']), '_wp_cf7pdf', $settings);
 
-        echo '<div id="message" class="updated fade"><p><strong>' . __('New settings imported successfully!', WPCF7PDF_TEXT_DOMAIN) . '</strong></p></div>';
+        echo '<div id="message" class="updated fade"><p><strong>' . esc_html__('New settings imported successfully!', 'send-pdf-for-contact-form-7') . '</strong></p></div>';
 
     }
     
@@ -254,7 +251,7 @@ class cf7_sendpdf {
         global $current_user;
         global $_wp_admin_css_colors;
       
-        if (isset($_GET['page']) && $_GET['page'] == 'wpcf7-send-pdf') {
+        if (isset($_GET['page']) && $_GET['page'] == 'wpcf7-send-pdf') { // phpcs:ignore
 
             $admin_color = get_user_option( 'admin_color', get_current_user_id() );
             $colors      = $_wp_admin_css_colors[$admin_color]->colors;
@@ -296,7 +293,7 @@ class cf7_sendpdf {
     background-color: #fafafa;
 }
 #wpcf7-bandeau {
-    background-image:url('.plugins_url('../images/bandeau-extension.gif',  __FILE__).');
+    background-image:url('.esc_url(plugins_url('../images/bandeau-extension.gif',  __FILE__)).');
     background-repeat:no-repeat;
 }
 #wpcf7-general h2 sup {
@@ -319,9 +316,9 @@ class cf7_sendpdf {
 
     function wpcf7pdf_codemirror_enqueue_scripts($hook) {
 
-        if (isset($_GET['page']) && $_GET['page'] == 'wpcf7-send-pdf') {    
+        if (isset($_GET['page']) && $_GET['page'] == 'wpcf7-send-pdf') { // phpcs:ignore
             wp_enqueue_code_editor(array( 'type' => 'text/html'));
-            wp_enqueue_script('js-code-editor', WPCF7PDF_URL.'js/wpcf7pdf-code-editor.js', array( 'jquery' ), '', true);
+            wp_enqueue_script('js-code-editor', WPCF7PDF_URL.'js/wpcf7pdf-code-editor.js', array( 'jquery' ), WPCF7PDF_VERSION, true);
         }
 
     }
@@ -332,18 +329,14 @@ class cf7_sendpdf {
         
         if ( isset($capability) && !empty( $capability ) ) { 
             add_submenu_page( 'wpcf7',
-            __('Options for CF7 Send PDF', WPCF7PDF_TEXT_DOMAIN),
-            __('Create PDF', WPCF7PDF_TEXT_DOMAIN),
+            __('Options for CF7 Send PDF', 'send-pdf-for-contact-form-7'),
+            __('Create PDF', 'send-pdf-for-contact-form-7'),
             $capability, 'wpcf7-send-pdf',
             array( $this, 'wpcf7pdf_dashboard_html_page') );
         }
-       /* add_submenu_page( 'wpcf7',
-        __('Options for CF7 Send PDF', WPCF7PDF_TEXT_DOMAIN),
-        __('Create PDF', WPCF7PDF_TEXT_DOMAIN), 'manage_options', 'wpcf7-send-pdf',
-        array( $this, 'wpcf7pdf_dashboard_html_page') );*/
 
         // If you're not including an image upload then you can leave this function call out
-        if (isset($_GET['page']) && $_GET['page'] == 'wpcf7-send-pdf') {
+        if (isset($_GET['page']) && $_GET['page'] == 'wpcf7-send-pdf') { // phpcs:ignore
 
             wp_enqueue_media();
 
@@ -359,7 +352,7 @@ class cf7_sendpdf {
             );
             wp_localize_script('main', 'ajax_params', $localize);
 
-            wp_register_script('wpcf7-my-upload', WPCF7PDF_URL.'/js/wpcf7pdf-script.js', array('jquery','media-upload','thickbox'));
+            wp_register_script('wpcf7-my-upload', WPCF7PDF_URL.'/js/wpcf7pdf-script.js', array('jquery','media-upload','thickbox'), WPCF7PDF_VERSION, true);
             wp_enqueue_script('wpcf7-my-upload');
 
             $pcf7pdf_settings['codeEditor'] = wp_enqueue_code_editor(array('type' => 'text/html'));
@@ -368,20 +361,21 @@ class cf7_sendpdf {
             wp_enqueue_script('wp-theme-plugin-editor');
             wp_enqueue_style('wp-codemirror');
 
-            wp_enqueue_style('jquery-defaut-style', WPCF7PDF_URL.'css/wpcf7-admin.css');
+            wp_enqueue_style('jquery-defaut-style', WPCF7PDF_URL.'css/wpcf7-admin.css', array(), WPCF7PDF_VERSION);
 
             // Now we can localize the script with our data.
             wp_localize_script( 'wpcf7-my-upload', 'Data', array(
-              'textebutton'  =>  __( 'Choose This Image', WPCF7PDF_TEXT_DOMAIN ),
-              'title'  => __( 'Choose Image', WPCF7PDF_TEXT_DOMAIN ),
+              'textebutton'  =>  __( 'Choose This Image', 'send-pdf-for-contact-form-7' ),
+              'title'  => __( 'Choose Image', 'send-pdf-for-contact-form-7' ),
             ) );
         }
 
         global $wpdb;
         $wpdb->ma_table_wpcf7pdf = $wpdb->prefix.'wpcf7pdf_files';
         $wpdb->tables[] = 'ma_table_wpcf7pdf';
+        $showTable = $wpdb->get_var("SHOW TABLES LIKE '".$wpdb->ma_table_wpcf7pdf."'"); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
         /* Création des tables nécessaires */
-        if($wpdb->get_var("SHOW TABLES LIKE '".$wpdb->ma_table_wpcf7pdf."'") != $wpdb->ma_table_wpcf7pdf) {
+        if( $showTable != $wpdb->ma_table_wpcf7pdf) {
 
             $sql = "CREATE TABLE `".$wpdb->ma_table_wpcf7pdf."` (
                 `wpcf7pdf_id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
@@ -415,7 +409,7 @@ class cf7_sendpdf {
                 'wpcf7pdf_files' => sanitize_url($file),
                 'wpcf7pdf_files2' => sanitize_url($file2)
             );
-            $result = $wpdb->insert($wpdb->prefix.'wpcf7pdf_files', $data);
+            $result = $wpdb->insert($wpdb->prefix.'wpcf7pdf_files', $data); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
             if($result) {
                 return $wpdb->insert_id;
             }
@@ -702,8 +696,12 @@ class cf7_sendpdf {
                 return;
                 
             global $post;
+
+            //make sure the nonce is available too,
+            if( !isset($_POST['redirect_nonce']) ) return; // phpcs:ignore WordPress.Security.NonceVerification.Missing
+
             // récupère le POST
-            $post = $_POST;
+            $post = $_POST; // phpcs:ignore WordPress.Security.NonceVerification.Missing
 
             $upload_dir = wp_upload_dir();
             $uploaded_files = $submission->uploaded_files(); // this allows you access to the upload file in the temp location
@@ -739,12 +737,12 @@ class cf7_sendpdf {
                 // Compatibilité avec CF7 Conditional Fields / Conditional Fields PRO
                 if( class_exists('Wpcf7cfMailParser') ){
 
-                    $hidden_groups = json_decode(stripslashes($_POST['_wpcf7cf_hidden_groups']));
-                    $visible_groups = json_decode(stripslashes($_POST['_wpcf7cf_visible_groups']));
-                    $repeaters = json_decode(stripslashes($_POST['_wpcf7cf_repeaters']));
+                    $hidden_groups = json_decode(stripslashes($_POST['_wpcf7cf_hidden_groups'])); // phpcs:ignore WordPress.Security.NonceVerification.Missing
+                    $visible_groups = json_decode(stripslashes($_POST['_wpcf7cf_visible_groups'])); // phpcs:ignore WordPress.Security.NonceVerification.Missing
+                    $repeaters = json_decode(stripslashes($_POST['_wpcf7cf_repeaters'])); // phpcs:ignore WordPress.Security.NonceVerification.Missing
                     //$steps = json_decode(stripslashes($_POST['_wpcf7cf_steps']));                   
 
-                    $parser = new Wpcf7cfMailParser($contentPdf, $visible_groups, $hidden_groups, $repeaters, $_POST);
+                    $parser = new Wpcf7cfMailParser($contentPdf, $visible_groups, $hidden_groups, $repeaters, $_POST); // phpcs:ignore WordPress.Security.NonceVerification.Missing
                     $contentPdf = $parser->getParsedMail();
                 }
 
@@ -786,6 +784,10 @@ class cf7_sendpdf {
             //$posted_data = $submission->get_posted_data();
 
             global $post;
+
+            //make sure the nonce is available too,
+            if( !isset($_POST['redirect_nonce']) ) return; // phpcs:ignore WordPress.Security.NonceVerification.Missing
+
             // On récupère le dossier upload de WP (utile pour les autres pièces jointes)
             $upload_dir = wp_upload_dir();
             // On récupère le dossier upload de l'extension (/sendpdfcf7_uploads/)
@@ -991,7 +993,7 @@ class cf7_sendpdf {
                 if( isset($pdfPassword) && $pdfPassword!='' ) {
                     $messageText = str_replace('[pdf-password]', $pdfPassword, $messageText);
                 } else {
-                    $messageText = str_replace('[pdf-password]', __('*** NO PASSWORD ***', WPCF7PDF_TEXT_DOMAIN), $messageText);
+                    $messageText = str_replace('[pdf-password]', __('*** NO PASSWORD ***', 'send-pdf-for-contact-form-7'), $messageText);
                 }
                 $messageText = WPCF7PDF_prepare::tags_parser($post['_wpcf7'], $nameOfPdf, $referencePDF, $messageText, 1);
                 
@@ -1032,13 +1034,15 @@ class cf7_sendpdf {
             global $post;
 
             // récupère le POST
-            $post = $_POST;
+            $post = $_POST; // phpcs:ignore WordPress.Security.NonceVerification.Missing
             // Récupère la référence
             $referencePDF = esc_html($post['wpcf7cfpdf_hidden_reference']);
             // Genere le nom du PDF
             $nameOfPdf = $this->wpcf7pdf_name_pdf(esc_html($post['_wpcf7']), $referencePDF);
             // On récupère le dossier upload de l'extension (/sendpdfcf7_uploads/)
+            $upload_dir = wp_upload_dir();
             $createDirectory = $this->wpcf7pdf_folder_uploads(esc_html($post['_wpcf7']));
+            $createPathDirectory = str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $createDirectory);
             // On recupere les donnees et le nom du pdf personnalisé
             $meta_values = get_post_meta(esc_html($post['_wpcf7']), '_wp_cf7pdf', true );
 
@@ -1049,27 +1053,27 @@ class cf7_sendpdf {
                 // Si fichier PDF activé, on les suprime disable-pdf
                 if( isset($meta_values["disable-pdf"]) && $meta_values['disable-pdf'] == 'false') {
                     if( file_exists($createDirectory.'/'.$nameOfPdf.'.pdf') ) {
-                        unlink($createDirectory.'/'.$nameOfPdf.'.pdf');
+                        wp_delete_file($createPathDirectory.'/'.$nameOfPdf.'.pdf');
                     }
                     if( file_exists($createDirectory.'/'.$nameOfPdf.'-'.$referencePDF.'.pdf') ) {
-                        unlink($createDirectory.'/'.$nameOfPdf.'-'.$referencePDF.'.pdf');
+                        wp_delete_file($createPathDirectory.'/'.$nameOfPdf.'-'.$referencePDF.'.pdf');
                     }
                 }
 
                 // Si fichier CSV activé, on les suprime
                 if( isset($meta_values["disable-csv"]) && $meta_values['disable-csv'] == 'false') {
                     if( file_exists($createDirectory.'/'.$nameOfPdf.'.csv') ) {
-                        unlink($createDirectory.'/'.$nameOfPdf.'.csv');
+                        wp_delete_file($createPathDirectory.'/'.$nameOfPdf.'.csv');
                     }
                     if( file_exists($createDirectory.'/'.$nameOfPdf.'-'.$referencePDF.'.csv') ) {
-                        unlink($createDirectory.'/'.$nameOfPdf.'-'.$referencePDF.'.csv');
+                        wp_delete_file($createPathDirectory.'/'.$nameOfPdf.'-'.$referencePDF.'.csv');
                     }
                 }
                 
                 // Si ZIP activé, on les suprime
                 if( isset($meta_values["pdf-to-zip"]) && $meta_values['pdf-to-zip'] == 'true') {
                     if( file_exists($createDirectory.'/'.$nameOfPdf.'.zip') ) {
-                        unlink($createDirectory.'/'.$nameOfPdf.'.zip');
+                        wp_delete_file($createPathDirectory.'/'.$nameOfPdf.'.zip');
                     }
                 }
 
@@ -1102,7 +1106,7 @@ class cf7_sendpdf {
 
         global $wpdb;
         if(!$ref or !$ref) { die('No reference!'); }
-        $result = $wpdb->get_row( $wpdb->prepare("SELECT wpcf7pdf_id, wpcf7pdf_id_form, wpcf7pdf_reference, wpcf7pdf_files FROM ".$wpdb->prefix."wpcf7pdf_files WHERE wpcf7pdf_reference = %s LIMIT 1", $ref ), 'OBJECT' );
+        $result = $wpdb->get_row( $wpdb->prepare("SELECT wpcf7pdf_id, wpcf7pdf_id_form, wpcf7pdf_reference, wpcf7pdf_files FROM ".$wpdb->prefix."wpcf7pdf_files WHERE wpcf7pdf_reference = %s LIMIT 1", $ref ), 'OBJECT' ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
         if($result) {
             return $result;
         }
@@ -1127,10 +1131,8 @@ class cf7_sendpdf {
             delete_post_meta( $postinfo->ID, '_wp_cf7pdf_fields' );
             delete_post_meta( $postinfo->ID, '_wp_cf7pdf_fields_scan' );
         }
-       
-        $wpcf7pdf_files_table = $wpdb->prefix.'wpcf7pdf_files';
-        $sql = "DROP TABLE IF EXISTS `$wpcf7pdf_files_table`";
-        $wpdb->query($sql);
+        $dropTable = WPCF7PDF_settings::drop();
+
     }
 
     static function wpcf7pdf_generateRandomPassword($nb_car = 8, $chaine = 'azertyuiopqsdfghjklmwxcvbnAZERTYUIOPMLKJGFDNBD123456789') {
@@ -1140,7 +1142,7 @@ class cf7_sendpdf {
         $generation = '';
         for($i=0; $i < $nb_car; $i++)
         {
-            $pos = mt_rand(0, $nb_lettres);
+            $pos = wp_rand(0, $nb_lettres);
             $car = $chaine[$pos];
             $generation .= $car;
         }
@@ -1315,11 +1317,11 @@ class cf7_sendpdf {
             foreach ( $getNamePerso as $key => $value ) {
                 $addNewName[$key] = str_replace(' ', '-', $value);
                 $addNewName[$key] = strtolower($addNewName[$key]);
-                $addName .= "'".sanitize_title($addNewName[$key])."',";
+                $addName .= "'".esc_html(sanitize_title($addNewName[$key]))."',";
             }
 
         ?>         
-            var fieldname = [<?php echo substr($addName, 0, -1); ?>];           
+            var fieldname = [<?php echo wp_kses_data($addName, 0, -1); ?>];           
             let valuefield = '';
 
             for ( var ii = 0; ii < fieldname.length; ii++ ) { // je liste les champs du nom du PDF
@@ -1337,12 +1339,12 @@ class cf7_sendpdf {
                     // Si on redirige sur une popup
                     if( (isset($meta_values["redirect-to-pdf"]) && $meta_values["redirect-to-pdf"] == 'true') && (isset($meta_values["redirect-window"]) && $meta_values["redirect-window"] == 'popup') ) { ?>
 
-                window.open('<?php echo str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $createDirectory)?>/<?php echo esc_html($singleNamePDF); ?>' + text + '-' + reference + '.pdf?ver=<?php echo rand(); ?>','text','menubar=no, status=no, scrollbars=yes, menubar=no, width=600, height=900');
+                window.open('<?php echo esc_url(str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $createDirectory)); ?>/<?php echo esc_html($singleNamePDF); ?>' + text + '-' + reference + '.pdf?ver=<?php esc_html(wp_rand()); ?>','text','menubar=no, status=no, scrollbars=yes, menubar=no, width=600, height=900');
 
                 <?php } else if( isset($meta_values["redirect-to-pdf"]) && $meta_values["redirect-to-pdf"] == 'true' ) { ?>
                 // Si option réglée sur nouvelle fenêtre mais avec des tags dans le nom du PDF
-                var location = '<?php echo str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $createDirectory)?>/<?php echo esc_html($singleNamePDF); ?>' + text + '-' + reference + '.pdf?ver=<?php echo rand(); ?>';
-                window.open(location, text, '<?php echo $targetPDF; ?>');
+                var location = '<?php echo esc_url(str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $createDirectory)); ?>/<?php echo esc_html($singleNamePDF); ?>' + text + '-' + reference + '.pdf?ver=<?php esc_html(wp_rand()); ?>';
+                window.open(location, text, '<?php echo esc_html($targetPDF); ?>');
 
                 <?php } } ?>
            
@@ -1353,19 +1355,22 @@ class cf7_sendpdf {
 
         if( (isset($meta_values["redirect-to-pdf"]) && $meta_values["redirect-to-pdf"] == 'true' ) && (isset($meta_values["redirect-window"]) && $meta_values["redirect-window"] == 'popup') ) { ?>
         // Si popup
-        window.open('<?php echo esc_html($urlRredirectPDF); ?>-' + reference + '.pdf?ver=<?php echo rand(); ?>', '<?php echo esc_html($singleNamePDF); ?>','menubar=no, status=no, scrollbars=yes, menubar=no, width=600, height=900');
+        window.open('<?php echo esc_url($urlRredirectPDF); ?>-' + reference + '.pdf?ver=<?php esc_html(wp_rand()); ?>', '<?php echo esc_html($singleNamePDF); ?>','menubar=no, status=no, scrollbars=yes, menubar=no, width=600, height=900');
         
         <?php } else if( isset($meta_values["redirect-to-pdf"]) && $meta_values["redirect-to-pdf"] == 'true' ) { ?>
         // Si option réglée sur nouvelle fenêtre
-        var location = '<?php echo esc_html($urlRredirectPDF); ?>-' + reference + '.pdf?ver=<?php echo rand(); ?>'; 
-        window.open(location, '<?php echo esc_html($singleNamePDF); ?>', '<?php echo $targetPDF; ?>');
+        var location = '<?php echo esc_url($urlRredirectPDF); ?>-' + reference + '.pdf?ver=<?php esc_html(wp_rand()); ?>'; 
+        window.open(location, '<?php echo esc_url($singleNamePDF); ?>', '<?php echo esc_html($targetPDF); ?>');
         
         <?php } 
 
         } 
-        if( (isset($meta_values['page_next']) && is_numeric($meta_values['page_next'])) ) { ?>
+        if( (isset($meta_values['page_next']) && is_numeric($meta_values['page_next'])) ) { 
+            $nonce_url = wp_nonce_url( esc_url(htmlspecialchars_decode(get_permalink($meta_values['page_next']))), 'go_reference' );
+        ?>
         // Si option réglée sur redirection vers page externe
-        location.replace("<?php echo htmlspecialchars_decode( esc_url( get_permalink($meta_values['page_next']).'?pdf-reference=')); ?>" + reference);
+        location.replace("<?php echo esc_url($nonce_url); ?>&pdf-reference=" + reference);
+        /*location.replace("<?php //echo htmlspecialchars_decode( esc_url( get_permalink($meta_values['page_next']).'?pdf-reference=')); ?>" + reference);*/
         <?php }
     
     ?>

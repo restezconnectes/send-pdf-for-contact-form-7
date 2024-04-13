@@ -55,6 +55,7 @@ Yes. If you want, you can support this project here: <a href="https://restezconn
 
 = 1.0.2.3 = 
 * Fix bug format textarea CSV
+* Secure plugin
 
 = 1.0.2.2 = 
 * Fix bug format text

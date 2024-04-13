@@ -449,7 +449,7 @@ class WPCF7PDF_prepare extends cf7_sendpdf {
                 $dateFormat = explode('"', $dateFormat);
 
                 if ( isset($preview) && $preview == 1 ) {
-                    $date = date("d-m-Y");
+                    $date = gmdate("d-m-Y");
                     $formatDate = new DateTime($date);
                     $contentPdf = str_replace('['.$outdate[1][$i].']', $formatDate->format($dateFormat[1]), $contentPdf);
                 } else {                
@@ -494,11 +494,11 @@ class WPCF7PDF_prepare extends cf7_sendpdf {
         $contentPdf = str_replace('[url-pdf]', esc_url($upload_dir['url'].'/'.$nameOfPdf.'-'.wp_kses_post($referenceOfPdf).'.pdf'), $contentPdf);
         if ( isset($preview) && $preview == 1 ) {
             // Remplace le tag ID
-            $contentPdf = str_replace('[ID]', '000'.date('md'), $contentPdf);
+            $contentPdf = str_replace('[ID]', '000'.gmdate('md'), $contentPdf);
             $contentPdf = str_replace('[your-name]', 'John Doe', $contentPdf);
             $contentPdf = str_replace('[your-email]', 'johndoe@nowhere.com', $contentPdf);
-            $contentPdf = str_replace('[your-subject]', __("This is a subject test!", WPCF7PDF_TEXT_DOMAIN), $contentPdf);
-            $contentPdf = str_replace('[your-message]', __("I did not understand at first for what it was intended, but it appeared. Great!", WPCF7PDF_TEXT_DOMAIN), $contentPdf);
+            $contentPdf = str_replace('[your-subject]', __("This is a subject test!", 'send-pdf-for-contact-form-7'), $contentPdf);
+            $contentPdf = str_replace('[your-message]', __("I did not understand at first for what it was intended, but it appeared. Great!", 'send-pdf-for-contact-form-7'), $contentPdf);
         }
         // Remplace les tags date et time
         $contentPdf = str_replace('[date]', $dateField, $contentPdf);

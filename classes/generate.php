@@ -209,8 +209,12 @@ class WPCF7PDF_generate extends cf7_sendpdf {
 
         // LOAD a stylesheet
         if( isset($meta_values['stylesheet']) && $meta_values['stylesheet']!='' ) {
-            $stylesheet = file_get_contents(esc_url($meta_values['stylesheet']));
-            $mpdf->WriteHTML($stylesheet,1);	// The parameter 1 tells that this is css/style only and no body/html/text
+            // Verifie extension .css
+            $extension = strtolower(pathinfo($meta_values['stylesheet'], PATHINFO_EXTENSION));
+            if( isset($extension) && $extension == 'css' ) {
+                $stylesheet = wp_remote_get(esc_url($meta_values['stylesheet']));
+                $mpdf->WriteHTML($stylesheet['body'],1);	// The parameter 1 tells that this is css/style only and no body/html/text
+            }
         }
 
         // Adding FontAwesome CSS 

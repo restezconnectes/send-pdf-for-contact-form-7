@@ -16,43 +16,48 @@ function wpcf7pdf_btn_shortcode( $atts ) {
 		), $atts )
 	);
     
-    if( isset($_GET['pdf-reference']) && !empty($_GET['pdf-reference']) ) {
-        
-        $infos = cf7_sendpdf::get_byReference(esc_html($_GET['pdf-reference']));
+    if( isset($_GET['_wpnonce']) && wp_verify_nonce($_GET['_wpnonce'], 'go_reference') ) {
 
-        if( empty($infos->wpcf7pdf_id_form) ) { 
-            return '';
-        } else {
-            $meta_values = get_post_meta( $infos->wpcf7pdf_id_form, '_wp_cf7pdf', true );
+        if( isset($_GET['pdf-reference']) && !empty($_GET['pdf-reference']) ) {
+            
+            $infos = cf7_sendpdf::get_byReference(esc_html($_GET['pdf-reference']));
 
-            if( isset($meta_values["disable-insert"]) && $meta_values["disable-insert"] == 'false' ) {
-                
-                if( isset($infos) ) {
+            if( empty($infos->wpcf7pdf_id_form) ) { 
+                return '';
+            } else {
+                $meta_values = get_post_meta( $infos->wpcf7pdf_id_form, '_wp_cf7pdf', true );
 
-                    if( $dashicons == 'none') {
-                        $iconDashicons = '';
+                if( isset($meta_values["disable-insert"]) && $meta_values["disable-insert"] == 'false' ) {
+                    
+                    if( isset($infos) ) {
+
+                        if( $dashicons == 'none') {
+                            $iconDashicons = '';
+                        } else {
+                            $iconDashicons = '<span class="dashicons '.esc_html($dashicons).'"></span> ';
+                        }
+                        if( $type == 'text' ) {
+                            return '<a class="'.esc_html($class).'" href="'.esc_url($infos->wpcf7pdf_files).'" target="'.esc_html($target).'">'.$iconDashicons.esc_html($textbutton).'</a>';
+                        } else {
+                            return '<a href="'.esc_url($infos->wpcf7pdf_files).'" target="'.esc_html($target).'"><button class="'.esc_html($class).'" type="button">'.$iconDashicons.esc_html($textbutton).'</button></a>';
+                        }
+
                     } else {
-                        $iconDashicons = '<span class="dashicons '.esc_html($dashicons).'"></span> ';
+                        return '<div style="text-align:center;width:80%;margin-left:auto;margin-right:right;background-color:#333;color:#ffffff;"><strong>ERROR Send PDF for Contact Form 7</strong><br />'.__('No data for this reference number', 'send-pdf-for-contact-form-7').' value:'.esc_html($meta_values["disable-insert"]).'</div>';
                     }
-                    if( $type == 'text' ) {
-                        return '<a class="'.esc_html($class).'" href="'.esc_url($infos->wpcf7pdf_files).'" target="'.esc_html($target).'">'.$iconDashicons.esc_html($textbutton).'</a>';
-                    } else {
-                        return '<a href="'.esc_url($infos->wpcf7pdf_files).'" target="'.esc_html($target).'"><button class="'.esc_html($class).'" type="button">'.$iconDashicons.esc_html($textbutton).'</button></a>';
-                    }
+                    
+                } else if( isset($meta_values["disable-insert"]) && $meta_values["disable-insert"]== 'true' ) {
+
+                    return '<div style="text-align:center;width:80%;margin-left:auto;margin-right:right;background-color:#333;color:#ffffff;"><strong>ERROR Send PDF for Contact Form 7</strong><br />'.__('"Insert subscribtion in database" option is disabled!<br />Please enable "Insert subscribtion in database" option', 'send-pdf-for-contact-form-7').' value:'.esc_html($meta_values["disable-insert"]).'</div>';
 
                 } else {
-                    return '<div style="text-align:center;width:80%;margin-left:auto;margin-right:right;background-color:#333;color:#ffffff;"><strong>ERROR Send PDF for Contact Form 7</strong><br />'.__('No data for this reference number', WPCF7PDF_TEXT_DOMAIN).' value:'.esc_html($meta_values["disable-insert"]).'</div>';
+                    return '';
                 }
-                
-            } else if( isset($meta_values["disable-insert"]) && $meta_values["disable-insert"]== 'true' ) {
-
-                return '<div style="text-align:center;width:80%;margin-left:auto;margin-right:right;background-color:#333;color:#ffffff;"><strong>ERROR Send PDF for Contact Form 7</strong><br />'.__('"Insert subscribtion in database" option is disabled!<br />Please enable "Insert subscribtion in database" option', WPCF7PDF_TEXT_DOMAIN).' value:'.esc_html($meta_values["disable-insert"]).'</div>';
-
-            } else {
-                return '';
             }
+            
+        } else {
+            return esc_html__('Reference is not available', 'send-pdf-for-contact-form-7');
         }
-        
     } else {
         return '';
     }
