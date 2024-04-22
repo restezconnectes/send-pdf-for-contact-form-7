@@ -53,20 +53,25 @@ class cf7_sendpdf {
         // on affiche les scripts footer
         add_action( 'wp_footer', array( $this, 'wpcf7_add_footer' ), 90 );
         
-        if( isset($_GET['csv_security']) && wp_verify_nonce($_GET['csv_security'], 'go_generate') ) {
-            if( isset($_GET['csv']) && intval($_GET['csv']) && $_GET['csv']==1 ) {
-                $csv = $this->wpcf7_export_csv( esc_html($_GET['idform']) );
+        if( isset($_GET['_wpnonce']) && wp_verify_nonce($_GET['_wpnonce'], 'csv_security') ) {
 
-                header("Pragma: public");
-                header("Expires: 0");
-                header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
-                header("Cache-Control: private", false);
-                header("Content-Type: application/octet-stream");
-                header("Content-Disposition: attachment; filename=\"sendpdfcf7_export_".esc_html($_GET['idform']).".csv\";" );
-                header("Content-Transfer-Encoding: binary");
+            $capability = apply_filters( 'wpcf7pdf_modify_capability', WPCF7_ADMIN_READ_CAPABILITY );
+            if ( isset($capability) && !empty( $capability ) ) { 
 
-                echo esc_html($csv);
-                exit;
+                if( isset($_GET['csv']) && intval($_GET['csv']) && $_GET['csv']==1 ) {
+                    $csv = $this->wpcf7_export_csv( esc_html($_GET['idform']) );
+
+                    header("Pragma: public");
+                    header("Expires: 0");
+                    header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
+                    header("Cache-Control: private", false);
+                    header("Content-Type: application/octet-stream");
+                    header("Content-Disposition: attachment; filename=\"sendpdfcf7_export_".esc_html($_GET['idform']).".csv\";" );
+                    header("Content-Transfer-Encoding: binary");
+
+                    echo esc_html($csv);
+                    exit;
+                }
             }
         }
 
@@ -203,11 +208,13 @@ class cf7_sendpdf {
         exit;
     }
 
-
     /**
      * Process a settings import from a json file
      */
     function wpcf7pdf_process_settings_import() {
+
+        if (empty($_POST)) return false;
+        //check_admin_referer('wpcf7_import_nonce');
 
         if(empty($_POST['wpcf7_action']) || 'import_settings' != $_POST['wpcf7_action'])
             return;
@@ -232,9 +239,21 @@ class cf7_sendpdf {
             wp_die( esc_html__( 'Please upload a file to import', 'send-pdf-for-contact-form-7' ) );
         }
 
-        // Retrieve the settings from the file and convert the json object to an array.
-        $settings = (array) json_decode(file_get_contents($import_file));
+        $import = ! empty( $_FILES['wpcf7_import_file'] ) && is_array( $_FILES['wpcf7_import_file'] ) && isset( $_FILES['wpcf7_import_file']['type'], $_FILES['wpcf7_import_file']['name'] ) ? $_FILES['wpcf7_import_file'] : array();
 
+        $_post_action    = $_POST['action'];
+        $_POST['action'] = 'wp_handle_sideload';
+        $file            = wp_handle_sideload( $import, array( 'mimes' => array( 'json' => 'application/json' ) ) );
+        $_POST['action'] = $_post_action;
+        if ( ! isset( $file['file'] ) ) {
+            return;
+        }
+        $filesystem      = WPCF7PDF_settings::wpcf7pdf_get_filesystem();
+        $settings        = $filesystem->get_contents( $file['file'] );
+	    $settings        = maybe_unserialize( $settings );
+
+        // Retrieve the settings from the file and convert the json object to an array.
+        $settings = (array) json_decode($settings);
         update_post_meta(sanitize_text_field($_POST['wpcf7pdf_import_id']), '_wp_cf7pdf', $settings);
 
         echo '<div id="message" class="updated fade"><p><strong>' . esc_html__('New settings imported successfully!', 'send-pdf-for-contact-form-7') . '</strong></p></div>';
@@ -522,7 +541,8 @@ class cf7_sendpdf {
         if( empty($id) ) { die('No ID Form'); }
         $meta_values = get_post_meta( $id, '_wp_cf7pdf', true );
 
-        $upload_dir = wp_upload_dir();
+        $upload_dir     = wp_upload_dir();
+        $filesystem     = WPCF7PDF_settings::wpcf7pdf_get_filesystem();
 
         // Si on a déjà défini
         if ( defined( 'WPCF7_UPLOADS_TMP_DIR' ) ) {
@@ -548,10 +568,7 @@ class cf7_sendpdf {
 
                 foreach ( $files as $file ) {
                     if ( wp_mkdir_p( $file['base'] ) && ! file_exists( trailingslashit( $file['base'] ) . $file['file'] ) ) {
-                        if ( $file_handle = @fopen( trailingslashit( $file['base'] ) . $file['file'], 'w' ) ) {
-                            fwrite( $file_handle, $file['content'] );
-                            fclose( $file_handle );
-                        }
+                        $filesystem->put_contents( trailingslashit( $file['base'] ) . $file['file'], $file['content'], FS_CHMOD_FILE);
                     }
                 }
 
@@ -577,10 +594,7 @@ class cf7_sendpdf {
 
                 foreach ( $files as $file ) {
                     if ( wp_mkdir_p( $file['base'] ) && ! file_exists( trailingslashit( $file['base'] ) . $file['file'] ) ) {
-                        if ( $file_handle = @fopen( trailingslashit( $file['base'] ) . $file['file'], 'w' ) ) {
-                            fwrite( $file_handle, $file['content'] );
-                            fclose( $file_handle );
-                        }
+                        $filesystem->put_contents( trailingslashit( $file['base'] ) . $file['file'], $file['content'], FS_CHMOD_FILE);
                     }
                 }
             }
@@ -597,10 +611,7 @@ class cf7_sendpdf {
 
                 foreach ( $files as $file ) {
                     if ( wp_mkdir_p( $file['base'] ) && ! file_exists( trailingslashit( $file['base'] ) . $file['file'] ) ) {
-                        if ( $file_handle = @fopen( trailingslashit( $file['base'] ) . $file['file'], 'w' ) ) {
-                            fwrite( $file_handle, $file['content'] );
-                            fclose( $file_handle );
-                        }
+                        $filesystem->put_contents( trailingslashit( $file['base'] ) . $file['file'], $file['content'], FS_CHMOD_FILE);
                     }
                 }
                 
@@ -979,9 +990,9 @@ class cf7_sendpdf {
             }
 
             // Si le contenu du PDF doit rester en brut et pas en HTML
-            if( isset($meta_values["disable-html"]) && $meta_values['disable-html'] == 'false' ) {
+            /*if( isset($meta_values["disable-html"]) && $meta_values['disable-html'] == 'false' ) {
                 $messageText = str_replace("\r\n", "<br />", $messageText);
-            }
+            }*/
             
             // Definition des dates par defaut
             $dateField = WPCF7PDF_prepare::returndate($post['_wpcf7']);

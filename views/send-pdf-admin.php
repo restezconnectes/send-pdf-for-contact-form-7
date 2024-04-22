@@ -1278,8 +1278,11 @@ if ( is_dir(get_stylesheet_directory()."/pdffonts/") == true ) {
                     <tbody>
                         <tr>
                             <td width="5%">
-                                <div>
-                                    <span class="dashicons dashicons-download"></span> <a href="<?php esc_url(wp_nonce_url( admin_url('admin.php?page=wpcf7-send-pdf&amp;idform='.esc_html($_POST['idform']).'&amp;csv=1'), 'go_generate', 'csv_security')); ?>" alt="<?php esc_html_e('Export list', 'send-pdf-for-contact-form-7'); ?>" title="<?php esc_html_e('Export list', 'send-pdf-for-contact-form-7'); ?>"><?php esc_html_e('Export list in CSV file', 'send-pdf-for-contact-form-7'); ?></a>
+                                <div><?php
+                                        $my_url = admin_url('admin.php?page=wpcf7-send-pdf&amp;idform='.esc_html($_POST['idform']).'&amp;csv=1');
+                                        $nonce_url = wp_nonce_url( $my_url, 'csv_security' );
+                                    ?>
+                                    <span class="dashicons dashicons-download"></span> <a href="<?php echo esc_url($nonce_url); ?>" alt="<?php esc_html_e('Export list', 'send-pdf-for-contact-form-7'); ?>" title="<?php esc_html_e('Export list', 'send-pdf-for-contact-form-7'); ?>"><?php esc_html_e('Export list in CSV file', 'send-pdf-for-contact-form-7'); ?></a>
                                 </div>
                         </tr>
                     </tbody>
@@ -1320,11 +1323,12 @@ if ( is_dir(get_stylesheet_directory()."/pdffonts/") == true ) {
               <input type="hidden" name="idform" value="<?php echo esc_html($idForm); ?>"/>
               <input type="hidden" name="wpcf7pdf_import_id" value="<?php echo esc_html($idForm); ?>" />
               <?php wp_nonce_field( 'go_import_nonce', 'wpcf7_import_nonce' ); ?>
-              <?php submit_button( esc_html__( 'Import', 'send-pdf-for-contact-form-7' ), 'secondary', 'submit', false ); ?>
+              <?php submit_button( esc_html__( 'Import', 'send-pdf-for-contact-form-7' ), 'secondary', 'submit_import', false ); ?>
           </p>
       </form>
     </div>
 </div>
+
 <?php } ?>
 <?php } else { ?>
     <div style="margin-left: 0px;margin-top: 5px;background-color: #ffffff;border: 1px solid #cccccc;padding: 10px;">

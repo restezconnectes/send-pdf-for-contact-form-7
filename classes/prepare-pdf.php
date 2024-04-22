@@ -709,11 +709,11 @@ class WPCF7PDF_prepare extends cf7_sendpdf {
         }
 
         // Si le contenu du PDF doit rester en brut et pas en HTML
-        if( isset($meta_values["linebreak"]) && $meta_values['linebreak'] == 'false' ) {
+        /*if( isset($meta_values["linebreak"]) && $meta_values['linebreak'] == 'false' ) {
             $contentPdf = str_replace("\r\n", "<br />", $contentPdf);
         } else if( $mailcontent==1 && (isset($meta_values["disable-html"]) && $meta_values['disable-html'] == 'false') ) {      
             $contentPdf = str_replace("\r\n", "<br />", $contentPdf);
-        }
+        }*/
 
         return $contentPdf;
     }

@@ -349,18 +349,18 @@ class WPCF7PDF_generate extends cf7_sendpdf {
         );
 
         if( isset($preview) && $preview == 1 ) {
-            $fpCsv = fopen($createDirectory.'/preview-'.esc_html($id).'.csv', 'w+');
+            $fpCsv = fopen($createDirectory.'/preview-'.esc_html($id).'.csv', 'w+'); /* phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen */
         } else {
-            $fpCsv = fopen($createDirectory.'/'.$nameOfPdf.'.csv', 'w+');
+            $fpCsv = fopen($createDirectory.'/'.$nameOfPdf.'.csv', 'w+'); /* phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen */
         }
         
         if( isset($meta_values["csv-separate"]) && !empty($meta_values["csv-separate"]) ) { $csvSeparate = esc_html($meta_values["csv-separate"]); } else { $csvSeparate = ','; }
         foreach ($csvlist as $csvfields) {
             $csvfields = str_replace("<br />", " ", $csvfields);
             $csvfields = str_replace("\r\n", " ", $csvfields);
-            fputcsv($fpCsv, $csvfields, $csvSeparate);
+            fputcsv($fpCsv, $csvfields, $csvSeparate); /* phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fputs */
         }
-        fclose($fpCsv);
+        fclose($fpCsv); /* phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose */
 
         if( isset($preview) && $preview == 0 ) {
             // Je copy le CSV genere

@@ -67,6 +67,29 @@ class WPCF7PDF_settings extends cf7_sendpdf {
         
     }
 
+    static function wpcf7pdf_get_filesystem() {
+        static $filesystem;
+    
+        if ( $filesystem ) {
+            return $filesystem;
+        }
+    
+        require_once( ABSPATH . 'wp-admin/includes/class-wp-filesystem-base.php' );
+        require_once( ABSPATH . 'wp-admin/includes/class-wp-filesystem-direct.php' );
+    
+        $filesystem = new WP_Filesystem_Direct( new StdClass() ); // WPCS: override ok.
+    
+        // Set the permission constants if not already set.
+        if ( ! defined( 'FS_CHMOD_DIR' ) ) {
+            define( 'FS_CHMOD_DIR', ( @fileperms( ABSPATH ) & 0777 | 0755 ) );
+        }
+        if ( ! defined( 'FS_CHMOD_FILE' ) ) {
+            define( 'FS_CHMOD_FILE', ( @fileperms( ABSPATH . 'index.php' ) & 0777 | 0644 ) );
+        }
+    
+        return $filesystem;
+    }
+
     static function getFontsTab() {
     
         return array(
