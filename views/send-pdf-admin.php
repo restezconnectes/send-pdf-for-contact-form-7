@@ -982,9 +982,9 @@ if ( is_dir(get_stylesheet_directory()."/pdffonts/") == true ) {
                         <td colspan="2">
                             <?php esc_html_e('You can use this tags:', 'send-pdf-for-contact-form-7'); ?><br />
                             <ul>
-                                <li><?php esc_html_e('<strong>{PAGENO}/{nbpg}</strong> will be replaced by the current page number / total pages.', 'send-pdf-for-contact-form-7'); ?></li>
-                                <li><?php esc_html_e('<strong>{DATE j-m-Y}</strong> will be replaced by the current date. j-m-Y can be replaced by any of the valid formats used in the php <a href="http://www.php.net/manual/en/function.date.php" target="_blank">date()</a> function.', 'send-pdf-for-contact-form-7'); ?></li>
-                                <li><?php esc_html_e('<strong>[reference] [date]</strong> and <strong>[time]</strong> tags works also.', 'send-pdf-for-contact-form-7'); ?></li>
+                                <li><strong>{PAGENO}/{nbpg}</strong> <?php esc_html_e('will be replaced by the current page number / total pages.', 'send-pdf-for-contact-form-7'); ?></li>
+                                <li><strong>{DATE j-m-Y}</strong> <?php esc_html_e('will be replaced by the current date. j-m-Y can be replaced by any of the valid formats used in the php', 'send-pdf-for-contact-form-7'); ?> <a href="http://www.php.net/manual/en/function.date.php" target="_blank">date()</a> <?php esc_html_e('function.', 'send-pdf-for-contact-form-7' ); ?></li>
+                                <li><strong>[reference]</strong>, <strong>[date]</strong>, <strong>[time]</strong> <?php esc_html_e('tags works also.', 'send-pdf-for-contact-form-7'); ?></li>
                             </ul>
                             <textarea id="cf7pdf_html_footer" name="wp_cf7pdf_settings[footer_generate_pdf]" rows="15" cols="80%"><?php if( isset( $meta_values['footer_generate_pdf']) ) { echo esc_textarea($meta_values['footer_generate_pdf']); } ?></textarea>
                         </td>
