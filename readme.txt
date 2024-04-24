@@ -4,7 +4,7 @@ Donate link: https://www.paypal.me/RestezConnectes/
 Tags: contact form 7, pdf, send, attachment, form
 Requires at least: 5.2
 Tested up to: 6.5
-Stable tag: 1.0.2.4
+Stable tag: 1.0.2.5
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -52,6 +52,9 @@ Yes. If you want, you can support this project here: <a href="https://restezconn
 
 
 == Changelog ==
+
+= 1.0.2.5 = 
+* Fix bug open PDF after sending email
 
 = 1.0.2.4 = 
 * Fix bug with line break on PDF
