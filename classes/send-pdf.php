@@ -1350,11 +1350,11 @@ class cf7_sendpdf {
                     // Si on redirige sur une popup
                     if( (isset($meta_values["redirect-to-pdf"]) && $meta_values["redirect-to-pdf"] == 'true') && (isset($meta_values["redirect-window"]) && $meta_values["redirect-window"] == 'popup') ) { ?>
 
-                window.open('<?php echo esc_url(str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $createDirectory)); ?>/<?php echo esc_html($singleNamePDF); ?>' + text + '-' + reference + '.pdf?ver=<?php esc_html(wp_rand()); ?>','text','menubar=no, status=no, scrollbars=yes, menubar=no, width=600, height=900');
+                window.open('<?php echo esc_url(str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $createDirectory)); ?>/<?php echo esc_html($singleNamePDF); ?>' + text + '-' + reference + '.pdf?ver=<?php echo esc_html(wp_rand()); ?>','text','menubar=no, status=no, scrollbars=yes, menubar=no, width=600, height=900');
 
                 <?php } else if( isset($meta_values["redirect-to-pdf"]) && $meta_values["redirect-to-pdf"] == 'true' ) { ?>
                 // Si option réglée sur nouvelle fenêtre mais avec des tags dans le nom du PDF
-                var location = '<?php echo esc_url(str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $createDirectory)); ?>/<?php echo esc_html($singleNamePDF); ?>' + text + '-' + reference + '.pdf?ver=<?php esc_html(wp_rand()); ?>';
+                var location = '<?php echo esc_url(str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $createDirectory)); ?>/<?php echo esc_html($singleNamePDF); ?>' + text + '-' + reference + '.pdf?ver=<?php echo esc_html(wp_rand()); ?>';
                 window.open(location, text, '<?php echo esc_html($targetPDF); ?>');
 
                 <?php } } ?>
@@ -1366,17 +1366,17 @@ class cf7_sendpdf {
 
         if( (isset($meta_values["redirect-to-pdf"]) && $meta_values["redirect-to-pdf"] == 'true' ) && (isset($meta_values["redirect-window"]) && $meta_values["redirect-window"] == 'popup') ) { ?>
         // Si popup
-        window.open('<?php echo esc_url($urlRredirectPDF); ?>-' + reference + '.pdf?ver=<?php esc_html(wp_rand()); ?>', '<?php echo esc_html($singleNamePDF); ?>','menubar=no, status=no, scrollbars=yes, menubar=no, width=600, height=900');
+        window.open('<?php echo esc_url($urlRredirectPDF); ?>-' + reference + '.pdf?ver=<?php echo esc_html(wp_rand()); ?>', '<?php echo esc_html($singleNamePDF); ?>','menubar=no, status=no, scrollbars=yes, menubar=no, width=600, height=900');
         
         <?php } else if( isset($meta_values["redirect-to-pdf"]) && $meta_values["redirect-to-pdf"] == 'true' ) { ?>
         // Si option réglée sur nouvelle fenêtre
-        var location = '<?php echo esc_url($urlRredirectPDF); ?>-' + reference + '.pdf?ver=<?php esc_html(wp_rand()); ?>'; 
-        window.open(location, '<?php echo esc_url($singleNamePDF); ?>', '<?php echo esc_html($targetPDF); ?>');
+        var location = '<?php echo esc_url($urlRredirectPDF); ?>-' + reference + '.pdf?ver=<?php echo esc_html(wp_rand()); ?>'; 
+        window.open(location, '<?php echo esc_html($singleNamePDF); ?>', '<?php echo esc_html($targetPDF); ?>');
         
         <?php } 
 
         } 
-        if( (isset($meta_values['page_next']) && is_numeric($meta_values['page_next'])) ) { 
+        if( (isset($meta_values['page_next']) && is_numeric($meta_values['page_next'])) && $meta_values['page_next']>=1 ) {
             $nonce_url = wp_nonce_url( esc_url(htmlspecialchars_decode(get_permalink($meta_values['page_next']))), 'go_reference' );
         ?>
         // Si option réglée sur redirection vers page externe
