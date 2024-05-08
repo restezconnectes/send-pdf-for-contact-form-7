@@ -311,6 +311,20 @@ class WPCF7PDF_prepare extends cf7_sendpdf {
             'dt' => array(),
             'em' => array(),
             'bdi' => array(),
+            'textarea' => array(
+                'cols' => array(),
+                'rows' => array(),
+                'name' => array(),
+                'style' => array(),
+                'class' => array(),
+                ),
+            'input' => array(
+                'type' => array(),
+                'value' => array(),
+                'name' => array(),
+                'style' => array(),
+                'class' => array(),
+                ),
             /*'html' => array(
                 'lang' => array(),
             ),
@@ -495,10 +509,31 @@ class WPCF7PDF_prepare extends cf7_sendpdf {
         if ( isset($preview) && $preview == 1 ) {
             // Remplace le tag ID
             $contentPdf = str_replace('[ID]', '000'.gmdate('md'), $contentPdf);
-            $contentPdf = str_replace('[your-name]', 'John Doe', $contentPdf);
-            $contentPdf = str_replace('[your-email]', 'johndoe@nowhere.com', $contentPdf);
-            $contentPdf = str_replace('[your-subject]', __("This is a subject test!", 'send-pdf-for-contact-form-7'), $contentPdf);
-            $contentPdf = str_replace('[your-message]', __("I did not understand at first for what it was intended, but it appeared. Great!", 'send-pdf-for-contact-form-7'), $contentPdf);
+            if (isset($meta_values['data_input']) && $meta_values['data_input']== 'true') {
+                $contentPdf = str_replace('[your-name]', '<input type="text" class="wpcf7-text" size="80" name="your-name" value="Doe" />', $contentPdf);
+            } else {
+                $contentPdf = str_replace('[your-name]', 'Doe', $contentPdf);
+            }
+            if (isset($meta_values['data_input']) && $meta_values['data_input']== 'true') {
+                $contentPdf = str_replace('[your-firstname]', '<input type="text" class="wpcf7-text" size="80" name="your-firstname" value="John" />', $contentPdf);
+            } else {
+                $contentPdf = str_replace('[your-firstname]', 'John', $contentPdf);
+            }
+            if (isset($meta_values['data_input']) && $meta_values['data_input']== 'true') {
+                $contentPdf = str_replace('[your-email]', '<input type="text" class="wpcf7-text" size="80" name="your-email" value="johndoe@nowhere.com" />', $contentPdf);
+            } else {
+                $contentPdf = str_replace('[your-email]', 'John', $contentPdf);
+            }
+            if (isset($meta_values['data_input']) && $meta_values['data_input']== 'true') {
+                $contentPdf = str_replace('[your-subject]', '<input type="text" class="wpcf7-text" name="your-subject" size="80" value="'.__("This is a subject test!", 'send-pdf-for-contact-form-7').'" />', $contentPdf);
+            } else {
+                $contentPdf = str_replace('[your-subject]', __("This is a subject test!", 'send-pdf-for-contact-form-7'), $contentPdf);
+            }
+            if (isset($meta_values['data_input']) && $meta_values['data_input']== 'true') {
+                $contentPdf = str_replace('[your-message]', '<textarea cols="40" rows="10" name="your-message">'.__("I did not understand at first for what it was intended, but it appeared. Great!", 'send-pdf-for-contact-form-7').'</textarea>', $contentPdf);
+            } else {
+                $contentPdf = str_replace('[your-message]', __("I did not understand at first for what it was intended, but it appeared. Great!", 'send-pdf-for-contact-form-7'), $contentPdf);
+            }
         }
         // Remplace les tags date et time
         $contentPdf = str_replace('[date]', $dateField, $contentPdf);
@@ -548,7 +583,7 @@ class WPCF7PDF_prepare extends cf7_sendpdf {
             }
         }
 
-        // Si le champ est un fichier ou checkbox ou radio normal
+        // On parse le content pour extraire les types de champ
         $contentPdfTags = self::wpcf7pdf_mailparser($contentPdf);
         foreach ( (array) $contentPdfTags as $name_tags ) {
 
@@ -556,13 +591,14 @@ class WPCF7PDF_prepare extends cf7_sendpdf {
             $name_tags[0] = str_replace('url-', '', $name_tags[0]);
             $found_key = cf7_sendpdf::wpcf7pdf_foundkey($contact_tag, $name_tags[1]);
             $basetype = $contact_tag[$found_key]['basetype'];
-            
             $tagOptions = '';
             if( isset( $contact_tag[$found_key]['options'] ) ) {
                 $tagOptions = $contact_tag[$found_key]['options'];
             }
 
-            // Traitement si c'est une image
+            /**
+             *  Si le champ est un type file et image
+             */
             if( isset($basetype) && $basetype==='file' ) {
 
                 if ( isset($preview) && $preview == 1 ) {
@@ -571,37 +607,69 @@ class WPCF7PDF_prepare extends cf7_sendpdf {
                         // get the source string
                         preg_match('/src="([^"]+)/i', $imgTags[0][$i], $imageTag);
                         // remove opening 'src=' tag, can`t get the regex right
-                        $origImageSrc = str_ireplace( 'src="', '',  $imageTag[0]);
-                        if( strpos( $origImageSrc, 'http' ) === false ) {                
-                            $contentPdf = str_replace( $origImageSrc, WPCF7PDF_URL.'images/temporary-image.jpg', $contentPdf);
-                        }
+                        $origImageSrc = str_ireplace( 'src="', '',  $imageTag[0]);              
+                        $contentPdf = str_replace( $origImageSrc, WPCF7PDF_URL.'images/temporary-image.jpg', $contentPdf);
                     }
-                } else {
-                    
+                    $contentPdf = str_replace(esc_html($name_tags[0]), '<img src="'.WPCF7PDF_URL.'images/temporary-image.jpg" width="300" height="300" />', $contentPdf);
+                } else {                    
                     $valueTag = wpcf7_mail_replace_tags($name_tags[0]);
-                    $contentPdf = self::upload_file($id, $valueTag, $name_tags[0], $name_tags[1], $referenceOfPdf, $contentPdf);
-                    
+                    $contentPdf = self::upload_file($id, $valueTag, $name_tags[0], $name_tags[1], $referenceOfPdf, $contentPdf);                    
                 }
 
+            /**
+             *  Si le champ est un type textarea
+             */
             } else if(isset($basetype) && $basetype==='textarea') {
 
                 $valueTag = wpcf7_mail_replace_tags(esc_html($name_tags[0]));
+                $emptyTextareaInput = 0;                
+                if( (isset($meta_values['empty_input']) && $meta_values['empty_input']=='true') ) {
+                    $emptyTextareaInput = 1;
+                }
                 // Si le contenu du PDF doit rester en brut et pas en HTML
                 if( isset($meta_values["linebreak"]) && $meta_values['linebreak'] == 'false' ) {
-                    $linebreakText = str_replace("\r\n", "<br />", $valueTag);
-                    $contentPdf = str_replace(esc_html($name_tags[0]), $linebreakText, $contentPdf);
+                    $valueTag = str_replace("\r\n", "<br />", $valueTag);
                 } else if( $mailcontent==1 && (isset($meta_values["disable-html"]) && $meta_values['disable-html'] == 'false') ) {      
-                    $linebreakText = str_replace("\r\n", "<br />", $valueTag);
-                    $contentPdf = str_replace(esc_html($name_tags[0]), $linebreakText, $contentPdf);
-                } else {
-                    $contentPdf = str_replace(esc_html($name_tags[0]), $valueTag, $contentPdf);
+                    $valueTag = str_replace("\r\n", "<br />", $valueTag);
+                } 
+                if( $emptyTextareaInput == 0 ) {
+                    if (isset($meta_values['data_input']) && $meta_values['data_input']== 'true') {                    
+                        $contentPdf = str_replace(esc_html($name_tags[0]), '<textarea cols="40" rows="10" name="'.$name_tags[1].'">'.$valueTag.'</textarea>', $contentPdf);        
+                    } else {                    
+                        $contentPdf = str_replace(esc_html($name_tags[0]), $valueTag, $contentPdf);
+                    }
                 }
-                
+            
+            /**
+             *  Si le champ est un type select
+             */
             } else if( isset($basetype) && $basetype==='select' ) {
 
                 $valueTag = wpcf7_mail_replace_tags(esc_html($name_tags[0]));
                 $contentPdf = str_replace(esc_html($name_tags[0]), $valueTag, $contentPdf);
 
+            /**
+             *  Si le champ est un type text
+             *  On retire si c'est le shortocode de test et si c'est un codebarre
+             */
+            } else if( ( isset($basetype) && $basetype==='text' ) && ( isset($name_tags[1]) && $name_tags[1]!='0-9') && ( isset($name_tags[1]) && $name_tags[1]!='addpage' )  && (isset($name_tags[1]) && $name_tags[1]!='wpcf7pdf_test') ) {
+
+                $valueTag = wpcf7_mail_replace_tags(esc_html($name_tags[0]));
+                $emptyTextInput = 0;                
+                if( (isset($meta_values['empty_input']) && $meta_values['empty_input']=='true') ) {
+                    $emptyTextInput = 1;
+                }
+                if( $emptyTextInput == 0 ) {
+                    if (isset($meta_values['data_input']) && $meta_values['data_input']== 'true') {                        
+                        $contentPdf = str_replace(esc_html($name_tags[0]), '<input type="text" name="'.$name_tags[1].'" value="'.esc_html($valueTag).'">', $contentPdf);                        
+                    } else {
+                        $contentPdf = str_replace(esc_html($name_tags[0]), esc_html($valueTag), $contentPdf);
+                    } 
+                }        
+
+            /**
+             *  Si le champ est un type checkbox
+             */
             } else if( isset($basetype) && $basetype==='checkbox' ) {
 
                 $inputCheckbox = '';
@@ -661,7 +729,10 @@ class WPCF7PDF_prepare extends cf7_sendpdf {
 
                 }
                 $contentPdf = str_replace(esc_html($name_tags[0]), $inputCheckbox, $contentPdf);
-                
+             
+            /**
+             *  Si le champ est un type radio
+             */
             } else if( isset($basetype) && $basetype==='radio' ) {
 
                 $inputRadio = '';
