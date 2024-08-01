@@ -9,6 +9,10 @@ class cf7_sendpdf {
         is_null( self::$instance ) AND self::$instance = new self;
         return self::$instance;
 	}
+
+    private static $notices = array(
+		'welcome' => 'views/notices/welcome'
+	);
     
 	public function hooks() {
 
@@ -19,6 +23,7 @@ class cf7_sendpdf {
         } else if ( get_option('wpcf7pdf_version') != WPCF7PDF_VERSION ) {
             update_option('wpcf7pdf_version', WPCF7PDF_VERSION);
         }
+       
 
         /* Définition du répertoire TMP pour CF7 */
         $upload_dir = wp_upload_dir();
@@ -50,6 +55,10 @@ class cf7_sendpdf {
         add_action( 'wp_ajax_wpcf7pdf_js_action', array( $this, 'wpcf7pdf_js_action' ) );
         add_action( 'wp_ajax_nopriv_wpcf7pdf_js_action', array( $this, 'wpcf7pdf_js_action' ) );
 
+        //if( !get_option( 'wpcf7pdf_admin_notices' ) ) { add_option( 'wpcf7pdf_admin_notices', array() ); } 
+        add_action( 'admin_notices', array( $this, 'wpcf7pdf_notices' ) );      
+        add_action( 'wp_loaded', array( __CLASS__, 'wpcf7pdf_hide' ) );
+
         // on affiche les scripts footer
         add_action( 'wp_footer', array( $this, 'wpcf7_add_footer' ), 90 );
         
@@ -76,6 +85,30 @@ class cf7_sendpdf {
         }
 
     }
+
+    function wpcf7pdf_notices() {
+        
+        $hidden_notices = get_option( 'wpcf7pdf_admin_notices', array() );
+        foreach ( self::$notices as $id => $template ) {
+            if ( ! in_array( $id, $hidden_notices ) ) {
+                include(WPCF7PDF_DIR.$template.'.php');
+            }
+        }
+
+    }
+
+    public static function wpcf7pdf_hide() {
+
+		if ( ! empty( $_GET['wpcf7pdf-hide-notice'] ) ) {
+			if ( ! wp_verify_nonce( $_GET['_wpcf7pdf_notice_nonce'], 'wpcf7pdf_hide_notices_nonce' ) ) {
+				wp_die( esc_html_e( 'Please refresh the page and retry action.', 'send-pdf-for-contact-form-7' ) );
+			}
+
+			$notices = get_option( 'wpcf7pdf_admin_notices', array() );
+			$notices[] = $_GET['wpcf7pdf-hide-notice'];
+			update_option( 'wpcf7pdf_admin_notices', $notices );
+		}
+	}
 
     // Add "Réglages" link on plugins page
     function wpcf7pdf_plugin_actions( $links, $file ) {
@@ -132,9 +165,9 @@ class cf7_sendpdf {
         die();
     }
 
-    static function wpcf7pdf_mailparser($data, $raw=0) {
+    static function wpcf7pdf_mailparser($data, $raw='') {
 
-        if( isset($raw) && $raw==1) {
+        if( isset($raw) && $raw=='raw' ) {
             preg_match_all( '/\[(_raw_.*?)\]/', $data, $matches );
             return $matches[1];
         } else {
@@ -335,6 +368,7 @@ class cf7_sendpdf {
 
     function wpcf7pdf_codemirror_enqueue_scripts($hook) {
 
+        wp_enqueue_style('wpcf7-notices-style', WPCF7PDF_URL.'css/wpcf7-notices.css', array(), WPCF7PDF_VERSION);
         if (isset($_GET['page']) && $_GET['page'] == 'wpcf7-send-pdf') { // phpcs:ignore
             wp_enqueue_code_editor(array( 'type' => 'text/html'));
             wp_enqueue_script('js-code-editor', WPCF7PDF_URL.'js/wpcf7pdf-code-editor.js', array( 'jquery' ), WPCF7PDF_VERSION, true);
@@ -353,6 +387,7 @@ class cf7_sendpdf {
             $capability, 'wpcf7-send-pdf',
             array( $this, 'wpcf7pdf_dashboard_html_page') );
         }
+        
 
         // If you're not including an image upload then you can leave this function call out
         if (isset($_GET['page']) && $_GET['page'] == 'wpcf7-send-pdf') { // phpcs:ignore
@@ -1127,6 +1162,7 @@ class cf7_sendpdf {
 
         if(get_option('wpcf7pdf_version')) { delete_option('wpcf7pdf_version'); }
         if(get_option('wpcf7pdf_path_temp')) { delete_option('wpcf7pdf_path_temp'); }
+        if(get_option('wpcf7pdf_admin_notices')) { delete_option('wpcf7pdf_admin_notices'); }
     }
 
     static function wpcf7pdf_uninstall() {
@@ -1135,6 +1171,7 @@ class cf7_sendpdf {
 
         if(get_option('wpcf7pdf_version')) { delete_option('wpcf7pdf_version'); }
         if(get_option('wpcf7pdf_path_temp')) { delete_option('wpcf7pdf_path_temp'); }
+        if(get_option('wpcf7pdf_admin_notices')) { delete_option('wpcf7pdf_admin_notices'); }
         
         $allposts = get_posts( 'numberposts=-1&post_type=wpcf7_contact_form&post_status=any' );
         foreach( $allposts as $postinfo ) {

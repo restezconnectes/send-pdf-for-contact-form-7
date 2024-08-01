@@ -193,6 +193,13 @@ class WPCF7PDF_prepare extends cf7_sendpdf {
                 'style' => array(),
                 'dir' => array()
                 ),
+            'style' => array(
+                'id' => array(),
+                'media' => array(),
+                'title' => array(),
+                'lang' => array(),
+                'dir' => array()
+            ),
             'bdo' => array(
                 'id' => array(),
                 'class' => array(),
@@ -564,7 +571,7 @@ class WPCF7PDF_prepare extends cf7_sendpdf {
         $contact_tag = $contact_form->scan_form_tags();
 
         // Si le champ est checkbox ou radio en RAW
-        $contentPdfTagsRaw = self::wpcf7pdf_mailparser($contentPdf, 1);
+        $contentPdfTagsRaw = cf7_sendpdf::wpcf7pdf_mailparser($contentPdf, 'raw');
         foreach ( (array) $contentPdfTagsRaw as $name_raw ) {
 
             $name1raw = str_replace('_raw_', '', $name_raw);
@@ -572,6 +579,7 @@ class WPCF7PDF_prepare extends cf7_sendpdf {
             $baseTypeRaw = $contact_tag[$found_key]['basetype'];
 
             if( isset($baseTypeRaw) && ($baseTypeRaw==='checkbox' || $baseTypeRaw==='radio') ) {
+
                 // Exemple : CEO | sales@example.com
                 // on remplace _raw_TAG par l'avant PIPE soit CEO
                 $rawValue = wpcf7_mail_replace_tags(esc_html('['.$name_raw.']'));                        
@@ -584,7 +592,7 @@ class WPCF7PDF_prepare extends cf7_sendpdf {
         }
 
         // On parse le content pour extraire les types de champ
-        $contentPdfTags = self::wpcf7pdf_mailparser($contentPdf);
+        $contentPdfTags = cf7_sendpdf::wpcf7pdf_mailparser($contentPdf);
         foreach ( (array) $contentPdfTags as $name_tags ) {
 
             $name_tags[1] = str_replace('url-', '', $name_tags[1]);
