@@ -752,6 +752,21 @@ if ( is_dir(get_stylesheet_directory()."/pdffonts/") == true ) {
                         </td>
                     </tr>
                     <tr>
+                        <td><!-- Propose de mettre la cases réelles des Textarea -->
+                            <?php esc_html_e('Enable display data in the textarea of your PDF file?', 'send-pdf-for-contact-form-7'); ?>
+                        </td>
+                        <td>
+                            <div>
+                                <div class="switch-field">
+                                <input class="switch_left" type="radio" id="switch_data_textarea" name="wp_cf7pdf_settings[data_textarea]" value="true" <?php if( isset($meta_values["data_textarea"]) && $meta_values["data_textarea"]=='true') { echo ' checked'; } ?>/>
+                                <label for="switch_data_textarea"><?php esc_html_e('Yes', 'send-pdf-for-contact-form-7'); ?></label>
+                                <input class="switch_right" type="radio" id="switch_data_textarea_no" name="wp_cf7pdf_settings[data_textarea]" value="false" <?php if( empty($meta_values["data_textarea"]) || (isset($meta_values["data_textarea"]) && $meta_values["data_textarea"]=='false') ) { echo ' checked'; } ?> />
+                                <label for="switch_data_textarea_no"><?php esc_html_e('No', 'send-pdf-for-contact-form-7'); ?></label>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
                         <td><!-- Ne pas afficher les entrée vides des Checkbox et Radio -->
                             <?php esc_html_e('Disable display empty data in the checkbox or radio buttons?', 'send-pdf-for-contact-form-7'); ?>
                         </td>

@@ -13,9 +13,13 @@ Translations: <a href="https://translate.wordpress.org/projects/wp-plugins/send-
 <a href="https://demo.restezconnectes.fr/send-pdf-for-contact-form-7/">[Demo Here]</a>
 <a href="https://restezconnectes.fr/tutoriel-wordpress-lextension-send-pdf-for-contact-form-7/">[Tutorial Here]</a>
 
-Current Version:  1.0.2.6
+Current Version:  1.0.2.7
 
 == Changelog ==
+
+= 1.0.2.7 = 
+* Adding option for displaying textarea fields
+* Change cols value at 100% for textarea fields
 
 = 1.0.2.6 = 
 * Fix bug form filled
