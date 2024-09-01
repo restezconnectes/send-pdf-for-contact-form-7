@@ -68,8 +68,8 @@ class cf7_sendpdf {
             if ( isset($capability) && !empty( $capability ) ) { 
 
                 if( isset($_GET['csv']) && intval($_GET['csv']) && $_GET['csv']==1 ) {
-                    $csv = $this->wpcf7_export_csv( esc_html($_GET['idform']) );
-
+                    $csv_output = $this->wpcf7_export_csv( esc_html($_GET['idform']) );
+                    
                     header("Pragma: public");
                     header("Expires: 0");
                     header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
@@ -77,8 +77,8 @@ class cf7_sendpdf {
                     header("Content-Type: application/octet-stream");
                     header("Content-Disposition: attachment; filename=\"sendpdfcf7_export_".esc_html($_GET['idform']).".csv\";" );
                     header("Content-Transfer-Encoding: binary");
-
-                    echo esc_html($csv);
+                    header('Content-Length: '. strlen($encoded_csv));
+                    echo esc_html($csv_output);
                     exit;
                 }
             }
@@ -1206,7 +1206,8 @@ class cf7_sendpdf {
         $createDirectory = $this->wpcf7pdf_folder_uploads($idform);
         $createDirectory = str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $createDirectory);
             
-        $separateur = ";";
+        if( isset($meta_values['csv-separate']) && $meta_values['csv-separate']!='') { $separateur = esc_html($meta_values['csv-separate']); } else { $separateur = ";"; }
+        
         if( isset($meta_fields) ) {
 
             $csv_output = '';
@@ -1247,6 +1248,7 @@ class cf7_sendpdf {
             foreach( $lignes as $ligne ) {
                  $csv_output .= implode($separateur, $ligne)."\r\n";
             }
+
             return $csv_output;
         }
     }

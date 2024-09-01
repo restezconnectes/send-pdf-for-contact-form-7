@@ -24,6 +24,7 @@ if( (isset($_POST['action']) && isset($_POST['idform']) && $_POST['action'] == '
         delete_post_meta( $_POST['idform'], '_wp_cf7pdf' );
         delete_post_meta( $_POST['idform'], '_wp_cf7pdf_fields' );
         delete_post_meta( $_POST['idform'], '_wp_cf7pdf_fields_scan' );
+        delete_post_meta( $_POST['idform'], '_wp_cf7pdf_customtagsname' );
         $_POST['idform'] = '';
         
         wp_redirect( 'admin.php?page=wpcf7-send-pdf&deleted=1' );
@@ -66,7 +67,9 @@ if( (isset($_POST['action']) && isset($_POST['idform']) && $_POST['action'] == '
         if ( isset($_POST["wp_cf7pdf_tags_scan"]) ) {
             $updateSettingTagsScan = WPCF7PDF_settings::update_settings(esc_html($_POST['idform']), $_POST["wp_cf7pdf_tags_scan"], '_wp_cf7pdf_fields_scan');
         }
-        
+        if($_POST['wp_cf7pdf_custom_tags_name']) {
+            $updateSettingTagsName = WPCF7PDF_settings::update_settings(esc_html($_POST['idform']), $_POST["wp_cf7pdf_custom_tags_name"], '_wp_cf7pdf_customtagsname');
+        }
         if( isset($updateSetting) && $updateSetting == true) {
             $options_saved = true;
             echo '<div id="message" class="updated fade"><p><strong>'.esc_html__('Options saved.', 'send-pdf-for-contact-form-7').'</strong></p></div>';
@@ -114,6 +117,7 @@ if( isset($_POST['action']) && $_POST['action'] == 'reset' ) {
 if( isset($_GET['deleted']) && $_GET['deleted']==1 ) {
     echo '<div id="message" class="updated fade"><p><strong>'.esc_html__('All settings hare been deleted.', 'send-pdf-for-contact-form-7').'</strong></p></div>';
 }
+
 ?>
 <script type="text/javascript">
 jQuery.fn.selectText = function () {
@@ -427,6 +431,7 @@ if ( is_dir(get_stylesheet_directory()."/pdffonts/") == true ) {
                             </div>
                         </td>
                     </tr>
+                    <?php if( empty($meta_values["disable-csv"]) || (isset($meta_values["disable-csv"]) && $meta_values["disable-csv"]=='false') ) { ?>
                     <tr>
                         <td><?php esc_html_e('Who send the CSV file?', 'send-pdf-for-contact-form-7'); ?></td>
                         <td>
@@ -442,6 +447,8 @@ if ( is_dir(get_stylesheet_directory()."/pdffonts/") == true ) {
                             <p><i><?php esc_html_e("By defaut it's separated by commas", 'send-pdf-for-contact-form-7'); ?></i></p></td>
                         <td><input size="3" type= "text" name="wp_cf7pdf_settings[csv-separate]" class="wpcf7-form-field" value="<?php if( isset($meta_values["csv-separate"]) && !empty($meta_values["csv-separate"]) ) { echo esc_html($meta_values["csv-separate"]); } else { echo ','; } ?>" /></td>
                     </tr>
+
+                    <?php } ?>
                     <tr><td colspan="2"><hr style="background-color: <?php echo esc_html($colors[2]); ?>; height: 1px; border: 0;"></td></tr>
                     <tr>
                         <td>
@@ -1121,7 +1128,6 @@ if ( is_dir(get_stylesheet_directory()."/pdffonts/") == true ) {
                                     <option value="space" <?php if( empty($meta_values["separate_after"]) || (isset($meta_values["separate_after"]) && $meta_values["separate_after"] == 'space') ) { echo 'selected'; } ?>><?php esc_html_e("Space", 'send-pdf-for-contact-form-7'); ?></option>
                                     <option value="linebreak" <?php if( isset($meta_values["separate_after"]) && $meta_values["separate_after"] == 'linebreak') { echo 'selected'; } ?>><?php esc_html_e("Line break", 'send-pdf-for-contact-form-7'); ?></option>                                    
                                 </select><br />
-                                <!--<?php esc_html_e('Other:', 'send-pdf-for-contact-form-7'); ?> <input type="text" size="4" class="wpcf7-form-field" name="wp_cf7pdf_settings[separate_other]" value="<?php if( isset($meta_values["separate_other"]) && $meta_values["separate_other"]!='' ) { echo esc_html($meta_values["separate_other"]); } else { echo ''; } ?>" />-->
                             </td>
                         </tr>
 
@@ -1239,10 +1245,74 @@ if ( is_dir(get_stylesheet_directory()."/pdffonts/") == true ) {
             <?php } ?>
         </p>
     </div>
+    <div class="clear" style="margin-bottom:15px;">&nbsp;</div>
+<?php if( empty($meta_values["disable-csv"]) || (isset($meta_values["disable-csv"]) && $meta_values["disable-csv"]=='false') ) { ?>
+<a name="fieldmatching"></a>
+<div class="postbox">
 
+    <div class="handlediv" style="height:1px!important;" title="<?php esc_html_e('Click to toggle', 'send-pdf-for-contact-form-7'); ?>"><br></div>
+    <span class="dashicons customDashicons dashicons-randomize"></span> <h3 class="hndle"><?php esc_html_e( 'Field Matching for CSV file', 'send-pdf-for-contact-form-7' ); ?></h3>
+    <div class="inside">
+        <div style="padding:5px;margin-bottom:10px;">
+            <div>
+                <table>
+                    <thead>
+                        <tr id="cb" class="manage-column column-cb check-column">
+                            <th scope="col" id="name" class="manage-column column-name column-primary"><?php esc_html_e( 'Identifier', 'send-pdf-for-contact-form-7' ); ?></th>
+                            <th scope="col" id="slug" class="manage-column column-name column-primary"><?php esc_html_e( 'Field Name', 'send-pdf-for-contact-form-7' ); ?></th>
+                        </tr>
+                    </thead>
+                    <tbody id="the-list" class="ui-sortable">
+                        <?php 
+                            $meta_tagsname = get_post_meta( $idForm, '_wp_cf7pdf_customtagsname', true );
+                        ?>
+                        <tr scope="row" class="check-column">
+                            <td class="name column-name"><input type="hidden" class="wpcf7-form-field" value="<?php echo esc_html($idForm); ?>" size="50" name="wp_cf7pdf_custom_tags_name[id]" /><input type="text" value="reference" size="50" disabled /></td>
+                            <td class="slug column-slug"><input type="text" class="wpcf7-form-field" value="<?php if( isset($meta_tagsname) && !empty($meta_tagsname) ) { echo esc_html($meta_tagsname['reference']); } ?>" size="50" name="wp_cf7pdf_custom_tags_name[reference]" /></td>
+                        </tr>
+                        <tr scope="row" class="check-column">
+                            <td class="name column-name"><input type="text" value="date" size="50" disabled /></td>
+                            <td class="slug column-slug"><input type="text" class="wpcf7-form-field" value="<?php if( isset($meta_tagsname) && !empty($meta_tagsname) ) { echo esc_html($meta_tagsname['date']); } ?>" size="50" name="wp_cf7pdf_custom_tags_name[date]" /></td>
+                        </tr>
+                            <?php 
+                                foreach ( $contact_tag as $sh_tag ) {
+
+                                    if( isset($sh_tag["name"]) && $sh_tag["name"]!='' ) {                                    
+                            ?>
+                        <tr scope="row" class="check-column">
+                            <td class="name column-name"><input type="text" value="<?php echo esc_html($sh_tag["name"]); ?>" size="50" disabled /></td>
+                            <td class="slug column-slug"><input type="text" class="wpcf7-form-field" value="<?php if( isset($meta_tagsname) && !empty($meta_tagsname) ) { echo esc_html($meta_tagsname[$sh_tag["name"]]); } ?>" size="50" name="wp_cf7pdf_custom_tags_name[<?php echo esc_html(stripslashes($sh_tag["name"])); ?>]" /></td>
+                        </tr>
+                            <?php
+                                    }
+                                }
+                            ?>
+                        <tr>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <th scope="col" class="manage-column column-name column-primary"><?php esc_html_e( 'Identifier', 'send-pdf-for-contact-form-7' ); ?></th>
+                            <th scope="col" class="manage-column column-slug"><?php esc_html_e( 'Field Name', 'send-pdf-for-contact-form-7' ); ?></th>
+                        </tr>
+                    </tfoot>
+                </table>
+                <div style="text-align:left;">
+                    <p>
+                        <input type="submit" name="wp_cf7pdf_update_settings" class="button-primary" value="<?php esc_html_e('Save settings', 'send-pdf-for-contact-form-7'); ?>"/>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<?php } ?>
 </form>
 <?php if( isset($meta_values["disable-insert"]) && $meta_values["disable-insert"]=="false") { ?>
-    <div class="clear" style="margin-bottom:15px;">&nbsp;</div>
+
     <div class="postbox">
 
         <div class="handlediv" style="height:1px!important;" title="<?php esc_html_e('Click to toggle', 'send-pdf-for-contact-form-7'); ?>"><br></div>
@@ -1306,6 +1376,8 @@ if ( is_dir(get_stylesheet_directory()."/pdffonts/") == true ) {
         </div>
     </div>
 <?php } ?>
+
+
     
 <div class="postbox">
    <div class="handlediv" style="height:1px!important;" title="<?php esc_html_e('Click to toggle', 'send-pdf-for-contact-form-7'); ?>"><br></div>
@@ -1344,7 +1416,7 @@ if ( is_dir(get_stylesheet_directory()."/pdffonts/") == true ) {
     </div>
 </div>
 
-<?php } ?>
+<?php }?>
 <?php } else { ?>
     <div style="margin-left: 0px;margin-top: 5px;background-color: #ffffff;border: 1px solid #cccccc;padding: 10px;">
         <?php /* translators: %s: lien vers Contact Form 7 */ printf( esc_html__('To work I need %s plugin, but it is apparently not installed or not enabled!', 'send-pdf-for-contact-form-7'), '<a href="https://wordpress.org/plugins/contact-form-7/" target="_blank">Contact Form 7</a>' ); ?>

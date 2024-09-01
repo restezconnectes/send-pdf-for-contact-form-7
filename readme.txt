@@ -56,6 +56,8 @@ Yes. If you want, you can support this project here: <a href="https://restezconn
 = 1.0.2.7 = 
 * Adding option for displaying textarea fields
 * Change cols value at 100% for textarea fields
+* Adding Fields Matching for CSV
+* Fix bug CSV encoding
 
 = 1.0.2.6 = 
 * Fix bug form filled
