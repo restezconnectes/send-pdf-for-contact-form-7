@@ -314,11 +314,11 @@ class WPCF7PDF_generate extends cf7_sendpdf {
         } else {
 
             $data = wpcf7_mail_replace_tags( wpautop($data) );
-            $mpdf->Output($createDirectory.'/'.$nameOfPdf.'.pdf', 'F');
+            $mpdf->Output($createDirectory.'/'.esc_html($nameOfPdf).'.pdf', 'F');
             
             // Je copy le PDF genere
             if( file_exists($createDirectory.'/'.$nameOfPdf.'.pdf') ) {
-                copy($createDirectory.'/'.$nameOfPdf.'.pdf', $createDirectory.'/'.$nameOfPdf.'-'.$referenceOfPdf.'.pdf');
+                copy($createDirectory.'/'.esc_html($nameOfPdf).'.pdf', $createDirectory.'/'.esc_html($nameOfPdf).'-'.$referenceOfPdf.'.pdf');
             }
         }
 
@@ -364,7 +364,7 @@ class WPCF7PDF_generate extends cf7_sendpdf {
                 $nb=count($nameField[1]);
                 for($i=0;$i<$nb;$i++) {    
 
-                    $hiddenTag = 'hidden-'.$nameField[1][$i];
+                    $hiddenTag = 'hidden-'.esc_html($nameField[1][$i]);
 
                     // si on cache des champs, on les retire de l'entete
                     if( isset($meta_tagsname) && (isset($meta_tagsname[$nameField[1][$i]]) ) ) {
@@ -376,7 +376,7 @@ class WPCF7PDF_generate extends cf7_sendpdf {
                         }
 
                     } else {                        
-                        $tagsName = $nameField[1][$i];
+                        $tagsName = esc_html($nameField[1][$i]);
                     }
                     if( isset($tagsName) && $tagsName!='') {
                         array_push($entete, $tagsName);
@@ -393,7 +393,7 @@ class WPCF7PDF_generate extends cf7_sendpdf {
         if( isset($preview) && $preview == 1 ) {
             $fpCsv = fopen($createDirectory.'/preview-'.esc_html($idForm).'.csv', 'w+'); /* phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen */
         } else {
-            $fpCsv = fopen($createDirectory.'/'.$nameOfPdf.'.csv', 'w+'); /* phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen */
+            $fpCsv = fopen($createDirectory.'/'.esc_html($nameOfPdf).'.csv', 'w+'); /* phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen */
         }
         //add BOM to fix UTF-8 in Excel
         fputs($fpCsv, $bom =( chr(0xEF) . chr(0xBB) . chr(0xBF) ));
