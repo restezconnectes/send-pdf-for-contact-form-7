@@ -22,6 +22,7 @@ Current Version:  1.0.2.7
 * Change cols value at 100% for textarea fields
 * Adding Fields Matching for CSV
 * Fix bug CSV encoding
+* Personalize Fields for CSV file
 
 = 1.0.2.6 = 
 * Fix bug form filled

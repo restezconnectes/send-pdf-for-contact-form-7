@@ -58,6 +58,7 @@ Yes. If you want, you can support this project here: <a href="https://restezconn
 * Change cols value at 100% for textarea fields
 * Adding Fields Matching for CSV
 * Fix bug CSV encoding
+* Personalize Fields for CSV file
 
 = 1.0.2.6 = 
 * Fix bug form filled

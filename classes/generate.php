@@ -16,10 +16,10 @@ defined( 'ABSPATH' )
 
 class WPCF7PDF_generate extends cf7_sendpdf {
 
-    static function wpcf7pdf_create_pdf($id, $data, $nameOfPdf, $referenceOfPdf, $createDirectory, $preview = 0) {
+    static function wpcf7pdf_create_pdf($idForm, $data, $nameOfPdf, $referenceOfPdf, $createDirectory, $preview = 0) {
 
         // nothing's here... do nothing...
-        if (empty($id) || empty($data))
+        if (empty($idForm) || empty($data))
             return;
 
         global $wp_session;
@@ -27,11 +27,11 @@ class WPCF7PDF_generate extends cf7_sendpdf {
         $upload_dir = wp_upload_dir();
         $custom_tmp_path = get_option('wpcf7pdf_path_temp');
 
-        $contact_form = WPCF7_ContactForm::get_instance(esc_html($id));   
+        $contact_form = WPCF7_ContactForm::get_instance(esc_html($idForm));   
 
         // Definition des dates par defaut
-        $dateField = WPCF7PDF_prepare::returndate($id);
-        $timeField = WPCF7PDF_prepare::returntime($id);
+        $dateField = WPCF7PDF_prepare::returndate($idForm);
+        $timeField = WPCF7PDF_prepare::returntime($idForm);
 
         // Definition des marges par defaut
         $marginHeader = 10;
@@ -41,7 +41,9 @@ class WPCF7PDF_generate extends cf7_sendpdf {
         $marginRight = 15;
 
         // On va chercher les paramètres
-        $meta_values = get_post_meta(esc_html($id), '_wp_cf7pdf', true);
+        $meta_values = get_post_meta(esc_html($idForm), '_wp_cf7pdf', true);
+
+        if( $referenceOfPdf=='' && $preview==1 ) { $referenceOfPdf = '3F7A8B43EA2F'; }
 
         require WPCF7PDF_DIR . 'mpdf/vendor/autoload.php';
 
@@ -167,7 +169,7 @@ class WPCF7PDF_generate extends cf7_sendpdf {
         $mpdf->autoVietnamese = true;
         $mpdf->autoArabic = true;
         $mpdf->autoLangToFont = true;                    
-        $mpdf->SetTitle(get_the_title(esc_html($id)));
+        $mpdf->SetTitle(get_the_title(esc_html($idForm)));
         $mpdf->SetCreator(get_bloginfo('name'));
         $mpdf->SetDirectionality($setDirectionality);
         $mpdf->ignore_invalid_utf8 = true;
@@ -300,14 +302,14 @@ class WPCF7PDF_generate extends cf7_sendpdf {
         
         // Option for Protect PDF by Password
         if ( isset($meta_values["protect"]) && $meta_values["protect"]=='true') {
-            $pdfPassword = WPCF7PDF_prepare::protect_pdf($id);
+            $pdfPassword = WPCF7PDF_prepare::protect_pdf($idForm);
             $mpdf->SetProtection(array('print','fill-forms'), $pdfPassword, $pdfPassword, 128);             
         } 
 
         // Si je suis dans l'admin je génère un preview
         if ( isset($preview) && $preview == 1 ) {
 
-            $mpdf->Output($createDirectory.'/preview-'.esc_html($id).'.pdf', 'F');
+            $mpdf->Output($createDirectory.'/preview-'.esc_html($idForm).'.pdf', 'F');
 
         } else {
 
@@ -322,43 +324,63 @@ class WPCF7PDF_generate extends cf7_sendpdf {
 
     }
 
-    static function wpcf7pdf_create_csv($id, $nameOfPdf, $referenceOfPdf, $createDirectory, $preview = 0) {
+    static function wpcf7pdf_create_csv($idForm, $nameOfPdf, $referenceOfPdf, $createDirectory, $preview = 0) {
 
         // nothing's here... do nothing...
-        if (empty($id))
+        if (empty($idForm))
             return;
 
-        if( $referenceOfPdf=='' &&  $preview==1 ) { $referenceOfPdf = '3F7A8B43EA2F'; }
+        if( empty($referenceOfPdf) || $referenceOfPdf=='' && $preview==1 ) { $referenceOfPdf = '3F7A8B43EA2F'; }
 
         // Je vais chercher le tableau des tags
-        $csvTab = cf7_sendpdf::wpf7pdf_tagsparser($id, $referenceOfPdf);
+        $csvTab = cf7_sendpdf::wpf7pdf_tagsparser($idForm, $referenceOfPdf);
 
         // On va chercher les paramètres
-        $meta_values = get_post_meta(esc_html($id), '_wp_cf7pdf', true);
+        $meta_values = get_post_meta(esc_html($idForm), '_wp_cf7pdf', true);
         
         // Je vais chercher la liste des tags pour l'entete du CSV
-        $meta_fields = get_post_meta(esc_html($id), '_wp_cf7pdf_fields', true);
+        $meta_fields = get_post_meta(esc_html($idForm), '_wp_cf7pdf_fields', true);
         
         // On va chercher les noms personnalisé
-        $meta_tagsname = get_post_meta(esc_html($id), '_wp_cf7pdf_customtagsname', true);
+        $meta_tagsname = get_post_meta(esc_html($idForm), '_wp_cf7pdf_customtagsname', true);
 
         // Construction de l'entete
         if( isset($meta_fields) ) {
-            if( isset($meta_tagsname) && !empty($meta_tagsname) ) {
-                $entete = array( esc_html($meta_tagsname['reference']), esc_html($meta_tagsname['date']) );
-            } else {
-                $entete = array("Reference", "Date");
+            
+            if( isset($meta_tagsname) && (isset($meta_tagsname['reference']) && $meta_tagsname['reference']!='') ) { 
+                $tag_reference = esc_html($meta_tagsname['reference']); 
+            } else { 
+                $tag_reference = "Reference"; 
             }
+            if( isset($meta_tagsname) && (isset($meta_tagsname['date']) && $meta_tagsname['date']!='') ) { 
+                $tag_date = esc_html($meta_tagsname['date']); 
+            } else { 
+                $tag_date = "Date";
+            }
+            $entete = array( esc_html($tag_reference), esc_html($tag_date) );
+            
             foreach($meta_fields as $field) {
                 preg_match_all( '#\[(.*?)\]#', $field, $nameField );
                 $nb=count($nameField[1]);
-                for($i=0;$i<$nb;$i++) {                    
-                    if( isset($meta_tagsname[$nameField[1][$i]]) && $meta_tagsname[$nameField[1][$i]]!='') {
-                        $tagsName = esc_html($meta_tagsname[$nameField[1][$i]]);
+                for($i=0;$i<$nb;$i++) {    
+
+                    $hiddenTag = 'hidden-'.$nameField[1][$i];
+
+                    // si on cache des champs, on les retire de l'entete
+                    if( isset($meta_tagsname) && (isset($meta_tagsname[$nameField[1][$i]]) ) ) {
+
+                        if( isset($meta_tagsname[$hiddenTag]) && $meta_tagsname[$hiddenTag]==1 ) {
+                            $tagsName = ''; // si champ caché = tableau vide                          
+                        } else if ($meta_tagsname[$nameField[1][$i]]!='') {
+                            $tagsName = esc_html($meta_tagsname[$nameField[1][$i]]);
+                        }
+
                     } else {                        
                         $tagsName = $nameField[1][$i];
                     }
-                    array_push($entete, $tagsName);
+                    if( isset($tagsName) && $tagsName!='') {
+                        array_push($entete, $tagsName);
+                    }
                 }
             }
         }
@@ -369,7 +391,7 @@ class WPCF7PDF_generate extends cf7_sendpdf {
         );
 
         if( isset($preview) && $preview == 1 ) {
-            $fpCsv = fopen($createDirectory.'/preview-'.esc_html($id).'.csv', 'w+'); /* phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen */
+            $fpCsv = fopen($createDirectory.'/preview-'.esc_html($idForm).'.csv', 'w+'); /* phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen */
         } else {
             $fpCsv = fopen($createDirectory.'/'.$nameOfPdf.'.csv', 'w+'); /* phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen */
         }

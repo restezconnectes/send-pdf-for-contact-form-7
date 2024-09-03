@@ -186,25 +186,37 @@ class cf7_sendpdf {
 
     }
 
-    static function wpf7pdf_tagsparser($id, $reference='') {
+    static function wpf7pdf_tagsparser($idForm, $reference) {
 
         // nothing's here... do nothing...
-        if (empty($id))
+        if (empty($idForm))
             return;
 
+        if( empty($reference) || $reference == '' ) { $reference = '3F7A8B43EA2F'; }
 
         // On va cherche les champs du formulaire
-        $meta_tags = get_post_meta(esc_html($id), '_wp_cf7pdf_fields', true);
+        $meta_tags = get_post_meta(esc_html($idForm), '_wp_cf7pdf_fields', true);
+
+        // On va chercher les noms personnalisé et les cachés
+        $meta_tagsname = get_post_meta(esc_html($idForm), '_wp_cf7pdf_customtagsname', true);
 
         // Definition des dates par defaut
-        $dateField = WPCF7PDF_prepare::returndate($id);
-        $timeField = WPCF7PDF_prepare::returntime($id);
+        $dateField = WPCF7PDF_prepare::returndate($idForm);
+        $timeField = WPCF7PDF_prepare::returntime($idForm);
 
         // Prepare les valeurs dans tableau CSV
-        $tagsParser = array(sanitize_text_field($reference), $dateField.' '.$timeField);
+        $tagsParser = array(esc_html($reference), $dateField.' '.$timeField);
         foreach($meta_tags as $ntags => $vtags) {
-            $returnValue = wpcf7_mail_replace_tags($vtags);
-            array_push($tagsParser, $returnValue);
+
+            preg_match_all( '#\[(.*?)\]#', $vtags, $nameField );
+            $hiddenTag = 'hidden-'.$nameField[1][0];
+            if( isset($meta_tagsname) && (isset($meta_tagsname[$hiddenTag]) && $meta_tagsname[$hiddenTag]==1) ) {
+                
+            } else {
+                $returnValue = wpcf7_mail_replace_tags($vtags);
+                array_push($tagsParser, $returnValue);
+            }
+            
         }
 
         return $tagsParser;
@@ -764,6 +776,7 @@ class cf7_sendpdf {
             
             // Récupère la référence
             $referencePDF = esc_html($post['wpcf7cfpdf_hidden_reference']);
+            
             // Genere le nom du PDF
             $nameOfPdf = $this->wpcf7pdf_name_pdf(esc_html($post['_wpcf7']), esc_html($referencePDF));
 
@@ -796,7 +809,12 @@ class cf7_sendpdf {
                 $csvTab = self::wpf7pdf_tagsparser($post['_wpcf7'], $referencePDF);
                 // On insère dans la BDD
                 if( isset($meta_values["disable-insert"]) && $meta_values["disable-insert"] == "false" ) {
-                    $insertPost = $this->save($post['_wpcf7'], serialize($csvTab), $referencePDF, esc_url(str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $createDirectory ).'/'.$nameOfPdf.'-'.$referencePDF.'.pdf'));
+                    if( empty($meta_values["disable-csv"]) || (isset($meta_values["disable-csv"]) && $meta_values["disable-csv"]=='false') ) {
+                        $saveCsv = esc_url(str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $createDirectory ).'/'.$nameOfPdf.'-'.$referencePDF.'.csv');
+                    } else {
+                        $saveCsv = '';
+                    }
+                    $insertPost = $this->save($post['_wpcf7'], serialize($csvTab), $referencePDF, esc_url(str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $createDirectory ).'/'.$nameOfPdf.'-'.$referencePDF.'.pdf'), $saveCsv);
                     $contentPdf = str_replace('[ID]', $insertPost, $contentPdf);
                 }                
 
