@@ -31,7 +31,7 @@ class WPCF7PDF_settings extends cf7_sendpdf {
                     $newTabSettings[$nameSettings] = sanitize_url($valueSettings);
                 } elseif(filter_var($valueSettings, FILTER_VALIDATE_EMAIL)) {
                     $newTabSettings[$nameSettings] = sanitize_email($valueSettings);
-                } elseif($nameSettings == 'generate_pdf' || $nameSettings == 'footer_generate_pdf') {
+                } elseif($nameSettings == 'generate_pdf' || $nameSettings == 'footer_generate_pdf' || strpos($nameSettings, 'content_addpdf_')!== false ) {
                     $arr = WPCF7PDF_prepare::wpcf7pdf_autorizeHtml();
                     $newTabSettings[$nameSettings] = wp_kses($valueSettings, $arr);
                 } else {

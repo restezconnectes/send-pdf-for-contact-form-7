@@ -43,7 +43,7 @@ class WPCF7PDF_generate extends cf7_sendpdf {
         // On va chercher les paramètres
         $meta_values = get_post_meta(esc_html($idForm), '_wp_cf7pdf', true);
 
-        if( $referenceOfPdf=='' && $preview==1 ) { $referenceOfPdf = '3F7A8B43EA2F'; }
+        if( $referenceOfPdf=='' && ($preview==1 or $preview==2) ) { $referenceOfPdf = '3F7A8B43EA2F'; }
 
         require WPCF7PDF_DIR . 'mpdf/vendor/autoload.php';
 
@@ -306,18 +306,28 @@ class WPCF7PDF_generate extends cf7_sendpdf {
             $mpdf->SetProtection(array('print','fill-forms'), $pdfPassword, $pdfPassword, 128);             
         } 
 
-        // Si je suis dans l'admin je génère un preview
+        // Si je suis dans l'admin je génère un preview 
         if ( isset($preview) && $preview == 1 ) {
 
             $mpdf->Output($createDirectory.'/preview-'.esc_html($idForm).'.pdf', 'F');
 
+        // et des preview pour les autres PDF si existant
+        } elseif ( ( isset($preview) && $preview == 2 ) && ( isset($meta_values["number-pdf"]) && $meta_values["number-pdf"]>1 ) ) {
+
+            for ($i = 2; $i <= $meta_values["number-pdf"]; $i++) {
+                if( isset($meta_values['nameaddpdf'.$i]) && $meta_values['nameaddpdf'.$i] != '') {
+                    $mpdf->Output($createDirectory.'/preview-'.sanitize_title($meta_values['nameaddpdf'.$i.'']).'-'.esc_html($idForm).'.pdf', 'F');
+                }
+            }
+
+        // Sinon on génère les PDF
         } else {
 
             $data = wpcf7_mail_replace_tags( wpautop($data) );
             $mpdf->Output($createDirectory.'/'.esc_html($nameOfPdf).'.pdf', 'F');
             
             // Je copy le PDF genere
-            if( file_exists($createDirectory.'/'.$nameOfPdf.'.pdf') ) {
+            if( file_exists($createDirectory.'/'.esc_html($nameOfPdf).'.pdf') ) {
                 copy($createDirectory.'/'.esc_html($nameOfPdf).'.pdf', $createDirectory.'/'.esc_html($nameOfPdf).'-'.$referenceOfPdf.'.pdf');
             }
         }
@@ -393,7 +403,7 @@ class WPCF7PDF_generate extends cf7_sendpdf {
         if( isset($preview) && $preview == 1 ) {
             $fpCsv = fopen($createDirectory.'/preview-'.esc_html($idForm).'.csv', 'w+'); /* phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen */
         } else {
-            $fpCsv = fopen($createDirectory.'/'.esc_html($nameOfPdf).'.csv', 'w+'); /* phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen */
+            $fpCsv = fopen($createDirectory.'/'.$nameOfPdf.'.csv', 'w+'); /* phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen */
         }
         //add BOM to fix UTF-8 in Excel
         fputs($fpCsv, $bom =( chr(0xEF) . chr(0xBB) . chr(0xBF) ));

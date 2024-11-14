@@ -469,7 +469,7 @@ class WPCF7PDF_prepare extends cf7_sendpdf {
                 $dateFormat = str_replace('_format_', '', $outdate[1][$i]);
                 $dateFormat = explode('"', $dateFormat);
 
-                if ( isset($preview) && $preview == 1 ) {
+                if ( isset($preview) && ($preview == 1 || $preview == 2) ) {
                     $date = gmdate("d-m-Y");
                     $formatDate = new DateTime($date);
                     $contentPdf = str_replace('['.$outdate[1][$i].']', $formatDate->format($dateFormat[1]), $contentPdf);
@@ -490,7 +490,7 @@ class WPCF7PDF_prepare extends cf7_sendpdf {
                 // On separe les données
                 $price = explode('|', $outprice[1][$i]);
 
-                if ( isset($preview) && $preview == 1 ) {
+                if ( isset($preview) && ($preview == 1 || $preview == 2) ) {
                     $valueprice = 25000;                  
                 } else {
                     $valueprice = wpcf7_mail_replace_tags(esc_html('['.$price[1].']'));
@@ -506,14 +506,14 @@ class WPCF7PDF_prepare extends cf7_sendpdf {
 
         }
         
-        if ( isset($preview) && $preview == 1 ) {
+        if ( isset($preview) && ($preview == 1 || $preview == 2) ) {
             $referenceOfPdf = uniqid();
         }
         // Remplace le tag reference
         $contentPdf = str_replace('[reference]', wp_kses_post($referenceOfPdf), $contentPdf);
         // Remplace le tag URL-PDF
         $contentPdf = str_replace('[url-pdf]', esc_url($upload_dir['url'].'/'.$nameOfPdf.'-'.wp_kses_post($referenceOfPdf).'.pdf'), $contentPdf);
-        if ( isset($preview) && $preview == 1 ) {
+        if ( isset($preview) && ($preview == 1 || $preview == 2) ) {
             // Remplace le tag ID
             $contentPdf = str_replace('[ID]', '000'.gmdate('md'), $contentPdf);
             if (isset($meta_values['data_input']) && $meta_values['data_input']== 'true') {
@@ -609,7 +609,7 @@ class WPCF7PDF_prepare extends cf7_sendpdf {
              */
             if( isset($basetype) && $basetype==='file' ) {
 
-                if ( isset($preview) && $preview == 1 ) {
+                if ( isset($preview) && ($preview == 1 || $preview == 2) ) {
                     preg_match_all('/<img[^>]+>/i', $contentPdf, $imgTags);
                     for ($i = 0; $i < count($imgTags[0]); $i++) {
                         // get the source string

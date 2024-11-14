@@ -827,7 +827,41 @@ class cf7_sendpdf {
                     // On genere le PDF
                     $generatePdfFile = WPCF7PDF_generate::wpcf7pdf_create_pdf($post['_wpcf7'], $contentPdf, $nameOfPdf, $referencePDF, $createDirectory);
 
+                    // Si plusieurs PDF
+                    if( isset($meta_values["number-pdf"]) && $meta_values["number-pdf"]>1 ) {
+
+                        for ($i = 2; $i <= $meta_values["number-pdf"]; $i++) {
+
+                            if( isset($meta_values['content_addpdf_'.$i]) && $meta_values['content_addpdf_'.$i] != '') {
+
+                                $addNamePdf = sanitize_title($meta_values['nameaddpdf'.$i]);
+
+                                // définit le contenu du PDf
+                                $messageAddPdf = wp_kses(trim($meta_values['content_addpdf_'.$i]), WPCF7PDF_prepare::wpcf7pdf_autorizeHtml());   
+                                $messageAddPdf = apply_filters( 'pl_filter_content', $messageAddPdf, $posted_data );    
+                                
+                                if( class_exists('Wpcf7cfMailParser') ){
+                                    $parserPdf = new Wpcf7cfMailParser($messageAddPdf, $visible_groups, $hidden_groups, $repeaters, $_POST); // phpcs:ignore WordPress.Security.NonceVerification.Missing
+                                    $messageAddPdf = $parserPdf->getParsedMail();
+                                }
+
+                                // Preparation du contenu du PDF
+                                $messageAddPdf = WPCF7PDF_prepare::tags_parser($post['_wpcf7'], $addNamePdf, $referencePDF, $messageAddPdf);
+                                
+                                // Shortcodes?
+                                $messageAddPdf = WPCF7PDF_prepare::shortcodes($meta_values['shotcodes_tags'], $messageAddPdf);    
+                
+                                // Création du PDF
+                                $generateAddPdfFile = WPCF7PDF_generate::wpcf7pdf_create_pdf($post['_wpcf7'], $messageAddPdf, $addNamePdf, $referencePDF, $createDirectory);
+                            }
+            
+                        }
+            
+                    }
+
                 }
+
+                
                 // END GENERATE PDF
             }
 
@@ -873,6 +907,20 @@ class cf7_sendpdf {
 
             // Je déclare le contenu de l'email
             $messageText = $components['body'];
+
+            // Si on a définit un champ conditionnel (envoie ou non du PDF)
+            if( isset($meta_values["condition-sending"]) && $meta_values["condition-sending"]=='true') { 
+
+                if( isset($meta_values["condition-tag"]) && isset($meta_values["condition-tag"]) ) {
+
+                    $raw1Value = wpcf7_mail_replace_tags(esc_html('['.$meta_values["condition-tag"].']'));
+                    // On desactive l'envoi du PDF
+                    if( isset($raw1Value) && $raw1Value == 'false' ) {
+                        $disablePDF = 1;
+                    }
+
+                }
+            }
 
             // Si la fonction envoi mail est activée
             if( empty($meta_values['disable-attachments']) OR (isset($meta_values['disable-attachments']) && $meta_values['disable-attachments'] == 'false') && $disablePDF==0 ) {
@@ -924,7 +972,19 @@ class cf7_sendpdf {
                         // Send PDF
                         if( isset($meta_values["disable-pdf"]) && $meta_values['disable-pdf'] == 'false' ) {
                             if( isset($meta_values["send-attachment"]) && ($meta_values["send-attachment"] == 'sender' OR $meta_values["send-attachment"] == 'both') ) {
+                                
                                 $components['attachments'][] = $createDirectory.'/'.$nameOfPdf.'.pdf';
+                                
+                                // Si plusieurs PDF
+                                if( isset($meta_values["number-pdf"]) && $meta_values["number-pdf"]>1 ) {
+
+                                    for ($i = 2; $i <= $meta_values["number-pdf"]; $i++) {
+                                        $addNamePdf = sanitize_title($meta_values['nameaddpdf'.$i.'']);
+                                        if( isset($addNamePdf) && $addNamePdf != '') {
+                                            $components['attachments'][] = $createDirectory.'/'.$addNamePdf.'.pdf';
+                                        }
+                                    }
+                                }
                             }
                         }
 
@@ -1003,6 +1063,16 @@ class cf7_sendpdf {
                         if( isset($meta_values["disable-pdf"]) && $meta_values['disable-pdf'] == 'false' ) {
                             if( isset($meta_values["send-attachment"]) && ($meta_values["send-attachment"] == 'recipient' OR $meta_values["send-attachment"] == 'both') ) {
                                 $components['attachments'][] = $createDirectory.'/'.$nameOfPdf.'.pdf';
+                                // Si plusieurs PDF
+                                if( isset($meta_values["number-pdf"]) && $meta_values["number-pdf"]>1 ) {
+
+                                    for ($i = 2; $i <= $meta_values["number-pdf"]; $i++) {
+                                        $addNamePdf = sanitize_title($meta_values['nameaddpdf'.$i.'']);
+                                        if( isset($addNamePdf) && $addNamePdf != '') {
+                                            $components['attachments'][] = $createDirectory.'/'.$addNamePdf.'.pdf';
+                                        }
+                                    }
+                                }
                             }
                         }
 
@@ -1112,7 +1182,6 @@ class cf7_sendpdf {
 
             // Si l'option de supprimer les fichiers est activée
             if( isset($meta_values["pdf-file-delete"]) && $meta_values["pdf-file-delete"]=="true") {
-
                 
                 // Si fichier PDF activé, on les suprime disable-pdf
                 if( isset($meta_values["disable-pdf"]) && $meta_values['disable-pdf'] == 'false') {
@@ -1121,6 +1190,19 @@ class cf7_sendpdf {
                     }
                     if( file_exists($createDirectory.'/'.$nameOfPdf.'-'.$referencePDF.'.pdf') ) {
                         wp_delete_file($createPathDirectory.'/'.$nameOfPdf.'-'.$referencePDF.'.pdf');
+                    }
+                    // Si plusieurs PDF
+                    if( isset($meta_values["number-pdf"]) && $meta_values["number-pdf"]>1 ) {
+
+                        for ($i = 2; $i <= $meta_values["number-pdf"]; $i++) {
+                            $addNamePdf = sanitize_title($meta_values['nameaddpdf'.$i.'']);
+                            if( file_exists($createDirectory.'/'.$addNamePdf.'-'.$referencePDF.'.pdf') ) {
+                                wp_delete_file($createPathDirectory.'/'.$addNamePdf.'-'.$referencePDF.'.pdf');
+                            }
+                            if( file_exists($createDirectory.'/'.$addNamePdf.'.pdf') ) {
+                                wp_delete_file($createPathDirectory.'/'.$addNamePdf.'.pdf');
+                            }
+                        }
                     }
                 }
 
