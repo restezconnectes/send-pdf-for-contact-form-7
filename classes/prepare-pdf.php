@@ -631,7 +631,7 @@ class WPCF7PDF_prepare extends cf7_sendpdf {
 
                 $valueTag = wpcf7_mail_replace_tags(esc_html($name_tags[0]));
                 $emptyTextareaInput = 0;                
-                if( (isset($meta_values['empty_input']) && $meta_values['empty_input']=='true') ) {
+                if( (isset($meta_values['empty_input']) && $meta_values['empty_input']=='true') && $valueTag=='' ) {
                     $emptyTextareaInput = 1;
                 }
                 // Si le contenu du PDF doit rester en brut et pas en HTML
@@ -646,6 +646,8 @@ class WPCF7PDF_prepare extends cf7_sendpdf {
                     } else {                    
                         $contentPdf = str_replace(esc_html($name_tags[0]), $valueTag, $contentPdf);
                     }
+                } else if( $emptyTextareaInput == 1 ) {
+                    $contentPdf = str_replace(esc_html($name_tags[0]), '', $contentPdf);
                 }
             
             /**
@@ -654,7 +656,11 @@ class WPCF7PDF_prepare extends cf7_sendpdf {
             } else if( isset($basetype) && $basetype==='select' ) {
 
                 $valueTag = wpcf7_mail_replace_tags(esc_html($name_tags[0]));
-                $contentPdf = str_replace(esc_html($name_tags[0]), $valueTag, $contentPdf);
+                if( (isset($meta_values['empty_input']) && $meta_values['empty_input']=='true') && ($valueTag=='' || $valueTag=='#') ) {
+                    $contentPdf = str_replace(esc_html($name_tags[0]), '', $contentPdf);
+                } else {
+                    $contentPdf = str_replace(esc_html($name_tags[0]), $valueTag, $contentPdf);
+                }
 
             /**
              *  Si le champ est un type text
@@ -662,18 +668,16 @@ class WPCF7PDF_prepare extends cf7_sendpdf {
              */
             } else if( ( isset($basetype) && $basetype==='text' ) && ( isset($name_tags[1]) && $name_tags[1]!='0-9') && ( isset($name_tags[1]) && $name_tags[1]!='addpage' )  && (isset($name_tags[1]) && $name_tags[1]!='wpcf7pdf_test') ) {
 
-                $valueTag = wpcf7_mail_replace_tags(esc_html($name_tags[0]));
-                $emptyTextInput = 0;                
-                if( (isset($meta_values['empty_input']) && $meta_values['empty_input']=='true') ) {
-                    $emptyTextInput = 1;
-                }
-                if( $emptyTextInput == 0 ) {
+                $valueTag = wpcf7_mail_replace_tags(esc_html($name_tags[0]));               
+                if( (isset($meta_values['empty_input']) && $meta_values['empty_input']=='true') && $valueTag=='' ) {
+                    $contentPdf = str_replace(esc_html($name_tags[0]), '', $contentPdf);
+                } else {
                     if (isset($meta_values['data_input']) && $meta_values['data_input']== 'true') {                        
                         $contentPdf = str_replace(esc_html($name_tags[0]), '<input type="text" name="'.$name_tags[1].'" value="'.esc_html($valueTag).'">', $contentPdf);                        
                     } else {
                         $contentPdf = str_replace(esc_html($name_tags[0]), esc_html($valueTag), $contentPdf);
                     } 
-                }        
+                }
 
             /**
              *  Si le champ est un type checkbox
@@ -695,13 +699,13 @@ class WPCF7PDF_prepare extends cf7_sendpdf {
                         if( in_array('exclusive', $tagOptions) ) {  
                             if( sanitize_text_field($valueTag)===sanitize_text_field($valCheckbox) ) {
                                 $caseChecked = 'checked="checked"';
-                            } else if( (isset($meta_values['empty_input']) && $meta_values['empty_input']=='true') ) {
+                            } else if( (isset($meta_values['empty_input']) && $meta_values['empty_input']=='true') && $valueTag=='' ) {
                                 $emptyCheckInput = 1;
                             }
                         } else {
                             if( strpos($valueTag, trim($valCheckbox) )!== false ){
                                 $caseChecked = 'checked="checked"';
-                            } else if( (isset($meta_values['empty_input']) && $meta_values['empty_input']=='true') ) {
+                            } else if( (isset($meta_values['empty_input']) && $meta_values['empty_input']=='true') && $valueTag=='' ) {
                                 $emptyCheckInput = 1;
                             }
                         }
@@ -720,13 +724,17 @@ class WPCF7PDF_prepare extends cf7_sendpdf {
 
                         if( in_array('exclusive', $tagOptions) ) { 
                             if( sanitize_text_field($valueTag)===sanitize_text_field($valCheckbox) ) {  
-                                if( $emptyCheckInput == 0 ) {                                 
+                                if( $emptyCheckInput == 1 ) {                                 
+                                    $inputCheckbox .= '';
+                                } else {
                                     $inputCheckbox .= ''.$tagSeparate.''.$valCheckbox.''.$tagSeparateAfter.'';
                                 }
                             }
                         } else {
                             if( strpos($valueTag, trim($valCheckbox) )!== false ) {
-                                if( $emptyCheckInput == 0 ) {
+                                if( $emptyCheckInput == 1 ) {
+                                    $inputCheckbox .= '';
+                                } else {
                                     $inputCheckbox .= ''.$tagSeparate.''.$valCheckbox.''.$tagSeparateAfter.'';
                                 }
                             }
@@ -755,7 +763,7 @@ class WPCF7PDF_prepare extends cf7_sendpdf {
 
                         if( sanitize_text_field($valueRadioTag)===sanitize_text_field($valRadio) ) {
                             $radioChecked = ' checked="yes"';
-                        } else if( (isset($meta_values['empty_input']) && $meta_values['empty_input']=='true') ) {
+                        } else if( (isset($meta_values['empty_input']) && $meta_values['empty_input']=='true') && $valueRadioTag=='' ) {
                             $emptyRadioInput = 1;
                         }
                     
@@ -772,7 +780,9 @@ class WPCF7PDF_prepare extends cf7_sendpdf {
                     } else {
 
                         if( sanitize_text_field($valueRadioTag)===sanitize_text_field($valRadio) ) {
-                            if( $emptyRadioInput == 0 ) {                                 
+                            if( $emptyRadioInput == 1 ) {                                 
+                                $inputRadio .= '';
+                            } else {
                                 $inputRadio .= ''.$tagSeparate.''.$valRadio.''.$tagSeparateAfter.'';
                             }
                         }
