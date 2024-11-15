@@ -21,6 +21,7 @@ Current Version:  1.0.2.8
 * Adding option for multi PDF
 * Adding conditional possibility
 * Fix bug disable display empty data
+* Adding [wpcf7pdf_data tag=""] shortcode for personalize return page after sending form
 
 = 1.0.2.7 = 
 * Adding option for displaying textarea fields

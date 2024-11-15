@@ -1252,7 +1252,7 @@ class cf7_sendpdf {
 
         global $wpdb;
         if(!$ref or !$ref) { die('No reference!'); }
-        $result = $wpdb->get_row( $wpdb->prepare("SELECT wpcf7pdf_id, wpcf7pdf_id_form, wpcf7pdf_reference, wpcf7pdf_files FROM ".$wpdb->prefix."wpcf7pdf_files WHERE wpcf7pdf_reference = %s LIMIT 1", $ref ), 'OBJECT' ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+        $result = $wpdb->get_row( $wpdb->prepare("SELECT wpcf7pdf_id, wpcf7pdf_id_form, wpcf7pdf_data, wpcf7pdf_reference, wpcf7pdf_files FROM ".$wpdb->prefix."wpcf7pdf_files WHERE wpcf7pdf_reference = %s LIMIT 1", $ref ), 'OBJECT' ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
         if($result) {
             return $result;
         }

@@ -25,8 +25,8 @@ function wpcf7pdf_btn_shortcode( $atts ) {
             if( empty($infos->wpcf7pdf_id_form) ) { 
                 return '';
             } else {
-                $meta_values = get_post_meta( $infos->wpcf7pdf_id_form, '_wp_cf7pdf', true );
 
+                $meta_values = get_post_meta( $infos->wpcf7pdf_id_form, '_wp_cf7pdf', true );
                 if( isset($meta_values["disable-insert"]) && $meta_values["disable-insert"] == 'false' ) {
                     
                     if( isset($infos) ) {
@@ -63,6 +63,67 @@ function wpcf7pdf_btn_shortcode( $atts ) {
     }
 }
 add_shortcode( 'wpcf7pdf_download', 'wpcf7pdf_btn_shortcode' );
+
+function wpcf7pdf_return_data( $atts ) {
+
+	// Attributes
+	extract( shortcode_atts(
+		array(
+            'tag' => '',
+		), $atts )
+	);
+    
+    if( isset($_GET['_wpnonce']) && wp_verify_nonce($_GET['_wpnonce'], 'go_reference') ) {
+
+        if( isset($_GET['pdf-reference']) && !empty($_GET['pdf-reference']) ) {
+
+            $infos = cf7_sendpdf::get_byReference(esc_html($_GET['pdf-reference']));
+            if( empty($infos->wpcf7pdf_id_form) ) { 
+                return '';
+            } else {
+
+                $meta_values = get_post_meta( $infos->wpcf7pdf_id_form, '_wp_cf7pdf', true );
+                if( isset($meta_values["disable-insert"]) && $meta_values["disable-insert"] == 'false' ) {
+                    
+                    if( isset($infos) ) {
+
+                        $entete = array("reference", "date");
+                        $lignes = array();
+                        $list = array();
+                        $meta_fields = get_post_meta( intval($infos->wpcf7pdf_id_form), '_wp_cf7pdf_fields', true );
+                        $valueData = unserialize($infos->wpcf7pdf_data);
+
+                        foreach($meta_fields as $nb => $field) {
+                            preg_match_all( '#\[(.*?)\]#', $field, $nameField );
+                            array_push($entete, $nameField[1][0]);        
+                        }
+
+                        foreach( $valueData as $pdfList) {
+                            array_push($list, $pdfList);
+                        }
+                        array_push($lignes, $list);
+
+                        $tabData = array_combine($entete, $lignes[0]);
+                        if( isset($tag) && $tag!='') {
+                            return $tabData[$tag];
+                        }
+
+                    } else {
+                        return '';
+                    }
+                } else {
+                    return '';
+                }
+            }
+
+        } else {
+            return esc_html__('Reference is not available', 'send-pdf-for-contact-form-7');
+        }
+    } else {
+        return '';
+    }
+}
+add_shortcode( 'wpcf7pdf_data', 'wpcf7pdf_return_data' );
 
 function wpcf7pdf_test_shortcode( $atts ) {
 
