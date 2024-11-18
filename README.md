@@ -13,9 +13,12 @@ Translations: <a href="https://translate.wordpress.org/projects/wp-plugins/send-
 <a href="https://demo.restezconnectes.fr/send-pdf-for-contact-form-7/">[Demo Here]</a>
 <a href="https://restezconnectes.fr/tutoriel-wordpress-lextension-send-pdf-for-contact-form-7/">[Tutorial Here]</a>
 
-Current Version:  1.0.2.8
+Current Version:  1.0.2.9
 
 == Changelog ==
+
+= 1.0.2.9 = 
+* Fix bug preview PDF
 
 = 1.0.2.8 = 
 * Adding option for multi PDF

@@ -823,7 +823,9 @@ class cf7_sendpdf {
 
                     $contentPdf = WPCF7PDF_prepare::tags_parser($post['_wpcf7'], $nameOfPdf, $referencePDF, $contentPdf);
                     // Si il existe des Shortcodes?
-                    $contentPdf = WPCF7PDF_prepare::shortcodes($meta_values['shotcodes_tags'], $contentPdf);
+                    if( isset($meta_values['shotcodes_tags']) && $meta_values['shotcodes_tags']!='') {
+                        $contentPdf = WPCF7PDF_prepare::shortcodes($meta_values['shotcodes_tags'], $contentPdf);
+                    }
                     // On genere le PDF
                     $generatePdfFile = WPCF7PDF_generate::wpcf7pdf_create_pdf($post['_wpcf7'], $contentPdf, $nameOfPdf, $referencePDF, $createDirectory);
 
@@ -849,7 +851,9 @@ class cf7_sendpdf {
                                 $messageAddPdf = WPCF7PDF_prepare::tags_parser($post['_wpcf7'], $addNamePdf, $referencePDF, $messageAddPdf);
                                 
                                 // Shortcodes?
-                                $messageAddPdf = WPCF7PDF_prepare::shortcodes($meta_values['shotcodes_tags'], $messageAddPdf);    
+                                if( isset($meta_values['shotcodes_tags']) && $meta_values['shotcodes_tags']!='') {
+                                    $messageAddPdf = WPCF7PDF_prepare::shortcodes($meta_values['shotcodes_tags'], $messageAddPdf);
+                                }    
                 
                                 // Création du PDF
                                 $generateAddPdfFile = WPCF7PDF_generate::wpcf7pdf_create_pdf($post['_wpcf7'], $messageAddPdf, $addNamePdf, $referencePDF, $createDirectory);

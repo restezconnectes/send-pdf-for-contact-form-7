@@ -296,7 +296,6 @@ class WPCF7PDF_generate extends cf7_sendpdf {
             }
             $data = apply_filters('wpcf7pdf_text', $data, $contact_form);
             $mpdf->WriteHTML($data);
-            
 
         }
         
@@ -312,13 +311,9 @@ class WPCF7PDF_generate extends cf7_sendpdf {
             $mpdf->Output($createDirectory.'/preview-'.esc_html($idForm).'.pdf', 'F');
 
         // et des preview pour les autres PDF si existant
-        } elseif ( ( isset($preview) && $preview == 2 ) && ( isset($meta_values["number-pdf"]) && $meta_values["number-pdf"]>1 ) ) {
+        } elseif (  isset($preview) && $preview == 2  ) {
 
-            for ($i = 2; $i <= $meta_values["number-pdf"]; $i++) {
-                if( isset($meta_values['nameaddpdf'.$i]) && $meta_values['nameaddpdf'.$i] != '') {
-                    $mpdf->Output($createDirectory.'/preview-'.sanitize_title($meta_values['nameaddpdf'.$i.'']).'-'.esc_html($idForm).'.pdf', 'F');
-                }
-            }
+            $mpdf->Output($createDirectory.'/preview-'.esc_html($nameOfPdf).'-'.esc_html($idForm).'.pdf', 'F');
 
         // Sinon on génère les PDF
         } else {
