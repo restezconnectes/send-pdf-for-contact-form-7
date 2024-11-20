@@ -600,7 +600,7 @@ class WPCF7PDF_prepare extends cf7_sendpdf {
             $found_key = cf7_sendpdf::wpcf7pdf_foundkey($contact_tag, $name_tags[1]);
             $basetype = $contact_tag[$found_key]['basetype'];
             $tagOptions = '';
-            if( isset( $contact_tag[$found_key]['options'] ) ) {
+            if( isset( $contact_tag[$found_key]['options'] ) && !empty($contact_tag[$found_key]['options']) ) {
                 $tagOptions = $contact_tag[$found_key]['options'];
             }
 
@@ -686,7 +686,7 @@ class WPCF7PDF_prepare extends cf7_sendpdf {
 
                 $inputCheckbox = '';
                 $i = 1;
-                
+                               
                 foreach( $contact_tag[$found_key]['values'] as $idCheckbox=>$valCheckbox ) {
                     
                     $caseChecked = '';
@@ -702,6 +702,7 @@ class WPCF7PDF_prepare extends cf7_sendpdf {
                             } else if( (isset($meta_values['empty_input']) && $meta_values['empty_input']=='true') && $valueTag=='' ) {
                                 $emptyCheckInput = 1;
                             }
+
                         } else {
                             if( strpos($valueTag, trim($valCheckbox) )!== false ){
                                 $caseChecked = 'checked="checked"';
@@ -713,7 +714,7 @@ class WPCF7PDF_prepare extends cf7_sendpdf {
                         if( in_array('label_first', $tagOptions) ) {
                             if( $emptyCheckInput == 0 ) {
                                 $inputCheckbox .= ''.$tagSeparate.''.esc_html($valCheckbox).' <input type="checkbox" class="wpcf7-checkbox" name="'.esc_html($name_tags[1].$idCheckbox).'" value="'.$i.'" '.$caseChecked.' />'.$tagSeparateAfter.'';
-                            }
+                            }                            
                         } else {
                             if( $emptyCheckInput == 0 ) {
                                 $inputCheckbox .= ''.$tagSeparate.'<input type="checkbox" class="wpcf7-checkbox" name="'.esc_html($name_tags[1].$idCheckbox).'" value="'.$i.'" '.$caseChecked.'/> '.esc_html($valCheckbox).''.$tagSeparateAfter.'';
@@ -723,19 +724,40 @@ class WPCF7PDF_prepare extends cf7_sendpdf {
                     } else {
 
                         if( in_array('exclusive', $tagOptions) ) { 
-                            if( sanitize_text_field($valueTag)===sanitize_text_field($valCheckbox) ) {  
+
+                            if( in_array('free_text', $tagOptions) ) {
+
+                                if( sanitize_title($valueTag)===sanitize_title(wpcf7_mail_replace_tags($name_tags[0])) ) {
+
+                                    if( $emptyCheckInput == 1 ) {
+                                        $inputCheckbox .= '';
+                                    } else {
+                                        $contentPdf = str_replace('[free_text_'.esc_html($name_tags[1].']'), esc_html($_POST['_wpcf7_free_text_'.$name_tags[1]]), $contentPdf);
+                                        $inputCheckbox = ''.$tagSeparate.''.esc_html($valueTag).''.$tagSeparateAfter.'';
+                                    }
+                                }
+    
+                            } else if( sanitize_title($valueTag)===sanitize_title($valCheckbox) ) {  
+
                                 if( $emptyCheckInput == 1 ) {                                 
                                     $inputCheckbox .= '';
                                 } else {
                                     $inputCheckbox .= ''.$tagSeparate.''.$valCheckbox.''.$tagSeparateAfter.'';
                                 }
                             }
+
                         } else {
+
                             if( strpos($valueTag, trim($valCheckbox) )!== false ) {
                                 if( $emptyCheckInput == 1 ) {
                                     $inputCheckbox .= '';
                                 } else {
-                                    $inputCheckbox .= ''.$tagSeparate.''.$valCheckbox.''.$tagSeparateAfter.'';
+                                    if(in_array('free_text', $tagOptions) ) {
+                                        $contentPdf = str_replace('free_text_'.esc_html($name_tags[1]), esc_html($_POST['_wpcf7_free_text_'.$name_tags[1]]), $contentPdf);
+                                        $inputCheckbox = ''.$tagSeparate.''.esc_html($valueTag).''.$tagSeparateAfter.'';
+                                    } else {
+                                        $inputCheckbox .= ''.$tagSeparate.''.$valCheckbox.''.$tagSeparateAfter.'';
+                                    }
                                 }
                             }
                         }

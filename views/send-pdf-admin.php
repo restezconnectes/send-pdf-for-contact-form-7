@@ -418,10 +418,10 @@ if ( is_dir(get_stylesheet_directory()."/pdffonts/") == true ) {
                         <td style="text-align:left;">
                             <div>
                             <div class="switch-field">
-                                <input class="switch_left" type="radio" id="switch_insert" name="wp_cf7pdf_settings[condition-sending]" value="true" <?php if( isset($meta_values["condition-sending"]) && $meta_values["condition-sending"]=='true') { echo ' checked'; } ?>/>
-                                <label for="switch_insert"><?php esc_html_e('Yes', 'send-pdf-for-contact-form-7'); ?></label>
-                                <input class="switch_right" type="radio" id="switch_insert_no" name="wp_cf7pdf_settings[condition-sending]" value="false" <?php if( empty($meta_values["condition-sending"]) || (isset($meta_values["condition-tag"]) && $meta_values["condition-tag"]=='') || (isset($meta_values["condition-sending"]) && $meta_values["condition-sending"]=='false') ) { echo ' checked'; } ?> />
-                                <label for="switch_insert_no"><?php esc_html_e('No', 'send-pdf-for-contact-form-7'); ?></label>
+                                <input class="switch_left" type="radio" id="switch_condition" name="wp_cf7pdf_settings[condition-sending]" value="true" <?php if( isset($meta_values["condition-sending"]) && $meta_values["condition-sending"]=='true') { echo ' checked'; } ?>/>
+                                <label for="switch_condition"><?php esc_html_e('Yes', 'send-pdf-for-contact-form-7'); ?></label>
+                                <input class="switch_right" type="radio" id="switch_condition_no" name="wp_cf7pdf_settings[condition-sending]" value="false" <?php if( empty($meta_values["condition-sending"]) || (isset($meta_values["condition-tag"]) && $meta_values["condition-tag"]=='') || (isset($meta_values["condition-sending"]) && $meta_values["condition-sending"]=='false') ) { echo ' checked'; } ?> />
+                                <label for="switch_condition_no"><?php esc_html_e('No', 'send-pdf-for-contact-form-7'); ?></label>
                             </div>
                             </div>
                         </td>

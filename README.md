@@ -19,6 +19,8 @@ Current Version:  1.0.2.9
 
 = 1.0.2.9 = 
 * Fix bug preview PDF
+* Fix bug button activate conditional possibility
+* Tag with free_text now compatible
 
 = 1.0.2.8 = 
 * Adding option for multi PDF
