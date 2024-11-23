@@ -801,12 +801,43 @@ class WPCF7PDF_prepare extends cf7_sendpdf {
 
                     } else {
 
-                        if( sanitize_text_field($valueRadioTag)===sanitize_text_field($valRadio) ) {
+                        if( in_array('exclusive', $tagOptions) ) { 
+
+                            if( in_array('free_text', $tagOptions) ) {
+                                
+
+                                if( sanitize_title($valueRadioTag)===sanitize_title(wpcf7_mail_replace_tags($name_tags[0])) ) {
+
+                                    if( $emptyRadioInput == 1 ) {
+                                        $inputRadio .= '';
+                                    } else {
+                                        $contentPdf = str_replace('[free_text_'.esc_html($name_tags[1].']'), esc_html($_POST['_wpcf7_free_text_'.$name_tags[1]]), $contentPdf);
+                                        $inputRadio = ''.$tagSeparate.''.esc_html($valueRadioTag).''.$tagSeparateAfter.'';
+                                    }
+                                }
+    
+                            } else if( sanitize_title($valueRadioTag)===sanitize_title($valRadio) ) {  
+
+                                if( $emptyRadioInput == 1 ) {                                 
+                                    $inputRadio .= '';
+                                } else {
+                                    $inputRadio .= ''.$tagSeparate.''.$valRadio.''.$tagSeparateAfter.'';
+                                }
+                            }
+
+                        } else {
+
                             if( $emptyRadioInput == 1 ) {                                 
                                 $inputRadio .= '';
                             } else {
-                                $inputRadio .= ''.$tagSeparate.''.$valRadio.''.$tagSeparateAfter.'';
+                                if(in_array('free_text', $tagOptions) ) {
+                                    $contentPdf = str_replace('free_text_'.esc_html($name_tags[1]), esc_html($_POST['_wpcf7_free_text_'.$name_tags[1]]), $contentPdf);
+                                    $inputRadio = ''.$tagSeparate.''.esc_html($valueRadioTag).''.$tagSeparateAfter.'';
+                                } else {
+                                    $inputRadio .= ''.$tagSeparate.''.$valRadio.''.$tagSeparateAfter.'';
+                                }
                             }
+                            
                         }
                     }
                 }
