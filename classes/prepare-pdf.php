@@ -599,7 +599,7 @@ class WPCF7PDF_prepare extends cf7_sendpdf {
             $name_tags[0] = str_replace('url-', '', $name_tags[0]);
             $found_key = cf7_sendpdf::wpcf7pdf_foundkey($contact_tag, $name_tags[1]);
             $basetype = $contact_tag[$found_key]['basetype'];
-            $tagOptions = '';
+            $tagOptions = array();
             if( isset( $contact_tag[$found_key]['options'] ) && !empty($contact_tag[$found_key]['options']) ) {
                 $tagOptions = $contact_tag[$found_key]['options'];
             }
