@@ -15,7 +15,7 @@ if ( defined( 'WPCF7_UPLOADS_TMP_DIR' ) ) {
 } else {
     $tmpDirectory = $upload_dir['basedir'].'/sendpdfcf7_uploads/tmp';
 }
-
+echo $upload_dir['basedir'].' -- '.$upload_dir['baseurl'];
 /* Update des paramètres */
 if( (isset($_POST['action']) && isset($_POST['idform']) && $_POST['action'] == 'update') && isset($_POST['security-sendform']) && wp_verify_nonce($_POST['security-sendform'], 'go-sendform') ) {
 
@@ -1525,19 +1525,11 @@ if ( is_dir(get_stylesheet_directory()."/pdffonts/") == true ) {
 </div>
 
 <?php }?>
-<?php } else { ?>
-    <div style="margin-left: 0px;margin-top: 5px;background-color: #ffffff;border: 1px solid #cccccc;padding: 10px;">
-        <?php /* translators: %s: lien vers Contact Form 7 */ printf( esc_html__('To work I need %s plugin, but it is apparently not installed or not enabled!', 'send-pdf-for-contact-form-7'), '<a href="https://wordpress.org/plugins/contact-form-7/" target="_blank">Contact Form 7</a>' ); ?>
-    </div>
-<?php } ?>
-    <div style="margin-top:40px;">
-        <?php esc_html_e('Send PDF for Contact Form 7 is brought to you by', 'send-pdf-for-contact-form-7'); ?> <a href="https://madeby.restezconnectes.fr/" target="_blank">MadeByRestezConnectes</a> - <?php esc_html_e('If you found this plugin useful', 'send-pdf-for-contact-form-7'); ?> <a href="https://wordpress.org/support/view/plugin-reviews/send-pdf-for-contact-form-7/" target="_blank"><?php esc_html_e('give it 5 &#9733; on WordPress.org', 'send-pdf-for-contact-form-7'); ?></a>
-    </div>
-</div>
+<script type="text/javascript">
 <?php 
 // Si plusieurs PDF 
 if( isset($meta_values["number-pdf"]) && $meta_values["number-pdf"]>1 ) { ?>
-<script>
+
  'use strict';
  (function($){
     $(function(){
@@ -1559,6 +1551,18 @@ if( isset($meta_values["number-pdf"]) && $meta_values["number-pdf"]>1 ) { ?>
         <?php } ?>
 
     });
+    
 })(jQuery);
-</script>
 <?php } ?>
+</script>
+
+<?php } else { ?>
+    <div style="margin-left: 0px;margin-top: 5px;background-color: #ffffff;border: 1px solid #cccccc;padding: 10px;">
+        <?php /* translators: %s: lien vers Contact Form 7 */ printf( esc_html__('To work I need %s plugin, but it is apparently not installed or not enabled!', 'send-pdf-for-contact-form-7'), '<a href="https://wordpress.org/plugins/contact-form-7/" target="_blank">Contact Form 7</a>' ); ?>
+    </div>
+<?php } ?>
+    <div style="margin-top:40px;">
+        <?php esc_html_e('Send PDF for Contact Form 7 is brought to you by', 'send-pdf-for-contact-form-7'); ?> <a href="https://madeby.restezconnectes.fr/" target="_blank">MadeByRestezConnectes</a> - <?php esc_html_e('If you found this plugin useful', 'send-pdf-for-contact-form-7'); ?> <a href="https://wordpress.org/support/view/plugin-reviews/send-pdf-for-contact-form-7/" target="_blank"><?php esc_html_e('give it 5 &#9733; on WordPress.org', 'send-pdf-for-contact-form-7'); ?></a>
+    </div>
+</div>
+
