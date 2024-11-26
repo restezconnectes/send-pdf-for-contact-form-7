@@ -15,7 +15,7 @@ if ( defined( 'WPCF7_UPLOADS_TMP_DIR' ) ) {
 } else {
     $tmpDirectory = $upload_dir['basedir'].'/sendpdfcf7_uploads/tmp';
 }
-echo $upload_dir['basedir'].' -- '.$upload_dir['baseurl'];
+
 /* Update des paramètres */
 if( (isset($_POST['action']) && isset($_POST['idform']) && $_POST['action'] == 'update') && isset($_POST['security-sendform']) && wp_verify_nonce($_POST['security-sendform'], 'go-sendform') ) {
 
