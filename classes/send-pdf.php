@@ -1180,30 +1180,30 @@ class cf7_sendpdf {
             // On récupère le dossier upload de l'extension (/sendpdfcf7_uploads/)
             $upload_dir = wp_upload_dir();
             $createDirectory = $this->wpcf7pdf_folder_uploads(esc_html($post['_wpcf7']));
-            $createPathDirectory = str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $createDirectory);
+            $createPathDirectory = str_replace($upload_dir['baseurl'], $upload_dir['basedir'], $createDirectory);
             // On recupere les donnees et le nom du pdf personnalisé
             $meta_values = get_post_meta(esc_html($post['_wpcf7']), '_wp_cf7pdf', true );
 
             // Si l'option de supprimer les fichiers est activée
             if( isset($meta_values["pdf-file-delete"]) && $meta_values["pdf-file-delete"]=="true") {
-                
+
                 // Si fichier PDF activé, on les suprime disable-pdf
                 if( isset($meta_values["disable-pdf"]) && $meta_values['disable-pdf'] == 'false') {
-                    if( file_exists($createDirectory.'/'.$nameOfPdf.'.pdf') ) {
+                    if( file_exists($createPathDirectory.'/'.$nameOfPdf.'.pdf') ) {
                         wp_delete_file($createPathDirectory.'/'.$nameOfPdf.'.pdf');
-                    }
-                    if( file_exists($createDirectory.'/'.$nameOfPdf.'-'.$referencePDF.'.pdf') ) {
+                    } 
+                    if( file_exists($createPathDirectory.'/'.$nameOfPdf.'-'.$referencePDF.'.pdf') ) {
                         wp_delete_file($createPathDirectory.'/'.$nameOfPdf.'-'.$referencePDF.'.pdf');
                     }
                     // Si plusieurs PDF
                     if( isset($meta_values["number-pdf"]) && $meta_values["number-pdf"]>1 ) {
 
-                        for ($i = 2; $i <= $meta_values["number-pdf"]; $i++) {
+                        for ($i = 2; $i <= $meta_values["number-pdf"]; $i++) {                            
                             $addNamePdf = sanitize_title($meta_values['nameaddpdf'.$i.'']);
-                            if( file_exists($createDirectory.'/'.$addNamePdf.'-'.$referencePDF.'.pdf') ) {
+                            if( file_exists($createPathDirectory.'/'.$addNamePdf.'-'.$referencePDF.'.pdf') ) {
                                 wp_delete_file($createPathDirectory.'/'.$addNamePdf.'-'.$referencePDF.'.pdf');
                             }
-                            if( file_exists($createDirectory.'/'.$addNamePdf.'.pdf') ) {
+                            if( file_exists($createPathDirectory.'/'.$addNamePdf.'.pdf') ) {
                                 wp_delete_file($createPathDirectory.'/'.$addNamePdf.'.pdf');
                             }
                         }
@@ -1212,17 +1212,17 @@ class cf7_sendpdf {
 
                 // Si fichier CSV activé, on les suprime
                 if( isset($meta_values["disable-csv"]) && $meta_values['disable-csv'] == 'false') {
-                    if( file_exists($createDirectory.'/'.$nameOfPdf.'.csv') ) {
+                    if( file_exists($createPathDirectory.'/'.$nameOfPdf.'.csv') ) {
                         wp_delete_file($createPathDirectory.'/'.$nameOfPdf.'.csv');
                     }
-                    if( file_exists($createDirectory.'/'.$nameOfPdf.'-'.$referencePDF.'.csv') ) {
+                    if( file_exists($createPathDirectory.'/'.$nameOfPdf.'-'.$referencePDF.'.csv') ) {
                         wp_delete_file($createPathDirectory.'/'.$nameOfPdf.'-'.$referencePDF.'.csv');
                     }
                 }
                 
                 // Si ZIP activé, on les suprime
                 if( isset($meta_values["pdf-to-zip"]) && $meta_values['pdf-to-zip'] == 'true') {
-                    if( file_exists($createDirectory.'/'.$nameOfPdf.'.zip') ) {
+                    if( file_exists($createPathDirectory.'/'.$nameOfPdf.'.zip') ) {
                         wp_delete_file($createPathDirectory.'/'.$nameOfPdf.'.zip');
                     }
                 }

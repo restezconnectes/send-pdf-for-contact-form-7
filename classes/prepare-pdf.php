@@ -725,7 +725,7 @@ class WPCF7PDF_prepare extends cf7_sendpdf {
 
                         if( in_array('exclusive', $tagOptions) ) { 
 
-                            if( in_array('free_text', $tagOptions) ) {
+                            if( in_array('free_text', $tagOptions) && ( isset($_POST['_wpcf7_free_text_'.$name_tags[1]]) && $_POST['_wpcf7_free_text_'.$name_tags[1]]!='') ) {
 
                                 if( sanitize_title($valueTag)===sanitize_title(wpcf7_mail_replace_tags($name_tags[0])) ) {
 
@@ -752,7 +752,7 @@ class WPCF7PDF_prepare extends cf7_sendpdf {
                                 if( $emptyCheckInput == 1 ) {
                                     $inputCheckbox .= '';
                                 } else {
-                                    if(in_array('free_text', $tagOptions) ) {
+                                    if( in_array('free_text', $tagOptions) && ( isset($_POST['_wpcf7_free_text_'.$name_tags[1]]) && $_POST['_wpcf7_free_text_'.$name_tags[1]]!='') ) {
                                         $contentPdf = str_replace('free_text_'.esc_html($name_tags[1]), esc_html($_POST['_wpcf7_free_text_'.$name_tags[1]]), $contentPdf);
                                         $inputCheckbox = ''.$tagSeparate.''.esc_html($valueTag).''.$tagSeparateAfter.'';
                                     } else {
@@ -803,8 +803,7 @@ class WPCF7PDF_prepare extends cf7_sendpdf {
 
                         if( in_array('exclusive', $tagOptions) ) { 
 
-                            if( in_array('free_text', $tagOptions) ) {
-                                
+                            if( in_array('free_text', $tagOptions) && ( isset($_POST['_wpcf7_free_text_'.$name_tags[1]]) && $_POST['_wpcf7_free_text_'.$name_tags[1]]!='') ) {
 
                                 if( sanitize_title($valueRadioTag)===sanitize_title(wpcf7_mail_replace_tags($name_tags[0])) ) {
 
@@ -830,7 +829,7 @@ class WPCF7PDF_prepare extends cf7_sendpdf {
                             if( $emptyRadioInput == 1 ) {                                 
                                 $inputRadio .= '';
                             } else {
-                                if(in_array('free_text', $tagOptions) ) {
+                                if( in_array('free_text', $tagOptions) && ( isset($_POST['_wpcf7_free_text_'.$name_tags[1]]) && $_POST['_wpcf7_free_text_'.$name_tags[1]]!='') ) {
                                     $contentPdf = str_replace('free_text_'.esc_html($name_tags[1]), esc_html($_POST['_wpcf7_free_text_'.$name_tags[1]]), $contentPdf);
                                     $inputRadio = ''.$tagSeparate.''.esc_html($valueRadioTag).''.$tagSeparateAfter.'';
                                 } else {
