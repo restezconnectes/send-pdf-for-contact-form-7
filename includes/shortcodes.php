@@ -64,6 +64,20 @@ function wpcf7pdf_btn_shortcode( $atts ) {
 }
 add_shortcode( 'wpcf7pdf_download', 'wpcf7pdf_btn_shortcode' );
 
+function combine_arr($a, $b) {
+
+    $acount = count($a);
+    $bcount = count($b);
+
+    $size = ($acount > $bcount) ? $bcount : $acount;
+
+    $a = array_slice($a, 0, $size);
+    $b = array_slice($b, 0, $size);
+
+    return array_combine($a, $b);
+
+}
+
 function wpcf7pdf_return_data( $atts ) {
 
 	// Attributes
@@ -103,7 +117,8 @@ function wpcf7pdf_return_data( $atts ) {
                         }
                         array_push($lignes, $list);
 
-                        $tabData = array_combine($entete, $lignes[0]);
+                        $tabData = combine_arr($entete, $lignes[0]);
+
                         if( isset($tag) && $tag!='') {
                             return $tabData[$tag];
                         }
@@ -111,10 +126,11 @@ function wpcf7pdf_return_data( $atts ) {
                     } else {
                         return '';
                     }
+
                 } else {
                     return '';
                 }
-            }
+            }           
 
         } else {
             return esc_html__('Reference is not available', 'send-pdf-for-contact-form-7');
@@ -122,6 +138,7 @@ function wpcf7pdf_return_data( $atts ) {
     } else {
         return '';
     }
+
 }
 add_shortcode( 'wpcf7pdf_data', 'wpcf7pdf_return_data' );
 
