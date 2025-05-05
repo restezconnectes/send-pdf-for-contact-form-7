@@ -697,14 +697,14 @@ class WPCF7PDF_prepare extends cf7_sendpdf {
 
                         // Si le tag est exclusive
                         if( in_array('exclusive', $tagOptions) ) {  
-                            if( sanitize_text_field($valueTag)===sanitize_text_field($valCheckbox) ) {
+                            if( sanitize_text_field($valueTag)===sanitize_text_field($valCheckbox) && strcmp(sanitize_title($valueTag), sanitize_title($valCheckbox)) === 0 ) {
                                 $caseChecked = 'checked="checked"';
                             } else if( (isset($meta_values['empty_input']) && $meta_values['empty_input']=='true') && $valueTag=='' ) {
                                 $emptyCheckInput = 1;
                             }
 
                         } else {
-                            if( strpos($valueTag, trim($valCheckbox) )!== false ){
+                            if( sanitize_text_field($valueTag)===sanitize_text_field($valCheckbox) && strcmp(sanitize_title($valueTag), sanitize_title($valCheckbox)) === 0 ){
                                 $caseChecked = 'checked="checked"';
                             } else if( (isset($meta_values['empty_input']) && $meta_values['empty_input']=='true') && $valueTag=='' ) {
                                 $emptyCheckInput = 1;
@@ -727,7 +727,7 @@ class WPCF7PDF_prepare extends cf7_sendpdf {
 
                             if( in_array('free_text', $tagOptions) && ( isset($_POST['_wpcf7_free_text_'.$name_tags[1]]) && $_POST['_wpcf7_free_text_'.$name_tags[1]]!='') ) {
 
-                                if( sanitize_title($valueTag)===sanitize_title(wpcf7_mail_replace_tags($name_tags[0])) ) {
+                                if( sanitize_title($valueTag)===sanitize_title(wpcf7_mail_replace_tags($name_tags[0])) && strcmp(sanitize_title($valueTag), sanitize_title(wpcf7_mail_replace_tags($name_tags[0]))) === 0 ) {
 
                                     if( $emptyCheckInput == 1 ) {
                                         $inputCheckbox .= '';
@@ -737,7 +737,7 @@ class WPCF7PDF_prepare extends cf7_sendpdf {
                                     }
                                 }
     
-                            } else if( sanitize_title($valueTag)===sanitize_title($valCheckbox) ) {  
+                            } else if( sanitize_text_field($valueTag)===sanitize_text_field($valCheckbox) && strcmp(sanitize_title($valueTag), sanitize_title($valCheckbox)) === 0 ) {  
 
                                 if( $emptyCheckInput == 1 ) {                                 
                                     $inputCheckbox .= '';
@@ -748,7 +748,7 @@ class WPCF7PDF_prepare extends cf7_sendpdf {
 
                         } else {
 
-                            if( strpos($valueTag, trim($valCheckbox) )!== false ) {
+                            if( sanitize_text_field($valueTag)===sanitize_text_field($valCheckbox) && strcmp(sanitize_title($valueTag), sanitize_title($valCheckbox)) === 0 ) {
                                 if( $emptyCheckInput == 1 ) {
                                     $inputCheckbox .= '';
                                 } else {
@@ -783,29 +783,40 @@ class WPCF7PDF_prepare extends cf7_sendpdf {
                     
                     if(isset($meta_values['data_input']) && $meta_values['data_input']=='true') {
 
-                        if( sanitize_text_field($valueRadioTag)===sanitize_text_field($valRadio) ) {
-                            $radioChecked = ' checked="yes"';
-                        } else if( (isset($meta_values['empty_input']) && $meta_values['empty_input']=='true') && $valueRadioTag=='' ) {
-                            $emptyRadioInput = 1;
-                        }
-                    
-                        if(in_array('label_first', $tagOptions) ) {
-                            if( $emptyRadioInput == 0 ) {
-                                $inputRadio .= ''.$tagSeparate.''.$valRadio.' <input type="radio" class="wpcf7-radio" name="'.esc_html($name_tags[1]).'" value="'.$idRadio.'" '.$radioChecked.' >'.$tagSeparateAfter.'';
+                        // Si le tag est exclusive
+                        if( in_array('exclusive', $tagOptions) ) {  
+                            if( sanitize_text_field($valueRadioTag)===sanitize_text_field($valRadio) && strcmp(sanitize_title($valueRadioTag), sanitize_title($valRadio)) === 0 ) {
+                                $radioChecked = 'checked="checked"';
+                            } else if( (isset($meta_values['empty_input']) && $meta_values['empty_input']=='true') && $valueRadioTag=='' ) {
+                                $emptyRadioInput = 1;
                             }
+
+                        } else {
+                            if( sanitize_text_field($valueRadioTag)===sanitize_text_field($valRadio) && strcmp(sanitize_title($valueRadioTag), sanitize_title($valRadio)) === 0 ){
+                                $radioChecked = 'checked="checked"';
+                            } else if( (isset($meta_values['empty_input']) && $meta_values['empty_input']=='true') && $valueRadioTag=='' ) {
+                                $emptyRadioInput = 1;
+                            }
+                        }
+
+                        if( in_array('label_first', $tagOptions) ) {
+                            if( $emptyRadioInput == 0 ) {
+                                $inputRadio .= ''.$tagSeparate.''.esc_html($valRadio).' <input type="radio" class="wpcf7-radio" name="'.esc_html($name_tags[1].$idRadio).'" value="'.$i.'" '.$radioChecked.' />'.$tagSeparateAfter.'';
+                            }                            
                         } else {
                             if( $emptyRadioInput == 0 ) {
-                                $inputRadio .= ''.$tagSeparate.'<input type="radio" class="wpcf7-radio" name="'.esc_html($name_tags[1]).'" value="'.$idRadio.'" '.$radioChecked.' > '.$valRadio.''.$tagSeparateAfter.'';
+                                $inputRadio .= ''.$tagSeparate.'<input type="radio" class="wpcf7-radio" name="'.esc_html($name_tags[1].$idRadio).'" value="'.$i.'" '.$radioChecked.'/> '.esc_html($valRadio).''.$tagSeparateAfter.'';
                             }
                         }
 
                     } else {
-
+                        
+                        // Si le tag est exclusive
                         if( in_array('exclusive', $tagOptions) ) { 
 
                             if( in_array('free_text', $tagOptions) && ( isset($_POST['_wpcf7_free_text_'.$name_tags[1]]) && $_POST['_wpcf7_free_text_'.$name_tags[1]]!='') ) {
 
-                                if( sanitize_title($valueRadioTag)===sanitize_title(wpcf7_mail_replace_tags($name_tags[0])) ) {
+                                if( sanitize_text_field($valueRadioTag)===sanitize_text_field($valRadio) && strcmp(sanitize_title($valueRadioTag), sanitize_title($valRadio)) === 0 ) {
 
                                     if( $emptyRadioInput == 1 ) {
                                         $inputRadio .= '';
@@ -815,7 +826,7 @@ class WPCF7PDF_prepare extends cf7_sendpdf {
                                     }
                                 }
     
-                            } else if( sanitize_title($valueRadioTag)===sanitize_title($valRadio) ) {  
+                            } else if( sanitize_text_field($valueRadioTag)===sanitize_text_field($valRadio) && strcmp(sanitize_title($valueRadioTag), sanitize_title($valRadio)) === 0 ) {  
 
                                 if( $emptyRadioInput == 1 ) {                                 
                                     $inputRadio .= '';
@@ -826,20 +837,20 @@ class WPCF7PDF_prepare extends cf7_sendpdf {
 
                         } else {
 
-                            if( $emptyRadioInput == 1 ) {                                 
-                                $inputRadio .= '';
-                            } else {
-                                if( in_array('free_text', $tagOptions) && ( isset($_POST['_wpcf7_free_text_'.$name_tags[1]]) && $_POST['_wpcf7_free_text_'.$name_tags[1]]!='') ) {
-                                    $contentPdf = str_replace('free_text_'.esc_html($name_tags[1]), esc_html($_POST['_wpcf7_free_text_'.$name_tags[1]]), $contentPdf);
-                                    $inputRadio = ''.$tagSeparate.''.esc_html($valueRadioTag).''.$tagSeparateAfter.'';
-                                } else if( sanitize_text_field($valueRadioTag)===sanitize_text_field($valRadio) ) {
-                                    if( $emptyRadioInput == 0 ) {                                 
+                            if( sanitize_text_field($valueRadioTag)===sanitize_text_field($valRadio) && strcmp(sanitize_title($valueRadioTag), sanitize_title($valRadio)) === 0 ) {
+                                if( $emptyRadioInput == 1 ) {
+                                    $inputRadio .= '';
+                                } else {
+                                    if( in_array('free_text', $tagOptions) && ( isset($_POST['_wpcf7_free_text_'.$name_tags[1]]) && $_POST['_wpcf7_free_text_'.$name_tags[1]]!='') ) {
+                                        $contentPdf = str_replace('free_text_'.esc_html($name_tags[1]), esc_html($_POST['_wpcf7_free_text_'.$name_tags[1]]), $contentPdf);
+                                        $inputRadio = ''.$tagSeparate.''.esc_html($valueRadioTag).''.$tagSeparateAfter.'';
+                                    } else {
                                         $inputRadio .= ''.$tagSeparate.''.$valRadio.''.$tagSeparateAfter.'';
                                     }
                                 }
                             }
-                            
                         }
+
                     }
                 }
                 $contentPdf = str_replace(esc_html($name_tags[0]), $inputRadio, $contentPdf);

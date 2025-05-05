@@ -74,10 +74,11 @@ class cf7_sendpdf {
                     header("Expires: 0");
                     header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
                     header("Cache-Control: private", false);
-                    header("Content-Type: application/octet-stream");
+                    //header("Content-Type: application/octet-stream");
                     header("Content-Disposition: attachment; filename=\"sendpdfcf7_export_".esc_html($_GET['idform']).".csv\";" );
                     header("Content-Transfer-Encoding: binary");
-                    header('Content-Length: '. strlen($encoded_csv));
+                    header('Content-Type: text/csv; charset=utf-8');
+                    //header('Content-Length: '. strlen($encoded_csv));
                     echo esc_html($csv_output);
                     exit;
                 }
@@ -467,15 +468,14 @@ class cf7_sendpdf {
         if( isset($meta_values["pdf-name"]) && !empty($meta_values["pdf-name"]) ) {
             $namePDF = esc_html(trim($meta_values["pdf-name"]));
             $namePDF = str_replace(' ', '-', $namePDF);
-        
-            $data = array(
+            $dataTab = array(
                 'wpcf7pdf_id_form' => sanitize_text_field($id),
                 'wpcf7pdf_data' => sanitize_textarea_field($data),
                 'wpcf7pdf_reference' => $reference,
                 'wpcf7pdf_files' => sanitize_url($file),
                 'wpcf7pdf_files2' => sanitize_url($file2)
             );
-            $result = $wpdb->insert($wpdb->prefix.'wpcf7pdf_files', $data); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+            $result = $wpdb->insert($wpdb->prefix.'wpcf7pdf_files', $dataTab); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
             if($result) {
                 return $wpdb->insert_id;
             }
@@ -1338,6 +1338,7 @@ class cf7_sendpdf {
                     
                     array_push($list, $createDirectory.'/'.$nameOfPdf.'-'.$pdfData[0].'.pdf');
                     foreach($pdfData as $data) {
+                        $data = html_entity_decode($data);
                         array_push($list, $data);
                     }
                     
@@ -1480,7 +1481,7 @@ class cf7_sendpdf {
 
             for ( var ii = 0; ii < fieldname.length; ii++ ) { // je liste les champs du nom du PDF
                 for ( var i = 0; i < inputs.length; i++ ) { // je liste les champs envoyé du form
-                    console.log( fieldname[ii] + ' == ' + inputs[i].name + ' : '+ inputs[i].value );
+                    //console.log( fieldname[ii] + ' == ' + inputs[i].name + ' : '+ inputs[i].value );
                     if ( fieldname[ii] == inputs[i].name ) { // je compare si le nom se trouve dans le form
                         valuefield += '-' + string_to_slug(inputs[i].value);
                     }                   

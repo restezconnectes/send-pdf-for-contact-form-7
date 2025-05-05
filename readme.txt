@@ -3,8 +3,8 @@ Contributors: Florent73
 Donate link: https://www.paypal.me/RestezConnectes/
 Tags: contact form 7, pdf, send, attachment, form
 Requires at least: 5.2
-Tested up to: 6.7
-Stable tag: 1.0.3.0
+Tested up to: 6.8
+Stable tag: 1.0.3.1
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -52,6 +52,9 @@ Yes. If you want, you can support this project here: <a href="https://restezconn
 
 
 == Changelog ==
+
+= 1.0.3.1 = 
+* Fix bug radio button + case sensitive
 
 = 1.0.3.0 = 
 * Fix bug deleting PDF
