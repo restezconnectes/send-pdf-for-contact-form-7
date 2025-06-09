@@ -1511,14 +1511,14 @@ if ( is_dir(get_stylesheet_directory()."/pdffonts/") == true ) {
       <p><?php esc_html_e( 'Import the plugin settings from a .json file. This file can be obtained by exporting the settings on another site using the form above.', 'send-pdf-for-contact-form-7' ); ?></p>
       <form method="post" enctype="multipart/form-data">
           <p>
-              <input type="file" name="wpcf7_import_file"/>
+              <input type="file" name="wpcf7_import_file" id="wpcf7_import_file" onchange="validateImportForm()"/>
           </p>
           <p>
               <input type="hidden" name="wpcf7_action" value="import_settings" />
               <input type="hidden" name="idform" value="<?php echo esc_html($idForm); ?>"/>
               <input type="hidden" name="wpcf7pdf_import_id" value="<?php echo esc_html($idForm); ?>" />
               <?php wp_nonce_field( 'go_import_nonce', 'wpcf7_import_nonce' ); ?>
-              <?php submit_button( esc_html__( 'Import', 'send-pdf-for-contact-form-7' ), 'secondary', 'submit_import', false ); ?>
+              <p><?php submit_button( __( 'Import', 'send-pdf-for-contact-form-7' ), 'secondary', 'submit', false, array('id' => 'import-submit', 'disabled' => 'disabled') ); ?></p>
           </p>
       </form>
     </div>
@@ -1554,6 +1554,18 @@ if( isset($meta_values["number-pdf"]) && $meta_values["number-pdf"]>1 ) { ?>
     
 })(jQuery);
 <?php } ?>
+</script>
+<script type="text/javascript">
+function validateImportForm() {
+    var fileInput = document.getElementById('wpcf7_import_file');
+    var submitButton = document.getElementById('import-submit');
+    
+    if (fileInput.files.length > 0) {
+        submitButton.disabled = false;
+    } else {
+        submitButton.disabled = true;
+    }
+}
 </script>
 
 <?php } else { ?>
