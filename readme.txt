@@ -55,6 +55,7 @@ Yes. If you want, you can support this project here: <a href="https://restezconn
 
 = 1.0.3.2 = 
 * Fix bug checkbox button if is not exclusive
+* Remove sanitize name of PDF
 
 = 1.0.3.1 = 
 * Fix bug radio button + case sensitive

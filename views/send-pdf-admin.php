@@ -524,7 +524,7 @@ if ( is_dir(get_stylesheet_directory()."/pdffonts/") == true ) {
                                     } else {
                                         $dateForName = get_option( 'date_format' );
                                     }
-                                    $dateForName = str_replace('-', '', $dateForName);
+                                    //$dateForName = str_replace('-', '', $dateForName);
                                     $dateForName = str_replace(' ', '', $dateForName);
                                     $dateForName = str_replace('/', '', $dateForName);
                                 ?>
@@ -533,7 +533,7 @@ if ( is_dir(get_stylesheet_directory()."/pdffonts/") == true ) {
 
                         </td>
                         <td>
-                            <input type= "text" class="wpcf7-form-field" name="wp_cf7pdf_settings[pdf-name]" value="<?php if( isset($meta_values["pdf-name"]) && !empty($meta_values["pdf-name"]) ) { echo esc_html(sanitize_title($meta_values["pdf-name"])); } else { echo esc_html('document-pdf'); } ?>">.pdf<br /><br /><br />
+                            <input type= "text" class="wpcf7-form-field" name="wp_cf7pdf_settings[pdf-name]" value="<?php if( isset($meta_values["pdf-name"]) && !empty($meta_values["pdf-name"]) ) { echo esc_html(str_replace(' ', '', $meta_values["pdf-name"])); } else { echo esc_html('document-pdf'); } ?>">.pdf<br /><br /><br />
                             <input type="text" class="wpcf7-form-field" size="30" name="wp_cf7pdf_settings[pdf-add-name]" value="<?php if( isset($meta_values["pdf-add-name"]) && !empty($meta_values["pdf-add-name"]) ) { echo esc_html($meta_values["pdf-add-name"]); } ?>" />
                         </td>
 
