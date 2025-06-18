@@ -7,6 +7,9 @@ global $_wp_admin_css_colors;
 global $post;
 
 $admin_color = get_user_option( 'admin_color', get_current_user_id() );
+if( !isset($_wp_admin_css_colors[$admin_color]) ) {
+    $admin_color = 'fresh'; // Default color scheme
+}
 $colors      = $_wp_admin_css_colors[$admin_color]->colors;
 
 $upload_dir = wp_upload_dir();
@@ -181,12 +184,13 @@ jQuery(document).ready(function() {
                                 $selected = '';
                                
                                 foreach($forms as $form) {
+                                    $is_selected = false;
                                     if(isset($_POST['idform']) ) {
-                                        $selected = ($form->id() == sanitize_text_field($_POST['idform'])) ? "selected" : "";
+                                        $is_selected = ($form->id() == sanitize_text_field($_POST['idform']));
                                     }
                                     $formPriority = '';
                                     $formNameEscaped = htmlentities($form->title(), ENT_QUOTES | ENT_IGNORE, 'UTF-8');
-                                    echo '<option value="'.esc_html($form->id()).'" '.esc_html($selected).'>'.esc_html($formNameEscaped).'</option>';
+                                    echo '<option value="'.esc_attr($form->id()).'"' . ($is_selected ? ' selected="selected"' : '') . '>'.esc_html($formNameEscaped).'</option>';
                                 }
                             ?>
                         </select>

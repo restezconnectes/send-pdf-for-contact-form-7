@@ -150,10 +150,19 @@ class cf7_sendpdf {
                 $resultFile = WPCF7PDF_settings::get($id);
 
                 if( isset($resultFile) && !empty($resultFile) ) {
-                    // remplace par le PATH            
-                    $chemin_path = str_replace($upload_dir['baseurl'], $upload_dir['basedir'], $resultFile->wpcf7pdf_files);
-                    if( isset($chemin_path) && file_exists($chemin_path) ) {
-                        wp_delete_file($chemin_path);
+                    // Sécurisation contre Path Traversal
+                    $safe_basedir = realpath($upload_dir['basedir']);
+                    
+                    // Remplace par le PATH et valide la sécurité
+                    $requested_path = str_replace($upload_dir['baseurl'], $upload_dir['basedir'], $resultFile->wpcf7pdf_files);
+                    $real_path = realpath($requested_path);
+                    
+                    // Vérifie que le fichier est dans le bon répertoire et existe
+                    if( $real_path && 
+                        $safe_basedir && 
+                        strpos($real_path, $safe_basedir) === 0 && 
+                        file_exists($real_path) ) {
+                        wp_delete_file($real_path);
                     }
                 }
                 echo 'success';
@@ -332,6 +341,9 @@ class cf7_sendpdf {
         if (isset($_GET['page']) && $_GET['page'] == 'wpcf7-send-pdf') { // phpcs:ignore
 
             $admin_color = get_user_option( 'admin_color', get_current_user_id() );
+            if ( ! isset( $_wp_admin_css_colors[ $admin_color ] ) ) {
+                $admin_color = 'fresh';
+            }
             $colors      = $_wp_admin_css_colors[$admin_color]->colors;
 
             echo '
@@ -453,7 +465,7 @@ class cf7_sendpdf {
         global $wpdb;
         $wpdb->ma_table_wpcf7pdf = $wpdb->prefix.'wpcf7pdf_files';
         $wpdb->tables[] = 'ma_table_wpcf7pdf';
-        $showTable = $wpdb->get_var("SHOW TABLES LIKE '".$wpdb->ma_table_wpcf7pdf."'"); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+        $showTable = $wpdb->get_var($wpdb->prepare("SHOW TABLES LIKE %s", $wpdb->ma_table_wpcf7pdf));
         /* Création des tables nécessaires */
         if( $showTable != $wpdb->ma_table_wpcf7pdf) {
 
@@ -809,12 +821,17 @@ class cf7_sendpdf {
                 // Compatibilité avec CF7 Conditional Fields / Conditional Fields PRO
                 if( class_exists('Wpcf7cfMailParser') ){
 
-                    $hidden_groups = json_decode(stripslashes($_POST['_wpcf7cf_hidden_groups'])); // phpcs:ignore WordPress.Security.NonceVerification.Missing
-                    $visible_groups = json_decode(stripslashes($_POST['_wpcf7cf_visible_groups'])); // phpcs:ignore WordPress.Security.NonceVerification.Missing
-                    $repeaters = json_decode(stripslashes($_POST['_wpcf7cf_repeaters'])); // phpcs:ignore WordPress.Security.NonceVerification.Missing
+                    // Vérification de sécurité : s'assurer que le nonce est vérifié avant d'utiliser $_POST
+                    if( !isset($_POST['redirect_nonce']) || !wp_verify_nonce($_POST['redirect_nonce'], 'cf7-redirect-id') ) {
+                        return; // Arrêter l'exécution si le nonce n'est pas valide
+                    }
+
+                    $hidden_groups = json_decode(stripslashes($_POST['_wpcf7cf_hidden_groups']));
+                    $visible_groups = json_decode(stripslashes($_POST['_wpcf7cf_visible_groups']));
+                    $repeaters = json_decode(stripslashes($_POST['_wpcf7cf_repeaters']));
                     //$steps = json_decode(stripslashes($_POST['_wpcf7cf_steps']));                   
 
-                    $parser = new Wpcf7cfMailParser($contentPdf, $visible_groups, $hidden_groups, $repeaters, $_POST); // phpcs:ignore WordPress.Security.NonceVerification.Missing
+                    $parser = new Wpcf7cfMailParser($contentPdf, $visible_groups, $hidden_groups, $repeaters, $_POST);
                     $contentPdf = $parser->getParsedMail();
                 }
 
@@ -856,7 +873,7 @@ class cf7_sendpdf {
                                 $messageAddPdf = apply_filters( 'pl_filter_content', $messageAddPdf, $posted_data );    
                                 
                                 if( class_exists('Wpcf7cfMailParser') ){
-                                    $parserPdf = new Wpcf7cfMailParser($messageAddPdf, $visible_groups, $hidden_groups, $repeaters, $_POST); // phpcs:ignore WordPress.Security.NonceVerification.Missing
+                                    $parserPdf = new Wpcf7cfMailParser($messageAddPdf, $visible_groups, $hidden_groups, $repeaters, $_POST);
                                     $messageAddPdf = $parserPdf->getParsedMail();
                                 }
 

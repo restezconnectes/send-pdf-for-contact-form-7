@@ -147,7 +147,8 @@ class WPCF7PDF_settings extends cf7_sendpdf {
 
     static function truncate() {
         global $wpdb;
-        $result =  $wpdb->query( "TRUNCATE TABLE ".$wpdb->prefix."wpcf7pdf_files" );
+        $table_name = $wpdb->prefix . 'wpcf7pdf_files';
+        $result = $wpdb->query($wpdb->prepare("TRUNCATE TABLE `%s`", $table_name));
 		if($result) {
             return true;
         }
@@ -166,7 +167,8 @@ class WPCF7PDF_settings extends cf7_sendpdf {
     static function drop() {
 
         global $wpdb;
-        $result = $wpdb->query( "DROP TABLE IF EXISTS ".$wpdb->prefix."wpcf7pdf_files" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+        $table_name = $wpdb->prefix . 'wpcf7pdf_files';
+        $result = $wpdb->query($wpdb->prepare("DROP TABLE IF EXISTS `%s`", $table_name));
         if($result) {
             return true;
         }
