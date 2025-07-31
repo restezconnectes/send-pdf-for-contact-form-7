@@ -3,7 +3,7 @@
 Plugin Name: Send PDF for Contact Form 7
 Plugin URI:  https://restezconnectes.fr/tutoriel-wordpress-lextension-send-pdf-for-contact-form-7/
 Description: Send a PDF with Contact Form 7. It is originally created for Contact Form 7 plugin.
-Version:     1.0.3.2
+Version:     1.0.3.4
 Author:      Florent Maillefaud
 Author URI:  https://restezconnectes.fr
 License:     GPL3 or later
@@ -36,7 +36,7 @@ define( 'WPCF7PDF_DIR', plugin_dir_path( __FILE__ ) );
 define( 'WPCF7PDF_URL', plugins_url('/', __FILE__) );
 define( 'WPCF7PDF_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );
 
-if( !defined( 'WPCF7PDF_VERSION' )) { define( 'WPCF7PDF_VERSION', '1.0.3.2' ); }
+if( !defined( 'WPCF7PDF_VERSION' )) { define( 'WPCF7PDF_VERSION', '1.0.3.4' ); }
 if( !defined( 'WPCF7PDF_TEXT_DOMAIN' )) { define( 'WPCF7PDF_TEXT_DOMAIN', 'send-pdf-for-contact-form-7' ); }
 
 if ( ! defined( 'WPCF7_ADMIN_READ_CAPABILITY' ) ) { define( 'WPCF7_ADMIN_READ_CAPABILITY', 'manage_options' ); }
@@ -52,11 +52,7 @@ add_action( 'plugins_loaded', '_cf7_sendpdf_load' );
 function _cf7_sendpdf_load() {
 	$cf7_sendpdf = new cf7_sendpdf();
 	$cf7_sendpdf->hooks();
-}
 
-// Enable localization
-add_action( 'init', '_cf7_load_translation' );
-function _cf7_load_translation() {
     load_plugin_textdomain( 'send-pdf-for-contact-form-7', false, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
 }
 
