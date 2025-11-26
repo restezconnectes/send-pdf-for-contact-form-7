@@ -17,16 +17,20 @@ defined( 'ABSPATH' )
 class WPCF7PDF_generate extends cf7_sendpdf {
 
     static function wpcf7pdf_create_pdf($idForm, $data, $nameOfPdf, $referenceOfPdf, $createDirectory, $preview = 0) {
-
+        
         // nothing's here... do nothing...
         if (empty($idForm) || empty($data))
             return;
 
-        global $wp_session;
-
+        // Get upload directory
         $upload_dir = wp_upload_dir();
+        $upload_basedir = $upload_dir['basedir'];
+        $upload_baseurl = $upload_dir['baseurl'];
+
+        // Get custom temp path
         $custom_tmp_path = get_option('wpcf7pdf_path_temp');
 
+        // get instance of Contact Form 7
         $contact_form = WPCF7_ContactForm::get_instance(esc_html($idForm));   
 
         // Definition des dates par defaut
@@ -194,7 +198,21 @@ class WPCF7PDF_generate extends cf7_sendpdf {
             $mpdf->useActiveForms = true;
         }
         
-        if( isset($meta_values['image_background']) && $meta_values['image_background']!='' ) {
+        // Tester si les images de fond existent
+        $backgroundImage = '';
+        $backgroundImageDefault = esc_url(plugins_url('images/background.jpg', dirname(__FILE__) ));
+        if( isset($meta_values['image_background']) && $meta_values['image_background']!=$backgroundImageDefault ) {
+            $pathBackgroundImage = str_replace($upload_baseurl, $upload_basedir, $meta_values['image_background']);
+            if( file_exists($pathBackgroundImage) ) {
+                $backgroundImage = esc_url($meta_values['image_background']);
+            } else {
+                $backgroundImage = '';
+            }
+        } else if( isset($meta_values['image_background']) && $meta_values['image_background']==$backgroundImageDefault ) {
+            $backgroundImage = esc_url($meta_values['image_background']);
+        }
+
+        if( isset($backgroundImage) && $backgroundImage!='' ) {
             $mpdf->SetDefaultBodyCSS('background', "url('".esc_url($meta_values['image_background'])."')");
             $mpdf->SetDefaultBodyCSS('background-image-resize', 6);
         }
@@ -234,7 +252,7 @@ class WPCF7PDF_generate extends cf7_sendpdf {
         }
 
         $entetePage = '';
-        if( isset($meta_values["image"]) && !empty($meta_values["image"]) ) {
+        if( isset($meta_values["image"]) && !empty($meta_values["image"]) && file_exists( str_replace($upload_baseurl, $upload_basedir, $meta_values['image']) ) ) {
             if( ini_get('allow_url_fopen')==1) {
                 list($width, $height, $type, $attr) = getimagesize(esc_url($meta_values["image"]));
             } else {
@@ -320,7 +338,7 @@ class WPCF7PDF_generate extends cf7_sendpdf {
 
             $data = wpcf7_mail_replace_tags( wpautop($data) );
             $mpdf->Output($createDirectory.'/'.esc_html($nameOfPdf).'.pdf', 'F');
-            
+
             // Je copy le PDF genere
             if( file_exists($createDirectory.'/'.esc_html($nameOfPdf).'.pdf') ) {
                 copy($createDirectory.'/'.esc_html($nameOfPdf).'.pdf', $createDirectory.'/'.esc_html($nameOfPdf).'-'.$referenceOfPdf.'.pdf');

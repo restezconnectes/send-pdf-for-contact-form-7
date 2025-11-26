@@ -102,7 +102,7 @@ class cf7_sendpdf {
 
 		if ( ! empty( $_GET['wpcf7pdf-hide-notice'] ) ) {
 			if ( ! wp_verify_nonce( $_GET['_wpcf7pdf_notice_nonce'], 'wpcf7pdf_hide_notices_nonce' ) ) {
-				wp_die( esc_html_e( 'Please refresh the page and retry action.', 'send-pdf-for-contact-form-7' ) );
+				wp_die( esc_html__( 'Please refresh the page and retry action.', 'send-pdf-for-contact-form-7' ) );
 			}
 
 			$notices = get_option( 'wpcf7pdf_admin_notices', array() );
@@ -856,6 +856,7 @@ class cf7_sendpdf {
                     if( isset($meta_values['shotcodes_tags']) && $meta_values['shotcodes_tags']!='') {
                         $contentPdf = WPCF7PDF_prepare::shortcodes($meta_values['shotcodes_tags'], $contentPdf);
                     }
+
                     // On genere le PDF
                     $generatePdfFile = WPCF7PDF_generate::wpcf7pdf_create_pdf($post['_wpcf7'], $contentPdf, $nameOfPdf, $referencePDF, $createDirectory);
 

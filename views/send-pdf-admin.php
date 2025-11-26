@@ -248,6 +248,11 @@ jQuery(document).ready(function() {
         /**********************************************/
         // On récupère le dossier upload de WP
         $upload_dir = wp_upload_dir();
+        $upload_basedir = $upload_dir['basedir'];
+        $upload_baseurl = $upload_dir['baseurl'];
+        //print_r($upload_dir);
+
+        // On crée le dossier d'upload si il n'existe pas
         $createDirectory = cf7_sendpdf::wpcf7pdf_folder_uploads($idForm);
         
         // On récupère le format de date dans les paramètres
@@ -269,6 +274,20 @@ jQuery(document).ready(function() {
         // Definition des dates par defaut
         $dateField = WPCF7PDF_prepare::returndate($idForm);
         $timeField = WPCF7PDF_prepare::returntime($idForm);
+
+        // Tester si les images de fond existent
+        $backgroundImage = '';
+        $backgroundImageDefault = esc_url(plugins_url('images/background.jpg', dirname(__FILE__) ));
+        if( isset($meta_values['image_background']) && $meta_values['image_background']!=$backgroundImageDefault ) {
+            $pathBackgroundImage = str_replace($upload_baseurl, $upload_basedir, $meta_values['image_background']);
+            if( file_exists($pathBackgroundImage) ) {
+                $backgroundImage = esc_url($meta_values['image_background']);
+            } else {
+                $backgroundImage = '';
+            }
+        } else if( isset($meta_values['image_background']) && $meta_values['image_background']==$backgroundImageDefault ) {
+            $backgroundImage = esc_url($meta_values['image_background']);
+        }
 
         // Definition des dimensions du logo par defaut
         $width = 150;
@@ -988,7 +1007,7 @@ if ( is_dir(get_stylesheet_directory()."/pdffonts/") == true ) {
 
                             <h3 class="hndle"><span class="dashicons dashicons-images-alt2"></span>&nbsp;&nbsp;<?php esc_html_e('Image Background', 'send-pdf-for-contact-form-7'); ?></h3>
                             <?php esc_html_e('Enter a URL or upload an image:', 'send-pdf-for-contact-form-7'); ?><br />
-                            <input id="upload_background" size="80%" class="wpcf7-form-field" name="wp_cf7pdf_settings[image_background]" value="<?php if( isset($meta_values['image_background']) ) { echo esc_url($meta_values['image_background']); } ?>" type="text" /> <a href="#" id="upload_image_background" class="button" OnClick="this.blur();"><span> <?php esc_html_e('Select or Upload your picture', 'send-pdf-for-contact-form-7'); ?> </span></a><br /><small><?php esc_html_e('Example for demo:', 'send-pdf-for-contact-form-7'); ?> <a href="<?php echo esc_url(plugins_url( '../images/background.jpg', __FILE__ )); ?>" target="_blank"><?php esc_html_e('here', 'send-pdf-for-contact-form-7'); ?></a></small><br />
+                            <input id="upload_background" size="80%" class="wpcf7-form-field" name="wp_cf7pdf_settings[image_background]" value="<?php echo esc_url($backgroundImage); ?>" type="text" /> <a href="#" id="upload_image_background" class="button" OnClick="this.blur();"><span> <?php esc_html_e('Select or Upload your picture', 'send-pdf-for-contact-form-7'); ?> </span></a><br /><small><?php esc_html_e('Example for demo:', 'send-pdf-for-contact-form-7'); ?> <a href="<?php echo esc_url(plugins_url( '../images/background.jpg', __FILE__ )); ?>" target="_blank"><?php esc_html_e('here', 'send-pdf-for-contact-form-7'); ?></a></small><br />
                             <div style="margin-top:0.8em;">                           
                                 <div><?php esc_html_e('Display background on each page?', 'send-pdf-for-contact-form-7'); ?>
                                     <div class="switch-field-mini">
@@ -1001,8 +1020,8 @@ if ( is_dir(get_stylesheet_directory()."/pdffonts/") == true ) {
                             </div>
                         </td>
                         <td style="text-align:center;">
-                            <div style="border:1px solid #CCCCCC;height:500px;padding:5px;<?php if( isset($meta_values['image_background']) ) { echo 'background: no-repeat url('.esc_url($meta_values['image_background']); } ?>);background-size: cover;">
-                                <div style="text-align:<?php if( isset($meta_values['image-alignment']) ) { echo esc_html($meta_values['image-alignment']); } ?>;margin-top:<?php if( isset($meta_values["margin_header"]) && $meta_values["margin_header"]!='' ) { echo esc_html($meta_values["margin_header"]); } else { echo esc_html($marginHeader); } ?>px;"><?php if( isset($meta_values['image']) ) { echo '<img src="'.esc_url($meta_values['image']).'" width="150">'; } ?>
+                            <div style="border:1px solid #CCCCCC;height:500px;padding:5px;<?php if( isset($backgroundImage) && $meta_values['image_background']!='' ) { echo 'background: no-repeat url('.esc_url($backgroundImage); } ?>);background-size: cover;">
+                                <div style="text-align:<?php if( isset($meta_values['image-alignment']) ) { echo esc_html($meta_values['image-alignment']); } ?>;margin-top:<?php if( isset($meta_values["margin_header"]) && $meta_values["margin_header"]!='' ) { echo esc_html($meta_values["margin_header"]); } else { echo esc_html($marginHeader); } ?>px;"><?php if( isset($meta_values["image"]) && !empty($meta_values["image"]) && file_exists( str_replace($upload_baseurl, $upload_basedir, $meta_values['image'])) ) { echo '<img src="'.esc_url($meta_values['image']).'" width="150">'; } ?>
                                 </div>
                                 <?php
                                     
@@ -1188,6 +1207,7 @@ if ( is_dir(get_stylesheet_directory()."/pdffonts/") == true ) {
                                 </select><br />
                                 <?php esc_html_e("After:", 'send-pdf-for-contact-form-7'); ?><br />
                                 <select name="wp_cf7pdf_settings[separate_after]" class="wpcf7-form-field">
+                                    <option value="none" <?php if( empty($meta_values["separate_after"]) || (isset($meta_values["separate_after"]) && $meta_values["separate_after"] == 'none') ) { echo 'selected'; } ?>><?php esc_html_e("None", 'send-pdf-for-contact-form-7'); ?></option>
                                     <option value="comma" <?php if( isset($meta_values["separate_after"]) && $meta_values["separate_after"] == 'comma' ) { echo 'selected'; } ?>><?php esc_html_e("Comma", 'send-pdf-for-contact-form-7'); ?></option>
                                     <option value="space" <?php if( empty($meta_values["separate_after"]) || (isset($meta_values["separate_after"]) && $meta_values["separate_after"] == 'space') ) { echo 'selected'; } ?>><?php esc_html_e("Space", 'send-pdf-for-contact-form-7'); ?></option>
                                     <option value="linebreak" <?php if( isset($meta_values["separate_after"]) && $meta_values["separate_after"] == 'linebreak') { echo 'selected'; } ?>><?php esc_html_e("Line break", 'send-pdf-for-contact-form-7'); ?></option>                                    
@@ -1577,6 +1597,17 @@ function validateImportForm() {
         <?php /* translators: %s: lien vers Contact Form 7 */ printf( esc_html__('To work I need %s plugin, but it is apparently not installed or not enabled!', 'send-pdf-for-contact-form-7'), '<a href="https://wordpress.org/plugins/contact-form-7/" target="_blank">Contact Form 7</a>' ); ?>
     </div>
 <?php } ?>
+    <div style="margin-top:40px;padding:20px;background-color: #e3e1bb;border: 1px solid #848838;">
+        <h4><?php esc_html_e('Send PDF for Contact Form 7 is sponsorized by', 'send-pdf-for-contact-form-7'); ?></h4>
+        <table>
+            <tr>
+                <td><a href="https://www.jeremy-vaucher.com/" target="_blank"><img src="<?php echo esc_url(WPCF7PDF_URL.'images/logo-sponsor-jeremy.png'); ?>" alt="Jérémy Vaucher | Consultant SEO Annecy & Marketing Digital" title="Jérémy Vaucher | Consultant SEO Annecy & Marketing Digital" width="150" style="margin-right:20px;" /></a></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+        </table>
+    </div>
     <div style="margin-top:40px;">
         <?php esc_html_e('Send PDF for Contact Form 7 is brought to you by', 'send-pdf-for-contact-form-7'); ?> <a href="https://madeby.restezconnectes.fr/" target="_blank">MadeByRestezConnectes</a> - <?php esc_html_e('If you found this plugin useful', 'send-pdf-for-contact-form-7'); ?> <a href="https://wordpress.org/support/view/plugin-reviews/send-pdf-for-contact-form-7/" target="_blank"><?php esc_html_e('give it 5 &#9733; on WordPress.org', 'send-pdf-for-contact-form-7'); ?></a>
     </div>

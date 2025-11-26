@@ -441,6 +441,8 @@ class WPCF7PDF_prepare extends cf7_sendpdf {
 
         // On récupère le dossier upload de WP
         $upload_dir = wp_upload_dir();
+        $upload_basedir = $upload_dir['basedir'];
+        $upload_baseurl = $upload_dir['baseurl'];
         $createDirectory = cf7_sendpdf::wpcf7pdf_folder_uploads($id);
 
         $meta_values = get_post_meta(esc_html($id), '_wp_cf7pdf', true);
@@ -512,7 +514,8 @@ class WPCF7PDF_prepare extends cf7_sendpdf {
         // Remplace le tag reference
         $contentPdf = str_replace('[reference]', wp_kses_post($referenceOfPdf), $contentPdf);
         // Remplace le tag URL-PDF
-        $contentPdf = str_replace('[url-pdf]', esc_url($upload_dir['url'].'/'.$nameOfPdf.'-'.wp_kses_post($referenceOfPdf).'.pdf'), $contentPdf);
+        $contentPdf = str_replace('[url-pdf]', esc_url(str_replace($upload_basedir, $upload_baseurl, $createDirectory).'/'.$nameOfPdf.'-'.wp_kses_post($referenceOfPdf).'.pdf'), $contentPdf);
+
         if ( isset($preview) && ($preview == 1 || $preview == 2) ) {
             // Remplace le tag ID
             $contentPdf = str_replace('[ID]', '000'.gmdate('md'), $contentPdf);
@@ -735,7 +738,8 @@ class WPCF7PDF_prepare extends cf7_sendpdf {
 
                 // Si un free_text est renseigné, on le remplace dans le PDF
                 if( in_array('free_text', $tagOptions) && ( isset($_POST['_wpcf7_free_text_'.$name_tags[1]]) && $_POST['_wpcf7_free_text_'.$name_tags[1]]!='') ) {
-                    $contentPdf = str_replace('[free_text_'.esc_html($name_tags[1].']'), esc_html($_POST['_wpcf7_free_text_'.$name_tags[1]]), $contentPdf);
+                    //$contentPdf = str_replace('[free_text_'.esc_html($name_tags[1].']'), esc_html($_POST['_wpcf7_free_text_'.$name_tags[1]]), $contentPdf);
+                    $contentPdf = str_replace('['.esc_html($name_tags[1].']'), esc_html($_POST['_wpcf7_free_text_'.$name_tags[1]]), $contentPdf);
                 }
                 
                 // si l'option empty_input est activé, on verifie si le tag est vide
@@ -765,8 +769,6 @@ class WPCF7PDF_prepare extends cf7_sendpdf {
                     $valueTag = str_replace(' ', '', $valueTag);
                     $tabValueTag = explode(',', $valueTag);
                     $nb = count($contact_tag[$found_key]['values']);
-                    //error_log('nb: '.$nb.' - valueTag: '.sanitize_text_field($valueTag).' - tabValueTag: '.print_r($tabValueTag, true));
-                    // Afficher la liste des noms des checkbox
                     
                     // Si on affiche les input, checkbox et radio
                     if (isset($meta_values['data_input']) && $meta_values['data_input']== 'true') {
