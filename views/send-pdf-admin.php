@@ -1020,7 +1020,7 @@ if ( is_dir(get_stylesheet_directory()."/pdffonts/") == true ) {
                             </div>
                         </td>
                         <td style="text-align:center;">
-                            <div style="border:1px solid #CCCCCC;height:500px;padding:5px;<?php if( isset($backgroundImage) && $meta_values['image_background']!='' ) { echo 'background: no-repeat url('.esc_url($backgroundImage); } ?>);background-size: cover;">
+                            <div style="border:1px solid #CCCCCC;height:500px;padding:5px;<?php if( isset($backgroundImage) && $backgroundImage!='' ) { echo 'background: no-repeat url('.esc_url($backgroundImage); } ?>);background-size: cover;">
                                 <div style="text-align:<?php if( isset($meta_values['image-alignment']) ) { echo esc_html($meta_values['image-alignment']); } ?>;margin-top:<?php if( isset($meta_values["margin_header"]) && $meta_values["margin_header"]!='' ) { echo esc_html($meta_values["margin_header"]); } else { echo esc_html($marginHeader); } ?>px;"><?php if( isset($meta_values["image"]) && !empty($meta_values["image"]) && file_exists( str_replace($upload_baseurl, $upload_basedir, $meta_values['image'])) ) { echo '<img src="'.esc_url($meta_values['image']).'" width="150">'; } ?>
                                 </div>
                                 <?php
