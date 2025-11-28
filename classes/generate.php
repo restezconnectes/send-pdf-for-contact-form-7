@@ -337,10 +337,14 @@ class WPCF7PDF_generate extends cf7_sendpdf {
         } else {
 
             $data = wpcf7_mail_replace_tags( wpautop($data) );
-            $mpdf->Output($createDirectory.'/'.esc_html($nameOfPdf).'.pdf', 'F');
+            if ( isset($meta_values["pdf-forceref"]) && $meta_values["pdf-forceref"] == "true" ) {
+                $mpdf->Output($createDirectory.'/'.esc_html($nameOfPdf).'-'.$referenceOfPdf.'.pdf', 'F');
+            } else {
+                $mpdf->Output($createDirectory.'/'.esc_html($nameOfPdf).'.pdf', 'F');
+            }
 
             // Je copy le PDF genere
-            if( file_exists($createDirectory.'/'.esc_html($nameOfPdf).'.pdf') ) {
+            if( file_exists($createDirectory.'/'.esc_html($nameOfPdf).'.pdf') && ( isset($meta_values["pdf-forceref"]) && $meta_values["pdf-forceref"] == "false" ) ) {
                 copy($createDirectory.'/'.esc_html($nameOfPdf).'.pdf', $createDirectory.'/'.esc_html($nameOfPdf).'-'.$referenceOfPdf.'.pdf');
             }
         }
@@ -388,35 +392,39 @@ class WPCF7PDF_generate extends cf7_sendpdf {
                 for($i=0;$i<$nb;$i++) {    
 
                     $hiddenTag = 'hidden-'.esc_html($nameField[1][$i]);
-
                     // si on cache des champs, on les retire de l'entete
-                    if( isset($meta_tagsname) && (isset($meta_tagsname[$nameField[1][$i]]) ) ) {
-
-                        if( isset($meta_tagsname[$hiddenTag]) && $meta_tagsname[$hiddenTag]==1 ) {
-                            $tagsName = ''; // si champ caché = tableau vide                          
-                        } else if ($meta_tagsname[$nameField[1][$i]]!='') {
-                            $tagsName = esc_html($meta_tagsname[$nameField[1][$i]]);
-                        }
-
-                    } else {                        
+                    if( isset($meta_tagsname[$hiddenTag]) && $meta_tagsname[$hiddenTag]==1 ) {  
+                        $tagsName = '';
+                    }
+                    // Si un nom personnalisé existe, on l'utilise
+                    else if ($meta_tagsname[$nameField[1][$i]]!='') {                           
+                        $tagsName = esc_html($meta_tagsname[$nameField[1][$i]]);
+                    }
+                    // Sinon on garde le TAG par défaut
+                    else {                        
                         $tagsName = esc_html($nameField[1][$i]);
                     }
+                    // On crée l'entete du CSV
                     if( isset($tagsName) && $tagsName!='') {
                         array_push($entete, $tagsName);
                     }
                 }
             }
         }
-
+        // END Construction de l'entete
         $csvlist = array (
             $entete,
             $csvTab
         );
 
         if( isset($preview) && $preview == 1 ) {
-            $fpCsv = fopen($createDirectory.'/preview-'.esc_html($idForm).'.csv', 'w+'); /* phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen */
+            $fpCsv = fopen($createDirectory.'/preview-'.esc_html($nameOfPdf).'-'.esc_html($idForm).'.csv', 'w+'); /* phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen */
         } else {
-            $fpCsv = fopen($createDirectory.'/'.$nameOfPdf.'.csv', 'w+'); /* phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen */
+            if ( isset($meta_values["pdf-forceref"]) && $meta_values["pdf-forceref"] == "true" ) {
+                $fpCsv = fopen($createDirectory.'/'.$nameOfPdf.'-'.$referenceOfPdf.'.csv', 'w+'); /* phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen */
+            } else { 
+                $fpCsv = fopen($createDirectory.'/'.$nameOfPdf.'.csv', 'w+'); /* phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen */
+            }
         }
         //add BOM to fix UTF-8 in Excel
         fputs($fpCsv, $bom =( chr(0xEF) . chr(0xBB) . chr(0xBF) ));
@@ -433,7 +441,7 @@ class WPCF7PDF_generate extends cf7_sendpdf {
 
         if( isset($preview) && $preview == 0 ) {
             // Je copy le CSV genere
-            if( file_exists($createDirectory.'/'.$nameOfPdf.'.csv') ) {
+            if( file_exists($createDirectory.'/'.$nameOfPdf.'.csv') && ( isset($meta_values["pdf-forceref"]) && $meta_values["pdf-forceref"] == "false" ) ) {
                 copy($createDirectory.'/'.$nameOfPdf.'.csv', $createDirectory.'/'.$nameOfPdf.'-'.$referenceOfPdf.'.csv');
             }
         }

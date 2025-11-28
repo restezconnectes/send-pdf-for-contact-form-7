@@ -1004,6 +1004,11 @@ class cf7_sendpdf {
 
                     } else {
 
+                        // Si la référence est forcée dans les paramètres
+                        if ( isset($meta_values["pdf-forceref"]) && $meta_values["pdf-forceref"] == "true" ) {
+                            $nameOfPdf = $nameOfPdf.'-'.sanitize_text_field($referencePDF);
+                        }
+
                         // Send PDF
                         if( isset($meta_values["disable-pdf"]) && $meta_values['disable-pdf'] == 'false' ) {
                             if( isset($meta_values["send-attachment"]) && ($meta_values["send-attachment"] == 'sender' OR $meta_values["send-attachment"] == 'both') ) {
@@ -1016,6 +1021,9 @@ class cf7_sendpdf {
                                     for ($i = 2; $i <= $meta_values["number-pdf"]; $i++) {
                                         $addNamePdf = sanitize_title($meta_values['nameaddpdf'.$i.'']);
                                         if( isset($addNamePdf) && $addNamePdf != '') {
+                                            if ( isset($meta_values["pdf-forceref"]) && $meta_values["pdf-forceref"] == "true" ) {
+                                                $addNamePdf = $addNamePdf.'-'.sanitize_text_field($referencePDF);
+                                            }
                                             $components['attachments'][] = $createDirectory.'/'.$addNamePdf.'.pdf';
                                         }
                                     }
@@ -1094,6 +1102,11 @@ class cf7_sendpdf {
 
                     } else {
 
+                        // Si la référence est forcée dans les paramètres
+                        if ( isset($meta_values["pdf-forceref"]) && $meta_values["pdf-forceref"] == "true" ) {
+                            $nameOfPdf = $nameOfPdf.'-'.sanitize_text_field($referencePDF);
+                        }
+
                         // Send PDF
                         if( isset($meta_values["disable-pdf"]) && $meta_values['disable-pdf'] == 'false' ) {
                             if( isset($meta_values["send-attachment"]) && ($meta_values["send-attachment"] == 'recipient' OR $meta_values["send-attachment"] == 'both') ) {
@@ -1104,6 +1117,9 @@ class cf7_sendpdf {
                                     for ($i = 2; $i <= $meta_values["number-pdf"]; $i++) {
                                         $addNamePdf = sanitize_title($meta_values['nameaddpdf'.$i.'']);
                                         if( isset($addNamePdf) && $addNamePdf != '') {
+                                            if ( isset($meta_values["pdf-forceref"]) && $meta_values["pdf-forceref"] == "true" ) {
+                                                $addNamePdf = $addNamePdf.'-'.sanitize_text_field($referencePDF);
+                                            }
                                             $components['attachments'][] = $createDirectory.'/'.$addNamePdf.'.pdf';
                                         }
                                     }
