@@ -1345,8 +1345,10 @@ if ( is_dir(get_stylesheet_directory()."/pdffonts/") == true ) {
                         for ($i = 2; $i <= $meta_values["number-pdf"]; $i++) {
 
                             // On évite le même nom du fichier, sinon message d'erreur
-                            $compareName[$i] = sanitize_title($meta_values['nameaddpdf'.$i.'']);
-                            $sameName = array_count_values($compareName);
+                            if( isset($meta_values['nameaddpdf'.$i]) ) { 
+                                $compareName[$i] = sanitize_title($meta_values['nameaddpdf'.$i.'']);
+                                $sameName = array_count_values($compareName);
+                            }
                            
                     ?>
                     <tr><td colspan="2"><hr style="background-color: <?php echo esc_html($colors[2]); ?>; height: 1px; border: 0;"></td></tr>
@@ -1356,7 +1358,7 @@ if ( is_dir(get_stylesheet_directory()."/pdffonts/") == true ) {
                             <div style="text-align:right;">
                                 <p>
                                     <input type="submit" name="wp_cf7pdf_update_settings" class="button-primary" value="<?php esc_html_e('Save settings', 'send-pdf-for-contact-form-7'); ?>"/>
-                                    <?php if( file_exists($createDirectory.'/preview-'.sanitize_title($meta_values['nameaddpdf'.$i.'']).'-'.esc_html($idForm).'.pdf') ) { ?>
+                                    <?php if( isset($meta_values['nameaddpdf'.$i]) && file_exists($createDirectory.'/preview-'.sanitize_title($meta_values['nameaddpdf'.$i.'']).'-'.esc_html($idForm).'.pdf') ) { ?>
                                         <a class="button button-secondary" target="_blank" href="<?php echo esc_url(str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $createDirectory)).'/preview-'.sanitize_title($meta_values['nameaddpdf'.$i.'']).'-'.esc_html($idForm).'.pdf?ver='.esc_html(wp_rand()); ?>" ><?php esc_html_e('Preview your PDF', 'send-pdf-for-contact-form-7'); ?></a>
                                     <?php } ?>
                                 </p>
@@ -1366,7 +1368,7 @@ if ( is_dir(get_stylesheet_directory()."/pdffonts/") == true ) {
                     <tr>
                         <td colspan="2">                           
                             <i><?php echo esc_html__('Enter here the PDF name.', 'send-pdf-for-contact-form-7'); ?></i><br />
-                            <input type="text" class="wpcf7-form-field" value="<?php if( isset( $meta_values['nameaddpdf'.$i] ) ) { echo esc_html($meta_values['nameaddpdf'.$i]); } ?>" name="wp_cf7pdf_settings[nameaddpdf<?php echo esc_html($i); ?>]" ><span style="font-weight: bold;color: #CC0000;padding: 1.2em;"><?php if( $sameName[sanitize_title($meta_values['nameaddpdf'.$i.''])] >1 ) { esc_html_e('Error: this file name already exists!', 'send-pdf-for-contact-form-7'); } ?></span><br /><br />                                                 
+                            <input type="text" class="wpcf7-form-field" value="<?php if( isset( $meta_values['nameaddpdf'.$i] ) ) { echo esc_html($meta_values['nameaddpdf'.$i]); } ?>" name="wp_cf7pdf_settings[nameaddpdf<?php echo esc_html($i); ?>]" ><span style="font-weight: bold;color: #CC0000;padding: 1.2em;"><?php if( isset($meta_values['nameaddpdf'.$i]) && $sameName[sanitize_title($meta_values['nameaddpdf'.$i.''])] >1 ) { esc_html_e('Error: this file name already exists!', 'send-pdf-for-contact-form-7'); } ?></span><br /><br />                                                 
                             <textarea name="wp_cf7pdf_settings[content_addpdf_<?php echo esc_html($i); ?>]" id="wp_cf7pdf_pdf_<?php echo esc_html($i); ?>" cols=70 rows=24 class="widefat textarea"style="height:250px;"><?php if( isset($meta_values['content_addpdf_'.$i.'']) && !empty($meta_values['content_addpdf_'.$i.'']) ) { echo esc_textarea($meta_values['content_addpdf_'.$i.'']); } ?></textarea><br />
                             
                         </td>
