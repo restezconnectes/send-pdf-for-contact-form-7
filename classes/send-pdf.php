@@ -804,41 +804,52 @@ class cf7_sendpdf {
             
             // Genere le nom du PDF
             $nameOfPdf = $this->wpcf7pdf_name_pdf(esc_html($post['_wpcf7']), esc_html($referencePDF));
-
+            
             $nbPassword = 12;
             if(isset($meta_values["protect_password_nb"]) && $meta_values["protect_password_nb"]!='' && is_numeric($meta_values["protect_password_nb"])) { 
                 $nbPassword = esc_html($meta_values["protect_password_nb"]); 
             }
             set_transient('pdf_password', $this->wpcf7pdf_generateRandomPassword($nbPassword), HOUR_IN_SECONDS);          
-
+            
             // Si on a personnalisé le PDF, on recupère le contenu et on remplace les tags
             if( isset($meta_values['generate_pdf']) && !empty($meta_values['generate_pdf']) ) {
-
+                
                 // définit le contenu du PDf
                 $contentPdf = wp_kses(trim($meta_values['generate_pdf']), WPCF7PDF_prepare::wpcf7pdf_autorizeHtml());
                 $contentPdf = apply_filters( 'pl_filter_content', $contentPdf, $posted_data );
                 
                 // Compatibilité avec CF7 Conditional Fields / Conditional Fields PRO
                 if( class_exists('Wpcf7cfMailParser') ){
-
-                    // Vérification de sécurité : s'assurer que le nonce est vérifié avant d'utiliser $_POST
-                    if( !isset($_POST['redirect_nonce']) || !wp_verify_nonce($_POST['redirect_nonce'], 'cf7-redirect-id') ) {
-                        return; // Arrêter l'exécution si le nonce n'est pas valide
+                    
+                    // Vérifier que les données Conditional Fields sont présentes
+                    if( isset($_POST['_wpcf7cf_hidden_groups']) && isset($_POST['_wpcf7cf_visible_groups']) && isset($_POST['_wpcf7cf_repeaters']) ) {
+                        
+                        // Vérification de sécurité : s'assurer que le nonce est vérifié avant d'utiliser $_POST
+                        if( isset($_POST['redirect_nonce']) && wp_verify_nonce($_POST['redirect_nonce'], 'cf7-redirect-id') ) {
+                            
+                            $hidden_groups = json_decode(stripslashes($_POST['_wpcf7cf_hidden_groups']), true);
+                            $visible_groups = json_decode(stripslashes($_POST['_wpcf7cf_visible_groups']), true);
+                            $repeaters = json_decode(stripslashes($_POST['_wpcf7cf_repeaters']), true);
+                            
+                            // Vérifier que le décodage JSON a réussi
+                            if( $hidden_groups !== null && $visible_groups !== null && $repeaters !== null ) {
+                                try {
+                                    $parser = new Wpcf7cfMailParser($contentPdf, $visible_groups, $hidden_groups, $repeaters, $_POST);
+                                    $contentPdf = $parser->getParsedMail();
+                                } catch (Exception $e) {
+                                    error_log('Erreur Wpcf7cfMailParser: ' . $e->getMessage());
+                                }
+                            }
+                        }
                     }
-
-                    $hidden_groups = json_decode(stripslashes($_POST['_wpcf7cf_hidden_groups']));
-                    $visible_groups = json_decode(stripslashes($_POST['_wpcf7cf_visible_groups']));
-                    $repeaters = json_decode(stripslashes($_POST['_wpcf7cf_repeaters']));
-                    //$steps = json_decode(stripslashes($_POST['_wpcf7cf_steps']));                   
-
-                    $parser = new Wpcf7cfMailParser($contentPdf, $visible_groups, $hidden_groups, $repeaters, $_POST);
-                    $contentPdf = $parser->getParsedMail();
                 }
 
-                // Je vais chercher le tableau des tags
-                $csvTab = self::wpf7pdf_tagsparser($post['_wpcf7'], $referencePDF);
                 // On insère dans la BDD
                 if( isset($meta_values["disable-insert"]) && $meta_values["disable-insert"] == "false" ) {
+
+                    // Je vais chercher le tableau des tags
+                    $csvTab = $this->wpf7pdf_tagsparser($post['_wpcf7'], $referencePDF);
+
                     if( empty($meta_values["disable-csv"]) || (isset($meta_values["disable-csv"]) && $meta_values["disable-csv"]=='false') ) {
                         $saveCsv = esc_url(str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $createDirectory ).'/'.$nameOfPdf.'-'.$referencePDF.'.csv');
                     } else {
@@ -846,18 +857,18 @@ class cf7_sendpdf {
                     }
                     $insertPost = $this->save($post['_wpcf7'], serialize($csvTab), $referencePDF, esc_url(str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $createDirectory ).'/'.$nameOfPdf.'-'.$referencePDF.'.pdf'), $saveCsv);
                     $contentPdf = str_replace('[ID]', $insertPost, $contentPdf);
-                }                
-
+                }  
+                
                 // On génère le PDF
                 if( isset($meta_values["disable-pdf"]) && $meta_values['disable-pdf'] == 'false') {
-
+                    
                     $contentPdf = WPCF7PDF_prepare::tags_parser($post['_wpcf7'], $nameOfPdf, $referencePDF, $contentPdf);
                     // Si il existe des Shortcodes?
                     if( isset($meta_values['shotcodes_tags']) && $meta_values['shotcodes_tags']!='') {
                         $contentPdf = WPCF7PDF_prepare::shortcodes($meta_values['shotcodes_tags'], $contentPdf);
                     }
 
-                    // On genere le PDF
+                    // On genere le PDF                   
                     $generatePdfFile = WPCF7PDF_generate::wpcf7pdf_create_pdf($post['_wpcf7'], $contentPdf, $nameOfPdf, $referencePDF, $createDirectory);
 
                     // Si plusieurs PDF
@@ -873,9 +884,30 @@ class cf7_sendpdf {
                                 $messageAddPdf = wp_kses(trim($meta_values['content_addpdf_'.$i]), WPCF7PDF_prepare::wpcf7pdf_autorizeHtml());   
                                 $messageAddPdf = apply_filters( 'pl_filter_content', $messageAddPdf, $posted_data );    
                                 
+                                // Compatibilité avec CF7 Conditional Fields / Conditional Fields PRO
                                 if( class_exists('Wpcf7cfMailParser') ){
-                                    $parserPdf = new Wpcf7cfMailParser($messageAddPdf, $visible_groups, $hidden_groups, $repeaters, $_POST);
-                                    $messageAddPdf = $parserPdf->getParsedMail();
+                                    
+                                    // Vérifier que les données Conditional Fields sont présentes
+                                    if( isset($_POST['_wpcf7cf_hidden_groups']) && isset($_POST['_wpcf7cf_visible_groups']) && isset($_POST['_wpcf7cf_repeaters']) ) {
+                                        
+                                        // Vérification de sécurité : s'assurer que le nonce est vérifié avant d'utiliser $_POST
+                                        if( isset($_POST['redirect_nonce']) && wp_verify_nonce($_POST['redirect_nonce'], 'cf7-redirect-id') ) {
+                                            
+                                            $hidden_groups_pdf = json_decode(stripslashes($_POST['_wpcf7cf_hidden_groups']), true);
+                                            $visible_groups_pdf = json_decode(stripslashes($_POST['_wpcf7cf_visible_groups']), true);
+                                            $repeaters_pdf = json_decode(stripslashes($_POST['_wpcf7cf_repeaters']), true);
+                                            
+                                            // Vérifier que le décodage JSON a réussi
+                                            if( $hidden_groups_pdf !== null && $visible_groups_pdf !== null && $repeaters_pdf !== null ) {
+                                                try {
+                                                    $parserPdf = new Wpcf7cfMailParser($messageAddPdf, $visible_groups_pdf, $hidden_groups_pdf, $repeaters_pdf, $_POST);
+                                                    $messageAddPdf = $parserPdf->getParsedMail();
+                                                } catch (Exception $e) {
+                                                    error_log('Erreur Wpcf7cfMailParser (PDF additionnel): ' . $e->getMessage());
+                                                }
+                                            }
+                                        }
+                                    }
                                 }
 
                                 // Preparation du contenu du PDF
@@ -1419,14 +1451,15 @@ class cf7_sendpdf {
 <!-- Send PDF for CF7 -->
 <script type='text/javascript'>
 
-        //generates random id for reference;
-        let wpcf7_unique_id = (type = 2) => {
-            let dateuid = () => {
+        //generates random id for reference
+        function wpcf7_unique_id(type) {
+            type = type || 2;
+            function dateuid() {
                 return Date.now().toString(26)
                         .toString(16)
                         .substring(1);
             }
-            let mathuid = () => {
+            function mathuid() {
                 return Math.floor((1 + Math.random()) * 0x10000)
                     .toString(16)
                     .substring(1);
@@ -1437,7 +1470,6 @@ class cf7_sendpdf {
             } else {
                 return dateuid();
             }
-            
         }
 
         <?php
@@ -1543,7 +1575,7 @@ class cf7_sendpdf {
 
                 window.open('<?php echo esc_url(str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $createDirectory)); ?>/<?php echo esc_html($singleNamePDF); ?>' + text + '-' + reference + '.pdf?ver=<?php echo esc_html(wp_rand()); ?>','text','menubar=no, status=no, scrollbars=yes, menubar=no, width=600, height=900');
 
-                <?php } else if( isset($meta_values["redirect-to-pdf"]) && $meta_values["redirect-to-pdf"] == 'true' ) { ?>
+                <?php } else if( (isset($meta_values["redirect-to-pdf"]) && $meta_values["redirect-to-pdf"] == 'true') && (isset($meta_values["number-pdf"]) && $meta_values["number-pdf"]==1) ) { ?>
                 // Si option réglée sur nouvelle fenêtre mais avec des tags dans le nom du PDF
                 var location = '<?php echo esc_url(str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $createDirectory)); ?>/<?php echo esc_html($singleNamePDF); ?>' + text + '-' + reference + '.pdf?ver=<?php echo esc_html(wp_rand()); ?>';
                 window.open(location, text, '<?php echo esc_html($targetPDF); ?>');
@@ -1559,7 +1591,7 @@ class cf7_sendpdf {
         // Si popup
         window.open('<?php echo esc_url($urlRredirectPDF); ?>-' + reference + '.pdf?ver=<?php echo esc_html(wp_rand()); ?>', '<?php echo esc_html($singleNamePDF); ?>','menubar=no, status=no, scrollbars=yes, menubar=no, width=600, height=900');
         
-        <?php } else if( isset($meta_values["redirect-to-pdf"]) && $meta_values["redirect-to-pdf"] == 'true' ) { ?>
+        <?php } else if( (isset($meta_values["redirect-to-pdf"]) && $meta_values["redirect-to-pdf"] == 'true') && (isset($meta_values["number-pdf"]) && $meta_values["number-pdf"]==1) ) { ?>
         // Si option réglée sur nouvelle fenêtre
         var location = '<?php echo esc_url($urlRredirectPDF); ?>-' + reference + '.pdf?ver=<?php echo esc_html(wp_rand()); ?>'; 
         window.open(location, '<?php echo esc_html($singleNamePDF); ?>', '<?php echo esc_html($targetPDF); ?>');
@@ -1594,7 +1626,8 @@ class cf7_sendpdf {
 <?php } ?>
 
     document.addEventListener( 'wpcf7submit', function( event ) {
-        jQuery('input[name="wpcf7cfpdf_hidden_reference"]').val(wpcf7_unique_id(3));
+        var uniqueId = wpcf7_unique_id(3);
+        jQuery('input[name="wpcf7cfpdf_hidden_reference"]').val( uniqueId );
         
     }, false );
     

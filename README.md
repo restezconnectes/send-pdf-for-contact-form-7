@@ -20,6 +20,7 @@ Current Version:  1.0.3.8
 = 1.0.3.8 = 
 * NEW: Option to Force adding reference in name of PDF for email attachment or download
 * Fix bug header CSV file
+* Fix bug generate PDF
 
 = 1.0.3.7 = 
 * Fix bug for background image

@@ -342,7 +342,6 @@ class WPCF7PDF_generate extends cf7_sendpdf {
             } else {
                 $mpdf->Output($createDirectory.'/'.esc_html($nameOfPdf).'.pdf', 'F');
             }
-
             // Je copy le PDF genere
             if( file_exists($createDirectory.'/'.esc_html($nameOfPdf).'.pdf') && ( isset($meta_values["pdf-forceref"]) && $meta_values["pdf-forceref"] == "false" ) ) {
                 copy($createDirectory.'/'.esc_html($nameOfPdf).'.pdf', $createDirectory.'/'.esc_html($nameOfPdf).'-'.$referenceOfPdf.'.pdf');
@@ -411,14 +410,14 @@ class WPCF7PDF_generate extends cf7_sendpdf {
                 }
             }
         }
-        // END Construction de l'entete
+
         $csvlist = array (
             $entete,
             $csvTab
         );
 
         if( isset($preview) && $preview == 1 ) {
-            $fpCsv = fopen($createDirectory.'/preview-'.esc_html($nameOfPdf).'-'.esc_html($idForm).'.csv', 'w+'); /* phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen */
+            $fpCsv = fopen($createDirectory.'/preview-'.esc_html($idForm).'.csv', 'w+'); /* phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen */
         } else {
             if ( isset($meta_values["pdf-forceref"]) && $meta_values["pdf-forceref"] == "true" ) {
                 $fpCsv = fopen($createDirectory.'/'.$nameOfPdf.'-'.$referenceOfPdf.'.csv', 'w+'); /* phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen */

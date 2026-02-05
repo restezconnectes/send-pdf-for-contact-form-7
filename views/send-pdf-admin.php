@@ -533,34 +533,10 @@ if ( is_dir(get_stylesheet_directory()."/pdffonts/") == true ) {
 
                     <?php } ?>
                     <tr><td colspan="2"><hr style="background-color: <?php echo esc_html($colors[2]); ?>; height: 1px; border: 0;"></td></tr>
-
                     <tr>
                         <td>
                             <?php esc_html_e('Enter a name for your PDF', 'send-pdf-for-contact-form-7'); ?><p>(<i><?php esc_html_e("By default, the file's name will be 'document-pdf'", 'send-pdf-for-contact-form-7'); ?></i>)</p>
-                        </td>
-                        <td>
-                            <input type= "text" class="wpcf7-form-field" name="wp_cf7pdf_settings[pdf-name]" value="<?php if( isset($meta_values["pdf-name"]) && !empty($meta_values["pdf-name"]) ) { echo esc_html(str_replace(' ', '', $meta_values["pdf-name"])); } else { echo esc_html('document-pdf'); } ?>">.pdf
-                        </td>
-                    </tr>
-
-                    <tr>
-                        <td>
-                            <?php esc_html_e('Force adding reference in name of PDF', 'send-pdf-for-contact-form-7'); ?><p>(<i><?php esc_html_e("By default, file's will be 'document-pdf.pdf', with this option, file's will be 'document-pdf-REFERENCE.pdf' and 'document-pdf-REFERENCE.csv' for email attachment or download.", 'send-pdf-for-contact-form-7'); ?></i>)</p>
-                        </td>
-                        <td>
-                            <div>
-                                <div class="switch-field">
-                                <input class="switch_left" type="radio" id="switch_forceref" name="wp_cf7pdf_settings[pdf-forceref]" value="true" <?php if( isset($meta_values["pdf-forceref"]) && $meta_values["pdf-forceref"]=='true') { echo ' checked'; } ?>/>
-                                <label for="switch_forceref"><?php esc_html_e('Yes', 'send-pdf-for-contact-form-7'); ?></label>
-                                <input class="switch_right" type="radio" id="switch_forceref_no" name="wp_cf7pdf_settings[pdf-forceref]" value="false" <?php if( empty($meta_values["pdf-forceref"]) || (isset($meta_values["pdf-forceref"]) && $meta_values["pdf-forceref"]=='false') ) { echo ' checked'; } ?> />
-                                <label for="switch_forceref_no"><?php esc_html_e('No', 'send-pdf-for-contact-form-7'); ?></label>
-                                </div>
-                            </div>
-                        </td>
-                    </tr>
-
-                    <tr>
-                        <td>
+                            <br />
                             <p><?php esc_html_e("You can use this tags (separated by commas):", 'send-pdf-for-contact-form-7'); ?></p>
                             <p>
                             <span class="dashicons dashicons-arrow-right"></span> <?php /* translators: %s: tag [reference] */ echo sprintf( esc_html__('Use %s in the name of your PDF', 'send-pdf-for-contact-form-7'), ' <span class="mailtag code used" onclick="jQuery(this).selectText()" style="cursor: pointer;"><strong>[reference]</strong></span>' ); ?><br />
@@ -580,10 +556,25 @@ if ( is_dir(get_stylesheet_directory()."/pdffonts/") == true ) {
 
                         </td>
                         <td>
-                            <br /><br /><br />
+                            <input type= "text" class="wpcf7-form-field" name="wp_cf7pdf_settings[pdf-name]" value="<?php if( isset($meta_values["pdf-name"]) && !empty($meta_values["pdf-name"]) ) { echo esc_html(str_replace(' ', '', $meta_values["pdf-name"])); } else { echo esc_html('document-pdf'); } ?>">.pdf<br /><br /><br />
                             <input type="text" class="wpcf7-form-field" size="30" name="wp_cf7pdf_settings[pdf-add-name]" value="<?php if( isset($meta_values["pdf-add-name"]) && !empty($meta_values["pdf-add-name"]) ) { echo esc_html($meta_values["pdf-add-name"]); } ?>" />
                         </td>
 
+                    </tr>
+                    <tr>
+                        <td>
+                            <?php esc_html_e('Force adding reference in name of PDF', 'send-pdf-for-contact-form-7'); ?><p>(<i><?php esc_html_e("By default, file's will be 'document-pdf.pdf', with this option, file's will be 'document-pdf-REFERENCE.pdf' and 'document-pdf-REFERENCE.csv' for email attachment or download.", 'send-pdf-for-contact-form-7'); ?></i>)</p>
+                        </td>
+                        <td>
+                            <div>
+                                <div class="switch-field">
+                                <input class="switch_left" type="radio" id="switch_forceref" name="wp_cf7pdf_settings[pdf-forceref]" value="true" <?php if( isset($meta_values["pdf-forceref"]) && $meta_values["pdf-forceref"]=='true') { echo ' checked'; } ?>/>
+                                <label for="switch_forceref"><?php esc_html_e('Yes', 'send-pdf-for-contact-form-7'); ?></label>
+                                <input class="switch_right" type="radio" id="switch_forceref_no" name="wp_cf7pdf_settings[pdf-forceref]" value="false" <?php if( empty($meta_values["pdf-forceref"]) || (isset($meta_values["pdf-forceref"]) && $meta_values["pdf-forceref"]=='false') ) { echo ' checked'; } ?> />
+                                <label for="switch_forceref_no"><?php esc_html_e('No', 'send-pdf-for-contact-form-7'); ?></label>
+                                </div>
+                            </div>
+                        </td>
                     </tr>
                     <tr>
                         <td>
@@ -699,10 +690,11 @@ if ( is_dir(get_stylesheet_directory()."/pdffonts/") == true ) {
                         <td><!-- Propose la redirection vers le pdf direct -->
                             <?php esc_html_e('Redirects directly to the PDF after sending the form?', 'send-pdf-for-contact-form-7'); ?>
                             <p><i><?php esc_html_e( 'This option disable the Page Redirection selected', 'send-pdf-for-contact-form-7'); ?> (<?php esc_html_e( 'Except the popup window option', 'send-pdf-for-contact-form-7'); ?>)</i></p><?php if( (isset($meta_values["disable-insert"]) && $meta_values["disable-insert"]=='true') || (isset($meta_values["pdf-file-delete"]) && $meta_values["pdf-file-delete"]=='true') ) { ?><p><i style="color:#CC0000;">I can't redirect PDF file because the 'Disable data submit in a database?' option is activated.</i></p><?php } ?>
+                            <?php if( isset($meta_values["number-pdf"]) && $meta_values["number-pdf"]>1 ) { ?><p><i style="color:#CC0000;">I can't redirect PDF file because the 'Number of PDF' is > 1.</i></p><?php } ?>
                             <?php if( isset($idSelectPage) && $idSelectPage > 0) { ?><p><i style="color:#CC0000;">I can't redirect PDF file because you have choose a redirection page.</i></p><?php $meta_values["redirect-to-pdf"]='false'; ?><input type="hidden"  name="wp_cf7pdf_settings[redirect-to-pdf]" value="false" /><?php } ?>
                         </td>
                         <td>
-                            <?php if( (isset($meta_values["disable-insert"]) && $meta_values["disable-insert"]=='false') || (isset($meta_values["pdf-file-delete"]) && $meta_values["pdf-file-delete"]=='false') ) { ?>
+                            <?php if( ((isset($meta_values["disable-insert"]) && $meta_values["disable-insert"]=='false') || (isset($meta_values["pdf-file-delete"]) && $meta_values["pdf-file-delete"]=='false')) && (isset($meta_values["number-pdf"]) && $meta_values["number-pdf"]==1) ) { ?>
                                 <div>
                                     <div class="switch-field">
                                     <input class="switch_left" type="radio" id="switch_redirect" name="wp_cf7pdf_settings[redirect-to-pdf]" value="true" <?php if( isset($meta_values["redirect-to-pdf"]) && $meta_values["redirect-to-pdf"]=='true') { echo ' checked'; } ?>/>
