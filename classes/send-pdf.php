@@ -671,26 +671,8 @@ class cf7_sendpdf {
                 }
             }
             
-            $subDirectory = $upload_dir['basedir'].'/sendpdfcf7_uploads/'.$id;
-            if ( is_dir($subDirectory) == false ) {
-                $files = array(
-                    array(
-                        'base' 		=> $subDirectory,
-                        'file' 		=> 'index.php',
-                        'content' 	=> '<?php // Silence is Golden'
-                    )
-                );
-
-                foreach ( $files as $file ) {
-                    if ( wp_mkdir_p( $file['base'] ) && ! file_exists( trailingslashit( $file['base'] ) . $file['file'] ) ) {
-                        $filesystem->put_contents( trailingslashit( $file['base'] ) . $file['file'], $file['content'], FS_CHMOD_FILE);
-                    }
-                }
-                
-            }
-            $createDirectory = $subDirectory;
-
             if( isset($meta_values["pdf-uploads-customname"]) && !empty($meta_values["pdf-uploads-customname"]) ) {
+                
                 // Sécuriser le nom : minuscule, sans accent, sans espace
                 $customName = sanitize_title($meta_values["pdf-uploads-customname"]);
                 $subDirectory = $upload_dir['basedir'].'/sendpdfcf7_uploads/'.$customName;
@@ -711,8 +693,55 @@ class cf7_sendpdf {
                     
                 }
                 $createDirectory = $subDirectory;
+                
+                // Supprimer l'ancien dossier basé sur l'ID si il existe et est différent du nouveau
+                $oldDirectory = $upload_dir['basedir'].'/sendpdfcf7_uploads/'.$id;
+                $safeBaseDir = realpath($upload_dir['basedir'].'/sendpdfcf7_uploads');
+                $realOldDir = realpath($oldDirectory);
+                
+                // Vérification de sécurité : s'assurer que le dossier est bien dans sendpdfcf7_uploads
+                if( is_dir($oldDirectory) && 
+                    $oldDirectory !== $subDirectory && 
+                    $realOldDir && 
+                    $safeBaseDir && 
+                    strpos($realOldDir, $safeBaseDir) === 0 ) {
+                    
+                    // Fonction récursive pour supprimer un dossier et son contenu
+                    $deleteDirectory = function($dir) use (&$deleteDirectory) {
+                        if( !is_dir($dir) ) {
+                            return false;
+                        }
+                        $files = array_diff(scandir($dir), array('.', '..'));
+                        foreach( $files as $file ) {
+                            $filePath = $dir . '/' . $file;
+                            is_dir($filePath) ? $deleteDirectory($filePath) : unlink($filePath);
+                        }
+                        return rmdir($dir);
+                    };
+                    $deleteDirectory($oldDirectory);
+                }
+
+            } else {
+                
+                $subDirectory = $upload_dir['basedir'].'/sendpdfcf7_uploads/'.$id;
+                if ( is_dir($subDirectory) == false ) {
+                    $files = array(
+                        array(
+                            'base' 		=> $subDirectory,
+                            'file' 		=> 'index.php',
+                            'content' 	=> '<?php // Silence is Golden'
+                        )
+                    );
+
+                    foreach ( $files as $file ) {
+                        if ( wp_mkdir_p( $file['base'] ) && ! file_exists( trailingslashit( $file['base'] ) . $file['file'] ) ) {
+                            $filesystem->put_contents( trailingslashit( $file['base'] ) . $file['file'], $file['content'], FS_CHMOD_FILE);
+                        }
+                    }
+                    
+                }
+                $createDirectory = $subDirectory;
             }
-            
 
         } else {
             $createDirectory = $upload_dir['basedir'].$upload_dir['subdir'];

@@ -601,7 +601,8 @@ if ( is_dir(get_stylesheet_directory()."/pdffonts/") == true ) {
                     </tr>
                     <tr>
                         <td>
-                            <?php esc_html_e('Change uploads folder?', 'send-pdf-for-contact-form-7'); ?><p>(<i><?php if( isset($meta_values["pdf-uploads"]) && $meta_values["pdf-uploads"]=='true') { esc_html_e("Great ! Now the upload folder's path is /wp-content/uploads/sendpdfcf7_uploads/*ID_FORM*/", 'send-pdf-for-contact-form-7'); } else { esc_html_e("By default, the upload folder's path is /wp-content/uploads/*YEAR*/*MONTH*/", 'send-pdf-for-contact-form-7'); } ?></i>)</p>
+                            <?php esc_html_e('Change uploads folder?', 'send-pdf-for-contact-form-7'); ?><?php if( isset($meta_values["pdf-uploads-customname"]) && $meta_values["pdf-uploads-customname"]!='') { echo ''; } else { ?><p>(<i><?php if( isset($meta_values["pdf-uploads"]) && $meta_values["pdf-uploads"]=='true') { 
+                                printf(__("Great ! Now the upload folder's path is %s", 'send-pdf-for-contact-form-7'), '/wp-content/uploads/sendpdfcf7_uploads/'.esc_attr($idForm).'/'); } else { printf(__("By default, the upload folder's path is %s", 'send-pdf-for-contact-form-7'), '/wp-content/uploads/*YEAR*/*MONTH*/'); } ?></i>)</p><?php } ?>
                         </td>
                         <td>
                             <div>
@@ -616,7 +617,7 @@ if ( is_dir(get_stylesheet_directory()."/pdffonts/") == true ) {
                     </tr>
                     <tr id="tr-pdf-uploads-customname" style="display: <?php echo (isset($meta_values["pdf-uploads"]) && $meta_values["pdf-uploads"]=='true') ? 'table-row' : 'none'; ?>;">
                         <td>
-                            <?php esc_html_e('Change uploads folder name?', 'send-pdf-for-contact-form-7'); ?><p>(<i><?php if( isset($meta_values["pdf-uploads-customname"]) && $meta_values["pdf-uploads-customname"]!='') { esc_html_e("Great ! Now the upload name's folder path is /wp-content/uploads/sendpdfcf7_uploads/", 'send-pdf-for-contact-form-7'); echo esc_html($meta_values["pdf-uploads-customname"]).'/'; } else { esc_html_e("By default, the upload folder's path is /wp-content/uploads/*ID_FORM*/", 'send-pdf-for-contact-form-7'); } ?></i>)</p>
+                            <?php esc_html_e('Change uploads folder name?', 'send-pdf-for-contact-form-7'); ?><p>(<i><?php if( isset($meta_values["pdf-uploads-customname"]) && $meta_values["pdf-uploads-customname"]!='') { printf(__("Great ! Now the upload name's folder path is %s", 'send-pdf-for-contact-form-7'), '/wp-content/uploads/sendpdfcf7_uploads/'.esc_html($meta_values["pdf-uploads-customname"]).'/'); } else { printf(__("By default, the upload folder's path is %s", 'send-pdf-for-contact-form-7'), '/wp-content/uploads/'.esc_attr($idForm).'/'); } ?></i>)</p>
                         </td>
                         <td>
                         <input type="text" name="wp_cf7pdf_settings[pdf-uploads-customname]" value="<?php if( isset($meta_values["pdf-uploads-customname"]) && !empty($meta_values["pdf-uploads-customname"]) ) { echo esc_html($meta_values["pdf-uploads-customname"]); } ?>" />
