@@ -688,7 +688,30 @@ class cf7_sendpdf {
                 }
                 
             }
-            $createDirectory = $upload_dir['basedir'].'/sendpdfcf7_uploads/'.$id;
+            $createDirectory = $subDirectory;
+
+            if( isset($meta_values["pdf-uploads-customname"]) && !empty($meta_values["pdf-uploads-customname"]) ) {
+                // Sécuriser le nom : minuscule, sans accent, sans espace
+                $customName = sanitize_title($meta_values["pdf-uploads-customname"]);
+                $subDirectory = $upload_dir['basedir'].'/sendpdfcf7_uploads/'.$customName;
+                if ( is_dir($subDirectory) == false ) {
+                    $files = array(
+                        array(
+                            'base' 		=> $subDirectory,
+                            'file' 		=> 'index.php',
+                            'content' 	=> '<?php // Silence is Golden'
+                        )
+                    );
+
+                    foreach ( $files as $file ) {
+                        if ( wp_mkdir_p( $file['base'] ) && ! file_exists( trailingslashit( $file['base'] ) . $file['file'] ) ) {
+                            $filesystem->put_contents( trailingslashit( $file['base'] ) . $file['file'], $file['content'], FS_CHMOD_FILE);
+                        }
+                    }
+                    
+                }
+                $createDirectory = $subDirectory;
+            }
             
 
         } else {

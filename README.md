@@ -21,6 +21,8 @@ Current Version:  1.0.3.8
 * NEW: Option to Force adding reference in name of PDF for email attachment or download
 * Fix bug header CSV file
 * Fix bug generate PDF
+* Adding 'change uploads folder name' option (enter a name) if 'change uploads folder' option is true
+* No copying PDF & CSV with REFERENCE if 'Disable data submit in a database' option is true
 
 = 1.0.3.7 = 
 * Fix bug for background image

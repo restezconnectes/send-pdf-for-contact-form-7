@@ -61,7 +61,11 @@ if( (isset($_POST['action']) && isset($_POST['idform']) && $_POST['action'] == '
             }
 
         }
-
+        
+        if ( isset($_POST["wp_cf7pdf_settings"]["pdf-uploads-customname"]) && !empty($_POST["wp_cf7pdf_settings"]["pdf-uploads-customname"]) ) {
+            $customName = sanitize_title($_POST["wp_cf7pdf_settings"]["pdf-uploads-customname"]);
+            $_POST["wp_cf7pdf_settings"]["pdf-uploads-customname"] = $customName;
+        }
         $updateSetting = WPCF7PDF_settings::update_settings(esc_html($_POST['idform']), $_POST["wp_cf7pdf_settings"], '_wp_cf7pdf');
 
         if ( isset($_POST["wp_cf7pdf_tags"]) ) {
@@ -73,6 +77,7 @@ if( (isset($_POST['action']) && isset($_POST['idform']) && $_POST['action'] == '
         if ( isset($_POST['wp_cf7pdf_custom_tags_name']) ) {
             $updateSettingTagsName = WPCF7PDF_settings::update_settings(esc_html($_POST['idform']), $_POST["wp_cf7pdf_custom_tags_name"], '_wp_cf7pdf_customtagsname');
         }
+        
         if( isset($updateSetting) && $updateSetting == true) {
             $options_saved = true;
             echo '<div id="message" class="updated fade"><p><strong>'.esc_html__('Options saved.', 'send-pdf-for-contact-form-7').'</strong></p></div>';
@@ -149,6 +154,24 @@ jQuery(document).ready(function() {
   });
   jQuery(".postbox").on('click', '.hndle', function(){
     jQuery(this).siblings(".inside").slideToggle();
+  });
+  
+  /* Toggle uploads folder name field based on pdf-uploads switch */
+  function toggleUploadsCustomName() {
+    var isUploadsEnabled = jQuery('#switch_uploads').is(':checked');
+    if (isUploadsEnabled) {
+      jQuery('#tr-pdf-uploads-customname').slideDown();
+    } else {
+      jQuery('#tr-pdf-uploads-customname').slideUp();
+    }
+  }
+  
+  // Initial state
+  toggleUploadsCustomName();
+  
+  // Listen to changes on the switch
+  jQuery('#switch_uploads, #switch_uploads_no').on('change', function() {
+    toggleUploadsCustomName();
   });
     
 });
@@ -589,6 +612,14 @@ if ( is_dir(get_stylesheet_directory()."/pdffonts/") == true ) {
                                 <label for="switch_uploads_no"><?php esc_html_e('No', 'send-pdf-for-contact-form-7'); ?></label>
                                 </div>
                             </div>
+                        </td>
+                    </tr>
+                    <tr id="tr-pdf-uploads-customname" style="display: <?php echo (isset($meta_values["pdf-uploads"]) && $meta_values["pdf-uploads"]=='true') ? 'table-row' : 'none'; ?>;">
+                        <td>
+                            <?php esc_html_e('Change uploads folder name?', 'send-pdf-for-contact-form-7'); ?><p>(<i><?php if( isset($meta_values["pdf-uploads-customname"]) && $meta_values["pdf-uploads-customname"]!='') { esc_html_e("Great ! Now the upload name's folder path is /wp-content/uploads/sendpdfcf7_uploads/", 'send-pdf-for-contact-form-7'); echo esc_html($meta_values["pdf-uploads-customname"]).'/'; } else { esc_html_e("By default, the upload folder's path is /wp-content/uploads/*ID_FORM*/", 'send-pdf-for-contact-form-7'); } ?></i>)</p>
+                        </td>
+                        <td>
+                        <input type="text" name="wp_cf7pdf_settings[pdf-uploads-customname]" value="<?php if( isset($meta_values["pdf-uploads-customname"]) && !empty($meta_values["pdf-uploads-customname"]) ) { echo esc_html($meta_values["pdf-uploads-customname"]); } ?>" />
                         </td>
                     </tr>
                     <tr>

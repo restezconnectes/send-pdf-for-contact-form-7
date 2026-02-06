@@ -342,10 +342,19 @@ class WPCF7PDF_generate extends cf7_sendpdf {
             } else {
                 $mpdf->Output($createDirectory.'/'.esc_html($nameOfPdf).'.pdf', 'F');
             }
-            // Je copy le PDF genere
-            if( file_exists($createDirectory.'/'.esc_html($nameOfPdf).'.pdf') && ( isset($meta_values["pdf-forceref"]) && $meta_values["pdf-forceref"] == "false" ) ) {
-                copy($createDirectory.'/'.esc_html($nameOfPdf).'.pdf', $createDirectory.'/'.esc_html($nameOfPdf).'-'.$referenceOfPdf.'.pdf');
+
+            // Je copy le CSV genere
+            $sourceFile = $createDirectory . '/' . esc_html($nameOfPdf) . '.pdf';
+            $destFile = $createDirectory . '/' . esc_html($nameOfPdf) . '-' . $referenceOfPdf . '.pdf';
+            
+            // Conditions pour copier le fichier CSV
+            $fileExists = file_exists($sourceFile);
+            $databseDisabled = empty($meta_values["pdf-disable-insert"]) || $meta_values["pdf-disable-insert"] === "fasle";
+            
+            if( $fileExists && $databseDisabled ) {
+                copy($sourceFile, $destFile);
             }
+
         }
 
     }
@@ -439,9 +448,17 @@ class WPCF7PDF_generate extends cf7_sendpdf {
         fclose($fpCsv); /* phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose */
 
         if( isset($preview) && $preview == 0 ) {
+
             // Je copy le CSV genere
-            if( file_exists($createDirectory.'/'.$nameOfPdf.'.csv') && ( isset($meta_values["pdf-forceref"]) && $meta_values["pdf-forceref"] == "false" ) ) {
-                copy($createDirectory.'/'.$nameOfPdf.'.csv', $createDirectory.'/'.$nameOfPdf.'-'.$referenceOfPdf.'.csv');
+            $sourceFile = $createDirectory . '/' . esc_html($nameOfPdf) . '.csv';
+            $destFile = $createDirectory . '/' . esc_html($nameOfPdf) . '-' . $referenceOfPdf . '.csv';
+            
+            // Conditions pour copier le fichier CSV
+            $fileExists = file_exists($sourceFile);
+            $databseDisabled = empty($meta_values["pdf-disable-insert"]) || $meta_values["pdf-disable-insert"] === "false";
+            
+            if( $fileExists && $databseDisabled ) {
+                copy($sourceFile, $destFile);
             }
         }
         // END GENERATE CSV
