@@ -13,9 +13,12 @@ Translations: <a href="https://translate.wordpress.org/projects/wp-plugins/send-
 <a href="https://demo.restezconnectes.fr/send-pdf-for-contact-form-7/">[Demo Here]</a>
 <a href="https://restezconnectes.fr/tutoriel-wordpress-lextension-send-pdf-for-contact-form-7/">[Tutorial Here]</a>
 
-Current Version:  1.0.3.8
+Current Version:  1.0.3.9
 
 == Changelog ==
+
+= 1.0.3.9 = 
+* Adding conditionnal field [if TAG]Your text [TAG].[else]Your text [TAG][/if] or  [if TAG]Your text [TAG].[/if]
 
 = 1.0.3.8 = 
 * NEW: Option to Force adding reference in name of PDF for email attachment or download

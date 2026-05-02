@@ -1066,7 +1066,7 @@ abstract class BlockTag extends Tag
 				$this->mpdf->pageoutput[$this->mpdf->page] = [];
 			}
 			// mod changes operands to integers before processing
-			$this->mpdf->y = (($this->mpdf->blk[$this->mpdf->blklvl]['float_endpos'] * 1000) % 1000000) / 1000;
+			$this->mpdf->y = ((int)($this->mpdf->blk[$this->mpdf->blklvl]['float_endpos'] * 1000) % 1000000) / 1000;
 		}
 		/* -- END CSS-FLOAT -- */
 

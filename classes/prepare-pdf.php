@@ -439,6 +439,9 @@ class WPCF7PDF_prepare extends cf7_sendpdf {
         if (empty($id))
         return;
 
+        // Traitement des tags conditionnels [if]...[else]...[/if]
+        $contentPdf = self::conditional_tags_parser($id, $contentPdf, $preview);
+
         // On récupère le dossier upload de WP
         $upload_dir = wp_upload_dir();
         $upload_basedir = $upload_dir['basedir'];
@@ -939,6 +942,300 @@ class WPCF7PDF_prepare extends cf7_sendpdf {
         } else if( $mailcontent==1 && (isset($meta_values["disable-html"]) && $meta_values['disable-html'] == 'false') ) {      
             $contentPdf = str_replace("\r\n", "<br />", $contentPdf);
         }*/
+
+        return $contentPdf;
+    }
+
+    private static function log_conditional_debug($message) {
+        if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+            error_log( '[CF7PDF conditional] ' . $message );
+        }
+    }
+
+    private static function normalize_conditional_field_value($fieldValue) {
+        if (is_array($fieldValue)) {
+            $fieldValue = implode(' ', $fieldValue);
+        }
+        $fieldValue = (string) $fieldValue;
+        $stripped = trim(wp_strip_all_tags($fieldValue, true));
+        return $stripped;
+    }
+
+    private static function is_field_effectively_empty($fieldValue) {
+        $n = self::normalize_conditional_field_value($fieldValue);
+        if ($n === '') {
+            return true;
+        }
+        if (preg_match('/^\[[\w\*][\w\*\-\.:]*\]$/', $n)) {
+            return true;
+        }
+        return false;
+    }
+
+    private static function conditional_normalize_compare_string($s) {
+        $s = trim((string) $s);
+        $s = preg_replace('/\x{00A0}/u', ' ', $s);
+        $s = preg_replace('/\s+/u', ' ', $s);
+        return $s;
+    }
+
+    private static function conditional_string_ci_equal($a, $b) {
+        if (function_exists('mb_strtolower')) {
+            return mb_strtolower($a, 'UTF-8') === mb_strtolower($b, 'UTF-8');
+        }
+        return strcasecmp($a, $b) === 0;
+    }
+
+    private static function conditional_equal_match($fieldNorm, $condNorm) {
+        $condNorm = self::conditional_normalize_compare_string($condNorm);
+        $fieldNorm = self::conditional_normalize_compare_string($fieldNorm);
+        if ($condNorm === '') {
+            return $fieldNorm === '';
+        }
+        if (self::conditional_string_ci_equal($fieldNorm, $condNorm)) {
+            return true;
+        }
+        foreach (preg_split('/\s*[,;]\s*/u', $fieldNorm) ?: array() as $chunk) {
+            $chunk = trim($chunk);
+            if ($chunk === '') {
+                continue;
+            }
+            if (self::conditional_string_ci_equal($chunk, $condNorm)) {
+                return true;
+            }
+            if (strpos($chunk, '|') !== false) {
+                foreach (explode('|', $chunk) as $pv) {
+                    $pv = trim($pv);
+                    if ($pv !== '' && self::conditional_string_ci_equal($pv, $condNorm)) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    private static function conditional_field_value_candidates($fieldName, $fieldValue, $preview) {
+        $candidates = array($fieldValue);
+        if ($preview != 1 && $fieldName !== '' && function_exists('wpcf7_mail_replace_tags')) {
+            $raw = wpcf7_mail_replace_tags('[_raw_' . $fieldName . ']');
+            if ($raw !== '' && $raw !== $fieldValue) {
+                $candidates[] = $raw;
+            }
+        }
+        return $candidates;
+    }
+
+    private static function evaluate_condition($fieldValue, $operator, $conditionValue, $fieldName = '', $preview = 0) {
+        $norm = self::normalize_conditional_field_value($fieldValue);
+        $condNorm = is_string($conditionValue) ? trim($conditionValue) : (string) $conditionValue;
+        $condNorm = self::conditional_normalize_compare_string($condNorm);
+
+        $candidates = self::conditional_field_value_candidates($fieldName, $fieldValue, $preview);
+
+        switch($operator) {
+            case 'equal':
+                $out = false;
+                foreach ($candidates as $cand) {
+                    if (self::conditional_equal_match(self::normalize_conditional_field_value($cand), $condNorm)) {
+                        $out = true;
+                        break;
+                    }
+                }
+                break;
+            case 'not_equal':
+                $out = true;
+                foreach ($candidates as $cand) {
+                    if (self::conditional_equal_match(self::normalize_conditional_field_value($cand), $condNorm)) {
+                        $out = false;
+                        break;
+                    }
+                }
+                break;
+            case 'greater':       $out = (float) $norm > (float) $condNorm; break;
+            case 'less':          $out = (float) $norm < (float) $condNorm; break;
+            case 'greater_equal': $out = (float) $norm >= (float) $condNorm; break;
+            case 'less_equal':    $out = (float) $norm <= (float) $condNorm; break;
+            case 'contains':
+                $out = false;
+                if ($condNorm !== '') {
+                    foreach ($candidates as $cand) {
+                        $n = self::normalize_conditional_field_value($cand);
+                        if (function_exists('mb_stripos') ? mb_stripos($n, $condNorm, 0, 'UTF-8') !== false : stripos($n, $condNorm) !== false) {
+                            $out = true;
+                            break;
+                        }
+                    }
+                }
+                break;
+            case 'not_empty':     $out = !self::is_field_effectively_empty($fieldValue); break;
+            case 'empty':         $out = self::is_field_effectively_empty($fieldValue); break;
+            default:              $out = !self::is_field_effectively_empty($fieldValue); break;
+        }
+
+        self::log_conditional_debug(
+            sprintf(
+                'evaluate_condition: operator=%s | field=%s | candidates=%s | normalized_primary=%s | condition_value=%s | result=%s',
+                $operator,
+                $fieldName,
+                implode(' || ', array_map(array(__CLASS__, 'conditional_debug_repr'), $candidates)),
+                self::conditional_debug_repr($norm),
+                self::conditional_debug_repr($condNorm),
+                $out ? 'true' : 'false'
+            )
+        );
+
+        return $out;
+    }
+
+    private static function conditional_debug_repr($value, $maxLen = 300) {
+        if (is_array($value)) {
+            $value = wp_json_encode($value);
+        }
+        $s = (string) $value;
+        $s = preg_replace('/\s+/', ' ', $s);
+        if (strlen($s) > $maxLen) {
+            $s = substr($s, 0, $maxLen) . '…(len=' . strlen((string) $value) . ')';
+        }
+        return $s;
+    }
+
+    public static function conditional_tags_parser($id, $contentPdf, $preview = 0) {
+
+        if( empty($id) || empty($contentPdf) ) {
+            self::log_conditional_debug( 'conditional_tags_parser: skip (empty id or content). id=' . (string) $id );
+            return $contentPdf;
+        }
+
+        $meta_conditionaltags = get_post_meta( esc_html($id), '_wp_cf7pdf_conditionalfieldsname', true );
+        if( !is_array($meta_conditionaltags) ) {
+            $meta_conditionaltags = array();
+        }
+
+        self::log_conditional_debug(
+            sprintf(
+                'conditional_tags_parser: START form_id=%s preview=%s | content_length=%d | meta_keys=%s',
+                (string) $id,
+                (string) $preview,
+                strlen($contentPdf),
+                empty($meta_conditionaltags) ? '(none)' : implode(',', array_keys($meta_conditionaltags))
+            )
+        );
+
+        // Regex : [if field-name]content[else]alt content[/if]
+        $pattern = '/\[if\s+([a-zA-Z0-9_-]+)\](.*?)(?:\[else\](.*?))?\[\/if\]/s';
+
+        $matchCount = preg_match_all($pattern, $contentPdf, $allMatches, PREG_SET_ORDER);
+        self::log_conditional_debug( 'conditional_tags_parser: regex matches count (initial)=' . (int) $matchCount );
+
+        $callback = function($matches) use ($meta_conditionaltags, $preview) {
+
+            $fieldName = $matches[1];
+            $ifContent = $matches[2];
+            $elseContent = isset($matches[3]) ? $matches[3] : '';
+
+            self::log_conditional_debug(
+                sprintf(
+                    '--- bloc [if %s] | if_branch_len=%d | else_branch_len=%d | if_branch_preview=%s',
+                    $fieldName,
+                    strlen($ifContent),
+                    strlen($elseContent),
+                    self::conditional_debug_repr($ifContent, 120)
+                )
+            );
+
+            // Récupérer la valeur du champ
+            if( $preview == 1 ) {
+                $fieldValue = 'preview-value';
+            } else {
+                $fieldValue = wpcf7_mail_replace_tags('[' . $fieldName . ']');
+            }
+
+            $rawRepr = self::conditional_debug_repr($fieldValue);
+            $effEmpty = self::is_field_effectively_empty($fieldValue) ? 'yes' : 'no';
+            self::log_conditional_debug(
+                sprintf(
+                    'champ [%s]: wpcf7_mail_replace_tags reçu brut=%s | effectively_empty=%s',
+                    $fieldName,
+                    $rawRepr,
+                    $effEmpty
+                )
+            );
+
+            // Si une condition est définie dans l'admin pour ce champ
+            if( isset($meta_conditionaltags[$fieldName]) && !empty($meta_conditionaltags[$fieldName]['operator']) ) {
+                $operator = $meta_conditionaltags[$fieldName]['operator'];
+                $conditionValue = isset($meta_conditionaltags[$fieldName]['value']) ? $meta_conditionaltags[$fieldName]['value'] : '';
+                self::log_conditional_debug(
+                    sprintf(
+                        'meta admin pour [%s]: operator=%s | value=%s',
+                        $fieldName,
+                        $operator,
+                        self::conditional_debug_repr($conditionValue, 200)
+                    )
+                );
+                $result = self::evaluate_condition($fieldValue, $operator, $conditionValue, $fieldName, $preview);
+            } else {
+                // Par défaut : afficher le bloc si le champ a une valeur réelle (hors espaces / HTML vide)
+                $result = !self::is_field_effectively_empty($fieldValue);
+                self::log_conditional_debug(
+                    sprintf(
+                        'pas de meta admin pour [%s]: résultat défaut (afficher si non vide)=%s',
+                        $fieldName,
+                        $result ? 'true (branche if)' : 'false (branche else)'
+                    )
+                );
+            }
+
+            $returned = $result ? $ifContent : $elseContent;
+
+            // Remplacer les tags CF7 ([hobbies], etc.) dans la branche conservée — sinon ils restent bruts ou mal traités ensuite
+            if( $preview != 1 && function_exists('wpcf7_mail_replace_tags') && $returned !== '' ) {
+                $lenBefore = strlen($returned);
+                $returned = wpcf7_mail_replace_tags($returned);
+                self::log_conditional_debug(
+                    sprintf(
+                        'wpcf7_mail_replace_tags sur branche [%s]: len %d -> %d | preview=%s',
+                        $fieldName,
+                        $lenBefore,
+                        strlen($returned),
+                        self::conditional_debug_repr($returned, 180)
+                    )
+                );
+            }
+
+            self::log_conditional_debug(
+                sprintf(
+                    '--- résultat [if %s]: branche=%s | longueur_sortie_finale=%d',
+                    $fieldName,
+                    $result ? 'if' : 'else',
+                    strlen($returned)
+                )
+            );
+
+            return $returned;
+
+        };
+
+        // Plusieurs passes : [if] imbriqués dans la branche else/if (ex. else contenant un autre [if …])
+        $maxPasses = 25;
+        $pass = 0;
+        while( $pass < $maxPasses && preg_match($pattern, $contentPdf) ) {
+            $pass++;
+            self::log_conditional_debug( 'conditional_tags_parser: passe ' . $pass );
+            $contentPdf = preg_replace_callback($pattern, $callback, $contentPdf);
+        }
+        if( $pass >= $maxPasses && preg_match($pattern, $contentPdf) ) {
+            self::log_conditional_debug( 'conditional_tags_parser: ATTENTION — limite de passes atteinte, [if] restants possibles' );
+        }
+
+        self::log_conditional_debug(
+            sprintf(
+                'conditional_tags_parser: END passes=%d content_length=%d',
+                $pass,
+                strlen($contentPdf)
+            )
+        );
 
         return $contentPdf;
     }

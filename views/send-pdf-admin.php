@@ -28,6 +28,7 @@ if( (isset($_POST['action']) && isset($_POST['idform']) && $_POST['action'] == '
         delete_post_meta( $_POST['idform'], '_wp_cf7pdf_fields' );
         delete_post_meta( $_POST['idform'], '_wp_cf7pdf_fields_scan' );
         delete_post_meta( $_POST['idform'], '_wp_cf7pdf_customtagsname' );
+        delete_post_meta( $_POST['idform'], '_wp_cf7pdf_conditionalfieldsname' );
         $_POST['idform'] = '';
         
         wp_redirect( 'admin.php?page=wpcf7-send-pdf&deleted=1' );
@@ -76,6 +77,21 @@ if( (isset($_POST['action']) && isset($_POST['idform']) && $_POST['action'] == '
         }
         if ( isset($_POST['wp_cf7pdf_custom_tags_name']) ) {
             $updateSettingTagsName = WPCF7PDF_settings::update_settings(esc_html($_POST['idform']), $_POST["wp_cf7pdf_custom_tags_name"], '_wp_cf7pdf_customtagsname');
+        }
+        if ( isset($_POST['wp_cf7pdf_conditional_name']) && is_array($_POST['wp_cf7pdf_conditional_name']) ) {
+            $sanitizedConditions = array();
+            foreach( $_POST['wp_cf7pdf_conditional_name'] as $fieldName => $condData ) {
+                if( is_array($condData) && !empty($condData['operator']) ) {
+                    $sanitizedConditions[sanitize_text_field($fieldName)] = array(
+                        'operator' => sanitize_text_field($condData['operator']),
+                        'value'    => isset($condData['value']) ? sanitize_text_field($condData['value']) : ''
+                    );
+                }
+            }
+            update_post_meta( sanitize_text_field($_POST['idform']), '_wp_cf7pdf_conditionalfieldsname', $sanitizedConditions );
+        } else {
+            // Aucune condition envoyée = toutes supprimées
+            delete_post_meta( sanitize_text_field($_POST['idform']), '_wp_cf7pdf_conditionalfieldsname' );
         }
         
         if( isset($updateSetting) && $updateSetting == true) {
@@ -172,6 +188,125 @@ jQuery(document).ready(function() {
   // Listen to changes on the switch
   jQuery('#switch_uploads, #switch_uploads_no').on('change', function() {
     toggleUploadsCustomName();
+  });
+
+  /* Conditional fields: operator labels */
+  var condOperatorLabels = {
+    'equal': '<?php esc_html_e("Equal to", "send-pdf-for-contact-form-7"); ?>',
+    'not_equal': '<?php esc_html_e("Not equal to", "send-pdf-for-contact-form-7"); ?>',
+    'greater': '<?php esc_html_e("Greater than", "send-pdf-for-contact-form-7"); ?>',
+    'less': '<?php esc_html_e("Less than", "send-pdf-for-contact-form-7"); ?>',
+    'greater_equal': '<?php esc_html_e("Greater or equal", "send-pdf-for-contact-form-7"); ?>',
+    'less_equal': '<?php esc_html_e("Less or equal", "send-pdf-for-contact-form-7"); ?>',
+    'contains': '<?php esc_html_e("Contains", "send-pdf-for-contact-form-7"); ?>',
+    'not_empty': '<?php esc_html_e("Is not empty", "send-pdf-for-contact-form-7"); ?>',
+    'empty': '<?php esc_html_e("Is empty", "send-pdf-for-contact-form-7"); ?>'
+  };
+
+  var condBtnLabelAdd = jQuery('#cond-add-btn').attr('data-default-label') || '<?php echo esc_js(__('Add', 'send-pdf-for-contact-form-7')); ?>';
+  var condBtnLabelUpdate = '<?php echo esc_js(__('Update', 'send-pdf-for-contact-form-7')); ?>';
+
+  function condToggleValueField(clearWhenHidden) {
+    var op = jQuery('#cond-add-operator').val();
+    if (op === 'empty' || op === 'not_empty') {
+      if (clearWhenHidden) { jQuery('#cond-add-value').val(''); }
+      jQuery('#cond-add-value').hide();
+    } else {
+      jQuery('#cond-add-value').show();
+    }
+  }
+
+  jQuery('#cond-add-operator').on('change', function() {
+    condToggleValueField(true);
+  });
+
+  /* Edit : charger le formulaire d'ajout */
+  jQuery(document).on('click', '.cond-edit-btn', function(e) {
+    e.preventDefault();
+    var $tr = jQuery(this).closest('tr');
+    var field = $tr.attr('data-field');
+    var op = $tr.attr('data-operator') || 'equal';
+    var val = $tr.attr('data-value');
+    if (typeof val === 'undefined' || val === null) { val = ''; }
+
+    jQuery('#cond-add-field').val(field);
+    jQuery('#cond-add-operator').val(op);
+    condToggleValueField(false);
+    if (op === 'empty' || op === 'not_empty') {
+      jQuery('#cond-add-value').val('');
+    } else {
+      jQuery('#cond-add-value').val(val);
+    }
+
+    jQuery('#cond-add-btn').text(condBtnLabelUpdate);
+    var $formRow = jQuery('#cond-add-field').closest('table').find('tbody tr').first();
+    if ($formRow.length) {
+      jQuery('html, body').animate({ scrollTop: $formRow.offset().top - 100 }, 300);
+    }
+  });
+
+  /* Add or update a condition */
+  jQuery('#cond-add-btn').on('click', function() {
+    var field = jQuery('#cond-add-field').val();
+    var operator = jQuery('#cond-add-operator').val();
+    var value = jQuery('#cond-add-value').val();
+
+    if (!field) { alert('<?php esc_html_e("Please select a field.", "send-pdf-for-contact-form-7"); ?>'); return; }
+    if (!operator) { return; }
+
+    if (jQuery('#cond-list-body tr[data-field="' + field + '"]').length) {
+      jQuery('#cond-list-body tr[data-field="' + field + '"]').remove();
+    }
+
+    var opLabel = condOperatorLabels[operator] || operator;
+    var displayValue = (operator === 'empty' || operator === 'not_empty') ? '' : value;
+
+    var $tr = jQuery('<tr/>').attr({
+      'data-field': field,
+      'data-operator': operator,
+      'data-value': displayValue
+    });
+    $tr.append(jQuery('<td/>').append(jQuery('<code/>').text('[if ' + field + ']')));
+    $tr.append(jQuery('<td/>').text(opLabel));
+    $tr.append(jQuery('<td/>').text(displayValue));
+    var $usage = jQuery('<input type="text" readonly class="cond-usage-copy" />')
+      .val('[if ' + field + ']...[else]...[/if]')
+      .attr('title', '<?php echo esc_js(__('Click to copy', 'send-pdf-for-contact-form-7')); ?>')
+      .css({ fontFamily: 'monospace', fontSize: '11px', width: '100%', cursor: 'pointer', background: '#f6f6f6', border: '1px dashed #999' });
+    $tr.append(jQuery('<td/>').append($usage));
+    var $actions = jQuery('<td style="text-align:center;white-space:nowrap;"></td>');
+    $actions.append(jQuery('<button type="button" class="button button-small cond-edit-btn" />').text('<?php echo esc_js(__('Edit', 'send-pdf-for-contact-form-7')); ?>').attr('title', '<?php echo esc_js(__('Edit this condition', 'send-pdf-for-contact-form-7')); ?>'));
+    $actions.append(jQuery('<button type="button" class="button cond-remove-btn" />').attr('data-field', field).attr('title', '<?php echo esc_js(__('Remove', 'send-pdf-for-contact-form-7')); ?>').html('&times;'));
+    $tr.append($actions);
+    $tr.append(jQuery('<input type="hidden" />').attr('name', 'wp_cf7pdf_conditional_name[' + field + '][operator]').val(operator));
+    $tr.append(jQuery('<input type="hidden" />').attr('name', 'wp_cf7pdf_conditional_name[' + field + '][value]').val(displayValue));
+
+    jQuery('#cond-list-body').append($tr);
+    jQuery('#cond-empty-msg').hide();
+    jQuery('#cond-list-table').show();
+
+    jQuery('#cond-add-field').val('');
+    jQuery('#cond-add-operator').val('equal');
+    jQuery('#cond-add-value').val('').show();
+    jQuery('#cond-add-btn').text(condBtnLabelAdd);
+  });
+
+  /* Click to copy usage tag */
+  jQuery(document).on('click', '.cond-usage-copy', function() {
+    this.select();
+    document.execCommand('copy');
+    var $el = jQuery(this);
+    var original = $el.css('border-color');
+    $el.css('border-color', '#46b450');
+    setTimeout(function() { $el.css('border-color', original); }, 600);
+  });
+
+  /* Remove a condition */
+  jQuery(document).on('click', '.cond-remove-btn', function() {
+    jQuery(this).closest('tr').remove();
+    if (jQuery('#cond-list-body tr').length === 0) {
+      jQuery('#cond-empty-msg').show();
+    }
   });
     
 });
@@ -297,20 +432,6 @@ jQuery(document).ready(function() {
         // Definition des dates par defaut
         $dateField = WPCF7PDF_prepare::returndate($idForm);
         $timeField = WPCF7PDF_prepare::returntime($idForm);
-
-        // Tester si les images de fond existent
-        $backgroundImage = '';
-        $backgroundImageDefault = esc_url(plugins_url('images/background.jpg', dirname(__FILE__) ));
-        if( isset($meta_values['image_background']) && $meta_values['image_background']!=$backgroundImageDefault ) {
-            $pathBackgroundImage = str_replace($upload_baseurl, $upload_basedir, $meta_values['image_background']);
-            if( file_exists($pathBackgroundImage) ) {
-                $backgroundImage = esc_url($meta_values['image_background']);
-            } else {
-                $backgroundImage = '';
-            }
-        } else if( isset($meta_values['image_background']) && $meta_values['image_background']==$backgroundImageDefault ) {
-            $backgroundImage = esc_url($meta_values['image_background']);
-        }
 
         // Definition des dimensions du logo par defaut
         $width = 150;
@@ -1055,7 +1176,7 @@ if ( is_dir(get_stylesheet_directory()."/pdffonts/") == true ) {
 
                             <h3 class="hndle"><span class="dashicons dashicons-images-alt2"></span>&nbsp;&nbsp;<?php esc_html_e('Image Background', 'send-pdf-for-contact-form-7'); ?></h3>
                             <?php esc_html_e('Enter a URL or upload an image:', 'send-pdf-for-contact-form-7'); ?><br />
-                            <input id="upload_background" size="80%" class="wpcf7-form-field" name="wp_cf7pdf_settings[image_background]" value="<?php echo esc_url($backgroundImage); ?>" type="text" /> <a href="#" id="upload_image_background" class="button" OnClick="this.blur();"><span> <?php esc_html_e('Select or Upload your picture', 'send-pdf-for-contact-form-7'); ?> </span></a><br /><small><?php esc_html_e('Example for demo:', 'send-pdf-for-contact-form-7'); ?> <a href="<?php echo esc_url(plugins_url( '../images/background.jpg', __FILE__ )); ?>" target="_blank"><?php esc_html_e('here', 'send-pdf-for-contact-form-7'); ?></a></small><br />
+                            <input id="upload_background" size="80%" class="wpcf7-form-field" name="wp_cf7pdf_settings[image_background]" value="<?php if( isset($meta_values['image_background']) && !empty($meta_values['image_background']) ) { echo esc_url($meta_values['image_background']); } ?>" type="text" /> <a href="#" id="upload_image_background" class="button" OnClick="this.blur();"><span> <?php esc_html_e('Select or Upload your picture', 'send-pdf-for-contact-form-7'); ?> </span></a><br /><small><?php esc_html_e('Example for demo:', 'send-pdf-for-contact-form-7'); ?> <a href="<?php echo esc_url(plugins_url( '../images/background.jpg', __FILE__ )); ?>" target="_blank"><?php esc_html_e('here', 'send-pdf-for-contact-form-7'); ?></a></small><br />
                             <div style="margin-top:0.8em;">                           
                                 <div><?php esc_html_e('Display background on each page?', 'send-pdf-for-contact-form-7'); ?>
                                     <div class="switch-field-mini">
@@ -1068,7 +1189,7 @@ if ( is_dir(get_stylesheet_directory()."/pdffonts/") == true ) {
                             </div>
                         </td>
                         <td style="text-align:center;">
-                            <div style="border:1px solid #CCCCCC;height:500px;padding:5px;<?php if( isset($backgroundImage) && $backgroundImage!='' ) { echo 'background: no-repeat url('.esc_url($backgroundImage); } ?>);background-size: cover;">
+                            <div style="border:1px solid #CCCCCC;height:500px;padding:5px;<?php if( isset($meta_values['image_background']) && !empty($meta_values['image_background']) ) { echo 'background: no-repeat url('.esc_url($meta_values['image_background']); } ?>);background-size: cover;">
                                 <div style="text-align:<?php if( isset($meta_values['image-alignment']) ) { echo esc_html($meta_values['image-alignment']); } ?>;margin-top:<?php if( isset($meta_values["margin_header"]) && $meta_values["margin_header"]!='' ) { echo esc_html($meta_values["margin_header"]); } else { echo esc_html($marginHeader); } ?>px;"><?php if( isset($meta_values["image"]) && !empty($meta_values["image"]) && file_exists( str_replace($upload_baseurl, $upload_basedir, $meta_values['image'])) ) { echo '<img src="'.esc_url($meta_values['image']).'" width="150">'; } ?>
                                 </div>
                                 <?php
@@ -1473,6 +1594,127 @@ if ( is_dir(get_stylesheet_directory()."/pdffonts/") == true ) {
                         </tr>
                     </tfoot>
                 </table>
+                <div style="text-align:left;">
+                    <p>
+                        <input type="submit" name="wp_cf7pdf_update_settings" class="button-primary" value="<?php esc_html_e('Save settings', 'send-pdf-for-contact-form-7'); ?>"/>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Conditional possibility -->
+<a name="conditionalfield"></a>
+<div class="postbox">
+
+    <div class="handlediv" style="height:1px!important;" title="<?php esc_html_e('Click to toggle', 'send-pdf-for-contact-form-7'); ?>"><br></div>
+    <span class="dashicons customDashicons dashicons-filter"></span> <h3 class="hndle"><?php esc_html_e( 'Conditional Field', 'send-pdf-for-contact-form-7' ); ?></h3>
+    <div class="inside">
+        <div style="padding:5px;margin-bottom:10px;">
+            <div>
+                <p><i><?php esc_html_e('In your PDF layout, use [if field-name] ... [else] ... [/if]. Most users read it as: if this field matches the rule defined below, show the first block; otherwise show the second block. The field name in the tag must match the field row in the table (example: tag [if hobbies] uses the condition saved for hobbies).', 'send-pdf-for-contact-form-7'); ?></i></p>
+                <p><i><?php esc_html_e('Example: to show « Youpi… » only when hobbies equals Tennis, add a row for field hobbies with operator « Equal to » and value Tennis. The HTML between [if hobbies] and [else] is shown when that condition is true; the HTML between [else] and [/if] is shown when it is false.', 'send-pdf-for-contact-form-7'); ?></i></p>
+                <p><i><?php esc_html_e('If you do not add a rule for that field, the first block is shown when the field is not empty, the second when it is empty. Operators « Is not empty » / « Is empty » force that behaviour regardless of a comparison value.', 'send-pdf-for-contact-form-7'); ?></i></p>
+                
+                <?php 
+                    $meta_conditionaltags = get_post_meta( $idForm, '_wp_cf7pdf_conditionalfieldsname', true );
+                    if( !is_array($meta_conditionaltags) ) { $meta_conditionaltags = array(); }
+                ?>
+
+                <!-- Formulaire d'ajout de condition -->
+                <table class="widefat" style="margin-bottom:15px;">
+                    <thead>
+                        <tr>
+                            <th style="width:30%;"><?php esc_html_e( 'Field', 'send-pdf-for-contact-form-7' ); ?></th>
+                            <th style="width:25%;"><?php esc_html_e( 'Operator', 'send-pdf-for-contact-form-7' ); ?></th>
+                            <th style="width:30%;"><?php esc_html_e( 'Value', 'send-pdf-for-contact-form-7' ); ?></th>
+                            <th style="width:15%;">&nbsp;</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <select id="cond-add-field" class="wpcf7-form-field" style="width:100%;">
+                                    <option value="">-- <?php esc_html_e('Select a field', 'send-pdf-for-contact-form-7'); ?> --</option>
+                                    <?php foreach ( $contact_tag as $sh_tag_conditional ) {
+                                        if( isset($sh_tag_conditional["name"]) && $sh_tag_conditional["name"]!='' ) { ?>
+                                            <option value="<?php echo esc_attr($sh_tag_conditional["name"]); ?>"><?php echo esc_html($sh_tag_conditional["name"]); ?></option>
+                                    <?php } } ?>
+                                </select>
+                            </td>
+                            <td>
+                                <select id="cond-add-operator" class="wpcf7-form-field" style="width:100%;">
+                                    <option value="equal"><?php esc_html_e('Equal to', 'send-pdf-for-contact-form-7'); ?></option>
+                                    <option value="not_equal"><?php esc_html_e('Not equal to', 'send-pdf-for-contact-form-7'); ?></option>
+                                    <option value="greater"><?php esc_html_e('Greater than', 'send-pdf-for-contact-form-7'); ?></option>
+                                    <option value="less"><?php esc_html_e('Less than', 'send-pdf-for-contact-form-7'); ?></option>
+                                    <option value="greater_equal"><?php esc_html_e('Greater or equal', 'send-pdf-for-contact-form-7'); ?></option>
+                                    <option value="less_equal"><?php esc_html_e('Less or equal', 'send-pdf-for-contact-form-7'); ?></option>
+                                    <option value="contains"><?php esc_html_e('Contains', 'send-pdf-for-contact-form-7'); ?></option>
+                                    <option value="not_empty"><?php esc_html_e('Is not empty', 'send-pdf-for-contact-form-7'); ?></option>
+                                    <option value="empty"><?php esc_html_e('Is empty', 'send-pdf-for-contact-form-7'); ?></option>
+                                </select>
+                            </td>
+                            <td>
+                                <input type="text" id="cond-add-value" class="wpcf7-form-field" style="width:100%;" placeholder="<?php esc_html_e('Value to compare', 'send-pdf-for-contact-form-7'); ?>" />
+                            </td>
+                            <td style="text-align:center;">
+                                <button type="button" id="cond-add-btn" class="button button-secondary" data-default-label="<?php esc_attr_e('Add', 'send-pdf-for-contact-form-7'); ?>"><?php esc_html_e('Add', 'send-pdf-for-contact-form-7'); ?></button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <!-- Liste des conditions enregistrées -->
+                <table class="widefat" id="cond-list-table">
+                    <thead>
+                        <tr>
+                            <th style="width:25%;"><?php esc_html_e( 'Tag', 'send-pdf-for-contact-form-7' ); ?></th>
+                            <th style="width:25%;"><?php esc_html_e( 'Operator', 'send-pdf-for-contact-form-7' ); ?></th>
+                            <th style="width:25%;"><?php esc_html_e( 'Value', 'send-pdf-for-contact-form-7' ); ?></th>
+                            <th style="width:15%;"><?php esc_html_e( 'Usage', 'send-pdf-for-contact-form-7' ); ?></th>
+                            <th style="width:12%;"><?php esc_html_e( 'Actions', 'send-pdf-for-contact-form-7' ); ?></th>
+                        </tr>
+                    </thead>
+                    <tbody id="cond-list-body">
+                        <?php 
+                        $operatorLabels = array(
+                            'equal' => __('Equal to', 'send-pdf-for-contact-form-7'),
+                            'not_equal' => __('Not equal to', 'send-pdf-for-contact-form-7'),
+                            'greater' => __('Greater than', 'send-pdf-for-contact-form-7'),
+                            'less' => __('Less than', 'send-pdf-for-contact-form-7'),
+                            'greater_equal' => __('Greater or equal', 'send-pdf-for-contact-form-7'),
+                            'less_equal' => __('Less or equal', 'send-pdf-for-contact-form-7'),
+                            'contains' => __('Contains', 'send-pdf-for-contact-form-7'),
+                            'not_empty' => __('Is not empty', 'send-pdf-for-contact-form-7'),
+                            'empty' => __('Is empty', 'send-pdf-for-contact-form-7'),
+                        );
+                        if( !empty($meta_conditionaltags) ) {
+                            foreach( $meta_conditionaltags as $fieldName => $condData ) {
+                                if( !empty($condData['operator']) ) {
+                                    $opLabel = isset($operatorLabels[$condData['operator']]) ? $operatorLabels[$condData['operator']] : $condData['operator'];
+                                    $condValue = isset($condData['value']) ? esc_attr($condData['value']) : '';
+                        ?>
+                        <tr data-field="<?php echo esc_attr($fieldName); ?>" data-operator="<?php echo esc_attr($condData['operator']); ?>" data-value="<?php echo esc_attr($condValue); ?>">
+                            <td><code>[if <?php echo esc_html($fieldName); ?>]</code></td>
+                            <td><?php echo esc_html($opLabel); ?></td>
+                            <td><?php echo esc_html($condValue); ?></td>
+                            <td><input type="text" readonly class="cond-usage-copy" value="[if <?php echo esc_attr($fieldName); ?>]...[else]...[/if]" style="font-family:monospace;font-size:11px;width:100%;cursor:pointer;background:#f6f6f6;border:1px dashed #999;" title="<?php esc_attr_e('Click to copy', 'send-pdf-for-contact-form-7'); ?>" /></td>
+                            <td style="text-align:center;white-space:nowrap;">
+                                <button type="button" class="button button-small cond-edit-btn" title="<?php esc_attr_e('Edit this condition', 'send-pdf-for-contact-form-7'); ?>"><?php esc_html_e('Edit', 'send-pdf-for-contact-form-7'); ?></button>
+                                <button type="button" class="button cond-remove-btn" data-field="<?php echo esc_attr($fieldName); ?>" title="<?php esc_attr_e('Remove', 'send-pdf-for-contact-form-7'); ?>">&times;</button>
+                            </td>
+                            <input type="hidden" name="wp_cf7pdf_conditional_name[<?php echo esc_attr($fieldName); ?>][operator]" value="<?php echo esc_attr($condData['operator']); ?>" />
+                            <input type="hidden" name="wp_cf7pdf_conditional_name[<?php echo esc_attr($fieldName); ?>][value]" value="<?php echo $condValue; ?>" />
+                        </tr>
+                        <?php   }
+                            }
+                        } ?>
+                    </tbody>
+                </table>
+                <p id="cond-empty-msg" style="color:#888;<?php echo !empty($meta_conditionaltags) ? 'display:none;' : ''; ?>"><i><?php esc_html_e('No conditions defined yet.', 'send-pdf-for-contact-form-7'); ?></i></p>
                 <div style="text-align:left;">
                     <p>
                         <input type="submit" name="wp_cf7pdf_update_settings" class="button-primary" value="<?php esc_html_e('Save settings', 'send-pdf-for-contact-form-7'); ?>"/>

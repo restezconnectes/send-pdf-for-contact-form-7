@@ -379,6 +379,9 @@ class WPCF7PDF_generate extends cf7_sendpdf {
         // On va chercher les noms personnalisé
         $meta_tagsname = get_post_meta(esc_html($idForm), '_wp_cf7pdf_customtagsname', true);
 
+        // Définition de l'entete
+        $entete = array();
+
         // Construction de l'entete
         if( isset($meta_fields) ) {
             
@@ -405,7 +408,7 @@ class WPCF7PDF_generate extends cf7_sendpdf {
                         $tagsName = '';
                     }
                     // Si un nom personnalisé existe, on l'utilise
-                    else if ($meta_tagsname[$nameField[1][$i]]!='') {                           
+                    else if ( isset($meta_tagsname[$nameField[1][$i]]) && $meta_tagsname[$nameField[1][$i]]!='') {                           
                         $tagsName = esc_html($meta_tagsname[$nameField[1][$i]]);
                     }
                     // Sinon on garde le TAG par défaut
