@@ -6,7 +6,7 @@
             <?php //echo __( 'Documentation', 'send-pdf-for-contact-form-7' ); ?>
         </a>-->
         <a href="/wp-admin/admin.php?page=wpcf7-send-pdf" class="button-primary">
-            <?php echo __( 'Create your fisrt PDF', 'send-pdf-for-contact-form-7' ); ?>
+            <?php echo __( 'Create your first PDF', 'send-pdf-for-contact-form-7' ); ?>
         </a>
         <a href="https://restezconnectes.fr/tutoriel-wordpress-lextension-send-pdf-for-contact-form-7/" onfocus="this.blur();" class="button-primary">
             <?php echo __( 'Tutorial here', 'send-pdf-for-contact-form-7' ); ?>

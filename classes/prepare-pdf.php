@@ -580,11 +580,14 @@ class WPCF7PDF_prepare extends cf7_sendpdf {
         $contentPdfTagsRaw = cf7_sendpdf::wpcf7pdf_mailparser($contentPdf, 'raw');
         foreach ( (array) $contentPdfTagsRaw as $name_raw ) {
 
-            $name1raw = str_replace('_raw_', '', $name_raw);
-            $found_key = cf7_sendpdf::wpcf7pdf_foundkey($contact_tag, $name1raw);
-            $baseTypeRaw = $contact_tag[$found_key]['basetype'];
+            $name1raw = str_replace( '_raw_', '', $name_raw );
+            $found_key = cf7_sendpdf::wpcf7pdf_foundkey( $contact_tag, $name1raw );
+            if ( false === $found_key || ! isset( $contact_tag[ $found_key ]['basetype'] ) ) {
+                continue;
+            }
+            $baseTypeRaw = $contact_tag[ $found_key ]['basetype'];
 
-            if( isset($baseTypeRaw) && ($baseTypeRaw==='checkbox' || $baseTypeRaw==='radio') ) {
+            if ( isset( $baseTypeRaw ) && ( $baseTypeRaw === 'checkbox' || $baseTypeRaw === 'radio' ) ) {
 
                 // Exemple : CEO | sales@example.com
                 // on remplace _raw_TAG par l'avant PIPE soit CEO
@@ -601,10 +604,18 @@ class WPCF7PDF_prepare extends cf7_sendpdf {
         $contentPdfTags = cf7_sendpdf::wpcf7pdf_mailparser($contentPdf);
         foreach ( (array) $contentPdfTags as $name_tags ) {
 
-            $name_tags[1] = str_replace('url-', '', $name_tags[1]);
-            $name_tags[0] = str_replace('url-', '', $name_tags[0]);
-            $found_key = cf7_sendpdf::wpcf7pdf_foundkey($contact_tag, $name_tags[1]);
-            $basetype = $contact_tag[$found_key]['basetype'];
+            if ( ! is_array( $name_tags ) || ! isset( $name_tags[0], $name_tags[1] ) ) {
+                continue;
+            }
+
+            $name_tags[1] = str_replace( 'url-', '', $name_tags[1] );
+            $name_tags[0] = str_replace( 'url-', '', $name_tags[0] );
+            $found_key = cf7_sendpdf::wpcf7pdf_foundkey( $contact_tag, $name_tags[1] );
+            if ( false === $found_key || ! isset( $contact_tag[ $found_key ] ) ) {
+                continue;
+            }
+
+            $basetype = isset( $contact_tag[ $found_key ]['basetype'] ) ? $contact_tag[ $found_key ]['basetype'] : '';
             $tagOptions = array();
             if( isset( $contact_tag[$found_key]['options'] ) && !empty($contact_tag[$found_key]['options']) ) {
                 $tagOptions = $contact_tag[$found_key]['options'];
