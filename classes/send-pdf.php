@@ -206,9 +206,15 @@ class cf7_sendpdf {
 
         // On va cherche les champs du formulaire
         $meta_tags = get_post_meta(esc_html($idForm), '_wp_cf7pdf_fields', true);
+        if ( ! is_array( $meta_tags ) ) {
+            $meta_tags = array();
+        }
 
         // On va chercher les noms personnalisé et les cachés
         $meta_tagsname = get_post_meta(esc_html($idForm), '_wp_cf7pdf_customtagsname', true);
+        if ( ! is_array( $meta_tagsname ) ) {
+            $meta_tagsname = array();
+        }
 
         // Definition des dates par defaut
         $dateField = WPCF7PDF_prepare::returndate($idForm);
