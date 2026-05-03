@@ -1603,7 +1603,7 @@ if ( is_dir(get_stylesheet_directory()."/pdffonts/") == true ) {
         </div>
     </div>
 </div>
-
+<?php } ?>
 
 <!-- Conditional possibility -->
 <a name="conditionalfield"></a>
@@ -1725,7 +1725,7 @@ if ( is_dir(get_stylesheet_directory()."/pdffonts/") == true ) {
     </div>
 </div>
 
-<?php } ?>
+
 </form>
 <?php if( isset($meta_values["disable-insert"]) && $meta_values["disable-insert"]=="false") { ?>
 

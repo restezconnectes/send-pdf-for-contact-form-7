@@ -817,6 +817,55 @@ class cf7_sendpdf {
         return $imgsrc;
     }
 
+    /**
+     * Applique le parseur cf7-conditional-fields au contenu PDF/mail (même principe que CF7CF::hide_hidden_mail_fields).
+     * Ne repose pas sur wp_verify_nonce : à ce stade la soumission CF7 est déjà validée ; un nonce redirect expiré
+     * ne doit pas empêcher de masquer les groupes conditionnels. _wpcf7cf_repeaters peut être absent (équivalent []).
+     *
+     * @param string $mail_body HTML avec balises [groupe]...[/groupe].
+     * @return string
+     */
+    function wpcf7pdf_cf7cf_parse_mail_body( $mail_body ) {
+
+        if ( ! class_exists( 'Wpcf7cfMailParser' ) ) {
+            return $mail_body;
+        }
+
+        if ( ! isset( $_POST['_wpcf7cf_hidden_groups'], $_POST['_wpcf7cf_visible_groups'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+            return $mail_body;
+        }
+
+        $posted_for_parser = $_POST; // phpcs:ignore WordPress.Security.NonceVerification.Missing
+
+        $hidden_raw = function_exists( 'wpcf7_superglobal_post' )
+            ? wpcf7_superglobal_post( '_wpcf7cf_hidden_groups' )
+            : wp_unslash( $_POST['_wpcf7cf_hidden_groups'] ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
+        $visible_raw = function_exists( 'wpcf7_superglobal_post' )
+            ? wpcf7_superglobal_post( '_wpcf7cf_visible_groups' )
+            : wp_unslash( $_POST['_wpcf7cf_visible_groups'] ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
+        $repeaters_raw = isset( $_POST['_wpcf7cf_repeaters'] ) // phpcs:ignore WordPress.Security.NonceVerification.Missing
+            ? ( function_exists( 'wpcf7_superglobal_post' )
+                ? wpcf7_superglobal_post( '_wpcf7cf_repeaters' )
+                : wp_unslash( $_POST['_wpcf7cf_repeaters'] ) ) // phpcs:ignore WordPress.Security.NonceVerification.Missing
+            : '[]';
+
+        $hidden_groups = json_decode( $hidden_raw, true );
+        $visible_groups = json_decode( $visible_raw, true );
+        $repeaters = json_decode( $repeaters_raw, true );
+
+        if ( null === $hidden_groups || null === $visible_groups || null === $repeaters ) {
+            return $mail_body;
+        }
+
+        try {
+            $parser = new Wpcf7cfMailParser( $mail_body, $visible_groups, $hidden_groups, $repeaters, $posted_for_parser );
+            return $parser->getParsedMail();
+        } catch ( Exception $e ) {
+            error_log( 'Erreur Wpcf7cfMailParser (send-pdf): ' . $e->getMessage() ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+            return $mail_body;
+        }
+    }
+
     function wpcf7pdf_send_pdf($contact_form) {
 
         $submission = WPCF7_Submission::get_instance();
@@ -871,30 +920,7 @@ class cf7_sendpdf {
                 $contentPdf = apply_filters( 'pl_filter_content', $contentPdf, $posted_data );
                 
                 // Compatibilité avec CF7 Conditional Fields / Conditional Fields PRO
-                if( class_exists('Wpcf7cfMailParser') ){
-                    
-                    // Vérifier que les données Conditional Fields sont présentes
-                    if( isset($_POST['_wpcf7cf_hidden_groups']) && isset($_POST['_wpcf7cf_visible_groups']) && isset($_POST['_wpcf7cf_repeaters']) ) {
-                        
-                        // Vérification de sécurité : s'assurer que le nonce est vérifié avant d'utiliser $_POST
-                        if( isset($_POST['redirect_nonce']) && wp_verify_nonce($_POST['redirect_nonce'], 'cf7-redirect-id') ) {
-                            
-                            $hidden_groups = json_decode(stripslashes($_POST['_wpcf7cf_hidden_groups']), true);
-                            $visible_groups = json_decode(stripslashes($_POST['_wpcf7cf_visible_groups']), true);
-                            $repeaters = json_decode(stripslashes($_POST['_wpcf7cf_repeaters']), true);
-                            
-                            // Vérifier que le décodage JSON a réussi
-                            if( $hidden_groups !== null && $visible_groups !== null && $repeaters !== null ) {
-                                try {
-                                    $parser = new Wpcf7cfMailParser($contentPdf, $visible_groups, $hidden_groups, $repeaters, $_POST);
-                                    $contentPdf = $parser->getParsedMail();
-                                } catch (Exception $e) {
-                                    error_log('Erreur Wpcf7cfMailParser: ' . $e->getMessage());
-                                }
-                            }
-                        }
-                    }
-                }
+                $contentPdf = $this->wpcf7pdf_cf7cf_parse_mail_body( $contentPdf );
 
                 // On insère dans la BDD
                 if( isset($meta_values["disable-insert"]) && $meta_values["disable-insert"] == "false" ) {
@@ -937,30 +963,7 @@ class cf7_sendpdf {
                                 $messageAddPdf = apply_filters( 'pl_filter_content', $messageAddPdf, $posted_data );    
                                 
                                 // Compatibilité avec CF7 Conditional Fields / Conditional Fields PRO
-                                if( class_exists('Wpcf7cfMailParser') ){
-                                    
-                                    // Vérifier que les données Conditional Fields sont présentes
-                                    if( isset($_POST['_wpcf7cf_hidden_groups']) && isset($_POST['_wpcf7cf_visible_groups']) && isset($_POST['_wpcf7cf_repeaters']) ) {
-                                        
-                                        // Vérification de sécurité : s'assurer que le nonce est vérifié avant d'utiliser $_POST
-                                        if( isset($_POST['redirect_nonce']) && wp_verify_nonce($_POST['redirect_nonce'], 'cf7-redirect-id') ) {
-                                            
-                                            $hidden_groups_pdf = json_decode(stripslashes($_POST['_wpcf7cf_hidden_groups']), true);
-                                            $visible_groups_pdf = json_decode(stripslashes($_POST['_wpcf7cf_visible_groups']), true);
-                                            $repeaters_pdf = json_decode(stripslashes($_POST['_wpcf7cf_repeaters']), true);
-                                            
-                                            // Vérifier que le décodage JSON a réussi
-                                            if( $hidden_groups_pdf !== null && $visible_groups_pdf !== null && $repeaters_pdf !== null ) {
-                                                try {
-                                                    $parserPdf = new Wpcf7cfMailParser($messageAddPdf, $visible_groups_pdf, $hidden_groups_pdf, $repeaters_pdf, $_POST);
-                                                    $messageAddPdf = $parserPdf->getParsedMail();
-                                                } catch (Exception $e) {
-                                                    error_log('Erreur Wpcf7cfMailParser (PDF additionnel): ' . $e->getMessage());
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
+                                $messageAddPdf = $this->wpcf7pdf_cf7cf_parse_mail_body( $messageAddPdf );
 
                                 // Preparation du contenu du PDF
                                 $messageAddPdf = WPCF7PDF_prepare::tags_parser($post['_wpcf7'], $addNamePdf, $referencePDF, $messageAddPdf);

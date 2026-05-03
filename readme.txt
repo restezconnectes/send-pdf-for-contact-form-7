@@ -55,6 +55,7 @@ Yes. If you want, you can support this project here: <a href="https://restezconn
 
 = 1.0.3.9 = 
 * Adding conditionnal field [if TAG]Your text [TAG].[else]Your text [TAG][/if]
+* Fixed bug with Conditional Fields for Contact Form 7
 
 = 1.0.3.8 = 
 * NEW: Option to Force adding reference in name of PDF for email attachment or download
