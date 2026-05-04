@@ -4,7 +4,7 @@ Donate link: https://www.paypal.me/RestezConnectes/
 Tags: contact form 7, pdf, send, attachment, form
 Requires at least: 5.2
 Tested up to: 6.9
-Stable tag: 1.0.4.0
+Stable tag: 1.0.3.10
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -53,7 +53,7 @@ Yes. If you want, you can support this project here: <a href="https://restezconn
 
 == Changelog ==
 
-= 1.0.4.0 = 
+= 1.0.3.10 = 
 * Fixed bug with Import / Export settings
 * Fixed bug with delete all settings
 
