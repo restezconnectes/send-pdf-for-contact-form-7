@@ -292,7 +292,7 @@ class cf7_sendpdf {
         // Vérification de la taille maximale (2MB)
         $max_size = 2 * 1024 * 1024;
         if ($_FILES['wpcf7_import_file']['size'] > $max_size) {
-            wp_die(esc_html__('Le fichier est trop volumineux. Taille maximale autorisée : 2MB', 'wp-maintenance'));
+            wp_die(esc_html__('Le fichier est trop volumineux. Taille maximale autorisée : 2MB', 'send-pdf-for-contact-form-7'));
         }
 
         $extension = strtolower(pathinfo($_FILES['wpcf7_import_file']['name'], PATHINFO_EXTENSION));
@@ -304,7 +304,7 @@ class cf7_sendpdf {
         $mime_type = finfo_file($finfo, $_FILES['wpcf7_import_file']['tmp_name']);
         finfo_close($finfo);
         if ($mime_type !== 'application/json') {
-            wp_die(esc_html__('Type de fichier non autorisé. Seuls les fichiers JSON sont acceptés.', 'wp-maintenance'));
+            wp_die(esc_html__('Type de fichier non autorisé. Seuls les fichiers JSON sont acceptés.', 'send-pdf-for-contact-form-7'));
         }
 
         $import_file = $_FILES['wpcf7_import_file']['tmp_name'];
