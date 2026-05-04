@@ -16,55 +16,91 @@ defined( 'ABSPATH' )
 
 class WPCF7PDF_settings extends cf7_sendpdf {
 
-    static function update_settings($idForm, $tabSettings, $nameOption = '', $type=0) {
+    /**
+     * Sanitize a flat settings map (same rules as update_settings, without persisting).
+     * Used by the admin save handler and by JSON import.
+     *
+     * @param mixed  $tabSettings Source array of key => value.
+     * @param int    $type        Optional URL-only mode (3).
+     * @return array|false        Sanitized array or false if input is not an array.
+     */
+    static function sanitize_settings_row( $tabSettings, $type = 0 ) {
 
-        if( empty($nameOption) || $nameOption =='' ) { return false; }
-
-        if( isset($tabSettings) && is_array($tabSettings) ) {
-
-            $newTabSettings = array();
-            foreach($tabSettings as $nameSettings => $valueSettings) {
-
-                if( $type == 3 ) {
-                    $newTabSettings[$nameSettings] = wp_strip_all_tags( stripslashes( esc_url_raw($valueSettings) ) );
-                } elseif(filter_var($valueSettings, FILTER_VALIDATE_URL)) {
-                    $newTabSettings[$nameSettings] = sanitize_url($valueSettings);
-                } elseif(filter_var($valueSettings, FILTER_VALIDATE_EMAIL)) {
-                    $newTabSettings[$nameSettings] = sanitize_email($valueSettings);
-                } elseif($nameSettings == 'generate_pdf' || $nameSettings == 'footer_generate_pdf' || strpos($nameSettings, 'content_addpdf_')!== false ) {
-                    $arr = WPCF7PDF_prepare::wpcf7pdf_autorizeHtml();
-                    $newTabSettings[$nameSettings] = wp_kses($valueSettings, $arr);
-                } else {
-                    $newTabSettings[$nameSettings] = sanitize_textarea_field($valueSettings);
-                }
-                /* 
-                 * Vérification des incompatibilités
-                 */
-                // Si on a désactivé l'insertion dans la BDD:
-                if( $nameSettings=='disable-insert' && $valueSettings == 'true') { 
-                    // On ne peut pas faire rediriger vers le PDF
-                    $newTabSettings['redirect-to-pdf'] = sanitize_textarea_field('false');
-                }
-                // Si la redirection vers le PDF est active:
-                if( $nameSettings=='redirect-to-pdf' && $valueSettings == 'true') { 
-                    // On ne peut pas effacer chaque PDF après envoi
-                    $newTabSettings['pdf-file-delete'] = sanitize_textarea_field('false');
-                }
-                // Si on n'est pas dans le dossier /uploads/sendpdfcf7_upload/:
-                if( $nameSettings=='pdf-uploads' && $valueSettings == 'false') { 
-                    // On ne peut pas effacer tout le contenu du dossier
-                    $newTabSettings['pdf-uploads-delete'] = sanitize_textarea_field('false');
-                }
-
-            }
-            update_post_meta(sanitize_text_field($idForm), $nameOption, $newTabSettings);
-
-            return true;
-
-        } else {
+        if ( ! isset( $tabSettings ) || ! is_array( $tabSettings ) ) {
             return false;
         }
-        
+
+        $newTabSettings = array();
+        foreach ( $tabSettings as $nameSettings => $valueSettings ) {
+
+            if ( $type == 3 ) {
+                $newTabSettings[ $nameSettings ] = wp_strip_all_tags( stripslashes( esc_url_raw( $valueSettings ) ) );
+            } elseif ( filter_var( $valueSettings, FILTER_VALIDATE_URL ) ) {
+                $newTabSettings[ $nameSettings ] = sanitize_url( $valueSettings );
+            } elseif ( filter_var( $valueSettings, FILTER_VALIDATE_EMAIL ) ) {
+                $newTabSettings[ $nameSettings ] = sanitize_email( $valueSettings );
+            } elseif ( $nameSettings == 'generate_pdf' || $nameSettings == 'footer_generate_pdf' || strpos( $nameSettings, 'content_addpdf_' ) !== false ) {
+                $arr = WPCF7PDF_prepare::wpcf7pdf_autorizeHtml();
+                $newTabSettings[ $nameSettings ] = wp_kses( $valueSettings, $arr );
+            } else {
+                $newTabSettings[ $nameSettings ] = sanitize_textarea_field( $valueSettings );
+            }
+            /*
+             * Vérification des incompatibilités
+             */
+            if ( $nameSettings == 'disable-insert' && $valueSettings == 'true' ) {
+                $newTabSettings['redirect-to-pdf'] = sanitize_textarea_field( 'false' );
+            }
+            if ( $nameSettings == 'redirect-to-pdf' && $valueSettings == 'true' ) {
+                $newTabSettings['pdf-file-delete'] = sanitize_textarea_field( 'false' );
+            }
+            if ( $nameSettings == 'pdf-uploads' && $valueSettings == 'false' ) {
+                $newTabSettings['pdf-uploads-delete'] = sanitize_textarea_field( 'false' );
+            }
+        }
+
+        return $newTabSettings;
+    }
+
+    /**
+     * Sanitize conditional fields map for import (same shape as admin POST handling).
+     *
+     * @param mixed $raw Decoded JSON value.
+     * @return array Empty array means “no conditions” (caller may delete_post_meta).
+     */
+    static function sanitize_conditional_fields_import( $raw ) {
+
+        if ( empty( $raw ) || ! is_array( $raw ) ) {
+            return array();
+        }
+
+        $sanitized = array();
+        foreach ( $raw as $fieldName => $condData ) {
+            if ( is_array( $condData ) && ! empty( $condData['operator'] ) ) {
+                $sanitized[ sanitize_text_field( $fieldName ) ] = array(
+                    'operator' => sanitize_text_field( $condData['operator'] ),
+                    'value'    => isset( $condData['value'] ) ? sanitize_text_field( $condData['value'] ) : '',
+                );
+            }
+        }
+
+        return $sanitized;
+    }
+
+    static function update_settings( $idForm, $tabSettings, $nameOption = '', $type = 0 ) {
+
+        if ( empty( $nameOption ) || $nameOption == '' ) {
+            return false;
+        }
+
+        $newTabSettings = self::sanitize_settings_row( $tabSettings, $type );
+        if ( $newTabSettings === false ) {
+            return false;
+        }
+
+        update_post_meta( sanitize_text_field( $idForm ), $nameOption, $newTabSettings );
+
+        return true;
     }
 
     static function wpcf7pdf_get_filesystem() {

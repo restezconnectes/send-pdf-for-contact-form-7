@@ -4,6 +4,91 @@
 .switch-field label{float:left;display:inline-block;width:60px;background-color:#e4e4e4;color:#333;font-size:14px;font-weight:400;text-align:center;text-shadow:none;padding:6px 14px;border:1px solid rgba(0,0,0,0.2);-webkit-box-shadow:inset 0 1px 3px rgba(0,0,0,0.3),0 1px rgba(255,255,255,0.1);box-shadow:inset 0 1px 3px rgba(0,0,0,0.3),0 1px rgba(255,255,255,0.1);-webkit-transition:all .1s ease-in-out;-moz-transition:all .1s ease-in-out;-ms-transition:all .1s ease-in-out;-o-transition:all .1s ease-in-out;transition:all .1s ease-in-out}
 .switch-field label:hover{cursor:pointer}
 .switch-field input:checked + label{-webkit-box-shadow:none;box-shadow:none;color:#e4e4e4}
+/* Zone destructive : reset des paramètres Send PDF */
+.switch-field-deleteconfig{
+	position:relative;
+	display:inline-block;
+	overflow:hidden;
+	padding:10px 12px 10px 2.35em;
+	margin:4px 0;
+	border-radius:12px;
+	border:2px dashed #c53030;
+	background:linear-gradient(160deg,#fff8f8 0%,#ffe8e8 45%,#fff0f0 100%);
+	box-shadow:
+		0 1px 3px rgba(153,27,27,.12),
+		inset 0 1px 0 rgba(255,255,255,.85);
+}
+.switch-field-deleteconfig::before{
+	content:"\26A0\FE0F";
+	position:absolute;
+	left:.45em;
+	top:50%;
+	transform:translateY(-50%);
+	font-size:1.05em;
+	line-height:1;
+	filter:drop-shadow(0 0 2px rgba(197,48,48,.4));
+	pointer-events:none;
+}
+.switch-field-deleteconfig input{position:absolute!important;clip:rect(0,0,0,0);height:1px;width:1px;border:0;overflow:hidden}
+.switch-field-deleteconfig label{
+	float:left;
+	display:inline-block;
+	min-width:64px;
+	width:auto;
+	padding:8px 16px;
+	font-size:13px;
+	font-weight:600;
+	text-align:center;
+	border-radius:8px;
+	border:1px solid #cfcfcf;
+	background:linear-gradient(180deg,#f4f4f4,#e2e2e2);
+	color:#3c3c3c;
+	text-shadow:0 1px 0 rgba(255,255,255,.5);
+	box-shadow:inset 0 1px 0 rgba(255,255,255,.7),0 1px 2px rgba(0,0,0,.08);
+	transition:background .15s ease,border-color .15s ease,box-shadow .15s ease,color .15s ease,transform .12s ease;
+}
+.switch-field-deleteconfig label:first-of-type{border-radius:8px 0 0 8px}
+.switch-field-deleteconfig label:last-of-type{border-radius:0 8px 8px 0;border-left:0}
+.switch-field-deleteconfig label:hover{cursor:pointer}
+/* Option « Non » : rassurant */
+#switch_deleteconfig_no:checked+label{
+	background:linear-gradient(180deg,#34d399,#059669);
+	border-color:#047857;
+	color:#fff;
+	text-shadow:0 1px 0 rgba(0,0,0,.2);
+	box-shadow:inset 0 1px 0 rgba(255,255,255,.25),0 0 0 1px rgba(5,150,105,.35);
+}
+/* Option « Oui » : action destructive claire */
+#switch_deleteconfig:checked+label{
+	background:linear-gradient(180deg,#f87171,#b91c1c);
+	border-color:#7f1d1d;
+	color:#fff;
+	font-weight:700;
+	text-shadow:0 1px 0 rgba(0,0,0,.35);
+	box-shadow:
+		inset 0 1px 0 rgba(255,255,255,.2),
+		0 0 0 2px rgba(239,68,68,.45),
+		0 4px 14px rgba(185,28,28,.35);
+	animation:wpcf7-deleteconfig-alert 1.25s ease-in-out infinite alternate;
+}
+#switch_deleteconfig+label:hover{
+	background:linear-gradient(180deg,#fecaca,#fca5a5);
+	border-color:#ef4444;
+	color:#7f1d1d;
+	box-shadow:0 0 0 2px rgba(239,68,68,.2);
+}
+#switch_deleteconfig_no+label:hover{
+	background:linear-gradient(180deg,#d1fae5,#6ee7b7);
+	border-color:#10b981;
+	color:#064e3b;
+}
+@keyframes wpcf7-deleteconfig-alert{
+	from{box-shadow:inset 0 1px 0 rgba(255,255,255,.2),0 0 0 2px rgba(239,68,68,.35),0 3px 10px rgba(185,28,28,.25)}
+	to{box-shadow:inset 0 1px 0 rgba(255,255,255,.2),0 0 0 4px rgba(239,68,68,.2),0 4px 18px rgba(127,29,29,.4)}
+}
+@media (prefers-reduced-motion:reduce){
+	#switch_deleteconfig:checked+label{animation:none}
+}
 .switch-field-mini label{display:inline-block;text-align:center}
 .switch-field-mini{font-family:"Lucida Grande",Tahoma,Verdana,sans-serif;overflow:hidden;margin-left:auto}
 .switch-mini-title{margin-bottom:6px}

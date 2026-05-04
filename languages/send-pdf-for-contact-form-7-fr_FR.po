@@ -188,6 +188,54 @@ msgstr "Est vide"
 msgid "Import"
 msgstr "Importer"
 
+#: classes/send-pdf.php
+msgid "The import file is empty."
+msgstr "Le fichier d’import est vide."
+
+#: classes/send-pdf.php
+msgid "Invalid JSON file."
+msgstr "Fichier JSON invalide."
+
+#: classes/send-pdf.php
+msgid "Backup file is missing meta data."
+msgstr "Le fichier de sauvegarde ne contient pas les métadonnées attendues."
+
+#: classes/send-pdf.php
+msgid "Unrecognized backup format."
+msgstr "Format de sauvegarde non reconnu."
+
+#: classes/send-pdf.php
+msgid "Please upload a file to import."
+msgstr "Veuillez téléverser un fichier à importer."
+
+#: classes/send-pdf.php
+msgid "File upload failed. Please try again."
+msgstr "Échec du téléversement du fichier. Veuillez réessayer."
+
+#: classes/send-pdf.php
+msgid "The file is too large. Maximum size allowed: 8 MB."
+msgstr "Le fichier est trop volumineux. Taille maximale autorisée : 8 Mo."
+
+#: classes/send-pdf.php
+msgid "Disallowed file type. Please upload a UTF-8 JSON export from this plugin."
+msgstr "Type de fichier non autorisé. Veuillez téléverser un export JSON UTF-8 de cette extension."
+
+#: classes/send-pdf.php
+msgid "Could not read the uploaded file."
+msgstr "Impossible de lire le fichier téléversé."
+
+#: classes/send-pdf.php
+msgid "Settings imported successfully."
+msgstr "Paramètres importés avec succès."
+
+#: views/send-pdf-admin.php
+msgid "Download a JSON backup of all Send PDF options for this form: main settings, field tags, scan tags, custom tag labels, conditional rules, and listing limit."
+msgstr "Téléchargez une sauvegarde JSON de toutes les options Send PDF pour ce formulaire : réglages principaux, balises des champs, balises de scan, libellés des balises personnalisées, règles conditionnelles et limite du listing."
+
+#: views/send-pdf-admin.php
+msgid "Restore from a JSON file created with the export above (full backup), or an older export that only contained the main settings object (only those settings will be replaced). The active form on this screen receives the import."
+msgstr "Restaurez à partir d’un fichier JSON créé avec l’export ci-dessus (sauvegarde complète), ou un ancien export qui ne contenait que l’objet des réglages principaux (seuls ces réglages seront remplacés). Le formulaire actif sur cet écran reçoit l’import."
+
 #~ msgid "Please upload a valid .json file"
 #~ msgstr "Veuillez téléverser un fichier .json valide"
 

@@ -13,9 +13,13 @@ Translations: <a href="https://translate.wordpress.org/projects/wp-plugins/send-
 <a href="https://demo.restezconnectes.fr/send-pdf-for-contact-form-7/">[Demo Here]</a>
 <a href="https://restezconnectes.fr/tutoriel-wordpress-lextension-send-pdf-for-contact-form-7/">[Tutorial Here]</a>
 
-Current Version:  1.0.3.9
+Current Version:  1.0.4.0
 
 == Changelog ==
+
+= 1.0.4.0 = 
+* Fixed bug with Import / Export settings
+* Fixed bug with delete all settings
 
 = 1.0.3.9 = 
 * Adding conditionnal field [if TAG]Your text [TAG].[else]Your text [TAG][/if] or  [if TAG]Your text [TAG].[/if]
@@ -54,71 +58,6 @@ Current Version:  1.0.3.9
 = 1.0.3.0 = 
 * Fix bug deleting PDF
 * Fix bug error array() tag free_text
-
-= 1.0.2.9 = 
-* Fix bug preview PDF
-* Fix bug button activate conditional possibility
-* Tag with free_text now compatible
-
-= 1.0.2.8 = 
-* Adding option for multi PDF
-* Adding conditional possibility
-* Fix bug disable display empty data
-* Adding [wpcf7pdf_data tag=""] shortcode for personalize return page after sending form
-
-= 1.0.2.7 = 
-* Adding option for displaying textarea fields
-* Change cols value at 100% for textarea fields
-* Adding Fields Matching for CSV
-* Fix bug CSV encoding
-* Personalize Fields for CSV file
-
-= 1.0.2.6 = 
-* Fix bug form filled
-* Fix bug preview images in PDF
-
-= 1.0.2.5 = 
-* Fix bug open PDF after sending email
-
-= 1.0.2.4 = 
-* Fix bug with line break on PDF
-* Secure plugin
-
-= 1.0.2.3 = 
-* Fix bug format textarea CSV
-* Secure plugin
-
-= 1.0.2.2 = 
-* Fix bug format text
-
-= 1.0.2.1 = 
-* Fix bug for shortcode prices
-* Delete HTML for tags 'select'
-
-= 1.0.2.0 = 
-* Modify generate ID length for reference
-
-= 1.0.1.9 = 
-* Fix bug redirect PDF
-* Fix bug footer PDF
-* Adding Custom Fonts is now ready
-* Adding shortcode for prices
-
-= 1.0.1.8 = 
-* Fix bug with line break on PDF
-
-= 1.0.1.7 =
-* Fix bug and defined constants WPCF7_ADMIN_READ_CAPABILITY / WPCF7_ADMIN_READ_WRITE_CAPABILITY
-* Fix bug redirection page after sending form
-* Fix bug "Desactivate line break auto" option reversed
-* Adding a option for desactivated line break for mail content
-
-= 1.0.1.6 =
-* Fix bug headers with or without [addpage] shortcode
-
-= 1.0.1.5 =
-* Adding tag compatible [_format_{field name} "{date format}"]
-
 
 
 ## Installation

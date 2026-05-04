@@ -46,6 +46,7 @@ class cf7_sendpdf {
         add_action( 'admin_enqueue_scripts', array( $this, 'wpcf7pdf_codemirror_enqueue_scripts' ) );
         add_filter( 'plugin_action_links', array( $this, 'wpcf7pdf_plugin_actions' ), 10, 2 );
         add_action( 'admin_head', array( $this, 'wpcf7pdf_admin_head' ) );
+        add_action( 'admin_init', array( $this, 'wpcf7pdf_process_delete_config' ), 1 );
         add_action( 'admin_init', array( $this, 'wpcf7pdf_process_settings_import' ) );
         add_action( 'admin_init', array( $this, 'wpcf7pdf_process_settings_export' ) );
         add_action( 'wpcf7_before_send_mail', array( $this, 'wpcf7pdf_send_pdf' ) );
@@ -239,99 +240,351 @@ class cf7_sendpdf {
 
     }
     
-     /**
-     * Process a settings export that generates a .json file of the erident settings
+    /**
+     * Reset Send PDF metas for a form and redirect (must run on admin_init before any HTML output).
      */
-    function wpcf7pdf_process_settings_export() {
+    function wpcf7pdf_process_delete_config() {
 
-        if(empty( $_POST['wpcf7_action']) || 'export_settings' != $_POST['wpcf7_action'])
+        if ( empty( $_POST['action'] ) || 'update' !== $_POST['action'] ) {
             return;
-
-        if(!wp_verify_nonce($_POST['wpcf7_export_nonce'], 'go_export_nonce' ))
+        }
+        if ( empty( $_POST['deleteconfig'] ) || 'true' !== $_POST['deleteconfig'] ) {
             return;
-
-        if(!current_user_can('manage_options') )
+        }
+        if ( empty( $_POST['security-sendform'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['security-sendform'] ) ), 'go-sendform' ) ) {
             return;
+        }
+        if ( empty( $_POST['idform'] ) || ! is_numeric( $_POST['idform'] ) || (int) $_POST['idform'] < 1 ) {
+            return;
+        }
+        if ( ! current_user_can( 'manage_options' ) ) {
+            return;
+        }
 
-        if(empty($_POST['wpcf7pdf_export_id']))
-        return;
+        $form_id = (int) $_POST['idform'];
 
-        $settings = get_post_meta(sanitize_text_field($_POST['wpcf7pdf_export_id']), '_wp_cf7pdf', true);
+        delete_post_meta( $form_id, '_wp_cf7pdf' );
+        delete_post_meta( $form_id, '_wp_cf7pdf_fields' );
+        delete_post_meta( $form_id, '_wp_cf7pdf_fields_scan' );
+        delete_post_meta( $form_id, '_wp_cf7pdf_customtagsname' );
+        delete_post_meta( $form_id, '_wp_cf7pdf_conditionalfieldsname' );
+        delete_post_meta( $form_id, '_wp_cf7pdf_limit' );
 
-        ignore_user_abort(true);
-
-        nocache_headers();
-        header('Content-Type: application/json; charset=utf-8');
-        header('Content-Disposition: attachment; filename=wpcf7pdf-settings-export-'.esc_html($_POST['wpcf7pdf_export_id']).'-'.gmdate('m-d-Y').'.json');
-        header("Expires: 0");
-
-        echo wp_json_encode($settings);
+        wp_safe_redirect( admin_url( 'admin.php?page=wpcf7-send-pdf&deleted=1' ) );
         exit;
     }
 
     /**
-     * Process a settings import from a json file
+     * Post meta keys included in a full Send PDF backup (per Contact Form 7 post).
+     *
+     * @return string[]
+     */
+    private function wpcf7pdf_backup_meta_keys() {
+        $keys = array(
+            '_wp_cf7pdf',
+            '_wp_cf7pdf_fields',
+            '_wp_cf7pdf_fields_scan',
+            '_wp_cf7pdf_customtagsname',
+            '_wp_cf7pdf_conditionalfieldsname',
+            '_wp_cf7pdf_limit',
+        );
+
+        /**
+         * Filter the list of post meta keys exported/imported for a form backup.
+         *
+         * @param string[] $keys Meta keys (must stay post meta names, e.g. prefixed with _wp_cf7pdf).
+         */
+        return apply_filters( 'wpcf7pdf_backup_meta_keys', $keys );
+    }
+
+    /**
+     * Build the JSON-serializable backup payload for one CF7 form ID.
+     *
+     * @param int $form_id Post ID of the wpcf7_contact_form.
+     * @return array
+     */
+    private function wpcf7pdf_build_full_backup_package( $form_id ) {
+        $form_id = (int) $form_id;
+        $meta    = array();
+        foreach ( $this->wpcf7pdf_backup_meta_keys() as $key ) {
+            $meta[ $key ] = get_post_meta( $form_id, $key, true );
+        }
+
+        return array(
+            'wpcf7_send_pdf_backup' => array(
+                'version'        => 2,
+                'plugin_version' => defined( 'WPCF7PDF_VERSION' ) ? WPCF7PDF_VERSION : '',
+                'exported_at'    => gmdate( 'c' ),
+                'source_form_id' => $form_id,
+                'meta'           => $meta,
+            ),
+        );
+    }
+
+    /**
+     * Decode backup JSON: full package (v2) or legacy root object (= _wp_cf7pdf only).
+     *
+     * @param string $raw File contents.
+     * @return array{meta: array<string,mixed>, legacy: bool}|array{error: string}
+     */
+    private function wpcf7pdf_parse_backup_file_contents( $raw ) {
+        $raw = is_string( $raw ) ? trim( $raw ) : '';
+        if ( '' === $raw ) {
+            return array( 'error' => esc_html__( 'The import file is empty.', 'send-pdf-for-contact-form-7' ) );
+        }
+
+        $data = json_decode( $raw, true );
+        if ( JSON_ERROR_NONE !== json_last_error() || null === $data ) {
+            return array( 'error' => esc_html__( 'Invalid JSON file.', 'send-pdf-for-contact-form-7' ) );
+        }
+
+        if ( isset( $data['wpcf7_send_pdf_backup'] ) && is_array( $data['wpcf7_send_pdf_backup'] ) ) {
+            $inner = $data['wpcf7_send_pdf_backup'];
+            if ( ! isset( $inner['meta'] ) || ! is_array( $inner['meta'] ) ) {
+                return array( 'error' => esc_html__( 'Backup file is missing meta data.', 'send-pdf-for-contact-form-7' ) );
+            }
+            $allowed = $this->wpcf7pdf_backup_meta_keys();
+            $meta    = array();
+            foreach ( $allowed as $key ) {
+                $meta[ $key ] = array_key_exists( $key, $inner['meta'] ) ? $inner['meta'][ $key ] : false;
+            }
+
+            return array( 'meta' => $meta, 'legacy' => false );
+        }
+
+        if ( ! is_array( $data ) ) {
+            return array( 'error' => esc_html__( 'Unrecognized backup format.', 'send-pdf-for-contact-form-7' ) );
+        }
+
+        return array(
+            'meta'   => array( '_wp_cf7pdf' => $data ),
+            'legacy' => true,
+        );
+    }
+
+    /**
+     * Persist imported meta on the target form (sanitized).
+     *
+     * @param int                  $target_form_id Destination CF7 post ID.
+     * @param array<string,mixed>  $meta           Key => value as decoded from JSON.
+     * @param bool                 $legacy         If true, only _wp_cf7pdf is applied when present.
+     */
+    private function wpcf7pdf_apply_imported_meta( $target_form_id, $meta, $legacy ) {
+        $target_form_id = (int) $target_form_id;
+
+        foreach ( $this->wpcf7pdf_backup_meta_keys() as $key ) {
+            if ( $legacy && '_wp_cf7pdf' !== $key ) {
+                continue;
+            }
+            if ( ! array_key_exists( $key, $meta ) ) {
+                continue;
+            }
+
+            $val = $meta[ $key ];
+
+            switch ( $key ) {
+                case '_wp_cf7pdf':
+                    $row = is_array( $val ) ? $val : array();
+                    $san = WPCF7PDF_settings::sanitize_settings_row( $row );
+                    if ( false === $san ) {
+                        $san = array();
+                    }
+                    update_post_meta( $target_form_id, '_wp_cf7pdf', $san );
+                    break;
+
+                case '_wp_cf7pdf_fields':
+                case '_wp_cf7pdf_fields_scan':
+                case '_wp_cf7pdf_customtagsname':
+                    if ( false === $val || null === $val || '' === $val ) {
+                        delete_post_meta( $target_form_id, $key );
+                        break;
+                    }
+                    if ( ! is_array( $val ) ) {
+                        delete_post_meta( $target_form_id, $key );
+                        break;
+                    }
+                    $san = WPCF7PDF_settings::sanitize_settings_row( $val );
+                    if ( false === $san || array() === $san ) {
+                        delete_post_meta( $target_form_id, $key );
+                    } else {
+                        update_post_meta( $target_form_id, $key, $san );
+                    }
+                    break;
+
+                case '_wp_cf7pdf_conditionalfieldsname':
+                    if ( false === $val || null === $val || '' === $val ) {
+                        delete_post_meta( $target_form_id, $key );
+                        break;
+                    }
+                    $san = WPCF7PDF_settings::sanitize_conditional_fields_import( $val );
+                    if ( array() === $san ) {
+                        delete_post_meta( $target_form_id, $key );
+                    } else {
+                        update_post_meta( $target_form_id, $key, $san );
+                    }
+                    break;
+
+                case '_wp_cf7pdf_limit':
+                    if ( false === $val || null === $val || '' === $val ) {
+                        delete_post_meta( $target_form_id, $key );
+                        break;
+                    }
+                    update_post_meta( $target_form_id, $key, sanitize_text_field( (string) $val ) );
+                    break;
+
+                default:
+                    if ( 0 !== strpos( $key, '_wp_cf7pdf' ) ) {
+                        break;
+                    }
+                    if ( false === $val || null === $val || '' === $val ) {
+                        delete_post_meta( $target_form_id, $key );
+                        break;
+                    }
+                    if ( is_array( $val ) ) {
+                        $san = WPCF7PDF_settings::sanitize_settings_row( $val );
+                        if ( false === $san || array() === $san ) {
+                            delete_post_meta( $target_form_id, $key );
+                        } else {
+                            update_post_meta( $target_form_id, $key, $san );
+                        }
+                    } else {
+                        update_post_meta( $target_form_id, $key, sanitize_text_field( (string) $val ) );
+                    }
+                    break;
+            }
+        }
+    }
+
+    /**
+     * Export all Send PDF metas for the current form as a JSON backup file.
+     */
+    function wpcf7pdf_process_settings_export() {
+
+        if ( empty( $_POST['wpcf7_action'] ) || 'export_settings' !== $_POST['wpcf7_action'] ) {
+            return;
+        }
+
+        if ( ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['wpcf7_export_nonce'] ) ), 'go_export_nonce' ) ) {
+            return;
+        }
+
+        if ( ! current_user_can( 'manage_options' ) ) {
+            return;
+        }
+
+        if ( empty( $_POST['wpcf7pdf_export_id'] ) ) {
+            return;
+        }
+
+        $form_id = (int) sanitize_text_field( wp_unslash( $_POST['wpcf7pdf_export_id'] ) );
+        $package = $this->wpcf7pdf_build_full_backup_package( $form_id );
+
+        ignore_user_abort( true );
+
+        nocache_headers();
+        header( 'Content-Type: application/json; charset=utf-8' );
+        header( 'Content-Disposition: attachment; filename=wpcf7pdf-full-settings-export-' . $form_id . '-' . gmdate( 'm-d-Y' ) . '.json' );
+        header( 'Expires: 0' );
+
+        echo wp_json_encode( $package, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE );
+        exit;
+    }
+
+    /**
+     * Import Send PDF metas from a JSON backup (full v2 or legacy single-object).
      */
     function wpcf7pdf_process_settings_import() {
 
-        if (empty($_POST)) return false;
-        //check_admin_referer('wpcf7_import_nonce');
+        if ( empty( $_POST ) ) {
+            return false;
+        }
 
-        if(empty($_POST['wpcf7_action']) || 'import_settings' != $_POST['wpcf7_action'])
+        if ( empty( $_POST['wpcf7_action'] ) || 'import_settings' !== $_POST['wpcf7_action'] ) {
             return;
+        }
 
-        if(!wp_verify_nonce( $_POST['wpcf7_import_nonce'], 'go_import_nonce' ))
+        if ( ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['wpcf7_import_nonce'] ) ), 'go_import_nonce' ) ) {
             return;
+        }
 
-        if(!current_user_can( 'manage_options'))
+        if ( ! current_user_can( 'manage_options' ) ) {
             return;
-
-        if(empty($_POST['wpcf7pdf_import_id']))
-        return;
-
-        // Vérification de la taille maximale (2MB)
-        $max_size = 2 * 1024 * 1024;
-        if ($_FILES['wpcf7_import_file']['size'] > $max_size) {
-            wp_die(esc_html__('Le fichier est trop volumineux. Taille maximale autorisée : 2MB', 'send-pdf-for-contact-form-7'));
         }
 
-        $extension = strtolower(pathinfo($_FILES['wpcf7_import_file']['name'], PATHINFO_EXTENSION));
-        if($extension != 'json') {
-            wp_die( esc_html__( 'Please upload a valid .json file', 'send-pdf-for-contact-form-7' ) );
-        }
-        // Vérification du type MIME
-        $finfo = finfo_open(FILEINFO_MIME_TYPE);
-        $mime_type = finfo_file($finfo, $_FILES['wpcf7_import_file']['tmp_name']);
-        finfo_close($finfo);
-        if ($mime_type !== 'application/json') {
-            wp_die(esc_html__('Type de fichier non autorisé. Seuls les fichiers JSON sont acceptés.', 'send-pdf-for-contact-form-7'));
+        if ( empty( $_POST['wpcf7pdf_import_id'] ) ) {
+            return;
         }
 
-        $import_file = $_FILES['wpcf7_import_file']['tmp_name'];
-
-        if(empty($import_file) ) {
-            wp_die( esc_html__( 'Please upload a file to import', 'send-pdf-for-contact-form-7' ) );
+        if ( ! function_exists( 'wp_handle_sideload' ) ) {
+            require_once ABSPATH . 'wp-admin/includes/file.php';
         }
 
-        $import = ! empty( $_FILES['wpcf7_import_file'] ) && is_array( $_FILES['wpcf7_import_file'] ) && isset( $_FILES['wpcf7_import_file']['type'], $_FILES['wpcf7_import_file']['name'] ) ? $_FILES['wpcf7_import_file'] : array();
+        if ( empty( $_FILES['wpcf7_import_file'] ) || ! is_array( $_FILES['wpcf7_import_file'] ) ) {
+            wp_die( esc_html__( 'Please upload a file to import.', 'send-pdf-for-contact-form-7' ) );
+        }
 
-        $_post_action    = isset($_POST['wpcf7_action']) ? $_POST['wpcf7_action'] : '';
-        $_POST['action'] = 'wp_handle_sideload';
-        $file            = wp_handle_sideload( $import, array( 'mimes' => array( 'json' => 'application/json' ) ) );
+        $file = $_FILES['wpcf7_import_file'];
+        if ( ! isset( $file['error'] ) || UPLOAD_ERR_OK !== (int) $file['error'] || empty( $file['tmp_name'] ) ) {
+            wp_die( esc_html__( 'File upload failed. Please try again.', 'send-pdf-for-contact-form-7' ) );
+        }
+
+        $max_size = 8 * 1024 * 1024;
+        if ( isset( $file['size'] ) && (int) $file['size'] > $max_size ) {
+            wp_die( esc_html__( 'The file is too large. Maximum size allowed: 8 MB.', 'send-pdf-for-contact-form-7' ) );
+        }
+
+        $extension = strtolower( pathinfo( isset( $file['name'] ) ? $file['name'] : '', PATHINFO_EXTENSION ) );
+        if ( 'json' !== $extension ) {
+            wp_die( esc_html__( 'Please upload a valid .json file.', 'send-pdf-for-contact-form-7' ) );
+        }
+
+        $allowed_mimes = array( 'application/json', 'text/plain', 'text/json', 'application/octet-stream' );
+        if ( function_exists( 'finfo_open' ) ) {
+            $finfo     = finfo_open( FILEINFO_MIME_TYPE );
+            $mime_type = $finfo ? finfo_file( $finfo, $file['tmp_name'] ) : '';
+            if ( $finfo ) {
+                finfo_close( $finfo );
+            }
+            if ( $mime_type && ! in_array( $mime_type, $allowed_mimes, true ) ) {
+                wp_die( esc_html__( 'Disallowed file type. Please upload a UTF-8 JSON export from this plugin.', 'send-pdf-for-contact-form-7' ) );
+            }
+        }
+
+        $_post_action     = isset( $_POST['wpcf7_action'] ) ? sanitize_text_field( wp_unslash( $_POST['wpcf7_action'] ) ) : '';
+        $_POST['action']  = 'wp_handle_sideload';
+        $sideloaded       = wp_handle_sideload(
+            $file,
+            array(
+                'mimes' => array(
+                    'json' => 'application/json',
+                ),
+            )
+        );
         $_POST['action'] = $_post_action;
-        if ( ! isset( $file['file'] ) ) {
-            return;
+
+        if ( ! empty( $sideloaded['error'] ) ) {
+            wp_die( esc_html( $sideloaded['error'] ) );
         }
-        $filesystem      = WPCF7PDF_settings::wpcf7pdf_get_filesystem();
-        $settings        = $filesystem->get_contents( $file['file'] );
-	    $settings        = maybe_unserialize( $settings );
 
-        // Retrieve the settings from the file and convert the json object to an array.
-        $settings = (array) json_decode($settings);
-        update_post_meta(sanitize_text_field($_POST['wpcf7pdf_import_id']), '_wp_cf7pdf', $settings);
+        if ( empty( $sideloaded['file'] ) || ! is_readable( $sideloaded['file'] ) ) {
+            wp_die( esc_html__( 'Could not read the uploaded file.', 'send-pdf-for-contact-form-7' ) );
+        }
 
-        echo '<div id="message" class="updated fade"><p><strong>' . esc_html__('New settings imported successfully!', 'send-pdf-for-contact-form-7') . '</strong></p></div>';
+        $filesystem = WPCF7PDF_settings::wpcf7pdf_get_filesystem();
+        $raw        = $filesystem->get_contents( $sideloaded['file'] );
+        if ( is_string( $sideloaded['file'] ) && file_exists( $sideloaded['file'] ) ) {
+            wp_delete_file( $sideloaded['file'] );
+        }
 
+        $parsed = $this->wpcf7pdf_parse_backup_file_contents( $raw );
+        if ( isset( $parsed['error'] ) ) {
+            wp_die( $parsed['error'] );
+        }
+
+        $target_id = (int) sanitize_text_field( wp_unslash( $_POST['wpcf7pdf_import_id'] ) );
+        $this->wpcf7pdf_apply_imported_meta( $target_id, $parsed['meta'], ! empty( $parsed['legacy'] ) );
+
+        echo '<div id="message" class="updated fade"><p><strong>' . esc_html__( 'Settings imported successfully.', 'send-pdf-for-contact-form-7' ) . '</strong></p></div>';
     }
     
     function wpcf7pdf_dashboard_html_page() {
