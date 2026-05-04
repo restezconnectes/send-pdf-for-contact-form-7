@@ -349,7 +349,7 @@ class WPCF7PDF_generate extends cf7_sendpdf {
             
             // Conditions pour copier le fichier CSV
             $fileExists = file_exists($sourceFile);
-            $databseDisabled = empty($meta_values["pdf-disable-insert"]) || $meta_values["pdf-disable-insert"] === "fasle";
+            $databseDisabled = empty($meta_values["pdf-disable-insert"]) || $meta_values["pdf-disable-insert"] === "false";
             
             if( $fileExists && $databseDisabled ) {
                 copy($sourceFile, $destFile);
