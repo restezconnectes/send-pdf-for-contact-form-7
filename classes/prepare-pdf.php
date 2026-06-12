@@ -761,7 +761,7 @@ class WPCF7PDF_prepare extends cf7_sendpdf {
 
                     // Affiche la liste des valeurs retournées par le formulaire
                     // $valueTag est retourné avec les valeurs et entre virgule. On dissocie cela
-                    $tabValueTag = explode(',', $valueTag);
+                    $tabValueTag = array_map('trim', explode(',', $valueTag));
                     $n = 1;
                     foreach( $tabValueTag as $sendValueTag ) {                        
 
@@ -780,8 +780,7 @@ class WPCF7PDF_prepare extends cf7_sendpdf {
 
                 } else {
 
-                    $valueTag = str_replace(' ', '', $valueTag);
-                    $tabValueTag = explode(',', $valueTag);
+                    $tabValueTag = array_map('trim', explode(',', $valueTag));
                     $nb = count($contact_tag[$found_key]['values']);
                     
                     // Si on affiche les input, checkbox et radio
@@ -849,6 +848,10 @@ class WPCF7PDF_prepare extends cf7_sendpdf {
                     }
                    
                         
+                }
+
+				if ($tagSeparateAfter !== '' && substr($inputCheckbox, -strlen($tagSeparateAfter)) === $tagSeparateAfter) {
+                    $inputCheckbox = substr($inputCheckbox, 0, -strlen($tagSeparateAfter));
                 }
 
                 // Affiche la liste des valeurs retournées par le formulaire
@@ -936,6 +939,10 @@ class WPCF7PDF_prepare extends cf7_sendpdf {
                         $i++;
 
                     }
+                }
+
+				if ($tagSeparateAfter !== '' && substr($inputRadio, -strlen($tagSeparateAfter)) === $tagSeparateAfter) {
+                    $inputRadio = substr($inputRadio, 0, -strlen($tagSeparateAfter));
                 }
 
                 $contentPdf = str_replace(esc_html($name_tags[0]), $inputRadio, $contentPdf);
