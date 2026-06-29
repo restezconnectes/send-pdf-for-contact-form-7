@@ -522,22 +522,22 @@ class WPCF7PDF_prepare extends cf7_sendpdf {
         if ( isset($preview) && ($preview == 1 || $preview == 2) ) {
             // Remplace le tag ID
             $contentPdf = str_replace('[ID]', '000'.gmdate('md'), $contentPdf);
-            if (isset($meta_values['data_input']) && $meta_values['data_input']== 'true') {
+            if (isset($meta_values['data_textarea']) && $meta_values['data_textarea']== 'true') {
                 $contentPdf = str_replace('[your-name]', '<input type="text" class="wpcf7-text" size="80" name="your-name" value="Doe" />', $contentPdf);
             } else {
                 $contentPdf = str_replace('[your-name]', 'Doe', $contentPdf);
             }
-            if (isset($meta_values['data_input']) && $meta_values['data_input']== 'true') {
+            if (isset($meta_values['data_textarea']) && $meta_values['data_textarea']== 'true') {
                 $contentPdf = str_replace('[your-firstname]', '<input type="text" class="wpcf7-text" size="80" name="your-firstname" value="John" />', $contentPdf);
             } else {
                 $contentPdf = str_replace('[your-firstname]', 'John', $contentPdf);
             }
-            if (isset($meta_values['data_input']) && $meta_values['data_input']== 'true') {
+            if (isset($meta_values['data_textarea']) && $meta_values['data_textarea']== 'true') {
                 $contentPdf = str_replace('[your-email]', '<input type="text" class="wpcf7-text" size="80" name="your-email" value="johndoe@nowhere.com" />', $contentPdf);
             } else {
                 $contentPdf = str_replace('[your-email]', 'John', $contentPdf);
             }
-            if (isset($meta_values['data_input']) && $meta_values['data_input']== 'true') {
+            if (isset($meta_values['data_textarea']) && $meta_values['data_textarea']== 'true') {
                 $contentPdf = str_replace('[your-subject]', '<input type="text" class="wpcf7-text" name="your-subject" size="80" value="'.__("This is a subject test!", 'send-pdf-for-contact-form-7').'" />', $contentPdf);
             } else {
                 $contentPdf = str_replace('[your-subject]', __("This is a subject test!", 'send-pdf-for-contact-form-7'), $contentPdf);
@@ -634,7 +634,7 @@ class WPCF7PDF_prepare extends cf7_sendpdf {
                 if( (isset($meta_values['empty_input']) && $meta_values['empty_input']=='true') && $valueTag=='' ) {
                     $contentPdf = str_replace(esc_html($name_tags[0]), '', $contentPdf);
                 } else {
-                    if (isset($meta_values['data_input']) && $meta_values['data_input']== 'true') {                        
+                    if (isset($meta_values['data_textarea']) && $meta_values['data_textarea']== 'true') {
                         $contentPdf = str_replace(esc_html($name_tags[0]), '<input type="email" style="max-width:100%;" name="'.$name_tags[1].'" value="'.esc_html($valueTag).'" />', $contentPdf);                        
                     } else {
                         $contentPdf = str_replace(esc_html($name_tags[0]), esc_html($valueTag), $contentPdf);
@@ -657,7 +657,7 @@ class WPCF7PDF_prepare extends cf7_sendpdf {
                 if( (isset($meta_values['empty_input']) && $meta_values['empty_input']=='true') && $valueTag=='' ) {
                     $contentPdf = str_replace(esc_html($name_tags[0]), '', $contentPdf);
                 } else {
-                    if (isset($meta_values['data_input']) && $meta_values['data_input']== 'true') {                        
+                    if (isset($meta_values['data_textarea']) && $meta_values['data_textarea']== 'true') {
                         $contentPdf = str_replace(esc_html($name_tags[0]), '<input type="color" name="'.$name_tags[1].'" value="'.esc_html($valueTag).'"> <span style="width:10px;height:10px;background-color:'.esc_html($valueTag).';">&nbsp;&nbsp;&nbsp;</span>', $contentPdf);                        
                     } else {
                         $contentPdf = str_replace(esc_html($name_tags[0]), esc_html($valueTag), $contentPdf);
@@ -702,7 +702,7 @@ class WPCF7PDF_prepare extends cf7_sendpdf {
                     $valueTag = str_replace("\r\n", "<br />", $valueTag);
                 } 
                 if( $emptyTextareaInput == 0 ) {
-                    if (isset($meta_values['data_input']) && $meta_values['data_input']== 'true') {                    
+                    if (isset($meta_values['data_textarea']) && $meta_values['data_textarea']== 'true') {
                         $contentPdf = str_replace(esc_html($name_tags[0]), '<textarea cols="40" rows="10" name="'.$name_tags[1].'">'.$valueTag.'</textarea>', $contentPdf);        
                     } else {                    
                         $contentPdf = str_replace(esc_html($name_tags[0]), $valueTag, $contentPdf);
@@ -733,7 +733,7 @@ class WPCF7PDF_prepare extends cf7_sendpdf {
                 if( (isset($meta_values['empty_input']) && $meta_values['empty_input']=='true') && $valueTag=='' ) {
                     $contentPdf = str_replace(esc_html($name_tags[0]), '', $contentPdf);
                 } else {
-                    if (isset($meta_values['data_input']) && $meta_values['data_input']== 'true') {                        
+                    if (isset($meta_values['data_textarea']) && $meta_values['data_textarea']== 'true') {
                         $contentPdf = str_replace(esc_html($name_tags[0]), '<input type="text" style="max-width:100%;" name="'.$name_tags[1].'" value="'.esc_html($valueTag).'">', $contentPdf);                        
                     } else {
                         $contentPdf = str_replace(esc_html($name_tags[0]), esc_html($valueTag), $contentPdf);
