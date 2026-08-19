@@ -4,7 +4,7 @@ Donate link: https://www.paypal.me/RestezConnectes/
 Tags: contact form 7, pdf, send, attachment, form
 Requires at least: 5.2
 Tested up to: 6.9
-Stable tag: 1.0.3.10
+Stable tag: 1.0.3.11
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -52,6 +52,11 @@ Yes. If you want, you can support this project here: <a href="https://restezconn
 
 
 == Changelog ==
+
+= 1.0.3.11 =
+* **Security:** Fixed critical PHP Object Injection (CWE-502) in stored form submission data. Submission values are now stored as JSON (`wp_json_encode`) instead of PHP `serialize()`, and public/admin reads no longer use unrestricted `unserialize()`.
+* **Security:** Removed `sanitize_textarea_field()` on serialized submission blobs, which could corrupt length prefixes and enable crafted payload injection.
+* **Compatibility:** Legacy rows stored with PHP `serialize()` are still readable via a safe fallback (`allowed_classes => false`) with strict scalar-array validation.
 
 = 1.0.3.10 = 
 * Fixed bug with Import / Export settings
