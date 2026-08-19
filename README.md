@@ -13,9 +13,14 @@ Translations: <a href="https://translate.wordpress.org/projects/wp-plugins/send-
 <a href="https://demo.restezconnectes.fr/send-pdf-for-contact-form-7/">[Demo Here]</a>
 <a href="https://restezconnectes.fr/tutoriel-wordpress-lextension-send-pdf-for-contact-form-7/">[Tutorial Here]</a>
 
-Current Version:  1.0.3.10
+Current Version:  1.0.3.11
 
 == Changelog ==
+
+= 1.0.3.11 =
+* **Security:** Fixed critical PHP Object Injection (CWE-502) in stored form submission data. Submission values are now stored as JSON (`wp_json_encode`) instead of PHP `serialize()`, and public/admin reads no longer use unrestricted `unserialize()`.
+* **Security:** Removed `sanitize_textarea_field()` on serialized submission blobs, which could corrupt length prefixes and enable crafted payload injection.
+* **Compatibility:** Legacy rows stored with PHP `serialize()` are still readable via a safe fallback (`allowed_classes => false`) with strict scalar-array validation.
 
 = 1.0.3.10 = 
 * Fixed bug with Import / Export settings

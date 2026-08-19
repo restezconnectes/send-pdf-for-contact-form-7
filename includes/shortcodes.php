@@ -105,7 +105,10 @@ function wpcf7pdf_return_data( $atts ) {
                         $lignes = array();
                         $list = array();
                         $meta_fields = get_post_meta( intval($infos->wpcf7pdf_id_form), '_wp_cf7pdf_fields', true );
-                        $valueData = unserialize($infos->wpcf7pdf_data);
+                        $valueData = cf7_sendpdf::wpcf7pdf_decode_submission_data( $infos->wpcf7pdf_data );
+                        if ( false === $valueData ) {
+                            return '';
+                        }
 
                         foreach($meta_fields as $nb => $field) {
                             preg_match_all( '#\[(.*?)\]#', $field, $nameField );

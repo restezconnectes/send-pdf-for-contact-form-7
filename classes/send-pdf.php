@@ -744,6 +744,78 @@ class cf7_sendpdf {
 
     }
 
+    /**
+     * Encode form submission row data for DB storage (JSON, flat scalar list only).
+     *
+     * @param array $data Indexed list of submission values.
+     * @return string|false JSON string or false when input is invalid.
+     */
+    public static function wpcf7pdf_encode_submission_data( $data ) {
+        if ( ! is_array( $data ) ) {
+            return false;
+        }
+
+        $safe = array();
+        foreach ( $data as $value ) {
+            if ( is_scalar( $value ) || null === $value ) {
+                $safe[] = ( null === $value ) ? '' : (string) $value;
+            } else {
+                $safe[] = '';
+            }
+        }
+
+        return wp_json_encode( $safe );
+    }
+
+    /**
+     * Validate decoded submission row data (flat list of scalars only).
+     *
+     * @param mixed $data Decoded payload.
+     * @return array|false
+     */
+    private static function wpcf7pdf_validate_submission_data( $data ) {
+        if ( ! is_array( $data ) ) {
+            return false;
+        }
+
+        $safe = array();
+        foreach ( $data as $value ) {
+            if ( is_object( $value ) || is_array( $value ) ) {
+                return false;
+            }
+            $safe[] = is_scalar( $value ) ? (string) $value : '';
+        }
+
+        return $safe;
+    }
+
+    /**
+     * Decode stored submission row data (JSON preferred; legacy PHP serialize without objects).
+     *
+     * @param string $raw Raw DB value.
+     * @return array|false
+     */
+    public static function wpcf7pdf_decode_submission_data( $raw ) {
+        if ( ! is_string( $raw ) || '' === $raw ) {
+            return false;
+        }
+
+        $decoded = json_decode( $raw, true );
+        if ( JSON_ERROR_NONE === json_last_error() && is_array( $decoded ) ) {
+            return self::wpcf7pdf_validate_submission_data( $decoded );
+        }
+
+        // Legacy rows written with serialize() by older plugin versions.
+        if ( preg_match( '/^[aOs]:\d/', $raw ) ) {
+            $decoded = @unserialize( $raw, array( 'allowed_classes' => false ) ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_unserialize
+            if ( is_array( $decoded ) ) {
+                return self::wpcf7pdf_validate_submission_data( $decoded );
+            }
+        }
+
+        return false;
+    }
+
     function save($id, $data, $reference='-', $file = '', $file2 = '') {
 
         global $wpdb;
@@ -752,9 +824,13 @@ class cf7_sendpdf {
         if( isset($meta_values["pdf-name"]) && !empty($meta_values["pdf-name"]) ) {
             $namePDF = esc_html(trim($meta_values["pdf-name"]));
             $namePDF = str_replace(' ', '-', $namePDF);
+            $encoded_data = self::wpcf7pdf_encode_submission_data( $data );
+            if ( false === $encoded_data ) {
+                return;
+            }
             $dataTab = array(
                 'wpcf7pdf_id_form' => sanitize_text_field($id),
-                'wpcf7pdf_data' => sanitize_textarea_field($data),
+                'wpcf7pdf_data' => $encoded_data,
                 'wpcf7pdf_reference' => $reference,
                 'wpcf7pdf_files' => sanitize_url($file),
                 'wpcf7pdf_files2' => sanitize_url($file2)
@@ -1192,7 +1268,7 @@ class cf7_sendpdf {
                     } else {
                         $saveCsv = '';
                     }
-                    $insertPost = $this->save($post['_wpcf7'], serialize($csvTab), $referencePDF, esc_url(str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $createDirectory ).'/'.$nameOfPdf.'-'.$referencePDF.'.pdf'), $saveCsv);
+                    $insertPost = $this->save($post['_wpcf7'], $csvTab, $referencePDF, esc_url(str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $createDirectory ).'/'.$nameOfPdf.'-'.$referencePDF.'.pdf'), $saveCsv);
                     $contentPdf = str_replace('[ID]', $insertPost, $contentPdf);
                 }  
                 
@@ -1727,8 +1803,11 @@ class cf7_sendpdf {
 
                 foreach( $pdfFormList as $pdfList) {
                     $list = array();
-                    $pdfData = unserialize($pdfList->wpcf7pdf_data);
-                    
+                    $pdfData = self::wpcf7pdf_decode_submission_data( $pdfList->wpcf7pdf_data );
+                    if ( false === $pdfData ) {
+                        continue;
+                    }
+
                     array_push($list, $createDirectory.'/'.$nameOfPdf.'-'.$pdfData[0].'.pdf');
                     foreach($pdfData as $data) {
                         $data = html_entity_decode($data);

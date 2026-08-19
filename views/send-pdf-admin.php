@@ -1770,8 +1770,8 @@ if ( is_dir(get_stylesheet_directory()."/pdffonts/") == true ) {
 
                         foreach($list as $recorder) {
                             echo '<tr width="100%">';
-                            $datas = maybe_unserialize($recorder->wpcf7pdf_data);
-                            if( isset($datas) && $datas!=false) {
+                            $datas = cf7_sendpdf::wpcf7pdf_decode_submission_data( $recorder->wpcf7pdf_data );
+                            if( false !== $datas ) {
                                 echo '<td width="10%">';
                                 echo '<a href="'.esc_url($recorder->wpcf7pdf_files).'" target="_blank">'.esc_html($datas[0]) .'</a>';                                
                                 echo '</td>'; 
