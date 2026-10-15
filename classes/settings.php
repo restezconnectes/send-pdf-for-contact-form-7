@@ -184,7 +184,8 @@ class WPCF7PDF_settings extends cf7_sendpdf {
     static function truncate() {
         global $wpdb;
         $table_name = $wpdb->prefix . 'wpcf7pdf_files';
-        $result = $wpdb->query($wpdb->prepare("TRUNCATE TABLE `%s`", $table_name));
+        // $table_name is built from $wpdb->prefix, not user input ; %s inside backticks would produce invalid SQL since prepare() is meant for values, not identifiers.
+        $result = $wpdb->query( "TRUNCATE TABLE `{$table_name}`" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.PreparedSQL.NotPrepared
 		if($result) {
             return true;
         }
@@ -204,7 +205,8 @@ class WPCF7PDF_settings extends cf7_sendpdf {
 
         global $wpdb;
         $table_name = $wpdb->prefix . 'wpcf7pdf_files';
-        $result = $wpdb->query($wpdb->prepare("DROP TABLE IF EXISTS `%s`", $table_name));
+        // $table_name is built from $wpdb->prefix, not user input ; %s inside backticks would produce invalid SQL since prepare() is meant for values, not identifiers.
+        $result = $wpdb->query( "DROP TABLE IF EXISTS `{$table_name}`" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.PreparedSQL.NotPrepared
         if($result) {
             return true;
         }

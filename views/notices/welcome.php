@@ -1,3 +1,6 @@
+<?php
+defined( 'ABSPATH' ) or die( 'No direct load ! ' );
+?>
 <div class="notice sendpdf-message">
     <p><?php echo __('<strong>Welcome to Send PDF for Contact Form 7</strong> - Please read <a href="https://restezconnectes.fr/tutoriel-wordpress-lextension-send-pdf-for-contact-form-7/">tutorial</a> for more information. Leave a message on the <a href="https://wordpress.org/support/plugin/send-pdf-for-contact-form-7/">WordPress support page</a> if you have a request or an idea for improvement.', 'send-pdf-for-contact-form-7' ); ?></p>
 

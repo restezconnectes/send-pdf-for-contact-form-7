@@ -1,5 +1,8 @@
 <?php
 
+defined( 'ABSPATH' )
+	or die( 'No direct load ! ' );
+
 class cf7_sendpdf {
 
     protected static $instance;
@@ -66,7 +69,7 @@ class cf7_sendpdf {
         if( isset($_GET['_wpnonce']) && wp_verify_nonce($_GET['_wpnonce'], 'csv_security') ) {
 
             $capability = apply_filters( 'wpcf7pdf_modify_capability', WPCF7_ADMIN_READ_CAPABILITY );
-            if ( isset($capability) && !empty( $capability ) ) { 
+            if ( isset($capability) && !empty( $capability ) && current_user_can( $capability ) ) {
 
                 if( isset($_GET['csv']) && intval($_GET['csv']) && $_GET['csv']==1 ) {
                     $csv_output = $this->wpcf7_export_csv( esc_html($_GET['idform']) );
@@ -107,7 +110,7 @@ class cf7_sendpdf {
 			}
 
 			$notices = get_option( 'wpcf7pdf_admin_notices', array() );
-			$notices[] = $_GET['wpcf7pdf-hide-notice'];
+			$notices[] = sanitize_text_field( wp_unslash( $_GET['wpcf7pdf-hide-notice'] ) );
 			update_option( 'wpcf7pdf_admin_notices', $notices );
 		}
 	}
@@ -132,6 +135,11 @@ class cf7_sendpdf {
     function wpcf7pdf_js_action() {
 
         global $wpdb;
+
+        if ( ! current_user_can( apply_filters( 'wpcf7pdf_modify_capability', WPCF7_ADMIN_READ_CAPABILITY ) ) ) {
+            echo 'error js action';
+            die();
+        }
 
         $id = sanitize_text_field($_POST['element_id']);
         $idform = sanitize_text_field($_POST['form_id']);
@@ -906,6 +914,12 @@ class cf7_sendpdf {
 
     }
 
+    // Le champ "wpcf7cfpdf_hidden_reference" est un champ caché modifiable côté client :
+    // on le restreint à des caractères sûrs pour éviter tout Path Traversal dans les noms de fichiers générés.
+    static function wpcf7pdf_sanitize_reference( $reference ) {
+        return substr( preg_replace( '/[^A-Za-z0-9_-]/', '', (string) $reference ), 0, 40 );
+    }
+
     function uniqidReal($lenght = 13) {
         // uniqid gives 13 chars, but you could adjust it to your needs.
         if (function_exists("random_bytes")) {
@@ -1236,7 +1250,7 @@ class cf7_sendpdf {
             }
             
             // Récupère la référence
-            $referencePDF = esc_html($post['wpcf7cfpdf_hidden_reference']);
+            $referencePDF = self::wpcf7pdf_sanitize_reference($post['wpcf7cfpdf_hidden_reference']);
             
             // Genere le nom du PDF
             $nameOfPdf = $this->wpcf7pdf_name_pdf(esc_html($post['_wpcf7']), esc_html($referencePDF));
@@ -1352,7 +1366,7 @@ class cf7_sendpdf {
             // On recupere les donnees et le nom du pdf personnalisé
             $meta_values = get_post_meta(esc_html($post['_wpcf7']), '_wp_cf7pdf', true);
             // Récupère la référence
-            $referencePDF = esc_html($post['wpcf7cfpdf_hidden_reference']);
+            $referencePDF = self::wpcf7pdf_sanitize_reference($post['wpcf7cfpdf_hidden_reference']);
             // Genere le nom du PDF
             $nameOfPdf = $this->wpcf7pdf_name_pdf(esc_html($post['_wpcf7']), esc_html($referencePDF));
             // PDF generé et envoyé
@@ -1643,7 +1657,7 @@ class cf7_sendpdf {
             // récupère le POST
             $post = $_POST; // phpcs:ignore WordPress.Security.NonceVerification.Missing
             // Récupère la référence
-            $referencePDF = esc_html($post['wpcf7cfpdf_hidden_reference']);
+            $referencePDF = self::wpcf7pdf_sanitize_reference($post['wpcf7cfpdf_hidden_reference']);
             // Genere le nom du PDF
             $nameOfPdf = $this->wpcf7pdf_name_pdf(esc_html($post['_wpcf7']), $referencePDF);
             // On récupère le dossier upload de l'extension (/sendpdfcf7_uploads/)
