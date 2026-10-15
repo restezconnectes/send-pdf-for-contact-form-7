@@ -9,7 +9,7 @@ defined( 'ABSPATH' )
  * Prepare PDF Class for Contact Form 7.
  *
  * @link https://madeby.restezconnectes.fr/project/send-pdf-for-contact-form-7/
- * @author Florent Maillefaud <contact at restezconnectes.fr> 
+ * @author Florent Maillefaud <contact at restezconnectes.fr>
  * @since 1.0.0.3
  * @license GPL3 or later
  */
@@ -17,1246 +17,1253 @@ defined( 'ABSPATH' )
 class WPCF7PDF_prepare extends cf7_sendpdf {
 
 
-    public static function shortcodes($shotcodes_tags='', $contentPdf = '') {
-        
-        // Shortcodes?
-        if( isset($shotcodes_tags) && $shotcodes_tags!='' && isset($contentPdf) && $contentPdf!='') {
-
-            $tagShortcodes = explode(',', esc_html($shotcodes_tags));
-            $countShortcodes = count($tagShortcodes);
-            for($i = 0; $i < ($countShortcodes);  $i++) {
-
-                $pattern = '`\[([^\]]*)\]`';
-                preg_match_all($pattern, $tagShortcodes[$i], $shortcodeTags);
-                if( is_array($shortcodeTags) && isset($shortcodeTags[1][0]) ) {
-
-                    $shortcodeName = explode(' ', $shortcodeTags[1][0]);
-                    if( is_plugin_active('shortcoder/shortcoder.php') && class_exists('Shortcoder') ) {
-
-                        $shortcodes =  Shortcoder::get_shortcodes();
-                        $returnShortcode = Shortcoder::find_shortcode(array('name'=>$shortcodeName[0]), $shortcodes);
-                        if( isset($returnShortcode['id']) ) {
-                            $contentPdf = str_replace('['.$shortcodeName[0].']', do_shortcode('[sc name="'.$shortcodeName[0].'"][/sc]'), $contentPdf);
-                        }
-                    
-                    }
-                    
-                    if( stripos($contentPdf, '['.$shortcodeName[0].']') !== false ) {
-                        $contentPdf = str_replace('['.$shortcodeName[0].']', do_shortcode($tagShortcodes[$i]), $contentPdf);
-                    }
-                    
-                }
-            }
-
-        }
-
-        return $contentPdf;
-
-    }
-
-    public static function adjust_image_orientation($filename, $quality = 90) {
-
-        try {
-            $exif = @exif_read_data($filename);
-        } catch (\Exception $e) {
-            $exif = false;
-        }
-
-        // If no exif info, or no orientation info, or if orientation needs no adjustment
-        if( isset($exif['Orientation']) ) { $orientation = $exif['Orientation']; } else { $orientation = 1; }
-        if (!$orientation || $orientation === 1) {
-            return false;
-        }
-
-        switch ($fileType = @exif_imagetype($filename)) {
-            case 1: // gif
-                $img = @imageCreateFromGif($filename);
-                break;
-            case 2: // jpg
-                $img = @imageCreateFromJpeg($filename);
-                break;
-            case 3: // png
-                $img = @imageCreateFromPng($filename);
-                break;
-            default:
-                $img = @imagecreatefromjpeg($filename);
-        }
-
-        if (!$img) {
-            return false;
-        }
-
-        $mirror = in_array($orientation, [2, 5, 4, 7]);
-        $deg = 0;
-        switch ($orientation) {
-            case 3:
-            case 4:
-                $deg = 180;
-                break;
-            case 6:
-            case 5:
-                $deg = 270;
-                break;
-            case 8:
-            case 7:
-                $deg = 90;
-                break;
-        }
-
-        if ($deg) {
-            $img = imagerotate($img, $deg, 0);
-        }
-
-        if ($mirror) {
-            $img = imageflip($img, IMG_FLIP_HORIZONTAL);
-        }
-
-        switch ($fileType = @exif_imagetype($filename)) {
-            case 1: // gif
-                imagegif($img, $filename);
-                break;
-            case 2: // jpg
-                imagejpeg($img, $filename, $quality);
-                break;
-            case 3: // png
-                imagepng($img, $filename, $quality);
-                break;
-            default:
-                imagejpeg($img, $filename, $quality);
-        }
-
-        return true;
-    }
-
-    public static function wpcf7pdf_autorizeHtml() {
-
-        return array(
-            'a' => array(
-                'href' => array(),
-                'title' => array()
-                ),
-            'br' => array(),
-            'p' => array(
-                'id' => array(),
-                'style' => array(),
-                'class' => array()
-                ),
-            'h1' => array(
-                'class' => array(),
-                'style' => array(),
-            ),
-            'h2' => array(
-                'class' => array(),
-                'style' => array(),
-            ), 
-            'h3' => array(
-                'class' => array(),
-                'style' => array(),
-            ), 
-            'h4' => array(
-                'class' => array(),
-                'style' => array(),
-            ),
-            'h5' => array(
-                'class' => array(),
-                'style' => array(),
-            ), 
-            'h6' => array(
-                'class' => array(),
-                'style' => array(),
-            ),             
-            'em' => array(),
-            'i' => array(
-                'style' => array(),
-                'class' => array()
-                ),
-            'font-awesome-icon' => array(
-                'icon' => array(),
-                'class' => array()
-                ),
-            'strong' => array(),
-            'small' => array(),
-            'img' => array(
-                'id' => array(),
-                'src' => array(),
-                'title' => array(),
-                'width' => array(),
-                'height' => array(),
-                'style' => array(),
-                'rotate' => array(),
-                'class' => array()
-                ),
-            'div' => array(
-                'id' => array(),
-                'class' => array(),
-                'title' => array(),
-                'style' => array(),
-                'dir' => array()
-                ),
-            'style' => array(
-                'id' => array(),
-                'media' => array(),
-                'title' => array(),
-                'lang' => array(),
-                'dir' => array()
-            ),
-            'bdo' => array(
-                'id' => array(),
-                'class' => array(),
-                'title' => array(),
-                'style' => array(),
-                'dir' => array()
-                ),                
-            'span' => array(
-                'id' => array(),
-                'class' => array(),
-                'title' => array(),
-                'style' => array(),
-                'dir' => array()
-                ),
-            'table' => array(
-                'id' => array(),
-                'style' => array(),
-                'class' => array(),
-                'colspan' => array(),
-                'rowspan' => array(),
-                'width' => array(),
-                'cellpadding' => array(),
-                'cellspacing' => array(),
-                'border' => array()
-                ),
-            'td' => array(
-                'id' => array(),
-                'style' => array(),
-                'class' => array(),
-                'colspan' => array(),
-                'rowspan' => array(),
-                'width' => array(),
-                'cellpadding' => array(),
-                'cellspacing' => array(),
-                'border' => array(),
-                'text-rotate' => array(),
-                'valign' => array()
-                ),
-            'tr' => array(
-                'id' => array(),
-                'style' => array(),
-                'class' => array(),
-                'colspan' => array(),
-                'rowspan' => array(),
-                'width' => array(),
-                'cellpadding' => array(),
-                'cellspacing' => array(),
-                'border' => array(),
-                'text-rotate' => array(),
-                'valign' => array()
-                ),
-            'th' => array(
-                'style' => array(),
-                'class' => array(),
-                'colspan' => array(),
-                'rowspan' => array(),
-                'width' => array(),
-                'cellpadding' => array(),
-                'cellspacing' => array(),
-                'text-rotate' => array(),
-                'border' => array()
-                ),
-            'tbody' => array(
-                'style' => array(),
-                'class' => array(),
-                'colspan' => array(),
-                'rowspan' => array(),
-                'width' => array(),
-                'cellpadding' => array(),
-                'cellspacing' => array(),
-                'text-rotate' => array(),
-                'border' => array()
-                ),
-            'thead' => array(
-                'style' => array(),
-                'class' => array(),
-                'colspan' => array(),
-                'rowspan' => array(),
-                'width' => array(),
-                'cellpadding' => array(),
-                'cellspacing' => array(),
-                'text-rotate' => array(),
-                'border' => array()
-                ),
-            'barcode' => array(
-                'code' => array(),
-                'class' => array(),
-                'type' => array()
-                ),
-            'ul' => array(
-                'class' => array(),
-                ),
-            'li' => array(
-                'class' => array(),
-                ),
-            'ol' => array(
-                'class' => array(),
-                ),
-            'b' => array(),
-            'blockquote' => array(
-                'cite'  => array(),
-                ),
-            'cite' => array(
-                'title' => array(),
-                ),
-            'code' => array(),
-            'del' => array(
-                'datetime' => array(),
-                'title' => array(),
-                ),
-                'dd' => array(),
-                'dl' => array(),
-            'dt' => array(),
-            'em' => array(),
-            'dl' => array(),
-            'dt' => array(),
-            'em' => array(),
-            'bdi' => array(),
-            'textarea' => array(
-                'cols' => array(),
-                'rows' => array(),
-                'name' => array(),
-                'style' => array(),
-                'class' => array(),
-                ),
-            'input' => array(
-                'type' => array(),
-                'value' => array(),
-                'name' => array(),
-                'style' => array(),
-                'class' => array(),
-                ),
-            /*'html' => array(
-                'lang' => array(),
-            ),
-            
-            'meta' => array( 'charset' => array()),
-            'title' => array(),
-            'body' => array( 'dir' => array()),*/
-        );
-
-    }
-    
-    public static function returndate($id) {
-
-        if (empty($id))
-            return;
-
-        $meta_values = get_post_meta(esc_html($id), '_wp_cf7pdf', true);
-        // Definition des dates par defaut
-        $dateField = date_i18n(esc_html(get_option( 'date_format' )), current_time('timestamp'));
-        // On récupere la date et le format
-        if( isset($meta_values['date_format']) && !empty($meta_values['date_format']) ) {
-            $dateField = date_i18n( esc_html($meta_values['date_format']) );
-        } else {
-            $dateField = date_i18n( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), current_time('timestamp') );
-        }        
-        return $dateField;
-    }
-
-    public static function returntime($id) {
-
-        if (empty($id))
-            return;
-
-        $meta_values = get_post_meta(esc_html($id), '_wp_cf7pdf', true);
-        // Definition des dates par defaut
-        $timeField = date_i18n(esc_html(get_option( 'time_format' )), current_time('timestamp'));
-        // On récupere l'heure' et le format
-        if( isset($meta_values['time_format']) && !empty($meta_values['time_format']) ) {
-            $timeField = date_i18n( esc_html($meta_values['time_format']) );
-        } else {
-            $timeField = date_i18n( get_option( 'time_format' ), current_time('timestamp') );
-        }
-        return $timeField;
-    }
-
-    public static function protect_pdf($id) {
-
-        if (empty($id))
-            return;
-
-        $meta_values = get_post_meta(esc_html($id), '_wp_cf7pdf', true);
-
-        $pdfPassword = '--';
-        if( isset($meta_values["protect_password"]) && $meta_values["protect_password"]!='' ) {
-            $pdfPassword = $meta_values["protect_password"];
-        }
-        if( isset($meta_values["protect_uniquepassword"]) && $meta_values["protect_uniquepassword"]=='true' && (null!==get_transient('pdf_password') && get_transient('pdf_password')!='') ) {
-            $pdfPassword = get_transient('pdf_password');
-        }
-        if( isset($meta_values["protect_password_tag"]) && $meta_values["protect_password_tag"]!='' ) {
-            $pdfPassword = wpcf7_mail_replace_tags($meta_values["protect_password_tag"]);
-        }
-        return $pdfPassword;
-    }
-
-    public static function upload_file($id, $valueTag, $name_tags, $name_tags1, $referenceOfPdf, $content) {
-
-        $upload_dir = wp_upload_dir();
-        // On récupère le dossier upload de WP
-        $createDirectory = cf7_sendpdf::wpcf7pdf_folder_uploads(esc_html($id));
-        $file_location = cf7_sendpdf::wpcf7pdf_attachments($name_tags);
-
-        if( isset($file_location) && exif_imagetype($file_location) !=false ) {
-            // remplace le tag d'une image
-            $content = str_replace($name_tags, $valueTag, $content);
-            // URL de l'image envoyée
-            $chemin_initial[$name_tags1] = $createDirectory.'/'.sanitize_text_field($referenceOfPdf).'-'.wpcf7_mail_replace_tags($name_tags);
-            // On copie l'image dans le dossier
-            copy($file_location, $chemin_initial[$name_tags1]);
-            // rotation de l'image si besoin
-            $rotate_image[$name_tags1] = self::adjust_image_orientation($chemin_initial[$name_tags1]);
-            // retourne l'URL complete du tag 
-            $chemin_final[$name_tags1] = str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $chemin_initial[$name_tags1]);
-        } else if( isset($valueTag) && $valueTag!='') {
-            // remplace le tag d'une image
-            $content = str_replace($name_tags, $valueTag, $content);
-            // URL du fichier envoyé
-            $uploadingImg[$name_tags1] = $createDirectory.'/'.sanitize_text_field($referenceOfPdf).'-'.wpcf7_mail_replace_tags($name_tags);
-            $chemin_final[$name_tags1] = str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $uploadingImg[$name_tags1]);
-
-        } else {
-            // On copie l'image ONE PIXEL dans le dossier si il n'existe pas déjà
-            if( file_exists($upload_dir['basedir'] . '/sendpdfcf7_uploads/'.$id.'/onepixel.png')===FALSE) {
-                copy(esc_url(WPCF7PDF_URL.'images/onepixel.png'), esc_url(str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $createDirectory . '/onepixel.png')));
-            }
-            $chemin_final[$name_tags1] = str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $createDirectory . '/onepixel.png');
-        }
-        $content = str_replace('[url-'.$name_tags1.']', $chemin_final[$name_tags1], $content);
-        return $content;
-
-    }
-
-    public static function tags_parser($id, $nameOfPdf, $referenceOfPdf, $contentPdf, $mailcontent = 0, $preview = 0) {
-
-        if (empty($id))
-        return;
-
-        // Traitement des tags conditionnels [if]...[else]...[/if]
-        $contentPdf = self::conditional_tags_parser($id, $contentPdf, $preview);
-
-        // On récupère le dossier upload de WP
-        $upload_dir = wp_upload_dir();
-        $upload_basedir = $upload_dir['basedir'];
-        $upload_baseurl = $upload_dir['baseurl'];
-        $createDirectory = cf7_sendpdf::wpcf7pdf_folder_uploads($id);
-
-        $meta_values = get_post_meta(esc_html($id), '_wp_cf7pdf', true);
-
-        // Genere le nom du PDF
-        $nameOfPdf = cf7_sendpdf::wpcf7pdf_name_pdf($id);
-
-        // Definition des dates par defaut
-        $dateField = self::returndate($id);
-        $timeField = self::returntime($id);
-
-        // replace tag by avatar picture
-        $user = wp_get_current_user();
-        if ( $user ) :
-            $contentPdf = str_replace('[avatar]', esc_url( get_avatar_url( $user->ID ) ), $contentPdf);
-        endif;
-        /**
-         * FIN
-         */
-
-        // Recupère les dates Tags _format_ potentiels, et change le format définit par l'user
-        if ( preg_match_all( '/\[(_format_.*?)\]/',  $contentPdf, $outdate, PREG_PATTERN_ORDER ) ) {
-
-            for ($i = 0; $i < count($outdate[1]); $i++) {
-
-                $dateFormat = str_replace('_format_', '', $outdate[1][$i]);
-                $dateFormat = explode('"', $dateFormat);
-
-                if ( isset($preview) && ($preview == 1 || $preview == 2) ) {
-                    $date = gmdate("d-m-Y");
-                    $formatDate = new DateTime($date);
-                    $contentPdf = str_replace('['.$outdate[1][$i].']', $formatDate->format($dateFormat[1]), $contentPdf);
-                } else {                
-                    $dateValue = wpcf7_mail_replace_tags(esc_html('['.trim($dateFormat[0]).']'));
-                    $formatDate = new DateTime($dateValue);
-                    $contentPdf = str_replace('['.$outdate[1][$i].']', $formatDate->format($dateFormat[1]), $contentPdf);
-                }
-            }
-            
-        }
-
-        // Si on trouve des shortcodes de prix
-        if ( preg_match_all( '/\[(_price.*?)\]/',  $contentPdf, $outprice, PREG_PATTERN_ORDER ) ) {
-
-            for ($i = 0; $i < count($outprice[1]); $i++) {
-                
-                // On separe les données
-                $price = explode('|', $outprice[1][$i]);
-
-                if ( isset($preview) && ($preview == 1 || $preview == 2) ) {
-                    $valueprice = 25000;                  
-                } else {
-                    $valueprice = wpcf7_mail_replace_tags(esc_html('['.$price[1].']'));
-                }
-                // Nom du tag $price[1] / Decimals : $price[2] / Decimal_separator : $price[3].' / Thousands_separator : $price[4]
-                if( isset($valueprice) && $valueprice>0 ) {
-                    $formatPrice = number_format($valueprice, $price[2], $price[3], $price[4]);
-                    $contentPdf = str_replace('['.$outprice[1][$i].']', $formatPrice, $contentPdf);
-                } else {
-                    $contentPdf = str_replace('['.$outprice[1][$i].']', '', $contentPdf);
-                }
-            }
-
-        }
-        
-        if ( isset($preview) && ($preview == 1 || $preview == 2) ) {
-            $referenceOfPdf = uniqid();
-        }
-        // Remplace le tag reference
-        $contentPdf = str_replace('[reference]', wp_kses_post($referenceOfPdf), $contentPdf);
-        // Remplace le tag URL-PDF
-        $contentPdf = str_replace('[url-pdf]', esc_url(str_replace($upload_basedir, $upload_baseurl, $createDirectory).'/'.$nameOfPdf.'-'.wp_kses_post($referenceOfPdf).'.pdf'), $contentPdf);
-
-        if ( isset($preview) && ($preview == 1 || $preview == 2) ) {
-            // Remplace le tag ID
-            $contentPdf = str_replace('[ID]', '000'.gmdate('md'), $contentPdf);
-            if (isset($meta_values['data_textarea']) && $meta_values['data_textarea']== 'true') {
-                $contentPdf = str_replace('[your-name]', '<input type="text" class="wpcf7-text" size="80" name="your-name" value="Doe" />', $contentPdf);
-            } else {
-                $contentPdf = str_replace('[your-name]', 'Doe', $contentPdf);
-            }
-            if (isset($meta_values['data_textarea']) && $meta_values['data_textarea']== 'true') {
-                $contentPdf = str_replace('[your-firstname]', '<input type="text" class="wpcf7-text" size="80" name="your-firstname" value="John" />', $contentPdf);
-            } else {
-                $contentPdf = str_replace('[your-firstname]', 'John', $contentPdf);
-            }
-            if (isset($meta_values['data_textarea']) && $meta_values['data_textarea']== 'true') {
-                $contentPdf = str_replace('[your-email]', '<input type="text" class="wpcf7-text" size="80" name="your-email" value="johndoe@nowhere.com" />', $contentPdf);
-            } else {
-                $contentPdf = str_replace('[your-email]', 'John', $contentPdf);
-            }
-            if (isset($meta_values['data_textarea']) && $meta_values['data_textarea']== 'true') {
-                $contentPdf = str_replace('[your-subject]', '<input type="text" class="wpcf7-text" name="your-subject" size="80" value="'.__("This is a subject test!", 'send-pdf-for-contact-form-7').'" />', $contentPdf);
-            } else {
-                $contentPdf = str_replace('[your-subject]', __("This is a subject test!", 'send-pdf-for-contact-form-7'), $contentPdf);
-            }
-            if (isset($meta_values['data_textarea']) && $meta_values['data_textarea']== 'true') {
-                $contentPdf = str_replace('[your-message]', '<textarea cols="100%" rows="20" class="wpcf7-textarea" name="your-message">'.__("I did not understand at first for what it was intended, but it appeared. Great!", 'send-pdf-for-contact-form-7').'</textarea>', $contentPdf);
-            } else {
-                $contentPdf = str_replace('[your-message]', __("I did not understand at first for what it was intended, but it appeared. Great!", 'send-pdf-for-contact-form-7'), $contentPdf);
-            }
-        }
-        // Remplace les tags date et time
-        $contentPdf = str_replace('[date]', $dateField, $contentPdf);
-        $contentPdf = str_replace('[time]', $timeField, $contentPdf);        
-
-        // On gère les séparateurs avant et après les balise checkbox et radio
-        $tagSeparate = '';
-        if( isset($meta_values["separate"]) ) {
-            if( $meta_values["separate"] == 'none' ) { $tagSeparate = ''; }
-            if( $meta_values["separate"] == 'comma' ) { $tagSeparate = ', '; }
-            if( $meta_values["separate"] == 'space') { $tagSeparate = ' '; }
-            if( $meta_values["separate"] == 'dash') { $tagSeparate = '- '; }
-            if( $meta_values["separate"] == 'star') { $tagSeparate = '<i class="fas">&#xf621</i> '; }
-            if( $meta_values["separate"] == 'rightarrow') { $tagSeparate = '<i class="fas">&#xf061</i> '; }
-            if( $meta_values["separate"] == 'double-right-arrow') { $tagSeparate = '<i class="fas">&#xf101</i> '; }
-            if( $meta_values["separate"] == 'cornerarrow') { $tagSeparate = '<i class="fas">&#xf064</i> '; }
-        }
-        $tagSeparateAfter = ' ';
-        if( isset($meta_values["separate_after"]) ) {
-            if( $meta_values["separate_after"] == 'none' ) { $tagSeparateAfter = ''; }
-            if( $meta_values["separate_after"] == 'comma' ) { $tagSeparateAfter = ', '; }
-            if( $meta_values["separate_after"] == 'space') { $tagSeparateAfter = ' '; }
-            if( $meta_values["separate_after"] == 'linebreak') { $tagSeparateAfter = '<br />'; }
-        }
-
-        // Si option fillable, on genere les champs et remplace les données                   
-        $contact_form = WPCF7_ContactForm::get_instance(esc_html($id));           
-        $contact_tag = $contact_form->scan_form_tags();
-
-        // Si le champ est checkbox ou radio en RAW
-        $contentPdfTagsRaw = cf7_sendpdf::wpcf7pdf_mailparser($contentPdf, 'raw');
-        foreach ( (array) $contentPdfTagsRaw as $name_raw ) {
-
-            $name1raw = str_replace( '_raw_', '', $name_raw );
-            $found_key = cf7_sendpdf::wpcf7pdf_foundkey( $contact_tag, $name1raw );
-            if ( false === $found_key || ! isset( $contact_tag[ $found_key ]['basetype'] ) ) {
-                continue;
-            }
-            $baseTypeRaw = $contact_tag[ $found_key ]['basetype'];
-
-            if ( isset( $baseTypeRaw ) && ( $baseTypeRaw === 'checkbox' || $baseTypeRaw === 'radio' ) ) {
-
-                // Exemple : CEO | sales@example.com
-                // on remplace _raw_TAG par l'avant PIPE soit CEO
-                $rawValue = wpcf7_mail_replace_tags(esc_html('['.$name_raw.']'));                        
-                $contentPdf = str_replace(esc_html('['.$name_raw.']'), $rawValue, $contentPdf);
-
-                // on remplace TAG du raw par la valeur d'après PIPE soit sales@example.com                        
-                $raw1Value = wpcf7_mail_replace_tags(esc_html('['.$name1raw.']'));
-                $contentPdf = str_replace(esc_html('['.$name1raw.']'), $raw1Value, $contentPdf);
-            }
-        }
-
-        // On parse le content pour extraire les types de champ
-        $contentPdfTags = cf7_sendpdf::wpcf7pdf_mailparser($contentPdf);
-        foreach ( (array) $contentPdfTags as $name_tags ) {
-
-            if ( ! is_array( $name_tags ) || ! isset( $name_tags[0], $name_tags[1] ) ) {
-                continue;
-            }
-
-            $name_tags[1] = str_replace( 'url-', '', $name_tags[1] );
-            $name_tags[0] = str_replace( 'url-', '', $name_tags[0] );
-            $found_key = cf7_sendpdf::wpcf7pdf_foundkey( $contact_tag, $name_tags[1] );
-            if ( false === $found_key || ! isset( $contact_tag[ $found_key ] ) ) {
-                continue;
-            }
-
-            $basetype = isset( $contact_tag[ $found_key ]['basetype'] ) ? $contact_tag[ $found_key ]['basetype'] : '';
-            $tagOptions = array();
-            if( isset( $contact_tag[$found_key]['options'] ) && !empty($contact_tag[$found_key]['options']) ) {
-                $tagOptions = $contact_tag[$found_key]['options'];
-            }
-
-            /**
-             *  Si le champ est un type EMAIL
-             */
-            if( isset($basetype) && $basetype==='email' ) {
-                if ( isset($preview) && ($preview == 1 || $preview == 2) ) {
-                    $valueTag = 'johndoe@nowhere.com'; // Valeur par défaut pour le preview
-                } else {
-                    $valueTag = wpcf7_mail_replace_tags(esc_html($name_tags[0]));
-                }
-                // On verifie si le champ est vide et si on doit l'afficher ou pas
-                if( (isset($meta_values['empty_input']) && $meta_values['empty_input']=='true') && $valueTag=='' ) {
-                    $contentPdf = str_replace(esc_html($name_tags[0]), '', $contentPdf);
-                } else {
-                    if (isset($meta_values['data_textarea']) && $meta_values['data_textarea']== 'true') {
-                        $contentPdf = str_replace(esc_html($name_tags[0]), '<input type="email" style="max-width:100%;" name="'.$name_tags[1].'" value="'.esc_html($valueTag).'" />', $contentPdf);                        
-                    } else {
-                        $contentPdf = str_replace(esc_html($name_tags[0]), esc_html($valueTag), $contentPdf);
-                    }
-                }
-
-            }
-
-            /**
-             *  Si le champ est un type COLOR
-             */
-            if( isset($basetype) && $basetype==='color' ) {
-
-                if ( isset($preview) && ($preview == 1 || $preview == 2) ) {
-                    $valueTag = '#6b240eff'; // Valeur par défaut pour le preview
-                } else {
-                    $valueTag = wpcf7_mail_replace_tags(esc_html($name_tags[0]));
-                }
-                // On verifie si le champ est vide et si on doit l'afficher ou pas
-                if( (isset($meta_values['empty_input']) && $meta_values['empty_input']=='true') && $valueTag=='' ) {
-                    $contentPdf = str_replace(esc_html($name_tags[0]), '', $contentPdf);
-                } else {
-                    if (isset($meta_values['data_textarea']) && $meta_values['data_textarea']== 'true') {
-                        $contentPdf = str_replace(esc_html($name_tags[0]), '<input type="color" name="'.$name_tags[1].'" value="'.esc_html($valueTag).'"> <span style="width:10px;height:10px;background-color:'.esc_html($valueTag).';">&nbsp;&nbsp;&nbsp;</span>', $contentPdf);                        
-                    } else {
-                        $contentPdf = str_replace(esc_html($name_tags[0]), esc_html($valueTag), $contentPdf);
-                    }
-                }
-            }
-
-            /**
-             *  Si le champ est un type file et image
-             */
-            if( isset($basetype) && $basetype==='file' ) {
-
-                if ( isset($preview) && ($preview == 1 || $preview == 2) ) {
-                    preg_match_all('/<img[^>]+>/i', $contentPdf, $imgTags);
-                    for ($i = 0; $i < count($imgTags[0]); $i++) {
-                        // get the source string
-                        preg_match('/src="([^"]+)/i', $imgTags[0][$i], $imageTag);
-                        // remove opening 'src=' tag, can`t get the regex right
-                        $origImageSrc = str_ireplace( 'src="', '',  $imageTag[0]);              
-                        $contentPdf = str_replace( $origImageSrc, WPCF7PDF_URL.'images/temporary-image.jpg', $contentPdf);
-                    }
-                    $contentPdf = str_replace(esc_html($name_tags[0]), '<img src="'.WPCF7PDF_URL.'images/temporary-image.jpg" width="300" height="300" />', $contentPdf);
-                } else {                    
-                    $valueTag = wpcf7_mail_replace_tags($name_tags[0]);
-                    $contentPdf = self::upload_file($id, $valueTag, $name_tags[0], $name_tags[1], $referenceOfPdf, $contentPdf);                    
-                }
-
-            /**
-             *  Si le champ est un type textarea
-             */
-            } else if(isset($basetype) && $basetype==='textarea') {
-
-                $valueTag = wpcf7_mail_replace_tags(esc_html($name_tags[0]));
-                $emptyTextareaInput = 0;                
-                if( (isset($meta_values['empty_input']) && $meta_values['empty_input']=='true') && $valueTag=='' ) {
-                    $emptyTextareaInput = 1;
-                }
-                // Si le contenu du PDF doit rester en brut et pas en HTML
-                if( isset($meta_values["linebreak"]) && $meta_values['linebreak'] == 'false' ) {
-                    $valueTag = str_replace("\r\n", "<br />", $valueTag);
-                } else if( $mailcontent==1 && (isset($meta_values["disable-html"]) && $meta_values['disable-html'] == 'false') ) {      
-                    $valueTag = str_replace("\r\n", "<br />", $valueTag);
-                } 
-                if( $emptyTextareaInput == 0 ) {
-                    if (isset($meta_values['data_textarea']) && $meta_values['data_textarea']== 'true') {
-                        $contentPdf = str_replace(esc_html($name_tags[0]), '<textarea cols="40" rows="10" name="'.$name_tags[1].'">'.$valueTag.'</textarea>', $contentPdf);        
-                    } else {                    
-                        $contentPdf = str_replace(esc_html($name_tags[0]), $valueTag, $contentPdf);
-                    }
-                } else if( $emptyTextareaInput == 1 ) {
-                    $contentPdf = str_replace(esc_html($name_tags[0]), '', $contentPdf);
-                }
-            
-            /**
-             *  Si le champ est un type select
-             */
-            } else if( isset($basetype) && $basetype==='select' ) {
-
-                $valueTag = wpcf7_mail_replace_tags(esc_html($name_tags[0]));
-                if( (isset($meta_values['empty_input']) && $meta_values['empty_input']=='true') && ($valueTag=='' || $valueTag=='#') ) {
-                    $contentPdf = str_replace(esc_html($name_tags[0]), '', $contentPdf);
-                } else {
-                    $contentPdf = str_replace(esc_html($name_tags[0]), $valueTag, $contentPdf);
-                }
-
-            /**
-             *  Si le champ est un type text
-             *  On retire si c'est le shortocode de test et si c'est un codebarre
-             */
-            } else if( ( isset($basetype) && $basetype==='text' ) && ( isset($name_tags[1]) && $name_tags[1]!='0-9') && ( isset($name_tags[1]) && $name_tags[1]!='addpage' )  && (isset($name_tags[1]) && $name_tags[1]!='wpcf7pdf_test') ) {
-
-                $valueTag = wpcf7_mail_replace_tags(esc_html($name_tags[0]));               
-                if( (isset($meta_values['empty_input']) && $meta_values['empty_input']=='true') && $valueTag=='' ) {
-                    $contentPdf = str_replace(esc_html($name_tags[0]), '', $contentPdf);
-                } else {
-                    if (isset($meta_values['data_textarea']) && $meta_values['data_textarea']== 'true') {
-                        $contentPdf = str_replace(esc_html($name_tags[0]), '<input type="text" style="max-width:100%;" name="'.$name_tags[1].'" value="'.esc_html($valueTag).'">', $contentPdf);                        
-                    } else {
-                        $contentPdf = str_replace(esc_html($name_tags[0]), esc_html($valueTag), $contentPdf);
-                    } 
-                }
-
-            /**
-             *  Si le champ est un type checkbox
-             */
-            } else if( isset($basetype) && $basetype==='checkbox' ) {
-
-                $valueTag = wpcf7_mail_replace_tags(esc_html($name_tags[0]));
-                $inputCheckbox = '';
-                $nb = count($contact_tag[$found_key]['values']);
-                $textFreeText = '';
-
-                // Si un free_text est renseigné, on le remplace dans le PDF
-                if( in_array('free_text', $tagOptions) && ( isset($_POST['_wpcf7_free_text_'.$name_tags[1]]) && $_POST['_wpcf7_free_text_'.$name_tags[1]]!='') ) {
-                    //$contentPdf = str_replace('[free_text_'.esc_html($name_tags[1].']'), esc_html($_POST['_wpcf7_free_text_'.$name_tags[1]]), $contentPdf);
-                    $contentPdf = str_replace('['.esc_html($name_tags[1].']'), esc_html($_POST['_wpcf7_free_text_'.$name_tags[1]]), $contentPdf);
-                }
-                
-                // si l'option empty_input est activé, on verifie si le tag est vide
-                if( (isset($meta_values['empty_input']) && $meta_values['empty_input']=='true') ) {
-
-                    // Affiche la liste des valeurs retournées par le formulaire
-                    // $valueTag est retourné avec les valeurs et entre virgule. On dissocie cela
-                    $tabValueTag = array_map('trim', explode(',', $valueTag));
-                    $n = 1;
-                    foreach( $tabValueTag as $sendValueTag ) {                        
-
-                        if (isset($meta_values['data_input']) && $meta_values['data_input']== 'true') {
-                            if( in_array('label_first', $tagOptions) ) {
-                                $inputCheckbox .= ''.$tagSeparate.''.esc_html($sendValueTag).' <input type="checkbox" class="wpcf7-checkbox" name="text_'.esc_html($name_tags[1].$n).'" value="'.$n.'" checked="checked" /> '.$tagSeparateAfter.'';
-                            } else {
-                                $inputCheckbox .= ''.$tagSeparate.'<input type="checkbox" class="wpcf7-checkbox" name="text_'.esc_html($name_tags[1].$n).'" value="'.$n.'" checked="checked" /> '.esc_html($sendValueTag).''.$tagSeparateAfter.'';
-                            }
-                        } else {
-                            $inputCheckbox .= ''.$tagSeparate.''.esc_html($sendValueTag).''.$tagSeparateAfter.'';
-                        }
-
-                        $n++;
-                    }
-
-                } else {
-
-                    $tabValueTag = array_map('trim', explode(',', $valueTag));
-                    $nb = count($contact_tag[$found_key]['values']);
-                    
-                    // Si on affiche les input, checkbox et radio
-                    if (isset($meta_values['data_input']) && $meta_values['data_input']== 'true') {
-
-                        $i = 0;
-
-                        if( isset($meta_values["empty_input"]) && $meta_values["empty_input"]=='true') {
-                            
-                            foreach( $tabValueTag as $idCheckbox=>$valCheckbox ) {
-
-                                if( ($nb-1) == $idCheckbox && (isset($_POST['_wpcf7_free_text_'.$name_tags[1]]) && $_POST['_wpcf7_free_text_'.$name_tags[1]]!='') ) {
-                                    $textFreeText = ' '.esc_html($_POST['_wpcf7_free_text_'.$name_tags[1]]);
-                                }
-
-                                if( in_array('label_first', $tagOptions) ) {
-                                    $inputCheckbox .= ''.$tagSeparate.''.esc_html($valCheckbox).''.esc_html($textFreeText).' <input type="checkbox" class="wpcf7-checkbox" name="text_'.esc_html($name_tags[1].$idCheckbox).'" value="'.$idCheckbox.'" checked="checked" /> '.$tagSeparateAfter.'';
-                                } else {
-                                    $inputCheckbox .= ''.$tagSeparate.'<input type="checkbox" class="wpcf7-checkbox" name="text_'.esc_html($name_tags[1].$idCheckbox).'" value="'.$idCheckbox.'" checked="checked" /> '.esc_html($valCheckbox).''.esc_html($textFreeText).''.$tagSeparateAfter.'';
-                                }
-                                $i++;
-
-                            }
-
-                        } else {
-
-                        foreach( $contact_tag[$found_key]['values'] as $idCheckbox=>$valCheckbox ) {
-
-                            $caseChecked = '';
-
-                            if( in_array( sanitize_text_field($valCheckbox), $tabValueTag ) ) {
-                                $caseChecked = 'checked="checked"';
-                            }                          
-                            
-                            if( ($nb-1) == $idCheckbox && (isset($_POST['_wpcf7_free_text_'.$name_tags[1]]) && $_POST['_wpcf7_free_text_'.$name_tags[1]]!='') ) {
-                                $textFreeText = ' '.esc_html($_POST['_wpcf7_free_text_'.$name_tags[1]]);
-                                $caseChecked = 'checked="checked"';
-                            }
-
-                            if( in_array('label_first', $tagOptions) ) {
-                                $inputCheckbox .= ''.$tagSeparate.''.esc_html($valCheckbox).''.esc_html($textFreeText).' <input type="checkbox" class="wpcf7-checkbox" name="text_'.esc_html($name_tags[1].$idCheckbox).'" value="'.$idCheckbox.'" '.$caseChecked.' /> '.$tagSeparateAfter.'';
-                            } else {
-                                $inputCheckbox .= ''.$tagSeparate.'<input type="checkbox" class="wpcf7-checkbox" name="text_'.esc_html($name_tags[1].$idCheckbox).'" value="'.$idCheckbox.'" '.$caseChecked.' /> '.esc_html($valCheckbox).''.esc_html($textFreeText).''.$tagSeparateAfter.'';
-                            }
-                            $i++;
-                        }
-                    }
-                        
-
-                    } else {
-                        $i = 0;
-                        foreach( $tabValueTag as $idCheckbox=>$valCheckbox ) {
-
-                            if( isset($_POST['_wpcf7_free_text_'.$name_tags[1]]) && $_POST['_wpcf7_free_text_'.$name_tags[1]]!='' ) {
-                                $textFreeText = ' '.esc_html($_POST['_wpcf7_free_text_'.$name_tags[1]]);
-                                $inputCheckbox = ''.$tagSeparate.''.esc_html($valueTag).''.$tagSeparateAfter.'';
-                            }
-                            //if( sanitize_text_field($valueTag)===sanitize_text_field($valCheckbox) && (strcmp(sanitize_title($valueTag), sanitize_title($valCheckbox)) === 0 || strcmp(sanitize_title($valueTag), sanitize_title($idCheckbox)) === 1) ) {
-                                $inputCheckbox .= ''.$tagSeparate.''.esc_html($valCheckbox).''.esc_html($textFreeText).''.$tagSeparateAfter.'';
-                            //}
-                            //error_log('valueTag ('.$nb.') : '.sanitize_text_field($valueTag).' - valCheckbox: '.sanitize_text_field($valCheckbox).' - Return : '.strcmp(sanitize_title($valueTag), sanitize_title($valCheckbox)).' - idCheckbox: '.sanitize_text_field($idCheckbox));
-                            $i++;
-                        }
-                        
-                    }
-                   
-                        
-                }
-
-				if ($tagSeparateAfter !== '' && substr($inputCheckbox, -strlen($tagSeparateAfter)) === $tagSeparateAfter) {
-                    $inputCheckbox = substr($inputCheckbox, 0, -strlen($tagSeparateAfter));
-                }
-
-                // Affiche la liste des valeurs retournées par le formulaire
-                $contentPdf = str_replace(esc_html($name_tags[0]), $inputCheckbox, $contentPdf);
-             
-            /**
-             *  Si le champ est un type radio
-             */
-            } else if( isset($basetype) && $basetype==='radio' ) {
-
-                $valueRadioTag = wpcf7_mail_replace_tags(esc_html($name_tags[0]));
-                $inputRadio = '';
-                $i = 0;
-                $nb = count($contact_tag[$found_key]['values']);
-                $textFreeText = '';
-
-                // Si un free_text est renseigné, on le remplace dans le PDF
-                if( in_array('free_text', $tagOptions) && ( isset($_POST['_wpcf7_free_text_'.$name_tags[1]]) && $_POST['_wpcf7_free_text_'.$name_tags[1]]!='') ) {
-                    $contentPdf = str_replace('[free_text_'.esc_html($name_tags[1].']'), esc_html($_POST['_wpcf7_free_text_'.$name_tags[1]]), $contentPdf);
-                }
-                
-                // si l'option empty_input est activé, on verifie si le tag est vide
-                if( (isset($meta_values['empty_input']) && $meta_values['empty_input']=='true') ) {
-
-                    // Affiche la liste des valeurs retournées par le formulaire
-                    // $valueRadioTag est retourné avec les valeurs et entre virgule. On dissocie cela
-                    $tabValueTag = explode(',', $valueRadioTag);
-                    $n = 1;
-                    foreach( $tabValueTag as $sendRadioValueTag ) {                        
-
-                        if (isset($meta_values['data_input']) && $meta_values['data_input']== 'true') {
-                            if( in_array('label_first', $tagOptions) ) {
-                                $inputRadio .= ''.$tagSeparate.''.esc_html($sendRadioValueTag).' <input type="radio" class="wpcf7-radio" name="text_'.esc_html($name_tags[1].$n).'" value="'.$n.'" checked="checked" /> '.$tagSeparateAfter.'';
-                            } else {
-                                $inputRadio .= ''.$tagSeparate.'<input type="radio" class="wpcf7-radio" name="text_'.esc_html($name_tags[1].$n).'" value="'.$n.'" checked="checked" /> '.esc_html($sendRadioValueTag).''.$tagSeparateAfter.'';
-                            }
-                        } else {
-                            $inputRadio .= ''.$tagSeparate.''.esc_html($sendRadioValueTag).''.$tagSeparateAfter.'';
-                        }
-
-                        $n++;
-                    }
-
-                } else {
-
-                    $tabValueTag = explode(',', $valueRadioTag);
-                    $nb = count($contact_tag[$found_key]['values']);
-                    // Afficher la liste des noms des radio
-                    foreach( $contact_tag[$found_key]['values'] as $idRadio=>$valRadio) {
-            
-                        // Si on affiche les input, radio et radio
-                        if (isset($meta_values['data_input']) && $meta_values['data_input']== 'true') {
-
-                            $caseChecked = '';
-
-                            if( sanitize_text_field($valueRadioTag)===sanitize_text_field($valRadio) && (strcmp(sanitize_title($valueRadioTag), sanitize_title($valRadio)) === 0 || strcmp(sanitize_title($valueRadioTag), sanitize_title($idRadio)) === 1) ) {
-                                $caseChecked = 'checked="checked"';
-                            }
-                            if( in_array( $valRadio, $tabValueTag ) ) {
-                                $caseChecked = 'checked="checked"';
-                            }
-                            if( ($nb-1) == $idRadio && (isset($_POST['_wpcf7_free_text_'.$name_tags[1]]) && $_POST['_wpcf7_free_text_'.$name_tags[1]]!='') ) {
-                                $textFreeText = ' '.esc_html($_POST['_wpcf7_free_text_'.$name_tags[1]]);
-                                $caseChecked = 'checked="checked"';
-                            }
-
-                            if( in_array('label_first', $tagOptions) ) {
-                                $inputRadio .= ''.$tagSeparate.''.esc_html($valRadio).''.esc_html($textFreeText).' <input type="radio" class="wpcf7-radio" name="text_'.esc_html($name_tags[1].$idRadio).'" value="'.$idRadio.'" '.$caseChecked.' /> '.$tagSeparateAfter.'';
-                            } else {
-                                $inputRadio .= ''.$tagSeparate.'<input type="radio" class="wpcf7-radio" name="text_'.esc_html($name_tags[1].$idRadio).'" value="'.$idRadio.'" '.$caseChecked.' /> '.esc_html($valRadio).''.esc_html($textFreeText).''.$tagSeparateAfter.'';
-                            }
-
-                        } else {
-
-                            if( isset($_POST['_wpcf7_free_text_'.$name_tags[1]]) && $_POST['_wpcf7_free_text_'.$name_tags[1]]!='' ) {
-                                $textFreeText = ' '.esc_html($_POST['_wpcf7_free_text_'.$name_tags[1]]);
-                                $inputRadio = ''.$tagSeparate.''.esc_html($valueRadioTag).''.$tagSeparateAfter.'';
-                            }
-                            if( sanitize_text_field($valueRadioTag)===sanitize_text_field($valRadio) && (strcmp(sanitize_title($valueRadioTag), sanitize_title($valRadio)) === 0 || strcmp(sanitize_title($valueRadioTag), sanitize_title($idRadio)) === 1) ) {
-                                $inputRadio .= ''.$tagSeparate.''.esc_html($valueRadioTag).''.esc_html($textFreeText).''.$tagSeparateAfter.'';
-                            }
-
-                        }
-                        
-                        $i++;
-
-                    }
-                }
-
-				if ($tagSeparateAfter !== '' && substr($inputRadio, -strlen($tagSeparateAfter)) === $tagSeparateAfter) {
-                    $inputRadio = substr($inputRadio, 0, -strlen($tagSeparateAfter));
-                }
-
-                $contentPdf = str_replace(esc_html($name_tags[0]), $inputRadio, $contentPdf);
-
-            } else {
-                
-                $valueTag = wpcf7_mail_replace_tags(esc_html($name_tags[0]));                            
-                $contentPdf = str_replace(esc_html($name_tags[0]), esc_html($valueTag), $contentPdf);
-            }
-        }
-
-        // Si le contenu du PDF doit rester en brut et pas en HTML
-        /*if( isset($meta_values["linebreak"]) && $meta_values['linebreak'] == 'false' ) {
-            $contentPdf = str_replace("\r\n", "<br />", $contentPdf);
-        } else if( $mailcontent==1 && (isset($meta_values["disable-html"]) && $meta_values['disable-html'] == 'false') ) {      
-            $contentPdf = str_replace("\r\n", "<br />", $contentPdf);
-        }*/
-
-        return $contentPdf;
-    }
-
-    private static function log_conditional_debug($message) {
-        if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-            error_log( '[CF7PDF conditional] ' . $message );
-        }
-    }
-
-    private static function normalize_conditional_field_value($fieldValue) {
-        if (is_array($fieldValue)) {
-            $fieldValue = implode(' ', $fieldValue);
-        }
-        $fieldValue = (string) $fieldValue;
-        $stripped = trim(wp_strip_all_tags($fieldValue, true));
-        return $stripped;
-    }
-
-    private static function is_field_effectively_empty($fieldValue) {
-        $n = self::normalize_conditional_field_value($fieldValue);
-        if ($n === '') {
-            return true;
-        }
-        if (preg_match('/^\[[\w\*][\w\*\-\.:]*\]$/', $n)) {
-            return true;
-        }
-        return false;
-    }
-
-    private static function conditional_normalize_compare_string($s) {
-        $s = trim((string) $s);
-        $s = preg_replace('/\x{00A0}/u', ' ', $s);
-        $s = preg_replace('/\s+/u', ' ', $s);
-        return $s;
-    }
-
-    private static function conditional_string_ci_equal($a, $b) {
-        if (function_exists('mb_strtolower')) {
-            return mb_strtolower($a, 'UTF-8') === mb_strtolower($b, 'UTF-8');
-        }
-        return strcasecmp($a, $b) === 0;
-    }
-
-    private static function conditional_equal_match($fieldNorm, $condNorm) {
-        $condNorm = self::conditional_normalize_compare_string($condNorm);
-        $fieldNorm = self::conditional_normalize_compare_string($fieldNorm);
-        if ($condNorm === '') {
-            return $fieldNorm === '';
-        }
-        if (self::conditional_string_ci_equal($fieldNorm, $condNorm)) {
-            return true;
-        }
-        foreach (preg_split('/\s*[,;]\s*/u', $fieldNorm) ?: array() as $chunk) {
-            $chunk = trim($chunk);
-            if ($chunk === '') {
-                continue;
-            }
-            if (self::conditional_string_ci_equal($chunk, $condNorm)) {
-                return true;
-            }
-            if (strpos($chunk, '|') !== false) {
-                foreach (explode('|', $chunk) as $pv) {
-                    $pv = trim($pv);
-                    if ($pv !== '' && self::conditional_string_ci_equal($pv, $condNorm)) {
-                        return true;
-                    }
-                }
-            }
-        }
-        return false;
-    }
-
-    private static function conditional_field_value_candidates($fieldName, $fieldValue, $preview) {
-        $candidates = array($fieldValue);
-        if ($preview != 1 && $fieldName !== '' && function_exists('wpcf7_mail_replace_tags')) {
-            $raw = wpcf7_mail_replace_tags('[_raw_' . $fieldName . ']');
-            if ($raw !== '' && $raw !== $fieldValue) {
-                $candidates[] = $raw;
-            }
-        }
-        return $candidates;
-    }
-
-    private static function evaluate_condition($fieldValue, $operator, $conditionValue, $fieldName = '', $preview = 0) {
-        $norm = self::normalize_conditional_field_value($fieldValue);
-        $condNorm = is_string($conditionValue) ? trim($conditionValue) : (string) $conditionValue;
-        $condNorm = self::conditional_normalize_compare_string($condNorm);
-
-        $candidates = self::conditional_field_value_candidates($fieldName, $fieldValue, $preview);
-
-        switch($operator) {
-            case 'equal':
-                $out = false;
-                foreach ($candidates as $cand) {
-                    if (self::conditional_equal_match(self::normalize_conditional_field_value($cand), $condNorm)) {
-                        $out = true;
-                        break;
-                    }
-                }
-                break;
-            case 'not_equal':
-                $out = true;
-                foreach ($candidates as $cand) {
-                    if (self::conditional_equal_match(self::normalize_conditional_field_value($cand), $condNorm)) {
-                        $out = false;
-                        break;
-                    }
-                }
-                break;
-            case 'greater':       $out = (float) $norm > (float) $condNorm; break;
-            case 'less':          $out = (float) $norm < (float) $condNorm; break;
-            case 'greater_equal': $out = (float) $norm >= (float) $condNorm; break;
-            case 'less_equal':    $out = (float) $norm <= (float) $condNorm; break;
-            case 'contains':
-                $out = false;
-                if ($condNorm !== '') {
-                    foreach ($candidates as $cand) {
-                        $n = self::normalize_conditional_field_value($cand);
-                        if (function_exists('mb_stripos') ? mb_stripos($n, $condNorm, 0, 'UTF-8') !== false : stripos($n, $condNorm) !== false) {
-                            $out = true;
-                            break;
-                        }
-                    }
-                }
-                break;
-            case 'not_empty':     $out = !self::is_field_effectively_empty($fieldValue); break;
-            case 'empty':         $out = self::is_field_effectively_empty($fieldValue); break;
-            default:              $out = !self::is_field_effectively_empty($fieldValue); break;
-        }
-
-        self::log_conditional_debug(
-            sprintf(
-                'evaluate_condition: operator=%s | field=%s | candidates=%s | normalized_primary=%s | condition_value=%s | result=%s',
-                $operator,
-                $fieldName,
-                implode(' || ', array_map(array(__CLASS__, 'conditional_debug_repr'), $candidates)),
-                self::conditional_debug_repr($norm),
-                self::conditional_debug_repr($condNorm),
-                $out ? 'true' : 'false'
-            )
-        );
-
-        return $out;
-    }
-
-    private static function conditional_debug_repr($value, $maxLen = 300) {
-        if (is_array($value)) {
-            $value = wp_json_encode($value);
-        }
-        $s = (string) $value;
-        $s = preg_replace('/\s+/', ' ', $s);
-        if (strlen($s) > $maxLen) {
-            $s = substr($s, 0, $maxLen) . '…(len=' . strlen((string) $value) . ')';
-        }
-        return $s;
-    }
-
-    public static function conditional_tags_parser($id, $contentPdf, $preview = 0) {
-
-        if( empty($id) || empty($contentPdf) ) {
-            self::log_conditional_debug( 'conditional_tags_parser: skip (empty id or content). id=' . (string) $id );
-            return $contentPdf;
-        }
-
-        $meta_conditionaltags = get_post_meta( esc_html($id), '_wp_cf7pdf_conditionalfieldsname', true );
-        if( !is_array($meta_conditionaltags) ) {
-            $meta_conditionaltags = array();
-        }
-
-        self::log_conditional_debug(
-            sprintf(
-                'conditional_tags_parser: START form_id=%s preview=%s | content_length=%d | meta_keys=%s',
-                (string) $id,
-                (string) $preview,
-                strlen($contentPdf),
-                empty($meta_conditionaltags) ? '(none)' : implode(',', array_keys($meta_conditionaltags))
-            )
-        );
-
-        // Regex : [if field-name]content[else]alt content[/if]
-        $pattern = '/\[if\s+([a-zA-Z0-9_-]+)\](.*?)(?:\[else\](.*?))?\[\/if\]/s';
-
-        $matchCount = preg_match_all($pattern, $contentPdf, $allMatches, PREG_SET_ORDER);
-        self::log_conditional_debug( 'conditional_tags_parser: regex matches count (initial)=' . (int) $matchCount );
-
-        $callback = function($matches) use ($meta_conditionaltags, $preview) {
-
-            $fieldName = $matches[1];
-            $ifContent = $matches[2];
-            $elseContent = isset($matches[3]) ? $matches[3] : '';
-
-            self::log_conditional_debug(
-                sprintf(
-                    '--- bloc [if %s] | if_branch_len=%d | else_branch_len=%d | if_branch_preview=%s',
-                    $fieldName,
-                    strlen($ifContent),
-                    strlen($elseContent),
-                    self::conditional_debug_repr($ifContent, 120)
-                )
-            );
-
-            // Récupérer la valeur du champ
-            if( $preview == 1 ) {
-                $fieldValue = 'preview-value';
-            } else {
-                $fieldValue = wpcf7_mail_replace_tags('[' . $fieldName . ']');
-            }
-
-            $rawRepr = self::conditional_debug_repr($fieldValue);
-            $effEmpty = self::is_field_effectively_empty($fieldValue) ? 'yes' : 'no';
-            self::log_conditional_debug(
-                sprintf(
-                    'champ [%s]: wpcf7_mail_replace_tags reçu brut=%s | effectively_empty=%s',
-                    $fieldName,
-                    $rawRepr,
-                    $effEmpty
-                )
-            );
-
-            // Si une condition est définie dans l'admin pour ce champ
-            if( isset($meta_conditionaltags[$fieldName]) && !empty($meta_conditionaltags[$fieldName]['operator']) ) {
-                $operator = $meta_conditionaltags[$fieldName]['operator'];
-                $conditionValue = isset($meta_conditionaltags[$fieldName]['value']) ? $meta_conditionaltags[$fieldName]['value'] : '';
-                self::log_conditional_debug(
-                    sprintf(
-                        'meta admin pour [%s]: operator=%s | value=%s',
-                        $fieldName,
-                        $operator,
-                        self::conditional_debug_repr($conditionValue, 200)
-                    )
-                );
-                $result = self::evaluate_condition($fieldValue, $operator, $conditionValue, $fieldName, $preview);
-            } else {
-                // Par défaut : afficher le bloc si le champ a une valeur réelle (hors espaces / HTML vide)
-                $result = !self::is_field_effectively_empty($fieldValue);
-                self::log_conditional_debug(
-                    sprintf(
-                        'pas de meta admin pour [%s]: résultat défaut (afficher si non vide)=%s',
-                        $fieldName,
-                        $result ? 'true (branche if)' : 'false (branche else)'
-                    )
-                );
-            }
-
-            $returned = $result ? $ifContent : $elseContent;
-
-            // Remplacer les tags CF7 ([hobbies], etc.) dans la branche conservée — sinon ils restent bruts ou mal traités ensuite
-            if( $preview != 1 && function_exists('wpcf7_mail_replace_tags') && $returned !== '' ) {
-                $lenBefore = strlen($returned);
-                $returned = wpcf7_mail_replace_tags($returned);
-                self::log_conditional_debug(
-                    sprintf(
-                        'wpcf7_mail_replace_tags sur branche [%s]: len %d -> %d | preview=%s',
-                        $fieldName,
-                        $lenBefore,
-                        strlen($returned),
-                        self::conditional_debug_repr($returned, 180)
-                    )
-                );
-            }
-
-            self::log_conditional_debug(
-                sprintf(
-                    '--- résultat [if %s]: branche=%s | longueur_sortie_finale=%d',
-                    $fieldName,
-                    $result ? 'if' : 'else',
-                    strlen($returned)
-                )
-            );
-
-            return $returned;
-
-        };
-
-        // Plusieurs passes : [if] imbriqués dans la branche else/if (ex. else contenant un autre [if …])
-        $maxPasses = 25;
-        $pass = 0;
-        while( $pass < $maxPasses && preg_match($pattern, $contentPdf) ) {
-            $pass++;
-            self::log_conditional_debug( 'conditional_tags_parser: passe ' . $pass );
-            $contentPdf = preg_replace_callback($pattern, $callback, $contentPdf);
-        }
-        if( $pass >= $maxPasses && preg_match($pattern, $contentPdf) ) {
-            self::log_conditional_debug( 'conditional_tags_parser: ATTENTION — limite de passes atteinte, [if] restants possibles' );
-        }
-
-        self::log_conditional_debug(
-            sprintf(
-                'conditional_tags_parser: END passes=%d content_length=%d',
-                $pass,
-                strlen($contentPdf)
-            )
-        );
-
-        return $contentPdf;
-    }
-
-
+	public static function shortcodes( $shotcodes_tags = '', $contentPdf = '' ) {
+
+		// Shortcodes?
+		if ( isset( $shotcodes_tags ) && $shotcodes_tags != '' && isset( $contentPdf ) && $contentPdf != '' ) {
+
+			$tagShortcodes   = explode( ',', esc_html( $shotcodes_tags ) );
+			$countShortcodes = count( $tagShortcodes );
+			for ( $i = 0; $i < ( $countShortcodes );  $i++ ) {
+
+				$pattern = '`\[([^\]]*)\]`';
+				preg_match_all( $pattern, $tagShortcodes[ $i ], $shortcodeTags );
+				if ( is_array( $shortcodeTags ) && isset( $shortcodeTags[1][0] ) ) {
+
+					$shortcodeName = explode( ' ', $shortcodeTags[1][0] );
+					if ( is_plugin_active( 'shortcoder/shortcoder.php' ) && class_exists( 'Shortcoder' ) ) {
+
+						$shortcodes      = Shortcoder::get_shortcodes();
+						$returnShortcode = Shortcoder::find_shortcode( array( 'name' => $shortcodeName[0] ), $shortcodes );
+						if ( isset( $returnShortcode['id'] ) ) {
+							$contentPdf = str_replace( '[' . $shortcodeName[0] . ']', do_shortcode( '[sc name="' . $shortcodeName[0] . '"][/sc]' ), $contentPdf );
+						}
+					}
+
+					if ( stripos( $contentPdf, '[' . $shortcodeName[0] . ']' ) !== false ) {
+						$contentPdf = str_replace( '[' . $shortcodeName[0] . ']', do_shortcode( $tagShortcodes[ $i ] ), $contentPdf );
+					}
+				}
+			}
+		}
+
+		return $contentPdf;
+	}
+
+	public static function adjust_image_orientation( $filename, $quality = 90 ) {
+
+		try {
+			$exif = @exif_read_data( $filename );
+		} catch ( \Exception $e ) {
+			$exif = false;
+		}
+
+		// If no exif info, or no orientation info, or if orientation needs no adjustment.
+		if ( isset( $exif['Orientation'] ) ) {
+			$orientation = $exif['Orientation'];
+		} else {
+			$orientation = 1; }
+		if ( ! $orientation || $orientation === 1 ) {
+			return false;
+		}
+
+		switch ( $fileType = @exif_imagetype( $filename ) ) {
+			case 1: // gif.
+				$img = @imageCreateFromGif( $filename );
+				break;
+			case 2: // jpg.
+				$img = @imageCreateFromJpeg( $filename );
+				break;
+			case 3: // png.
+				$img = @imageCreateFromPng( $filename );
+				break;
+			default:
+				$img = @imagecreatefromjpeg( $filename );
+		}
+
+		if ( ! $img ) {
+			return false;
+		}
+
+		$mirror = in_array( $orientation, array( 2, 5, 4, 7 ) );
+		$deg    = 0;
+		switch ( $orientation ) {
+			case 3:
+			case 4:
+				$deg = 180;
+				break;
+			case 6:
+			case 5:
+				$deg = 270;
+				break;
+			case 8:
+			case 7:
+				$deg = 90;
+				break;
+		}
+
+		if ( $deg ) {
+			$img = imagerotate( $img, $deg, 0 );
+		}
+
+		if ( $mirror ) {
+			$img = imageflip( $img, IMG_FLIP_HORIZONTAL );
+		}
+
+		switch ( $fileType = @exif_imagetype( $filename ) ) {
+			case 1: // gif.
+				imagegif( $img, $filename );
+				break;
+			case 2: // jpg.
+				imagejpeg( $img, $filename, $quality );
+				break;
+			case 3: // png.
+				imagepng( $img, $filename, $quality );
+				break;
+			default:
+				imagejpeg( $img, $filename, $quality );
+		}
+
+		return true;
+	}
+
+	public static function wpcf7pdf_autorizeHtml() {
+
+		return array(
+			'a'                 => array(
+				'href'  => array(),
+				'title' => array(),
+			),
+			'br'                => array(),
+			'p'                 => array(
+				'id'    => array(),
+				'style' => array(),
+				'class' => array(),
+			),
+			'h1'                => array(
+				'class' => array(),
+				'style' => array(),
+			),
+			'h2'                => array(
+				'class' => array(),
+				'style' => array(),
+			),
+			'h3'                => array(
+				'class' => array(),
+				'style' => array(),
+			),
+			'h4'                => array(
+				'class' => array(),
+				'style' => array(),
+			),
+			'h5'                => array(
+				'class' => array(),
+				'style' => array(),
+			),
+			'h6'                => array(
+				'class' => array(),
+				'style' => array(),
+			),
+			'em'                => array(),
+			'i'                 => array(
+				'style' => array(),
+				'class' => array(),
+			),
+			'font-awesome-icon' => array(
+				'icon'  => array(),
+				'class' => array(),
+			),
+			'strong'            => array(),
+			'small'             => array(),
+			'img'               => array(
+				'id'     => array(),
+				'src'    => array(),
+				'title'  => array(),
+				'width'  => array(),
+				'height' => array(),
+				'style'  => array(),
+				'rotate' => array(),
+				'class'  => array(),
+			),
+			'div'               => array(
+				'id'    => array(),
+				'class' => array(),
+				'title' => array(),
+				'style' => array(),
+				'dir'   => array(),
+			),
+			'style'             => array(
+				'id'    => array(),
+				'media' => array(),
+				'title' => array(),
+				'lang'  => array(),
+				'dir'   => array(),
+			),
+			'bdo'               => array(
+				'id'    => array(),
+				'class' => array(),
+				'title' => array(),
+				'style' => array(),
+				'dir'   => array(),
+			),
+			'span'              => array(
+				'id'    => array(),
+				'class' => array(),
+				'title' => array(),
+				'style' => array(),
+				'dir'   => array(),
+			),
+			'table'             => array(
+				'id'          => array(),
+				'style'       => array(),
+				'class'       => array(),
+				'colspan'     => array(),
+				'rowspan'     => array(),
+				'width'       => array(),
+				'cellpadding' => array(),
+				'cellspacing' => array(),
+				'border'      => array(),
+			),
+			'td'                => array(
+				'id'          => array(),
+				'style'       => array(),
+				'class'       => array(),
+				'colspan'     => array(),
+				'rowspan'     => array(),
+				'width'       => array(),
+				'cellpadding' => array(),
+				'cellspacing' => array(),
+				'border'      => array(),
+				'text-rotate' => array(),
+				'valign'      => array(),
+			),
+			'tr'                => array(
+				'id'          => array(),
+				'style'       => array(),
+				'class'       => array(),
+				'colspan'     => array(),
+				'rowspan'     => array(),
+				'width'       => array(),
+				'cellpadding' => array(),
+				'cellspacing' => array(),
+				'border'      => array(),
+				'text-rotate' => array(),
+				'valign'      => array(),
+			),
+			'th'                => array(
+				'style'       => array(),
+				'class'       => array(),
+				'colspan'     => array(),
+				'rowspan'     => array(),
+				'width'       => array(),
+				'cellpadding' => array(),
+				'cellspacing' => array(),
+				'text-rotate' => array(),
+				'border'      => array(),
+			),
+			'tbody'             => array(
+				'style'       => array(),
+				'class'       => array(),
+				'colspan'     => array(),
+				'rowspan'     => array(),
+				'width'       => array(),
+				'cellpadding' => array(),
+				'cellspacing' => array(),
+				'text-rotate' => array(),
+				'border'      => array(),
+			),
+			'thead'             => array(
+				'style'       => array(),
+				'class'       => array(),
+				'colspan'     => array(),
+				'rowspan'     => array(),
+				'width'       => array(),
+				'cellpadding' => array(),
+				'cellspacing' => array(),
+				'text-rotate' => array(),
+				'border'      => array(),
+			),
+			'barcode'           => array(
+				'code'  => array(),
+				'class' => array(),
+				'type'  => array(),
+			),
+			'ul'                => array(
+				'class' => array(),
+			),
+			'li'                => array(
+				'class' => array(),
+			),
+			'ol'                => array(
+				'class' => array(),
+			),
+			'b'                 => array(),
+			'blockquote'        => array(
+				'cite' => array(),
+			),
+			'cite'              => array(
+				'title' => array(),
+			),
+			'code'              => array(),
+			'del'               => array(
+				'datetime' => array(),
+				'title'    => array(),
+			),
+			'dd'                => array(),
+			'dl'                => array(),
+			'dt'                => array(),
+			'em'                => array(),
+			'dl'                => array(),
+			'dt'                => array(),
+			'em'                => array(),
+			'bdi'               => array(),
+			'textarea'          => array(
+				'cols'  => array(),
+				'rows'  => array(),
+				'name'  => array(),
+				'style' => array(),
+				'class' => array(),
+			),
+			'input'             => array(
+				'type'  => array(),
+				'value' => array(),
+				'name'  => array(),
+				'style' => array(),
+				'class' => array(),
+			),
+			/*
+			'html' => array(
+				'lang' => array(),
+			),
+
+			'meta' => array( 'charset' => array()),
+			'title' => array(),
+			'body' => array( 'dir' => array()),*/
+		);
+	}
+
+	public static function returndate( $id ) {
+
+		if ( empty( $id ) ) {
+			return;
+		}
+
+		$meta_values = get_post_meta( esc_html( $id ), '_wp_cf7pdf', true );
+		// Definition des dates par defaut.
+		$dateField = date_i18n( esc_html( get_option( 'date_format' ) ), current_time( 'timestamp' ) );
+		// On récupere la date et le format.
+		if ( isset( $meta_values['date_format'] ) && ! empty( $meta_values['date_format'] ) ) {
+			$dateField = date_i18n( esc_html( $meta_values['date_format'] ) );
+		} else {
+			$dateField = date_i18n( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), current_time( 'timestamp' ) );
+		}
+		return $dateField;
+	}
+
+	public static function returntime( $id ) {
+
+		if ( empty( $id ) ) {
+			return;
+		}
+
+		$meta_values = get_post_meta( esc_html( $id ), '_wp_cf7pdf', true );
+		// Definition des dates par defaut.
+		$timeField = date_i18n( esc_html( get_option( 'time_format' ) ), current_time( 'timestamp' ) );
+		// On récupere l'heure' et le format.
+		if ( isset( $meta_values['time_format'] ) && ! empty( $meta_values['time_format'] ) ) {
+			$timeField = date_i18n( esc_html( $meta_values['time_format'] ) );
+		} else {
+			$timeField = date_i18n( get_option( 'time_format' ), current_time( 'timestamp' ) );
+		}
+		return $timeField;
+	}
+
+	public static function protect_pdf( $id ) {
+
+		if ( empty( $id ) ) {
+			return;
+		}
+
+		$meta_values = get_post_meta( esc_html( $id ), '_wp_cf7pdf', true );
+
+		$pdfPassword = '--';
+		if ( isset( $meta_values['protect_password'] ) && $meta_values['protect_password'] != '' ) {
+			$pdfPassword = $meta_values['protect_password'];
+		}
+		if ( isset( $meta_values['protect_uniquepassword'] ) && $meta_values['protect_uniquepassword'] == 'true' && ( null !== get_transient( 'pdf_password' ) && get_transient( 'pdf_password' ) != '' ) ) {
+			$pdfPassword = get_transient( 'pdf_password' );
+		}
+		if ( isset( $meta_values['protect_password_tag'] ) && $meta_values['protect_password_tag'] != '' ) {
+			$pdfPassword = wpcf7_mail_replace_tags( $meta_values['protect_password_tag'] );
+		}
+		return $pdfPassword;
+	}
+
+	public static function upload_file( $id, $valueTag, $name_tags, $name_tags1, $referenceOfPdf, $content ) {
+
+		$upload_dir = wp_upload_dir();
+		// On récupère le dossier upload de WP.
+		$createDirectory = cf7_sendpdf::wpcf7pdf_folder_uploads( esc_html( $id ) );
+		$file_location   = cf7_sendpdf::wpcf7pdf_attachments( $name_tags );
+
+		if ( isset( $file_location ) && exif_imagetype( $file_location ) != false ) {
+			// remplace le tag d'une image.
+			$content = str_replace( $name_tags, $valueTag, $content );
+			// URL de l'image envoyée.
+			$chemin_initial[ $name_tags1 ] = $createDirectory . '/' . sanitize_text_field( $referenceOfPdf ) . '-' . wpcf7_mail_replace_tags( $name_tags );
+			// On copie l'image dans le dossier.
+			copy( $file_location, $chemin_initial[ $name_tags1 ] );
+			// rotation de l'image si besoin.
+			$rotate_image[ $name_tags1 ] = self::adjust_image_orientation( $chemin_initial[ $name_tags1 ] );
+			// retourne l'URL complete du tag.
+			$chemin_final[ $name_tags1 ] = str_replace( $upload_dir['basedir'], $upload_dir['baseurl'], $chemin_initial[ $name_tags1 ] );
+		} elseif ( isset( $valueTag ) && $valueTag != '' ) {
+			// remplace le tag d'une image.
+			$content = str_replace( $name_tags, $valueTag, $content );
+			// URL du fichier envoyé.
+			$uploadingImg[ $name_tags1 ] = $createDirectory . '/' . sanitize_text_field( $referenceOfPdf ) . '-' . wpcf7_mail_replace_tags( $name_tags );
+			$chemin_final[ $name_tags1 ] = str_replace( $upload_dir['basedir'], $upload_dir['baseurl'], $uploadingImg[ $name_tags1 ] );
+
+		} else {
+			// On copie l'image ONE PIXEL dans le dossier si il n'existe pas déjà.
+			if ( file_exists( $upload_dir['basedir'] . '/sendpdfcf7_uploads/' . $id . '/onepixel.png' ) === false ) {
+				copy( esc_url( WPCF7PDF_URL . 'images/onepixel.png' ), esc_url( str_replace( $upload_dir['basedir'], $upload_dir['baseurl'], $createDirectory . '/onepixel.png' ) ) );
+			}
+			$chemin_final[ $name_tags1 ] = str_replace( $upload_dir['basedir'], $upload_dir['baseurl'], $createDirectory . '/onepixel.png' );
+		}
+		$content = str_replace( '[url-' . $name_tags1 . ']', $chemin_final[ $name_tags1 ], $content );
+		return $content;
+	}
+
+	public static function tags_parser( $id, $nameOfPdf, $referenceOfPdf, $contentPdf, $mailcontent = 0, $preview = 0 ) {
+
+		if ( empty( $id ) ) {
+			return;
+		}
+
+		// Traitement des tags conditionnels [if]...[else]...[/if].
+		$contentPdf = self::conditional_tags_parser( $id, $contentPdf, $preview );
+
+		// On récupère le dossier upload de WP.
+		$upload_dir      = wp_upload_dir();
+		$upload_basedir  = $upload_dir['basedir'];
+		$upload_baseurl  = $upload_dir['baseurl'];
+		$createDirectory = cf7_sendpdf::wpcf7pdf_folder_uploads( $id );
+
+		$meta_values = get_post_meta( esc_html( $id ), '_wp_cf7pdf', true );
+
+		// Genere le nom du PDF.
+		$nameOfPdf = cf7_sendpdf::wpcf7pdf_name_pdf( $id );
+
+		// Definition des dates par defaut.
+		$dateField = self::returndate( $id );
+		$timeField = self::returntime( $id );
+
+		// replace tag by avatar picture.
+		$user = wp_get_current_user();
+		if ( $user ) :
+			$contentPdf = str_replace( '[avatar]', esc_url( get_avatar_url( $user->ID ) ), $contentPdf );
+		endif;
+		/**
+		 * FIN
+		 */
+
+		// Recupère les dates Tags _format_ potentiels, et change le format définit par l'user.
+		if ( preg_match_all( '/\[(_format_.*?)\]/', $contentPdf, $outdate, PREG_PATTERN_ORDER ) ) {
+
+			for ( $i = 0; $i < count( $outdate[1] ); $i++ ) {
+
+				$dateFormat = str_replace( '_format_', '', $outdate[1][ $i ] );
+				$dateFormat = explode( '"', $dateFormat );
+
+				if ( isset( $preview ) && ( $preview == 1 || $preview == 2 ) ) {
+					$date       = gmdate( 'd-m-Y' );
+					$formatDate = new DateTime( $date );
+					$contentPdf = str_replace( '[' . $outdate[1][ $i ] . ']', $formatDate->format( $dateFormat[1] ), $contentPdf );
+				} else {
+					$dateValue  = wpcf7_mail_replace_tags( esc_html( '[' . trim( $dateFormat[0] ) . ']' ) );
+					$formatDate = new DateTime( $dateValue );
+					$contentPdf = str_replace( '[' . $outdate[1][ $i ] . ']', $formatDate->format( $dateFormat[1] ), $contentPdf );
+				}
+			}
+		}
+
+		// Si on trouve des shortcodes de prix.
+		if ( preg_match_all( '/\[(_price.*?)\]/', $contentPdf, $outprice, PREG_PATTERN_ORDER ) ) {
+
+			for ( $i = 0; $i < count( $outprice[1] ); $i++ ) {
+
+				// On separe les données.
+				$price = explode( '|', $outprice[1][ $i ] );
+
+				if ( isset( $preview ) && ( $preview == 1 || $preview == 2 ) ) {
+					$valueprice = 25000;
+				} else {
+					$valueprice = wpcf7_mail_replace_tags( esc_html( '[' . $price[1] . ']' ) );
+				}
+				// Nom du tag $price[1] / Decimals : $price[2] / Decimal_separator : $price[3].' / Thousands_separator : $price[4].
+				if ( isset( $valueprice ) && $valueprice > 0 ) {
+					$formatPrice = number_format( $valueprice, $price[2], $price[3], $price[4] );
+					$contentPdf  = str_replace( '[' . $outprice[1][ $i ] . ']', $formatPrice, $contentPdf );
+				} else {
+					$contentPdf = str_replace( '[' . $outprice[1][ $i ] . ']', '', $contentPdf );
+				}
+			}
+		}
+
+		if ( isset( $preview ) && ( $preview == 1 || $preview == 2 ) ) {
+			$referenceOfPdf = uniqid();
+		}
+		// Remplace le tag reference.
+		$contentPdf = str_replace( '[reference]', wp_kses_post( $referenceOfPdf ), $contentPdf );
+		// Remplace le tag URL-PDF.
+		$contentPdf = str_replace( '[url-pdf]', esc_url( str_replace( $upload_basedir, $upload_baseurl, $createDirectory ) . '/' . $nameOfPdf . '-' . wp_kses_post( $referenceOfPdf ) . '.pdf' ), $contentPdf );
+
+		if ( isset( $preview ) && ( $preview == 1 || $preview == 2 ) ) {
+			// Remplace le tag ID.
+			$contentPdf = str_replace( '[ID]', '000' . gmdate( 'md' ), $contentPdf );
+			if ( isset( $meta_values['data_textarea'] ) && $meta_values['data_textarea'] == 'true' ) {
+				$contentPdf = str_replace( '[your-name]', '<input type="text" class="wpcf7-text" size="80" name="your-name" value="Doe" />', $contentPdf );
+			} else {
+				$contentPdf = str_replace( '[your-name]', 'Doe', $contentPdf );
+			}
+			if ( isset( $meta_values['data_textarea'] ) && $meta_values['data_textarea'] == 'true' ) {
+				$contentPdf = str_replace( '[your-firstname]', '<input type="text" class="wpcf7-text" size="80" name="your-firstname" value="John" />', $contentPdf );
+			} else {
+				$contentPdf = str_replace( '[your-firstname]', 'John', $contentPdf );
+			}
+			if ( isset( $meta_values['data_textarea'] ) && $meta_values['data_textarea'] == 'true' ) {
+				$contentPdf = str_replace( '[your-email]', '<input type="text" class="wpcf7-text" size="80" name="your-email" value="johndoe@nowhere.com" />', $contentPdf );
+			} else {
+				$contentPdf = str_replace( '[your-email]', 'John', $contentPdf );
+			}
+			if ( isset( $meta_values['data_textarea'] ) && $meta_values['data_textarea'] == 'true' ) {
+				$contentPdf = str_replace( '[your-subject]', '<input type="text" class="wpcf7-text" name="your-subject" size="80" value="' . __( 'This is a subject test!', 'send-pdf-for-contact-form-7' ) . '" />', $contentPdf );
+			} else {
+				$contentPdf = str_replace( '[your-subject]', __( 'This is a subject test!', 'send-pdf-for-contact-form-7' ), $contentPdf );
+			}
+			if ( isset( $meta_values['data_textarea'] ) && $meta_values['data_textarea'] == 'true' ) {
+				$contentPdf = str_replace( '[your-message]', '<textarea cols="100%" rows="20" class="wpcf7-textarea" name="your-message">' . __( 'I did not understand at first for what it was intended, but it appeared. Great!', 'send-pdf-for-contact-form-7' ) . '</textarea>', $contentPdf );
+			} else {
+				$contentPdf = str_replace( '[your-message]', __( 'I did not understand at first for what it was intended, but it appeared. Great!', 'send-pdf-for-contact-form-7' ), $contentPdf );
+			}
+		}
+		// Remplace les tags date et time.
+		$contentPdf = str_replace( '[date]', $dateField, $contentPdf );
+		$contentPdf = str_replace( '[time]', $timeField, $contentPdf );
+
+		// On gère les séparateurs avant et après les balise checkbox et radio.
+		$tagSeparate = '';
+		if ( isset( $meta_values['separate'] ) ) {
+			if ( $meta_values['separate'] == 'none' ) {
+				$tagSeparate = ''; }
+			if ( $meta_values['separate'] == 'comma' ) {
+				$tagSeparate = ', '; }
+			if ( $meta_values['separate'] == 'space' ) {
+				$tagSeparate = ' '; }
+			if ( $meta_values['separate'] == 'dash' ) {
+				$tagSeparate = '- '; }
+			if ( $meta_values['separate'] == 'star' ) {
+				$tagSeparate = '<i class="fas">&#xf621</i> '; }
+			if ( $meta_values['separate'] == 'rightarrow' ) {
+				$tagSeparate = '<i class="fas">&#xf061</i> '; }
+			if ( $meta_values['separate'] == 'double-right-arrow' ) {
+				$tagSeparate = '<i class="fas">&#xf101</i> '; }
+			if ( $meta_values['separate'] == 'cornerarrow' ) {
+				$tagSeparate = '<i class="fas">&#xf064</i> '; }
+		}
+		$tagSeparateAfter = ' ';
+		if ( isset( $meta_values['separate_after'] ) ) {
+			if ( $meta_values['separate_after'] == 'none' ) {
+				$tagSeparateAfter = ''; }
+			if ( $meta_values['separate_after'] == 'comma' ) {
+				$tagSeparateAfter = ', '; }
+			if ( $meta_values['separate_after'] == 'space' ) {
+				$tagSeparateAfter = ' '; }
+			if ( $meta_values['separate_after'] == 'linebreak' ) {
+				$tagSeparateAfter = '<br />'; }
+		}
+
+		// Si option fillable, on genere les champs et remplace les données.
+		$contact_form = WPCF7_ContactForm::get_instance( esc_html( $id ) );
+		$contact_tag  = $contact_form->scan_form_tags();
+
+		// Si le champ est checkbox ou radio en RAW.
+		$contentPdfTagsRaw = cf7_sendpdf::wpcf7pdf_mailparser( $contentPdf, 'raw' );
+		foreach ( (array) $contentPdfTagsRaw as $name_raw ) {
+
+			$name1raw  = str_replace( '_raw_', '', $name_raw );
+			$found_key = cf7_sendpdf::wpcf7pdf_foundkey( $contact_tag, $name1raw );
+			if ( false === $found_key || ! isset( $contact_tag[ $found_key ]['basetype'] ) ) {
+				continue;
+			}
+			$baseTypeRaw = $contact_tag[ $found_key ]['basetype'];
+
+			if ( isset( $baseTypeRaw ) && ( $baseTypeRaw === 'checkbox' || $baseTypeRaw === 'radio' ) ) {
+
+				// Exemple : CEO | sales@example.com
+				// on remplace _raw_TAG par l'avant PIPE soit CEO.
+				$rawValue   = wpcf7_mail_replace_tags( esc_html( '[' . $name_raw . ']' ) );
+				$contentPdf = str_replace( esc_html( '[' . $name_raw . ']' ), $rawValue, $contentPdf );
+
+				// on remplace TAG du raw par la valeur d'après PIPE soit sales@example.com.
+				$raw1Value  = wpcf7_mail_replace_tags( esc_html( '[' . $name1raw . ']' ) );
+				$contentPdf = str_replace( esc_html( '[' . $name1raw . ']' ), $raw1Value, $contentPdf );
+			}
+		}
+
+		// On parse le content pour extraire les types de champ.
+		$contentPdfTags = cf7_sendpdf::wpcf7pdf_mailparser( $contentPdf );
+		foreach ( (array) $contentPdfTags as $name_tags ) {
+
+			if ( ! is_array( $name_tags ) || ! isset( $name_tags[0], $name_tags[1] ) ) {
+				continue;
+			}
+
+			$name_tags[1] = str_replace( 'url-', '', $name_tags[1] );
+			$name_tags[0] = str_replace( 'url-', '', $name_tags[0] );
+			$found_key    = cf7_sendpdf::wpcf7pdf_foundkey( $contact_tag, $name_tags[1] );
+			if ( false === $found_key || ! isset( $contact_tag[ $found_key ] ) ) {
+				continue;
+			}
+
+			$basetype   = isset( $contact_tag[ $found_key ]['basetype'] ) ? $contact_tag[ $found_key ]['basetype'] : '';
+			$tagOptions = array();
+			if ( isset( $contact_tag[ $found_key ]['options'] ) && ! empty( $contact_tag[ $found_key ]['options'] ) ) {
+				$tagOptions = $contact_tag[ $found_key ]['options'];
+			}
+
+			/**
+			 *  Si le champ est un type EMAIL
+			 */
+			if ( isset( $basetype ) && $basetype === 'email' ) {
+				if ( isset( $preview ) && ( $preview == 1 || $preview == 2 ) ) {
+					$valueTag = 'johndoe@nowhere.com'; // Valeur par défaut pour le preview.
+				} else {
+					$valueTag = wpcf7_mail_replace_tags( esc_html( $name_tags[0] ) );
+				}
+				// On verifie si le champ est vide et si on doit l'afficher ou pas.
+				if ( ( isset( $meta_values['empty_input'] ) && $meta_values['empty_input'] == 'true' ) && $valueTag == '' ) {
+					$contentPdf = str_replace( esc_html( $name_tags[0] ), '', $contentPdf );
+				} elseif ( isset( $meta_values['data_textarea'] ) && $meta_values['data_textarea'] == 'true' ) {
+						$contentPdf = str_replace( esc_html( $name_tags[0] ), '<input type="email" style="max-width:100%;" name="' . $name_tags[1] . '" value="' . esc_html( $valueTag ) . '" />', $contentPdf );
+				} else {
+					$contentPdf = str_replace( esc_html( $name_tags[0] ), esc_html( $valueTag ), $contentPdf );
+				}
+			}
+
+			/**
+			 *  Si le champ est un type COLOR
+			 */
+			if ( isset( $basetype ) && $basetype === 'color' ) {
+
+				if ( isset( $preview ) && ( $preview == 1 || $preview == 2 ) ) {
+					$valueTag = '#6b240eff'; // Valeur par défaut pour le preview.
+				} else {
+					$valueTag = wpcf7_mail_replace_tags( esc_html( $name_tags[0] ) );
+				}
+				// On verifie si le champ est vide et si on doit l'afficher ou pas.
+				if ( ( isset( $meta_values['empty_input'] ) && $meta_values['empty_input'] == 'true' ) && $valueTag == '' ) {
+					$contentPdf = str_replace( esc_html( $name_tags[0] ), '', $contentPdf );
+				} elseif ( isset( $meta_values['data_textarea'] ) && $meta_values['data_textarea'] == 'true' ) {
+						$contentPdf = str_replace( esc_html( $name_tags[0] ), '<input type="color" name="' . $name_tags[1] . '" value="' . esc_html( $valueTag ) . '"> <span style="width:10px;height:10px;background-color:' . esc_html( $valueTag ) . ';">&nbsp;&nbsp;&nbsp;</span>', $contentPdf );
+				} else {
+					$contentPdf = str_replace( esc_html( $name_tags[0] ), esc_html( $valueTag ), $contentPdf );
+				}
+			}
+
+			/**
+			 *  Si le champ est un type file et image
+			 */
+			if ( isset( $basetype ) && $basetype === 'file' ) {
+
+				if ( isset( $preview ) && ( $preview == 1 || $preview == 2 ) ) {
+					preg_match_all( '/<img[^>]+>/i', $contentPdf, $imgTags );
+					for ( $i = 0; $i < count( $imgTags[0] ); $i++ ) {
+						// get the source string.
+						preg_match( '/src="([^"]+)/i', $imgTags[0][ $i ], $imageTag );
+						// remove opening 'src=' tag, can`t get the regex right.
+						$origImageSrc = str_ireplace( 'src="', '', $imageTag[0] );
+						$contentPdf   = str_replace( $origImageSrc, WPCF7PDF_URL . 'images/temporary-image.jpg', $contentPdf );
+					}
+					$contentPdf = str_replace( esc_html( $name_tags[0] ), '<img src="' . WPCF7PDF_URL . 'images/temporary-image.jpg" width="300" height="300" />', $contentPdf );
+				} else {
+					$valueTag   = wpcf7_mail_replace_tags( $name_tags[0] );
+					$contentPdf = self::upload_file( $id, $valueTag, $name_tags[0], $name_tags[1], $referenceOfPdf, $contentPdf );
+				}
+
+				/**
+				 *  Si le champ est un type textarea
+				 */
+			} elseif ( isset( $basetype ) && $basetype === 'textarea' ) {
+
+				$valueTag           = wpcf7_mail_replace_tags( esc_html( $name_tags[0] ) );
+				$emptyTextareaInput = 0;
+				if ( ( isset( $meta_values['empty_input'] ) && $meta_values['empty_input'] == 'true' ) && $valueTag == '' ) {
+					$emptyTextareaInput = 1;
+				}
+				// Si le contenu du PDF doit rester en brut et pas en HTML.
+				if ( isset( $meta_values['linebreak'] ) && $meta_values['linebreak'] == 'false' ) {
+					$valueTag = str_replace( "\r\n", '<br />', $valueTag );
+				} elseif ( $mailcontent == 1 && ( isset( $meta_values['disable-html'] ) && $meta_values['disable-html'] == 'false' ) ) {
+					$valueTag = str_replace( "\r\n", '<br />', $valueTag );
+				}
+				if ( $emptyTextareaInput == 0 ) {
+					if ( isset( $meta_values['data_textarea'] ) && $meta_values['data_textarea'] == 'true' ) {
+						$contentPdf = str_replace( esc_html( $name_tags[0] ), '<textarea cols="40" rows="10" name="' . $name_tags[1] . '">' . $valueTag . '</textarea>', $contentPdf );
+					} else {
+						$contentPdf = str_replace( esc_html( $name_tags[0] ), $valueTag, $contentPdf );
+					}
+				} elseif ( $emptyTextareaInput == 1 ) {
+					$contentPdf = str_replace( esc_html( $name_tags[0] ), '', $contentPdf );
+				}
+
+				/**
+				 *  Si le champ est un type select
+				 */
+			} elseif ( isset( $basetype ) && $basetype === 'select' ) {
+
+				$valueTag = wpcf7_mail_replace_tags( esc_html( $name_tags[0] ) );
+				if ( ( isset( $meta_values['empty_input'] ) && $meta_values['empty_input'] == 'true' ) && ( $valueTag == '' || $valueTag == '#' ) ) {
+					$contentPdf = str_replace( esc_html( $name_tags[0] ), '', $contentPdf );
+				} else {
+					$contentPdf = str_replace( esc_html( $name_tags[0] ), $valueTag, $contentPdf );
+				}
+
+				/**
+				 *  Si le champ est un type text
+				 *  On retire si c'est le shortocode de test et si c'est un codebarre
+				 */
+			} elseif ( ( isset( $basetype ) && $basetype === 'text' ) && ( isset( $name_tags[1] ) && $name_tags[1] != '0-9' ) && ( isset( $name_tags[1] ) && $name_tags[1] != 'addpage' ) && ( isset( $name_tags[1] ) && $name_tags[1] != 'wpcf7pdf_test' ) ) {
+
+				$valueTag = wpcf7_mail_replace_tags( esc_html( $name_tags[0] ) );
+				if ( ( isset( $meta_values['empty_input'] ) && $meta_values['empty_input'] == 'true' ) && $valueTag == '' ) {
+					$contentPdf = str_replace( esc_html( $name_tags[0] ), '', $contentPdf );
+				} elseif ( isset( $meta_values['data_textarea'] ) && $meta_values['data_textarea'] == 'true' ) {
+						$contentPdf = str_replace( esc_html( $name_tags[0] ), '<input type="text" style="max-width:100%;" name="' . $name_tags[1] . '" value="' . esc_html( $valueTag ) . '">', $contentPdf );
+				} else {
+					$contentPdf = str_replace( esc_html( $name_tags[0] ), esc_html( $valueTag ), $contentPdf );
+				}
+
+				/**
+				 *  Si le champ est un type checkbox
+				 */
+			} elseif ( isset( $basetype ) && $basetype === 'checkbox' ) {
+
+				$valueTag      = wpcf7_mail_replace_tags( esc_html( $name_tags[0] ) );
+				$inputCheckbox = '';
+				$nb            = count( $contact_tag[ $found_key ]['values'] );
+				$textFreeText  = '';
+
+				// Si un free_text est renseigné, on le remplace dans le PDF.
+				if ( in_array( 'free_text', $tagOptions ) && ( isset( $_POST[ '_wpcf7_free_text_' . $name_tags[1] ] ) && $_POST[ '_wpcf7_free_text_' . $name_tags[1] ] != '' ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+					// $contentPdf = str_replace('[free_text_'.esc_html($name_tags[1].']'), esc_html($_POST['_wpcf7_free_text_'.$name_tags[1]]), $contentPdf);
+					$contentPdf = str_replace( '[' . esc_html( $name_tags[1] . ']' ), esc_html( sanitize_text_field( wp_unslash( $_POST[ '_wpcf7_free_text_' . $name_tags[1] ] ) ) ), $contentPdf ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
+				}
+
+				// si l'option empty_input est activé, on verifie si le tag est vide.
+				if ( ( isset( $meta_values['empty_input'] ) && $meta_values['empty_input'] == 'true' ) ) {
+
+					// Affiche la liste des valeurs retournées par le formulaire
+					// $valueTag est retourné avec les valeurs et entre virgule. On dissocie cela.
+					$tabValueTag = array_map( 'trim', explode( ',', $valueTag ) );
+					$n           = 1;
+					foreach ( $tabValueTag as $sendValueTag ) {
+
+						if ( isset( $meta_values['data_input'] ) && $meta_values['data_input'] == 'true' ) {
+							if ( in_array( 'label_first', $tagOptions ) ) {
+								$inputCheckbox .= '' . $tagSeparate . '' . esc_html( $sendValueTag ) . ' <input type="checkbox" class="wpcf7-checkbox" name="text_' . esc_html( $name_tags[1] . $n ) . '" value="' . $n . '" checked="checked" /> ' . $tagSeparateAfter . '';
+							} else {
+								$inputCheckbox .= '' . $tagSeparate . '<input type="checkbox" class="wpcf7-checkbox" name="text_' . esc_html( $name_tags[1] . $n ) . '" value="' . $n . '" checked="checked" /> ' . esc_html( $sendValueTag ) . '' . $tagSeparateAfter . '';
+							}
+						} else {
+							$inputCheckbox .= '' . $tagSeparate . '' . esc_html( $sendValueTag ) . '' . $tagSeparateAfter . '';
+						}
+
+						++$n;
+					}
+				} else {
+
+					$tabValueTag = array_map( 'trim', explode( ',', $valueTag ) );
+					$nb          = count( $contact_tag[ $found_key ]['values'] );
+
+					// Si on affiche les input, checkbox et radio.
+					if ( isset( $meta_values['data_input'] ) && $meta_values['data_input'] == 'true' ) {
+
+						$i = 0;
+
+						if ( isset( $meta_values['empty_input'] ) && $meta_values['empty_input'] == 'true' ) {
+
+							foreach ( $tabValueTag as $idCheckbox => $valCheckbox ) {
+
+								if ( ( $nb - 1 ) == $idCheckbox && ( isset( $_POST[ '_wpcf7_free_text_' . $name_tags[1] ] ) && $_POST[ '_wpcf7_free_text_' . $name_tags[1] ] != '' ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+									$textFreeText = ' ' . esc_html( sanitize_text_field( wp_unslash( $_POST[ '_wpcf7_free_text_' . $name_tags[1] ] ) ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
+								}
+
+								if ( in_array( 'label_first', $tagOptions ) ) {
+									$inputCheckbox .= '' . $tagSeparate . '' . esc_html( $valCheckbox ) . '' . esc_html( $textFreeText ) . ' <input type="checkbox" class="wpcf7-checkbox" name="text_' . esc_html( $name_tags[1] . $idCheckbox ) . '" value="' . $idCheckbox . '" checked="checked" /> ' . $tagSeparateAfter . '';
+								} else {
+									$inputCheckbox .= '' . $tagSeparate . '<input type="checkbox" class="wpcf7-checkbox" name="text_' . esc_html( $name_tags[1] . $idCheckbox ) . '" value="' . $idCheckbox . '" checked="checked" /> ' . esc_html( $valCheckbox ) . '' . esc_html( $textFreeText ) . '' . $tagSeparateAfter . '';
+								}
+								++$i;
+
+							}
+						} else {
+
+							foreach ( $contact_tag[ $found_key ]['values'] as $idCheckbox => $valCheckbox ) {
+
+								$caseChecked = '';
+
+								if ( in_array( sanitize_text_field( $valCheckbox ), $tabValueTag ) ) {
+									$caseChecked = 'checked="checked"';
+								}
+
+								if ( ( $nb - 1 ) == $idCheckbox && ( isset( $_POST[ '_wpcf7_free_text_' . $name_tags[1] ] ) && $_POST[ '_wpcf7_free_text_' . $name_tags[1] ] != '' ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+									$textFreeText = ' ' . esc_html( sanitize_text_field( wp_unslash( $_POST[ '_wpcf7_free_text_' . $name_tags[1] ] ) ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
+									$caseChecked  = 'checked="checked"';
+								}
+
+								if ( in_array( 'label_first', $tagOptions ) ) {
+									$inputCheckbox .= '' . $tagSeparate . '' . esc_html( $valCheckbox ) . '' . esc_html( $textFreeText ) . ' <input type="checkbox" class="wpcf7-checkbox" name="text_' . esc_html( $name_tags[1] . $idCheckbox ) . '" value="' . $idCheckbox . '" ' . $caseChecked . ' /> ' . $tagSeparateAfter . '';
+								} else {
+									$inputCheckbox .= '' . $tagSeparate . '<input type="checkbox" class="wpcf7-checkbox" name="text_' . esc_html( $name_tags[1] . $idCheckbox ) . '" value="' . $idCheckbox . '" ' . $caseChecked . ' /> ' . esc_html( $valCheckbox ) . '' . esc_html( $textFreeText ) . '' . $tagSeparateAfter . '';
+								}
+								++$i;
+							}
+						}
+					} else {
+						$i = 0;
+						foreach ( $tabValueTag as $idCheckbox => $valCheckbox ) {
+
+							if ( isset( $_POST[ '_wpcf7_free_text_' . $name_tags[1] ] ) && $_POST[ '_wpcf7_free_text_' . $name_tags[1] ] != '' ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+								$textFreeText  = ' ' . esc_html( sanitize_text_field( wp_unslash( $_POST[ '_wpcf7_free_text_' . $name_tags[1] ] ) ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
+								$inputCheckbox = '' . $tagSeparate . '' . esc_html( $valueTag ) . '' . $tagSeparateAfter . '';
+							}
+							// if( sanitize_text_field($valueTag)===sanitize_text_field($valCheckbox) && (strcmp(sanitize_title($valueTag), sanitize_title($valCheckbox)) === 0 || strcmp(sanitize_title($valueTag), sanitize_title($idCheckbox)) === 1) ) {.
+								$inputCheckbox .= '' . $tagSeparate . '' . esc_html( $valCheckbox ) . '' . esc_html( $textFreeText ) . '' . $tagSeparateAfter . '';
+							// }
+							// error_log('valueTag ('.$nb.') : '.sanitize_text_field($valueTag).' - valCheckbox: '.sanitize_text_field($valCheckbox).' - Return : '.strcmp(sanitize_title($valueTag), sanitize_title($valCheckbox)).' - idCheckbox: '.sanitize_text_field($idCheckbox));
+							++$i;
+						}
+					}
+				}
+
+				if ( $tagSeparateAfter !== '' && substr( $inputCheckbox, -strlen( $tagSeparateAfter ) ) === $tagSeparateAfter ) {
+					$inputCheckbox = substr( $inputCheckbox, 0, -strlen( $tagSeparateAfter ) );
+				}
+
+				// Affiche la liste des valeurs retournées par le formulaire.
+				$contentPdf = str_replace( esc_html( $name_tags[0] ), $inputCheckbox, $contentPdf );
+
+				/**
+				 *  Si le champ est un type radio
+				 */
+			} elseif ( isset( $basetype ) && $basetype === 'radio' ) {
+
+				$valueRadioTag = wpcf7_mail_replace_tags( esc_html( $name_tags[0] ) );
+				$inputRadio    = '';
+				$i             = 0;
+				$nb            = count( $contact_tag[ $found_key ]['values'] );
+				$textFreeText  = '';
+
+				// Si un free_text est renseigné, on le remplace dans le PDF.
+				if ( in_array( 'free_text', $tagOptions ) && ( isset( $_POST[ '_wpcf7_free_text_' . $name_tags[1] ] ) && $_POST[ '_wpcf7_free_text_' . $name_tags[1] ] != '' ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+					$contentPdf = str_replace( '[free_text_' . esc_html( $name_tags[1] . ']' ), esc_html( sanitize_text_field( wp_unslash( $_POST[ '_wpcf7_free_text_' . $name_tags[1] ] ) ) ), $contentPdf ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
+				}
+
+				// si l'option empty_input est activé, on verifie si le tag est vide.
+				if ( ( isset( $meta_values['empty_input'] ) && $meta_values['empty_input'] == 'true' ) ) {
+
+					// Affiche la liste des valeurs retournées par le formulaire
+					// $valueRadioTag est retourné avec les valeurs et entre virgule. On dissocie cela.
+					$tabValueTag = explode( ',', $valueRadioTag );
+					$n           = 1;
+					foreach ( $tabValueTag as $sendRadioValueTag ) {
+
+						if ( isset( $meta_values['data_input'] ) && $meta_values['data_input'] == 'true' ) {
+							if ( in_array( 'label_first', $tagOptions ) ) {
+								$inputRadio .= '' . $tagSeparate . '' . esc_html( $sendRadioValueTag ) . ' <input type="radio" class="wpcf7-radio" name="text_' . esc_html( $name_tags[1] . $n ) . '" value="' . $n . '" checked="checked" /> ' . $tagSeparateAfter . '';
+							} else {
+								$inputRadio .= '' . $tagSeparate . '<input type="radio" class="wpcf7-radio" name="text_' . esc_html( $name_tags[1] . $n ) . '" value="' . $n . '" checked="checked" /> ' . esc_html( $sendRadioValueTag ) . '' . $tagSeparateAfter . '';
+							}
+						} else {
+							$inputRadio .= '' . $tagSeparate . '' . esc_html( $sendRadioValueTag ) . '' . $tagSeparateAfter . '';
+						}
+
+						++$n;
+					}
+				} else {
+
+					$tabValueTag = explode( ',', $valueRadioTag );
+					$nb          = count( $contact_tag[ $found_key ]['values'] );
+					// Afficher la liste des noms des radio.
+					foreach ( $contact_tag[ $found_key ]['values'] as $idRadio => $valRadio ) {
+
+						// Si on affiche les input, radio et radio.
+						if ( isset( $meta_values['data_input'] ) && $meta_values['data_input'] == 'true' ) {
+
+							$caseChecked = '';
+
+							if ( sanitize_text_field( $valueRadioTag ) === sanitize_text_field( $valRadio ) && ( strcmp( sanitize_title( $valueRadioTag ), sanitize_title( $valRadio ) ) === 0 || strcmp( sanitize_title( $valueRadioTag ), sanitize_title( $idRadio ) ) === 1 ) ) {
+								$caseChecked = 'checked="checked"';
+							}
+							if ( in_array( $valRadio, $tabValueTag ) ) {
+								$caseChecked = 'checked="checked"';
+							}
+							if ( ( $nb - 1 ) == $idRadio && ( isset( $_POST[ '_wpcf7_free_text_' . $name_tags[1] ] ) && $_POST[ '_wpcf7_free_text_' . $name_tags[1] ] != '' ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+								$textFreeText = ' ' . esc_html( sanitize_text_field( wp_unslash( $_POST[ '_wpcf7_free_text_' . $name_tags[1] ] ) ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
+								$caseChecked  = 'checked="checked"';
+							}
+
+							if ( in_array( 'label_first', $tagOptions ) ) {
+								$inputRadio .= '' . $tagSeparate . '' . esc_html( $valRadio ) . '' . esc_html( $textFreeText ) . ' <input type="radio" class="wpcf7-radio" name="text_' . esc_html( $name_tags[1] . $idRadio ) . '" value="' . $idRadio . '" ' . $caseChecked . ' /> ' . $tagSeparateAfter . '';
+							} else {
+								$inputRadio .= '' . $tagSeparate . '<input type="radio" class="wpcf7-radio" name="text_' . esc_html( $name_tags[1] . $idRadio ) . '" value="' . $idRadio . '" ' . $caseChecked . ' /> ' . esc_html( $valRadio ) . '' . esc_html( $textFreeText ) . '' . $tagSeparateAfter . '';
+							}
+						} else {
+
+							if ( isset( $_POST[ '_wpcf7_free_text_' . $name_tags[1] ] ) && $_POST[ '_wpcf7_free_text_' . $name_tags[1] ] != '' ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+								$textFreeText = ' ' . esc_html( sanitize_text_field( wp_unslash( $_POST[ '_wpcf7_free_text_' . $name_tags[1] ] ) ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
+								$inputRadio   = '' . $tagSeparate . '' . esc_html( $valueRadioTag ) . '' . $tagSeparateAfter . '';
+							}
+							if ( sanitize_text_field( $valueRadioTag ) === sanitize_text_field( $valRadio ) && ( strcmp( sanitize_title( $valueRadioTag ), sanitize_title( $valRadio ) ) === 0 || strcmp( sanitize_title( $valueRadioTag ), sanitize_title( $idRadio ) ) === 1 ) ) {
+								$inputRadio .= '' . $tagSeparate . '' . esc_html( $valueRadioTag ) . '' . esc_html( $textFreeText ) . '' . $tagSeparateAfter . '';
+							}
+						}
+
+						++$i;
+
+					}
+				}
+
+				if ( $tagSeparateAfter !== '' && substr( $inputRadio, -strlen( $tagSeparateAfter ) ) === $tagSeparateAfter ) {
+					$inputRadio = substr( $inputRadio, 0, -strlen( $tagSeparateAfter ) );
+				}
+
+				$contentPdf = str_replace( esc_html( $name_tags[0] ), $inputRadio, $contentPdf );
+
+			} else {
+
+				$valueTag   = wpcf7_mail_replace_tags( esc_html( $name_tags[0] ) );
+				$contentPdf = str_replace( esc_html( $name_tags[0] ), esc_html( $valueTag ), $contentPdf );
+			}
+		}
+
+		// Si le contenu du PDF doit rester en brut et pas en HTML.
+		/*
+		if( isset($meta_values["linebreak"]) && $meta_values['linebreak'] == 'false' ) {
+			$contentPdf = str_replace("\r\n", "<br />", $contentPdf);
+		} else if( $mailcontent==1 && (isset($meta_values["disable-html"]) && $meta_values['disable-html'] == 'false') ) {
+			$contentPdf = str_replace("\r\n", "<br />", $contentPdf);
+		}*/
+
+		return $contentPdf;
+	}
+
+	private static function log_conditional_debug( $message ) {
+		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+			error_log( '[CF7PDF conditional] ' . $message );
+		}
+	}
+
+	private static function normalize_conditional_field_value( $fieldValue ) {
+		if ( is_array( $fieldValue ) ) {
+			$fieldValue = implode( ' ', $fieldValue );
+		}
+		$fieldValue = (string) $fieldValue;
+		$stripped   = trim( wp_strip_all_tags( $fieldValue, true ) );
+		return $stripped;
+	}
+
+	private static function is_field_effectively_empty( $fieldValue ) {
+		$n = self::normalize_conditional_field_value( $fieldValue );
+		if ( $n === '' ) {
+			return true;
+		}
+		if ( preg_match( '/^\[[\w\*][\w\*\-\.:]*\]$/', $n ) ) {
+			return true;
+		}
+		return false;
+	}
+
+	private static function conditional_normalize_compare_string( $s ) {
+		$s = trim( (string) $s );
+		$s = preg_replace( '/\x{00A0}/u', ' ', $s );
+		$s = preg_replace( '/\s+/u', ' ', $s );
+		return $s;
+	}
+
+	private static function conditional_string_ci_equal( $a, $b ) {
+		if ( function_exists( 'mb_strtolower' ) ) {
+			return mb_strtolower( $a, 'UTF-8' ) === mb_strtolower( $b, 'UTF-8' );
+		}
+		return strcasecmp( $a, $b ) === 0;
+	}
+
+	private static function conditional_equal_match( $fieldNorm, $condNorm ) {
+		$condNorm  = self::conditional_normalize_compare_string( $condNorm );
+		$fieldNorm = self::conditional_normalize_compare_string( $fieldNorm );
+		if ( $condNorm === '' ) {
+			return $fieldNorm === '';
+		}
+		if ( self::conditional_string_ci_equal( $fieldNorm, $condNorm ) ) {
+			return true;
+		}
+		foreach ( preg_split( '/\s*[,;]\s*/u', $fieldNorm ) ?: array() as $chunk ) {
+			$chunk = trim( $chunk );
+			if ( $chunk === '' ) {
+				continue;
+			}
+			if ( self::conditional_string_ci_equal( $chunk, $condNorm ) ) {
+				return true;
+			}
+			if ( strpos( $chunk, '|' ) !== false ) {
+				foreach ( explode( '|', $chunk ) as $pv ) {
+					$pv = trim( $pv );
+					if ( $pv !== '' && self::conditional_string_ci_equal( $pv, $condNorm ) ) {
+						return true;
+					}
+				}
+			}
+		}
+		return false;
+	}
+
+	private static function conditional_field_value_candidates( $fieldName, $fieldValue, $preview ) {
+		$candidates = array( $fieldValue );
+		if ( $preview != 1 && $fieldName !== '' && function_exists( 'wpcf7_mail_replace_tags' ) ) {
+			$raw = wpcf7_mail_replace_tags( '[_raw_' . $fieldName . ']' );
+			if ( $raw !== '' && $raw !== $fieldValue ) {
+				$candidates[] = $raw;
+			}
+		}
+		return $candidates;
+	}
+
+	private static function evaluate_condition( $fieldValue, $operator, $conditionValue, $fieldName = '', $preview = 0 ) {
+		$norm     = self::normalize_conditional_field_value( $fieldValue );
+		$condNorm = is_string( $conditionValue ) ? trim( $conditionValue ) : (string) $conditionValue;
+		$condNorm = self::conditional_normalize_compare_string( $condNorm );
+
+		$candidates = self::conditional_field_value_candidates( $fieldName, $fieldValue, $preview );
+
+		switch ( $operator ) {
+			case 'equal':
+				$out = false;
+				foreach ( $candidates as $cand ) {
+					if ( self::conditional_equal_match( self::normalize_conditional_field_value( $cand ), $condNorm ) ) {
+						$out = true;
+						break;
+					}
+				}
+				break;
+			case 'not_equal':
+				$out = true;
+				foreach ( $candidates as $cand ) {
+					if ( self::conditional_equal_match( self::normalize_conditional_field_value( $cand ), $condNorm ) ) {
+						$out = false;
+						break;
+					}
+				}
+				break;
+			case 'greater':
+				$out = (float) $norm > (float) $condNorm;
+				break;
+			case 'less':
+				$out = (float) $norm < (float) $condNorm;
+				break;
+			case 'greater_equal':
+				$out = (float) $norm >= (float) $condNorm;
+				break;
+			case 'less_equal':
+				$out = (float) $norm <= (float) $condNorm;
+				break;
+			case 'contains':
+				$out = false;
+				if ( $condNorm !== '' ) {
+					foreach ( $candidates as $cand ) {
+						$n = self::normalize_conditional_field_value( $cand );
+						if ( function_exists( 'mb_stripos' ) ? mb_stripos( $n, $condNorm, 0, 'UTF-8' ) !== false : stripos( $n, $condNorm ) !== false ) {
+							$out = true;
+							break;
+						}
+					}
+				}
+				break;
+			case 'not_empty':
+				$out = ! self::is_field_effectively_empty( $fieldValue );
+				break;
+			case 'empty':
+				$out = self::is_field_effectively_empty( $fieldValue );
+				break;
+			default:
+				$out = ! self::is_field_effectively_empty( $fieldValue );
+				break;
+		}
+
+		self::log_conditional_debug(
+			sprintf(
+				'evaluate_condition: operator=%s | field=%s | candidates=%s | normalized_primary=%s | condition_value=%s | result=%s',
+				$operator,
+				$fieldName,
+				implode( ' || ', array_map( array( __CLASS__, 'conditional_debug_repr' ), $candidates ) ),
+				self::conditional_debug_repr( $norm ),
+				self::conditional_debug_repr( $condNorm ),
+				$out ? 'true' : 'false'
+			)
+		);
+
+		return $out;
+	}
+
+	private static function conditional_debug_repr( $value, $maxLen = 300 ) {
+		if ( is_array( $value ) ) {
+			$value = wp_json_encode( $value );
+		}
+		$s = (string) $value;
+		$s = preg_replace( '/\s+/', ' ', $s );
+		if ( strlen( $s ) > $maxLen ) {
+			$s = substr( $s, 0, $maxLen ) . '…(len=' . strlen( (string) $value ) . ')';
+		}
+		return $s;
+	}
+
+	public static function conditional_tags_parser( $id, $contentPdf, $preview = 0 ) {
+
+		if ( empty( $id ) || empty( $contentPdf ) ) {
+			self::log_conditional_debug( 'conditional_tags_parser: skip (empty id or content). id=' . (string) $id );
+			return $contentPdf;
+		}
+
+		$meta_conditionaltags = get_post_meta( esc_html( $id ), '_wp_cf7pdf_conditionalfieldsname', true );
+		if ( ! is_array( $meta_conditionaltags ) ) {
+			$meta_conditionaltags = array();
+		}
+
+		self::log_conditional_debug(
+			sprintf(
+				'conditional_tags_parser: START form_id=%s preview=%s | content_length=%d | meta_keys=%s',
+				(string) $id,
+				(string) $preview,
+				strlen( $contentPdf ),
+				empty( $meta_conditionaltags ) ? '(none)' : implode( ',', array_keys( $meta_conditionaltags ) )
+			)
+		);
+
+		// Regex : [if field-name]content[else]alt content[/if].
+		$pattern = '/\[if\s+([a-zA-Z0-9_-]+)\](.*?)(?:\[else\](.*?))?\[\/if\]/s';
+
+		$matchCount = preg_match_all( $pattern, $contentPdf, $allMatches, PREG_SET_ORDER );
+		self::log_conditional_debug( 'conditional_tags_parser: regex matches count (initial)=' . (int) $matchCount );
+
+		$callback = function ( $matches ) use ( $meta_conditionaltags, $preview ) {
+
+			$fieldName   = $matches[1];
+			$ifContent   = $matches[2];
+			$elseContent = isset( $matches[3] ) ? $matches[3] : '';
+
+			self::log_conditional_debug(
+				sprintf(
+					'--- bloc [if %s] | if_branch_len=%d | else_branch_len=%d | if_branch_preview=%s',
+					$fieldName,
+					strlen( $ifContent ),
+					strlen( $elseContent ),
+					self::conditional_debug_repr( $ifContent, 120 )
+				)
+			);
+
+			// Récupérer la valeur du champ.
+			if ( $preview == 1 ) {
+				$fieldValue = 'preview-value';
+			} else {
+				$fieldValue = wpcf7_mail_replace_tags( '[' . $fieldName . ']' );
+			}
+
+			$rawRepr  = self::conditional_debug_repr( $fieldValue );
+			$effEmpty = self::is_field_effectively_empty( $fieldValue ) ? 'yes' : 'no';
+			self::log_conditional_debug(
+				sprintf(
+					'champ [%s]: wpcf7_mail_replace_tags reçu brut=%s | effectively_empty=%s',
+					$fieldName,
+					$rawRepr,
+					$effEmpty
+				)
+			);
+
+			// Si une condition est définie dans l'admin pour ce champ.
+			if ( isset( $meta_conditionaltags[ $fieldName ] ) && ! empty( $meta_conditionaltags[ $fieldName ]['operator'] ) ) {
+				$operator       = $meta_conditionaltags[ $fieldName ]['operator'];
+				$conditionValue = isset( $meta_conditionaltags[ $fieldName ]['value'] ) ? $meta_conditionaltags[ $fieldName ]['value'] : '';
+				self::log_conditional_debug(
+					sprintf(
+						'meta admin pour [%s]: operator=%s | value=%s',
+						$fieldName,
+						$operator,
+						self::conditional_debug_repr( $conditionValue, 200 )
+					)
+				);
+				$result = self::evaluate_condition( $fieldValue, $operator, $conditionValue, $fieldName, $preview );
+			} else {
+				// Par défaut : afficher le bloc si le champ a une valeur réelle (hors espaces / HTML vide).
+				$result = ! self::is_field_effectively_empty( $fieldValue );
+				self::log_conditional_debug(
+					sprintf(
+						'pas de meta admin pour [%s]: résultat défaut (afficher si non vide)=%s',
+						$fieldName,
+						$result ? 'true (branche if)' : 'false (branche else)'
+					)
+				);
+			}
+
+			$returned = $result ? $ifContent : $elseContent;
+
+			// Remplacer les tags CF7 ([hobbies], etc.) dans la branche conservée — sinon ils restent bruts ou mal traités ensuite.
+			if ( $preview != 1 && function_exists( 'wpcf7_mail_replace_tags' ) && $returned !== '' ) {
+				$lenBefore = strlen( $returned );
+				$returned  = wpcf7_mail_replace_tags( $returned );
+				self::log_conditional_debug(
+					sprintf(
+						'wpcf7_mail_replace_tags sur branche [%s]: len %d -> %d | preview=%s',
+						$fieldName,
+						$lenBefore,
+						strlen( $returned ),
+						self::conditional_debug_repr( $returned, 180 )
+					)
+				);
+			}
+
+			self::log_conditional_debug(
+				sprintf(
+					'--- résultat [if %s]: branche=%s | longueur_sortie_finale=%d',
+					$fieldName,
+					$result ? 'if' : 'else',
+					strlen( $returned )
+				)
+			);
+
+			return $returned;
+		};
+
+		// Plusieurs passes : [if] imbriqués dans la branche else/if (ex. else contenant un autre [if …]).
+		$maxPasses = 25;
+		$pass      = 0;
+		while ( $pass < $maxPasses && preg_match( $pattern, $contentPdf ) ) {
+			++$pass;
+			self::log_conditional_debug( 'conditional_tags_parser: passe ' . $pass );
+			$contentPdf = preg_replace_callback( $pattern, $callback, $contentPdf );
+		}
+		if ( $pass >= $maxPasses && preg_match( $pattern, $contentPdf ) ) {
+			self::log_conditional_debug( 'conditional_tags_parser: ATTENTION — limite de passes atteinte, [if] restants possibles' );
+		}
+
+		self::log_conditional_debug(
+			sprintf(
+				'conditional_tags_parser: END passes=%d content_length=%d',
+				$pass,
+				strlen( $contentPdf )
+			)
+		);
+
+		return $contentPdf;
+	}
 }
