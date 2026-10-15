@@ -43,12 +43,12 @@ function wpcf7pdf_btn_shortcode( $atts ) {
                         }
 
                     } else {
-                        return '<div style="text-align:center;width:80%;margin-left:auto;margin-right:right;background-color:#333;color:#ffffff;"><strong>ERROR Send PDF for Contact Form 7</strong><br />'.__('No data for this reference number', 'send-pdf-for-contact-form-7').' value:'.esc_html($meta_values["disable-insert"]).'</div>';
+                        return '<div style="text-align:center;width:80%;margin-left:auto;margin-right:right;background-color:#333;color:#ffffff;"><strong>' . esc_html__( 'ERROR', 'send-pdf-for-contact-form-7' ) . ' Send PDF for Contact Form 7</strong><br />'.__('No data for this reference number', 'send-pdf-for-contact-form-7').' value:'.esc_html($meta_values["disable-insert"]).'</div>';
                     }
                     
                 } else if( isset($meta_values["disable-insert"]) && $meta_values["disable-insert"]== 'true' ) {
 
-                    return '<div style="text-align:center;width:80%;margin-left:auto;margin-right:right;background-color:#333;color:#ffffff;"><strong>ERROR Send PDF for Contact Form 7</strong><br />'.__('"Insert subscribtion in database" option is disabled!<br />Please enable "Insert subscribtion in database" option', 'send-pdf-for-contact-form-7').' value:'.esc_html($meta_values["disable-insert"]).'</div>';
+                    return '<div style="text-align:center;width:80%;margin-left:auto;margin-right:right;background-color:#333;color:#ffffff;"><strong>' . esc_html__( 'ERROR', 'send-pdf-for-contact-form-7' ) . ' Send PDF for Contact Form 7</strong><br />'.__('"Insert subscribtion in database" option is disabled!<br />Please enable "Insert subscribtion in database" option', 'send-pdf-for-contact-form-7').' value:'.esc_html($meta_values["disable-insert"]).'</div>';
 
                 } else {
                     return '';
