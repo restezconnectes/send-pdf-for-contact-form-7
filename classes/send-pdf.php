@@ -542,9 +542,7 @@ class cf7_sendpdf {
         if ( function_exists( 'finfo_open' ) ) {
             $finfo     = finfo_open( FILEINFO_MIME_TYPE );
             $mime_type = $finfo ? finfo_file( $finfo, $file['tmp_name'] ) : '';
-            if ( $finfo ) {
-                finfo_close( $finfo );
-            }
+            // finfo_close() is deprecated as of PHP 8.1 ; the finfo resource/object is freed automatically when it goes out of scope.
             if ( $mime_type && ! in_array( $mime_type, $allowed_mimes, true ) ) {
                 wp_die( esc_html__( 'Disallowed file type. Please upload a UTF-8 JSON export from this plugin.', 'send-pdf-for-contact-form-7' ) );
             }
@@ -1091,10 +1089,6 @@ class cf7_sendpdf {
     }
 
     static function wpcf7pdf_attachments( $tag = null ) {
-
-        if ( ! $tag ) {
-            $tag = $this->get( 'attachments' );
-        }
 
         $attachments = array();
 
