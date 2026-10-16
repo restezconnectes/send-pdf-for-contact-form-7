@@ -720,8 +720,13 @@ if ( is_dir(get_stylesheet_directory()."/pdffonts/") == true ) {
                     </tr>
                     <tr>
                         <td>
-                            <?php esc_html_e('Change uploads folder?', 'send-pdf-for-contact-form-7'); ?><?php if( isset($meta_values["pdf-uploads-customname"]) && $meta_values["pdf-uploads-customname"]!='') { echo ''; } else { ?><p>(<i><?php if( isset($meta_values["pdf-uploads"]) && $meta_values["pdf-uploads"]=='true') { 
-                                printf(__("Great ! Now the upload folder's path is %s", 'send-pdf-for-contact-form-7'), '/wp-content/uploads/sendpdfcf7_uploads/'.esc_attr($idForm).'/'); } else { printf(__("By default, the upload folder's path is %s", 'send-pdf-for-contact-form-7'), '/wp-content/uploads/*YEAR*/*MONTH*/'); } ?></i>)</p><?php } ?>
+                            <?php esc_html_e('Change uploads folder?', 'send-pdf-for-contact-form-7'); ?><?php if( isset($meta_values["pdf-uploads-customname"]) && $meta_values["pdf-uploads-customname"]!='') { echo ''; } else { ?><p>(<i><?php if( isset($meta_values["pdf-uploads"]) && $meta_values["pdf-uploads"]=='true') {
+                                /* translators: %s: the upload folder's filesystem path */
+                                echo esc_html( sprintf( __( "Great ! Now the upload folder's path is %s", 'send-pdf-for-contact-form-7' ), '/wp-content/uploads/sendpdfcf7_uploads/' . $idForm . '/' ) );
+                            } else {
+                                /* translators: %s: the upload folder's filesystem path */
+                                echo esc_html( sprintf( __( "By default, the upload folder's path is %s", 'send-pdf-for-contact-form-7' ), '/wp-content/uploads/*YEAR*/*MONTH*/' ) );
+                            } ?></i>)</p><?php } ?>
                         </td>
                         <td>
                             <div>
@@ -736,7 +741,13 @@ if ( is_dir(get_stylesheet_directory()."/pdffonts/") == true ) {
                     </tr>
                     <tr id="tr-pdf-uploads-customname" style="display: <?php echo (isset($meta_values["pdf-uploads"]) && $meta_values["pdf-uploads"]=='true') ? 'table-row' : 'none'; ?>;">
                         <td>
-                            <?php esc_html_e('Change uploads folder name?', 'send-pdf-for-contact-form-7'); ?><p>(<i><?php if( isset($meta_values["pdf-uploads-customname"]) && $meta_values["pdf-uploads-customname"]!='') { printf(__("Great ! Now the upload name's folder path is %s", 'send-pdf-for-contact-form-7'), '/wp-content/uploads/sendpdfcf7_uploads/'.esc_html($meta_values["pdf-uploads-customname"]).'/'); } else { printf(__("By default, the upload folder's path is %s", 'send-pdf-for-contact-form-7'), '/wp-content/uploads/'.esc_attr($idForm).'/'); } ?></i>)</p>
+                            <?php esc_html_e('Change uploads folder name?', 'send-pdf-for-contact-form-7'); ?><p>(<i><?php if( isset($meta_values["pdf-uploads-customname"]) && $meta_values["pdf-uploads-customname"]!='') {
+                                /* translators: %s: the upload folder's filesystem path */
+                                echo esc_html( sprintf( __( "Great ! Now the upload name's folder path is %s", 'send-pdf-for-contact-form-7' ), '/wp-content/uploads/sendpdfcf7_uploads/' . $meta_values["pdf-uploads-customname"] . '/' ) );
+                            } else {
+                                /* translators: %s: the upload folder's filesystem path */
+                                echo esc_html( sprintf( __( "By default, the upload folder's path is %s", 'send-pdf-for-contact-form-7' ), '/wp-content/uploads/' . $idForm . '/' ) );
+                            } ?></i>)</p>
                         </td>
                         <td>
                         <input type="text" name="wp_cf7pdf_settings[pdf-uploads-customname]" value="<?php if( isset($meta_values["pdf-uploads-customname"]) && !empty($meta_values["pdf-uploads-customname"]) ) { echo esc_html($meta_values["pdf-uploads-customname"]); } ?>" />
@@ -744,7 +755,7 @@ if ( is_dir(get_stylesheet_directory()."/pdffonts/") == true ) {
                     </tr>
                     <tr>
                         <td>
-                            <?php esc_html_e('Delete all files into this uploads folder?', 'send-pdf-for-contact-form-7'); ?><?php if( isset($meta_values["pdf-uploads"]) && $meta_values["pdf-uploads"]=='false') { ?><p><i style="color:#CC0000;">I can't deleted all files in this folder. Only in my folder. Thanks to check 'Change uploads folder?' option for this.</i></p><?php } ?>
+                            <?php esc_html_e('Delete all files into this uploads folder?', 'send-pdf-for-contact-form-7'); ?><?php if( isset($meta_values["pdf-uploads"]) && $meta_values["pdf-uploads"]=='false') { ?><p><i style="color:#CC0000;"><?php esc_html_e( "I can't delete all files in this folder, only in my own folder. Please check the 'Change uploads folder?' option for this.", 'send-pdf-for-contact-form-7' ); ?></i></p><?php } ?>
                         </td>
                         <td><?php if( isset($meta_values["pdf-uploads"]) && $meta_values["pdf-uploads"]=='true') { ?>
                             <div>
@@ -763,7 +774,7 @@ if ( is_dir(get_stylesheet_directory()."/pdffonts/") == true ) {
                     </tr>
                     <tr>
                         <td>
-                            <?php esc_html_e('Delete each PDF file after send the email?', 'send-pdf-for-contact-form-7'); ?><?php if( isset($meta_values["redirect-to-pdf"]) && $meta_values["redirect-to-pdf"]=='true') { ?><p><i style="color:#CC0000;">I can't deleted each PDF file because the 'Redirects directly to the PDF after sending the form?' option is activated.</i></p><?php } ?>
+                            <?php esc_html_e('Delete each PDF file after send the email?', 'send-pdf-for-contact-form-7'); ?><?php if( isset($meta_values["redirect-to-pdf"]) && $meta_values["redirect-to-pdf"]=='true') { ?><p><i style="color:#CC0000;"><?php esc_html_e( "I can't delete each PDF file because the 'Redirects directly to the PDF after sending the form?' option is activated.", 'send-pdf-for-contact-form-7' ); ?></i></p><?php } ?>
                         </td>
                         <td>
                             <?php if( isset($meta_values["redirect-to-pdf"]) && $meta_values["redirect-to-pdf"]=='false') { ?>
@@ -840,9 +851,9 @@ if ( is_dir(get_stylesheet_directory()."/pdffonts/") == true ) {
                     <tr>
                         <td><!-- Propose la redirection vers le pdf direct -->
                             <?php esc_html_e('Redirects directly to the PDF after sending the form?', 'send-pdf-for-contact-form-7'); ?>
-                            <p><i><?php esc_html_e( 'This option disable the Page Redirection selected', 'send-pdf-for-contact-form-7'); ?> (<?php esc_html_e( 'Except the popup window option', 'send-pdf-for-contact-form-7'); ?>)</i></p><?php if( (isset($meta_values["disable-insert"]) && $meta_values["disable-insert"]=='true') || (isset($meta_values["pdf-file-delete"]) && $meta_values["pdf-file-delete"]=='true') ) { ?><p><i style="color:#CC0000;">I can't redirect PDF file because the 'Disable data submit in a database?' option is activated.</i></p><?php } ?>
-                            <?php if( isset($meta_values["number-pdf"]) && $meta_values["number-pdf"]>1 ) { ?><p><i style="color:#CC0000;">I can't redirect PDF file because the 'Number of PDF' is > 1.</i></p><?php } ?>
-                            <?php if( isset($idSelectPage) && $idSelectPage > 0) { ?><p><i style="color:#CC0000;">I can't redirect PDF file because you have choose a redirection page.</i></p><?php $meta_values["redirect-to-pdf"]='false'; ?><input type="hidden"  name="wp_cf7pdf_settings[redirect-to-pdf]" value="false" /><?php } ?>
+                            <p><i><?php esc_html_e( 'This option disable the Page Redirection selected', 'send-pdf-for-contact-form-7'); ?> (<?php esc_html_e( 'Except the popup window option', 'send-pdf-for-contact-form-7'); ?>)</i></p><?php if( (isset($meta_values["disable-insert"]) && $meta_values["disable-insert"]=='true') || (isset($meta_values["pdf-file-delete"]) && $meta_values["pdf-file-delete"]=='true') ) { ?><p><i style="color:#CC0000;"><?php esc_html_e( "I can't redirect to the PDF file because the 'Disable data submit in a database?' option is activated.", 'send-pdf-for-contact-form-7' ); ?></i></p><?php } ?>
+                            <?php if( isset($meta_values["number-pdf"]) && $meta_values["number-pdf"]>1 ) { ?><p><i style="color:#CC0000;"><?php esc_html_e( "I can't redirect to the PDF file because 'Number of PDF' is greater than 1.", 'send-pdf-for-contact-form-7' ); ?></i></p><?php } ?>
+                            <?php if( isset($idSelectPage) && $idSelectPage > 0) { ?><p><i style="color:#CC0000;"><?php esc_html_e( "I can't redirect to the PDF file because you have chosen a redirection page.", 'send-pdf-for-contact-form-7' ); ?></i></p><?php $meta_values["redirect-to-pdf"]='false'; ?><input type="hidden"  name="wp_cf7pdf_settings[redirect-to-pdf]" value="false" /><?php } ?>
                         </td>
                         <td>
                             <?php if( ((isset($meta_values["disable-insert"]) && $meta_values["disable-insert"]=='false') || (isset($meta_values["pdf-file-delete"]) && $meta_values["pdf-file-delete"]=='false')) && (isset($meta_values["number-pdf"]) && $meta_values["number-pdf"]==1) ) { ?>
